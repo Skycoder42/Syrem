@@ -1,0 +1,5 @@
+class ReminderManager
+{
+	PROP(bool currState=false);
+	SLOT(server_slot(bool clientState));
+};

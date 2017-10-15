@@ -1,0 +1,26 @@
+{
+    "dependencies": [
+        {
+            "package": "de.skycoder42.qtmvvm.widgets",
+            "provider": "qpm",
+            "version": "1.1.2"
+        },
+        {
+            "package": "de.skycoder42.qsingleinstance",
+            "provider": "qpm",
+            "version": "1.2.2"
+        }
+    ],
+    "license": {
+        "file": "",
+        "name": ""
+    },
+    "prcFile": "",
+    "priFile": "",
+    "priIncludes": [
+        "../RemindMeCore"
+    ],
+    "publishers": {
+    },
+    "source": false
+}
