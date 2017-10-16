@@ -5,15 +5,11 @@ Reminder::Reminder(QObject *parent) :
 	QObject(parent)
 {}
 
-Datum::Datum() :
+Datum::Datum(QObject *parent) :
+	QObject(parent),
 	scope(InvalidScope),
 	value(0)
 {}
-
-bool Datum::isValid() const
-{
-	return scope != InvalidScope;
-}
 
 QDate Datum::nextDate(QDate wDate) const
 {
@@ -69,25 +65,12 @@ QDate Datum::nextDate(QDate wDate) const
 	return wDate;
 }
 
-bool Datum::operator !=(const Datum &other) const
-{
-	return scope != other.scope ||
-		value != other.value;
-}
-
-Type::Type() :
+Type::Type(QObject *parent) :
+	QObject(parent),
 	isDatum(false),
-	datum(),
+	datum(nullptr),
 	span(Reminder::InvalidSpan)
 {}
-
-bool Type::isValid() const
-{
-	if(isDatum)
-		return datum.isValid();
-	else
-		return span != Reminder::InvalidSpan;
-}
 
 QDate Type::nextDate(QDate wDate) const
 {
@@ -116,35 +99,17 @@ QDate Type::nextDate(QDate wDate) const
 	return wDate;
 }
 
-bool Type::operator !=(const Type &other) const
-{
-	return isDatum != other.isDatum ||
-		datum != other.datum ||
-		span != other.span;
-}
-
-TimePoint::TimePoint() :
+TimePoint::TimePoint(QObject *parent) :
+	QObject(parent),
 	mode(InvalidMode),
 	date(),
-	datum()
+	datum(nullptr)
 {}
-
-bool TimePoint::isValid() const
-{
-	return mode != InvalidMode; //TODO ok so?
-}
 
 QDate TimePoint::nextDate(QDate wDate) const
 {
 	Q_UNIMPLEMENTED();
 	return wDate;
-}
-
-bool TimePoint::operator !=(const TimePoint &other) const
-{
-	return mode != other.mode ||
-		date != other.date ||
-		datum != other.datum;
 }
 
 Conjunction::Conjunction(QObject *parent) :
@@ -155,22 +120,22 @@ Conjunction::Conjunction(QObject *parent) :
 TimeSpan::TimeSpan(QObject *parent) :
 	Reminder(parent),
 	span(InvalidSpan),
-	datum(),
+	datum(nullptr),
 	time()
 {}
 
 Loop::Loop(QObject *parent) :
 	Reminder(parent),
-	type(),
-	datum(),
+	type(nullptr),
+	datum(nullptr),
 	time(),
-	from(),
-	until()
+	from(nullptr),
+	until(nullptr)
 {}
 
 Point::Point(QObject *parent) :
 	Reminder(parent),
-	date(),
+	date(nullptr),
 	time()
 {}
 
