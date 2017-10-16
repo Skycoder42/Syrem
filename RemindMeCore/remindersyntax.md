@@ -13,7 +13,7 @@ span     := minute | hour | day | week | month | year
 ahead    := tomorrow | today
 
 datum  := <weekday> | <day> | <month> | <mday>
-type   := <datum> | <span>
+type   := <datum> | {int} <span>
 tpoint := <date> | <datum> | <year> | <ahead>
 ```
 
@@ -26,3 +26,17 @@ timespan	   := in {int} <span> [on|at|in <datum>] [<time>]
 loop       := every <type> [on|at|in <datum>] [<time>] [from <tpoint> [<time>]] [until <tpoint> [<time>]]
 point	   := [on|next] <tpoint> [<time>]
 ```
+
+## Regular Expressions:
+```
+time: (?:at )?(\d{1,2}:\d{2}|\d{1,2} oclock)
+span: <direct match>
+
+datum: ^(?:(<weekday>)|(\d+)\.|(\d+)|(<month>)|(.+?))$
+
+conjuction: (\s+and\s+|\s*;\s*) [seperator]
+timespan: ^in (\d+) (\w+)(?:(?: on| at| in) (.+?))?(?: <time>)?$
+loop: ^every (.+?)(?:(?: on| at| in) (.+?))?(?: <time>)?(?: from ((?:(?!until).)*))?(?: until (.*))?$
+point: ^(?:on |next )?(.+?)(?: <time>)?$
+```
+in (\d+) (.*) (?:(?:on |at |in ) (.*))? (.*)?

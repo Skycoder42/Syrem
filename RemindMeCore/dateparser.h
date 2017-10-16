@@ -6,7 +6,7 @@
 
 namespace ReminderTypes {
 
-class Reminder : public QObject
+class Expression : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("polymorphic", "true")
@@ -23,8 +23,8 @@ public:
 	};
 	Q_ENUM(Span)
 
-	Reminder(QObject *parent = nullptr);
-	virtual inline ~Reminder() = default;
+	Expression(QObject *parent = nullptr);
+	virtual inline ~Expression() = default;
 
 	virtual QDateTime nextSchedule(const QDateTime &since) = 0;
 };
@@ -62,7 +62,8 @@ class Type : public QObject
 
 	Q_PROPERTY(bool isDatum MEMBER isDatum)
 	Q_PROPERTY(Datum* datum MEMBER datum)
-	Q_PROPERTY(Reminder::Span span MEMBER span)
+	Q_PROPERTY(int count MEMBER count)
+	Q_PROPERTY(Expression::Span span MEMBER span)
 
 public:
 	Type(QObject *parent = nullptr);
@@ -71,7 +72,8 @@ public:
 
 	bool isDatum;
 	Datum *datum;
-	Reminder::Span span;
+	int count;
+	Expression::Span span;
 };
 
 class TimePoint : public QObject
@@ -102,24 +104,25 @@ public:
 
 // ------------- Expressions -------------
 
-class Conjunction : public Reminder
+class Conjunction : public Expression
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QList<Reminder*> reminders MEMBER reminders)
+	Q_PROPERTY(QList<Expression*> expressions MEMBER expressions)
 
 public:
 	Q_INVOKABLE Conjunction(QObject *parent = nullptr);
 	QDateTime nextSchedule(const QDateTime &since) override;
 
-	QList<Reminder*> reminders;
+	QList<Expression*> expressions;
 };
 
-class TimeSpan : public Reminder
+class TimeSpan : public Expression
 {
 	Q_OBJECT
 
 	Q_PROPERTY(Span span MEMBER span)
+	Q_PROPERTY(int count MEMBER count)
 	Q_PROPERTY(Datum* datum MEMBER datum)
 	Q_PROPERTY(QTime time MEMBER time)
 
@@ -128,11 +131,12 @@ public:
 	QDateTime nextSchedule(const QDateTime &since) override;
 
 	Span span;
+	int count;
 	Datum *datum;
 	QTime time;
 };
 
-class Loop : public Reminder
+class Loop : public Expression
 {
 	Q_OBJECT
 
@@ -153,7 +157,7 @@ public:
 	TimePoint *until;
 };
 
-class Point : public Reminder
+class Point : public Expression
 {
 	Q_OBJECT
 
@@ -176,6 +180,29 @@ class DateParser : public QObject
 
 public:
 	explicit DateParser(QObject *parent = nullptr);
+
+	ReminderTypes::Expression *parse(const QString &data);
+
+private:
+	static const QString timeRegex;
+
+	ReminderTypes::Expression *parseExpression(const QString &data, QObject *parent);
+	ReminderTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
+	ReminderTypes::TimeSpan *tryParseTimeSpan(const QString &data, QObject *parent);
+	ReminderTypes::Loop *tryParseLoop(const QString &data, QObject *parent);
+	ReminderTypes::Point *tryParsePoint(const QString &data, QObject *parent);
+
+	ReminderTypes::Datum *parseDatum(const QString &data, QObject *parent);
+	ReminderTypes::Type *parseType(const QString &data, QObject *parent);
+	ReminderTypes::TimePoint *parseTimePoint(const QString &data, QObject *parent);
+
+	QDate parseMonthDay(const QString &data);
+	QDate parseDate(const QString &data);
+	QTime parseTime(const QString &data);
+	ReminderTypes::Expression::Span parseSpan(const QString &data);
+
+	static QStringList readWeekDays();
+	static QStringList readMonths();
 };
 
 #endif // DATEPARSER_H
