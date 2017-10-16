@@ -11,12 +11,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
 	remindmeapp.h \
 	maincontrol.h \
-    remindermanager.h
+    remindermanager.h \
+    reminder.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp \
-    remindermanager.cpp
+    remindermanager.cpp \
+    reminder.cpp
 
 REPC_SOURCE += remindermanager.rep
 
