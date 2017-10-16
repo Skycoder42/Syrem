@@ -12,6 +12,17 @@ class Reminder : public QObject
 	Q_CLASSINFO("polymorphic", "true")
 
 public:
+	enum Span {
+		InvalidSpan,
+		MinuteSpan,
+		HourSpan,
+		DaySpan,
+		WeekSpan,
+		MonthSpan,
+		YearSpan
+	};
+	Q_ENUM(Span)
+
 	Reminder(QObject *parent = nullptr);
 	virtual inline ~Reminder() = default;
 
@@ -20,16 +31,16 @@ public:
 
 // ------------- Basic Types -------------
 
-class Datum : public Reminder
+class Datum
 {
-	Q_OBJECT
+	Q_GADGET
 
 	Q_PROPERTY(Scope scope MEMBER scope)
 	Q_PROPERTY(int value MEMBER value)
-	Q_PROPERTY(QTime time MEMBER time)
 
 public:
 	enum Scope {
+		InvalidScope,
 		WeekDayScope,
 		DayScope,
 		MonthScope,
@@ -37,75 +48,65 @@ public:
 	};
 	Q_ENUM(Scope)
 
-	Q_INVOKABLE Datum(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	Datum();
+
+	bool isValid() const;
+	QDate nextDate(QDate wDate) const;
+
+	bool operator !=(const Datum &other) const;
 
 	Scope scope;
 	int value;
-	QTime time;
-
-protected:
-	QDateTime prepareDate(QDateTime since);
-	QDate nextDate(QDate wDate);
 };
 
-class Type : public Datum
+class Type
 {
-	Q_OBJECT
+	Q_GADGET
 
-	Q_PROPERTY(DateType dateType MEMBER dateType)
+	Q_PROPERTY(bool isDatum MEMBER isDatum)
+	Q_PROPERTY(Datum datum MEMBER datum)
+	Q_PROPERTY(Reminder::Span span MEMBER span)
 
 public:
-	enum DateType {
-		Day,
-		Week,
-		Month,
-		Year,
-		DatumType
-	};
-	Q_ENUM(DateType)
+	Type();
 
-	Q_INVOKABLE Type(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	bool isValid() const;
+	QDate nextDate(QDate wDate) const;
 
-	DateType dateType;
+	bool operator !=(const Type &other) const;
+
+	bool isDatum;
+	Datum datum;
+	Reminder::Span span;
 };
 
-// ------------- Timepoints -------------
-
-class TimePoint : public Reminder
+class TimePoint
 {
-	Q_OBJECT
+	Q_GADGET
 
-public:
-	Q_INVOKABLE TimePoint(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
-};
-
-class DatePoint : public TimePoint
-{
-	Q_OBJECT
-
+	Q_PROPERTY(Mode mode MEMBER mode)
 	Q_PROPERTY(QDateTime date MEMBER date)
+	Q_PROPERTY(Datum datum MEMBER datum)
 
 public:
-	Q_INVOKABLE DatePoint(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	enum Mode {
+		InvalidMode,
+		DateMode,
+		DatumMode,
+		YearMode
+	};
+	Q_ENUM(Mode)
 
+	TimePoint();
+
+	bool isValid() const;
+	QDate nextDate(QDate wDate) const;
+
+	bool operator !=(const TimePoint &other) const;
+
+	Mode mode;
 	QDateTime date;
-};
-
-class DatumPoint : public TimePoint
-{
-	Q_OBJECT
-
-	Q_PROPERTY(Datum* datum MEMBER datum)
-
-public:
-	Q_INVOKABLE DatumPoint(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
-
-	Datum* datum;
+	Datum datum;
 };
 
 // ------------- Expressions -------------
@@ -123,53 +124,57 @@ public:
 	QList<Reminder*> reminders;
 };
 
-class Offset : public Reminder
+class TimeSpan : public Reminder
 {
 	Q_OBJECT
 
-	Q_PROPERTY(Type* datum MEMBER datum)
-	Q_PROPERTY(Datum* timepoint MEMBER timepoint)
+	Q_PROPERTY(Span span MEMBER span)
+	Q_PROPERTY(Datum datum MEMBER datum)
+	Q_PROPERTY(QTime time MEMBER time)
 
 public:
-	Q_INVOKABLE Offset(QObject *parent = nullptr);
+	Q_INVOKABLE TimeSpan(QObject *parent = nullptr);
 	QDateTime nextSchedule(const QDateTime &since) override;
 
-	Type *datum;
-	Datum *timepoint;
+	Span span;
+	Datum datum;
+	QTime time;
 };
 
 class Loop : public Reminder
 {
 	Q_OBJECT
 
-	Q_PROPERTY(Type* datum MEMBER datum)
-	Q_PROPERTY(Datum* timepoint MEMBER timepoint)
-	Q_PROPERTY(TimePoint* from MEMBER from)
-	Q_PROPERTY(TimePoint* until MEMBER until)
+	Q_PROPERTY(Type type MEMBER type)
+	Q_PROPERTY(Datum datum MEMBER datum)
+	Q_PROPERTY(QTime time MEMBER time)
+	Q_PROPERTY(TimePoint from MEMBER from)
+	Q_PROPERTY(TimePoint until MEMBER until)
 
 public:
 	Q_INVOKABLE Loop(QObject *parent = nullptr);
 	QDateTime nextSchedule(const QDateTime &since) override;
 
-	Type *datum;
-	Datum *timepoint;
-	TimePoint *from;
-	TimePoint *until;
+	Type type;
+	Datum datum;
+	QTime time;
+	TimePoint from;
+	TimePoint until;
 };
 
-class Range : public Reminder
+class Point : public Reminder
 {
 	Q_OBJECT
 
-	Q_PROPERTY(TimePoint* from MEMBER from)
-	Q_PROPERTY(TimePoint* until MEMBER until)
+	Q_PROPERTY(TimePoint date MEMBER date)
+	Q_PROPERTY(QTime time MEMBER time)
 
 public:
-	Q_INVOKABLE Range(QObject *parent = nullptr);
+	Q_INVOKABLE Point(QObject *parent = nullptr);
 	QDateTime nextSchedule(const QDateTime &since) override;
 
-	TimePoint *from;
-	TimePoint *until;
+	TimePoint date;
+	QTime time;
 };
 
 }
