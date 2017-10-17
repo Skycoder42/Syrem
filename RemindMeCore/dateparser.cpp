@@ -14,7 +14,7 @@ Datum::Datum(QObject *parent) :
 	value(0)
 {}
 
-QDate Datum::nextDate(QDate wDate) const
+QDate Datum::nextDate(QDate wDate, bool scopeReset) const
 {
 	if(scope == InvalidScope)
 		return {};
@@ -23,24 +23,35 @@ QDate Datum::nextDate(QDate wDate) const
 	switch (scope) {
 	case WeekDayScope:
 		Q_ASSERT_X(value <= 7, Q_FUNC_INFO, "invalid weekday value, must be at most 7");
-		if(wDate.dayOfWeek() > value)
-			wDate = wDate.addDays(7 - (wDate.dayOfWeek() - value));
-		else
+		if(scopeReset)
+			wDate = wDate.addDays((wDate.dayOfWeek() - 1) * -1);
+
+		if(wDate.dayOfWeek() > value) //go to sunday + the target day
+			wDate = wDate.addDays((7 - wDate.dayOfWeek()) + value);
+		else if(wDate.dayOfWeek() < value) //simply add the missing days
 			wDate = wDate.addDays(value - wDate.dayOfWeek());
 		break;
 	case DayScope:
 		Q_ASSERT_X(value <= 31, Q_FUNC_INFO, "invalid day value, must be at most 31");
-		if(wDate.day() > value)
+		if(scopeReset)
+			wDate = wDate.addDays((wDate.day() - 1) * -1);
+
+		if(wDate.day() > value) //already past -> go to next month 1.
 			wDate = wDate.addDays((wDate.daysInMonth() - wDate.day()) + 1);
-		while(wDate.daysInMonth() < value)
-			wDate = wDate.addMonths(1);
-		wDate = wDate.addDays(value - wDate.day());
+
+		if(wDate.daysInMonth() < value)
+			wDate = wDate.addDays(wDate.daysInMonth() - wDate.day());
+		else if(wDate.day() < value)
+			wDate = wDate.addDays(value - wDate.day());
 		break;
 	case MonthScope:
 		Q_ASSERT_X(value <= 12, Q_FUNC_INFO, "invalid month value, must be at most 12");
+		if(scopeReset)
+			wDate = wDate.addMonths((wDate.month() - 1) * -1);
+
 		if(wDate.month() > value)
 			wDate = wDate.addMonths(12 - (wDate.month() - value));
-		else
+		else if(wDate.month() < value)
 			wDate = wDate.addMonths(value - wDate.month());
 		break;
 	case MonthDayScope:
@@ -54,7 +65,7 @@ QDate Datum::nextDate(QDate wDate) const
 		Q_ASSERT_X(day <= 31, Q_FUNC_INFO, "invalid day value, must be at most 31");
 
 		QDate nDate(wDate.year(), month, day);
-		if(wDate > nDate)
+		if(!scopeReset && wDate > nDate)
 			wDate.setDate(wDate.year() + 1, month, day);
 		else
 			wDate = nDate;
@@ -80,7 +91,7 @@ QDate Type::nextDate(QDate wDate) const
 {
 	if(isDatum) {
 		if(datum)
-			return datum->nextDate(wDate);
+			return datum->nextDate(wDate, false);//TODO ???
 		else
 			return {};
 	}
@@ -143,7 +154,7 @@ QDate TimePoint::nextDate(QDate wDate) const
 			return {};
 	case TimePoint::DatumMode:
 		if(datum)
-			return datum->nextDate(wDate);
+			return datum->nextDate(wDate, false);//TODO ???
 		else
 			return {};
 	case TimePoint::YearMode:
@@ -159,10 +170,12 @@ Conjunction::Conjunction(QObject *parent) :
 	expressions()
 {}
 
-Schedule *Conjunction::createSchedule(const QDateTime &since)
+Schedule *Conjunction::createSchedule(const QDateTime &since, QObject *parent)
 {
-	Q_UNIMPLEMENTED();
-	return nullptr;
+	auto schedule = new MultiSchedule(parent);
+	foreach(auto expr, expressions)
+		schedule->addSubSchedule(expr->createSchedule(since, schedule));
+	return schedule;
 }
 
 TimeSpan::TimeSpan(QObject *parent) :
@@ -173,9 +186,41 @@ TimeSpan::TimeSpan(QObject *parent) :
 	time()
 {}
 
-Schedule *TimeSpan::createSchedule(const QDateTime &since)
+Schedule *TimeSpan::createSchedule(const QDateTime &since, QObject *parent)
 {
-	//step 1: find the beginning of the given span
+	QDateTime tp;
+	switch (span) {
+	case InvalidSpan:
+		return nullptr;
+	case MinuteSpan:
+		tp = since.addSecs(60 * count);
+		break;
+	case HourSpan:
+		tp = since.addSecs(60 * 60 * count); //TODO check boundaries
+		break;
+	case DaySpan:
+		tp = since.addDays(count);
+		break;
+	case WeekSpan:
+		tp = since.addDays(7 * count);
+		break;
+	case MonthSpan:
+		tp = since.addMonths(count);
+		break;
+	case YearSpan:
+		tp = since.addYears(count);
+		break;
+	default:
+		break;
+	}
+
+	//apply datum/time, if set (assume valid, as after parsing)
+	if(datum)
+		tp.setDate(datum->nextDate(tp.date(), true)); //with scope reset, because the target "scope" is already given
+	if(time.isValid())
+		tp.setTime(time);
+
+	return new OneTimeSchedule(tp, parent);
 }
 
 Loop::Loop(QObject *parent) :
@@ -187,7 +232,7 @@ Loop::Loop(QObject *parent) :
 	until(nullptr)
 {}
 
-Schedule *Loop::createSchedule(const QDateTime &since)
+Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 {
 	Q_UNIMPLEMENTED();
 	return nullptr;
@@ -199,7 +244,7 @@ Point::Point(QObject *parent) :
 	time()
 {}
 
-Schedule *Point::createSchedule(const QDateTime &since)
+Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 {
 	Q_UNIMPLEMENTED();
 	return nullptr;

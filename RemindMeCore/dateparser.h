@@ -26,7 +26,7 @@ public:
 	Expression(QObject *parent = nullptr);
 	virtual inline ~Expression() = default;
 
-	virtual Schedule *createSchedule(const QDateTime &since) = 0;
+	virtual Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) = 0;
 };
 
 // ------------- Basic Types -------------
@@ -50,7 +50,7 @@ public:
 
 	Datum(QObject *parent = nullptr);
 
-	QDate nextDate(QDate wDate) const;
+	QDate nextDate(QDate wDate, bool scopeReset) const;
 
 	Scope scope;
 	int value;
@@ -113,7 +113,7 @@ class Conjunction : public Expression
 
 public:
 	Q_INVOKABLE Conjunction(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	QList<Expression*> expressions;
 };
@@ -129,7 +129,7 @@ class TimeSpan : public Expression
 
 public:
 	Q_INVOKABLE TimeSpan(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	Span span;
 	int count;
@@ -149,7 +149,7 @@ class Loop : public Expression
 
 public:
 	Q_INVOKABLE Loop(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	Type *type;
 	Datum *datum;
@@ -167,7 +167,7 @@ class Point : public Expression
 
 public:
 	Q_INVOKABLE Point(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	TimePoint *date;
 	QTime time;
