@@ -70,7 +70,7 @@ class Type : public QObject
 public:
 	Type(QObject *parent = nullptr);
 
-	QDate nextDateTime(const QDateTime &since) const;
+	QDateTime nextDateTime(const QDateTime &since) const;
 
 	bool isDatum;
 	Datum *datum;

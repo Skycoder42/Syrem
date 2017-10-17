@@ -119,7 +119,7 @@ Type::Type(QObject *parent) :
 	span(Expression::InvalidSpan)
 {}
 
-QDate Type::nextDateTime(const QDateTime &since) const
+QDateTime Type::nextDateTime(const QDateTime &since) const
 {
 	if(isDatum) {
 		if(datum) {
@@ -129,37 +129,8 @@ QDate Type::nextDateTime(const QDateTime &since) const
 			return tp;
 		} else
 			return {};
-	}
-
-	auto tp = Expression::nextSpanDate(span, count, since);
-
-	//TODO always "reset" to the first day of week/month/year ???
-	auto wDate = tp.date();
-	switch (span) {
-	case Expression::InvalidSpan:
-		return {};
-	case Expression::MinuteSpan:
-	case Expression::HourSpan:
-	case Expression::DaySpan:
-		break;
-	case Expression::WeekSpan:
-		if(wDate.dayOfWeek() != 1)
-			wDate = wDate.addDays((wDate.dayOfWeek() - 1) * -1);
-		break;
-	case Expression::MonthSpan:
-		if(wDate.day() != 1)
-			wDate = wDate.addDays((wDate.day() - 1) * -1);
-		break;
-	case Expression::YearSpan:
-		wDate.setDate(wDate.year(), 1, 1);
-		break;
-	default:
-		Q_UNREACHABLE();
-		break;
-	}
-	tp.setDate(wDate);
-
-	return tp;
+	} else
+		return Expression::nextSpanDate(span, count, since);
 }
 
 TimePoint::TimePoint(QObject *parent) :

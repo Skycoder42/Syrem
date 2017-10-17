@@ -44,10 +44,10 @@ QDateTime LoopSchedule::nextSchedule(const QDateTime &since)
 {
 	QDateTime tp;
 
-	tp.setDate(type->nextDateTime(since.date()));
+	tp = type->nextDateTime(since);
 
 	if(datum)
-		tp.setDate(datum->nextDate(tp.date())); //TODO params
+		tp.setDate(datum->nextDate(tp.date(), true));
 	if(time.isValid())
 		tp.setTime(time);
 
