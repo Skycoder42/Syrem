@@ -3,13 +3,13 @@
 
 #include <QObject>
 #include <QDateTime>
+#include "schedule.h"
 
-namespace ReminderTypes {
+namespace ParserTypes {
 
 class Expression : public QObject
 {
 	Q_OBJECT
-	Q_CLASSINFO("polymorphic", "true")
 
 public:
 	enum Span {
@@ -26,7 +26,7 @@ public:
 	Expression(QObject *parent = nullptr);
 	virtual inline ~Expression() = default;
 
-	virtual QDateTime nextSchedule(const QDateTime &since) = 0;
+	virtual Schedule *createSchedule(const QDateTime &since) = 0;
 };
 
 // ------------- Basic Types -------------
@@ -95,6 +95,7 @@ public:
 
 	TimePoint(QObject *parent = nullptr);
 
+	bool isLess(const TimePoint *other) const;
 	QDate nextDate(QDate wDate) const;
 
 	Mode mode;
@@ -112,7 +113,7 @@ class Conjunction : public Expression
 
 public:
 	Q_INVOKABLE Conjunction(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since) override;
 
 	QList<Expression*> expressions;
 };
@@ -128,7 +129,7 @@ class TimeSpan : public Expression
 
 public:
 	Q_INVOKABLE TimeSpan(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since) override;
 
 	Span span;
 	int count;
@@ -148,7 +149,7 @@ class Loop : public Expression
 
 public:
 	Q_INVOKABLE Loop(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since) override;
 
 	Type *type;
 	Datum *datum;
@@ -166,7 +167,7 @@ class Point : public Expression
 
 public:
 	Q_INVOKABLE Point(QObject *parent = nullptr);
-	QDateTime nextSchedule(const QDateTime &since) override;
+	Schedule *createSchedule(const QDateTime &since) override;
 
 	TimePoint *date;
 	QTime time;
@@ -181,25 +182,28 @@ class DateParser : public QObject
 public:
 	explicit DateParser(QObject *parent = nullptr);
 
-	ReminderTypes::Expression *parse(const QString &data);
+	ParserTypes::Expression *parse(const QString &data);
 
 private:
 	static const QString timeRegex;
 
-	ReminderTypes::Expression *parseExpression(const QString &data, QObject *parent);
-	ReminderTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
-	ReminderTypes::TimeSpan *tryParseTimeSpan(const QString &data, QObject *parent);
-	ReminderTypes::Loop *tryParseLoop(const QString &data, QObject *parent);
-	ReminderTypes::Point *tryParsePoint(const QString &data, QObject *parent);
+	ParserTypes::Expression *parseExpression(const QString &data, QObject *parent);
+	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
+	ParserTypes::TimeSpan *tryParseTimeSpan(const QString &data, QObject *parent);
+	ParserTypes::Loop *tryParseLoop(const QString &data, QObject *parent);
+	ParserTypes::Point *tryParsePoint(const QString &data, QObject *parent);
 
-	ReminderTypes::Datum *parseDatum(const QString &data, QObject *parent);
-	ReminderTypes::Type *parseType(const QString &data, QObject *parent);
-	ReminderTypes::TimePoint *parseTimePoint(const QString &data, QObject *parent);
+	ParserTypes::Datum *parseDatum(const QString &data, QObject *parent);
+	ParserTypes::Type *parseType(const QString &data, QObject *parent);
+	ParserTypes::TimePoint *parseTimePoint(const QString &data, QObject *parent);
 
 	QDate parseMonthDay(const QString &data);
 	QDate parseDate(const QString &data);
 	QTime parseTime(const QString &data);
-	ReminderTypes::Expression::Span parseSpan(const QString &data);
+	ParserTypes::Expression::Span parseSpan(const QString &data);
+
+	void validateDatumDatum(ParserTypes::Datum *datum, const ParserTypes::Datum *extraDatum);
+	void validateSpanDatum(ParserTypes::Expression::Span span, const ParserTypes::Datum *datum, const QTime &time);
 
 	static QStringList readWeekDays();
 	static QStringList readMonths();

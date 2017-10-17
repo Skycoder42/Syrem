@@ -2,7 +2,7 @@
 
 #include <QLocale>
 #include <QRegularExpression>
-using namespace ReminderTypes;
+using namespace ParserTypes;
 
 Expression::Expression(QObject *parent) :
 	QObject(parent)
@@ -118,6 +118,19 @@ TimePoint::TimePoint(QObject *parent) :
 	datum(nullptr)
 {}
 
+bool TimePoint::isLess(const TimePoint *other) const
+{
+	if(mode == InvalidMode || other->mode == InvalidMode)
+		return true;
+	if(mode == DatumMode || other->mode == DatumMode)
+		return false;
+
+	if(mode == DateMode && other->mode == DateMode)
+		return date < other->date;
+	else
+		return date.year() < other->date.year();
+}
+
 QDate TimePoint::nextDate(QDate wDate) const
 {
 	switch (mode) {
@@ -146,6 +159,12 @@ Conjunction::Conjunction(QObject *parent) :
 	expressions()
 {}
 
+Schedule *Conjunction::createSchedule(const QDateTime &since)
+{
+	Q_UNIMPLEMENTED();
+	return nullptr;
+}
+
 TimeSpan::TimeSpan(QObject *parent) :
 	Expression(parent),
 	span(InvalidSpan),
@@ -153,6 +172,11 @@ TimeSpan::TimeSpan(QObject *parent) :
 	datum(nullptr),
 	time()
 {}
+
+Schedule *TimeSpan::createSchedule(const QDateTime &since)
+{
+	//step 1: find the beginning of the given span
+}
 
 Loop::Loop(QObject *parent) :
 	Expression(parent),
@@ -163,11 +187,23 @@ Loop::Loop(QObject *parent) :
 	until(nullptr)
 {}
 
+Schedule *Loop::createSchedule(const QDateTime &since)
+{
+	Q_UNIMPLEMENTED();
+	return nullptr;
+}
+
 Point::Point(QObject *parent) :
 	Expression(parent),
 	date(nullptr),
 	time()
 {}
+
+Schedule *Point::createSchedule(const QDateTime &since)
+{
+	Q_UNIMPLEMENTED();
+	return nullptr;
+}
 
 DateParser::DateParser(QObject *parent) :
 	QObject(parent)
@@ -179,9 +215,16 @@ const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}
 
 Expression *DateParser::parse(const QString &data)
 {
+	auto dummyParent = new QObject();
 	try {
-		return parseExpression(data, nullptr);//TODO
-	} catch(...) {
+		auto expr = parseExpression(data, dummyParent);
+		expr->setParent(nullptr);
+		dummyParent->deleteLater();
+		return expr;
+	} catch(QString &s) {
+		//TODO use s
+		qCritical(qUtf8Printable(s));
+		dummyParent->deleteLater();
 		return nullptr;
 	}
 }
@@ -198,11 +241,9 @@ Expression *DateParser::parseExpression(const QString &data, QObject *parent)
 	if(expr)
 		return expr;
 
-
 	expr = tryParseLoop(data, parent);
 	if(expr)
 		return expr;
-
 
 	expr = tryParsePoint(data, parent);
 	if(expr)
@@ -247,6 +288,10 @@ TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 		auto timeStr = match.captured(4);
 		if(!timeStr.isEmpty())
 			ts->time = parseTime(timeStr);
+
+		//validate the given datum is "logical" for the given span
+		validateSpanDatum(ts->span, ts->datum, ts->time);
+
 		return ts;
 	} else
 		return nullptr;
@@ -279,6 +324,17 @@ Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 		auto untilStr = match.captured(5);
 		if(!untilStr.isEmpty())
 			loop->until = parseTimePoint(untilStr, loop);
+
+		if(loop->type->isDatum)
+			validateDatumDatum(loop->type->datum, loop->datum);
+		else
+			validateSpanDatum(loop->type->span, loop->datum, loop->time);
+
+		if(loop->from && loop->until) {
+			if(loop->until->isLess(loop->from))
+				throw tr("from must be an earlier timepoint than until");
+		}
+
 		return loop;
 	} else
 		return nullptr;
@@ -506,6 +562,60 @@ Expression::Span DateParser::parseSpan(const QString &data)
 	}
 
 	throw tr("Invalid time span");
+}
+
+void DateParser::validateDatumDatum(Datum *datum, const Datum *extraDatum)
+{
+	if(!datum)
+		throw tr("Invalid datum");
+
+	switch (datum->scope) {
+	case Datum::InvalidScope:
+		throw tr("Invalid scope");
+	case Datum::WeekDayScope:
+	case Datum::DayScope:
+	case Datum::MonthDayScope:
+		if(extraDatum)
+			throw tr("You cannot specify a datum for a scope of less then a month");
+		break;
+	case Datum::MonthScope:
+		if(extraDatum && extraDatum->scope > Datum::DayScope)
+			throw tr("You cannot specify a datum for month(day)s on a span of a month");
+		break;
+	default:
+		Q_UNREACHABLE();
+		break;
+	}
+}
+
+void DateParser::validateSpanDatum(Expression::Span span, const Datum *datum, const QTime &time)
+{
+	switch (span) {
+	case Expression::InvalidSpan:
+		throw tr("Invalid span");
+	case Expression::MinuteSpan:
+	case Expression::HourSpan:
+		if(time.isValid())
+			throw tr("You cannot specify a time for a span less then a day");
+		Q_FALLTHROUGH();
+	case Expression::DaySpan:
+		if(datum)
+			throw tr("You cannot specify a datum for a span less then a week");
+		break;
+	case Expression::WeekSpan:
+		if(datum && datum->scope > Datum::WeekDayScope)
+			throw tr("You cannot specify a datum for more than weekdays on a span of a week");
+		break;
+	case Expression::MonthSpan:
+		if(datum && datum->scope > Datum::DayScope)
+			throw tr("You cannot specify a datum for month(day)s on a span of a month");
+		break;
+	case Expression::YearSpan:
+		break;
+	default:
+		Q_UNREACHABLE();
+		break;
+	}
 }
 
 QStringList DateParser::readWeekDays()

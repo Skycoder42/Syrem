@@ -13,14 +13,16 @@ HEADERS += \
 	maincontrol.h \
     remindermanager.h \
     reminder.h \
-    dateparser.h
+    dateparser.h \
+    schedule.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp \
     remindermanager.cpp \
     reminder.cpp \
-    dateparser.cpp
+    dateparser.cpp \
+    schedule.cpp
 
 REPC_SOURCE += remindermanager.rep
 
