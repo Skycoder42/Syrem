@@ -153,12 +153,15 @@ QDate TimePoint::nextDate(QDate wDate) const
 		else
 			return {};
 	case TimePoint::DatumMode:
-		if(datum)
-			return datum->nextDate(wDate, false);//TODO ???
+		if(datum) //TODO + 1 day/month !!!
+			return datum->nextDate(wDate, false); //no scope reset, count from wDate on
 		else
 			return {};
 	case TimePoint::YearMode:
-		return wDate;
+		if(wDate.year() < date.year())
+			return wDate.addYears(date.year() - wDate.year());
+		else
+			return {};
 	default:
 		Q_UNREACHABLE();
 		return {};
@@ -246,8 +249,15 @@ Point::Point(QObject *parent) :
 
 Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 {
-	Q_UNIMPLEMENTED();
-	return nullptr;
+	QDateTime tp;
+
+	tp.setDate(date->nextDate(since));
+	if(!tp.date().isValid())
+		return nullptr;
+	if(time)
+		tp.setTime(time);
+
+	return new OneTimeSchedule(tp, parent);
 }
 
 DateParser::DateParser(QObject *parent) :
@@ -326,6 +336,8 @@ TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 	if(match.hasMatch()) {
 		auto ts = new TimeSpan(parent);
 		ts->count = match.captured(1).toInt();
+		if(ts->count < 1)
+			throw tr("Cannot use in 0 days");
 		ts->span = parseSpan(match.captured(2));
 		auto dateStr = match.captured(3);
 		if(!dateStr.isEmpty())
