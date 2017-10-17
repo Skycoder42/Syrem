@@ -1,4 +1,5 @@
 #include "schedule.h"
+#include "dateparser.h"
 
 Schedule::Schedule(QObject *parent) :
 	QObject(parent)
@@ -43,7 +44,12 @@ QDateTime LoopSchedule::nextSchedule(const QDateTime &since)
 {
 	QDateTime tp;
 
-	//TODO stuff...
+	tp.setDate(type->nextDateTime(since.date()));
+
+	if(datum)
+		tp.setDate(datum->nextDate(tp.date())); //TODO params
+	if(time.isValid())
+		tp.setTime(time);
 
 	if(from.isValid() && tp < from)
 		return {};

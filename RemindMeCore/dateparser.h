@@ -27,6 +27,8 @@ public:
 	virtual inline ~Expression() = default;
 
 	virtual Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) = 0;
+
+	static QDateTime nextSpanDate(Span span, int count, const QDateTime &since);
 };
 
 // ------------- Basic Types -------------
@@ -50,7 +52,7 @@ public:
 
 	Datum(QObject *parent = nullptr);
 
-	QDate nextDate(QDate wDate, bool scopeReset) const;
+	QDate nextDate(QDate wDate, bool scopeReset = false, bool notToday = false) const;
 
 	Scope scope;
 	int value;
@@ -68,7 +70,7 @@ class Type : public QObject
 public:
 	Type(QObject *parent = nullptr);
 
-	QDate nextDate(QDate wDate) const;
+	QDate nextDateTime(const QDateTime &since) const;
 
 	bool isDatum;
 	Datum *datum;

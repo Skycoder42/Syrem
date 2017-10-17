@@ -21,7 +21,7 @@ public:
 	explicit Schedule(QObject *parent = nullptr);
 
 	virtual bool isRepeating() const = 0;
-	virtual QDateTime nextSchedule(const QDateTime &since) = 0;
+	virtual QDateTime nextSchedule(const QDateTime &since) = 0;//TODO important: for loops always use the last trigger as since
 };
 
 class OneTimeSchedule : public Schedule

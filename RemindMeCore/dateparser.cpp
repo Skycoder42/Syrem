@@ -8,13 +8,36 @@ Expression::Expression(QObject *parent) :
 	QObject(parent)
 {}
 
+QDateTime Expression::nextSpanDate(Expression::Span span, int count, const QDateTime &since)
+{
+	switch (span) {
+	case InvalidSpan:
+		return {};
+	case MinuteSpan:
+		return since.addSecs(60 * count);
+	case HourSpan:
+		return since.addSecs(60 * 60 * count); //TODO TEST check boundaries
+	case DaySpan:
+		return since.addDays(count);
+	case WeekSpan:
+		return since.addDays(7 * count);
+	case MonthSpan:
+		return since.addMonths(count);
+	case YearSpan:
+		return since.addYears(count);
+	default:
+		Q_UNREACHABLE();
+		break;
+	}
+}
+
 Datum::Datum(QObject *parent) :
 	QObject(parent),
 	scope(InvalidScope),
 	value(0)
 {}
 
-QDate Datum::nextDate(QDate wDate, bool scopeReset) const
+QDate Datum::nextDate(QDate wDate, bool scopeReset, bool notToday) const
 {
 	if(scope == InvalidScope)
 		return {};
@@ -25,6 +48,8 @@ QDate Datum::nextDate(QDate wDate, bool scopeReset) const
 		Q_ASSERT_X(value <= 7, Q_FUNC_INFO, "invalid weekday value, must be at most 7");
 		if(scopeReset)
 			wDate = wDate.addDays((wDate.dayOfWeek() - 1) * -1);
+		else if(notToday)
+			wDate = wDate.addDays(1);
 
 		if(wDate.dayOfWeek() > value) //go to sunday + the target day
 			wDate = wDate.addDays((7 - wDate.dayOfWeek()) + value);
@@ -35,6 +60,8 @@ QDate Datum::nextDate(QDate wDate, bool scopeReset) const
 		Q_ASSERT_X(value <= 31, Q_FUNC_INFO, "invalid day value, must be at most 31");
 		if(scopeReset)
 			wDate = wDate.addDays((wDate.day() - 1) * -1);
+		else if(notToday)
+			wDate = wDate.addDays(1);
 
 		if(wDate.day() > value) //already past -> go to next month 1.
 			wDate = wDate.addDays((wDate.daysInMonth() - wDate.day()) + 1);
@@ -48,6 +75,8 @@ QDate Datum::nextDate(QDate wDate, bool scopeReset) const
 		Q_ASSERT_X(value <= 12, Q_FUNC_INFO, "invalid month value, must be at most 12");
 		if(scopeReset)
 			wDate = wDate.addMonths((wDate.month() - 1) * -1);
+		else if(notToday)
+			wDate = wDate.addMonths(1);
 
 		if(wDate.month() > value)
 			wDate = wDate.addMonths(12 - (wDate.month() - value));
@@ -56,6 +85,9 @@ QDate Datum::nextDate(QDate wDate, bool scopeReset) const
 		break;
 	case MonthDayScope:
 	{
+		if(!scopeReset && notToday)
+			wDate = wDate.addDays(1);
+
 		auto month = ((value >> 16) & 0x00FF);
 		Q_ASSERT_X(month > 0, Q_FUNC_INFO, "invalid value, must be greater 1");
 		Q_ASSERT_X(month <= 12, Q_FUNC_INFO, "invalid month value, must be at most 12");
@@ -87,16 +119,22 @@ Type::Type(QObject *parent) :
 	span(Expression::InvalidSpan)
 {}
 
-QDate Type::nextDate(QDate wDate) const
+QDate Type::nextDateTime(const QDateTime &since) const
 {
 	if(isDatum) {
-		if(datum)
-			return datum->nextDate(wDate, false);//TODO ???
-		else
+		if(datum) {
+			QDateTime tp;
+			tp.setDate(datum->nextDate(since.date(), false, true));//just like for timepoint, the next possible except now
+			tp.setTime(since.time());
+			return tp;
+		} else
 			return {};
 	}
 
-	//TODO update with count
+	auto tp = Expression::nextSpanDate(span, count, since);
+
+	//TODO always "reset" to the first day of week/month/year ???
+	auto wDate = tp.date();
 	switch (span) {
 	case Expression::InvalidSpan:
 		return {};
@@ -106,20 +144,22 @@ QDate Type::nextDate(QDate wDate) const
 		break;
 	case Expression::WeekSpan:
 		if(wDate.dayOfWeek() != 1)
-			wDate = wDate.addDays(8 - wDate.dayOfWeek());
+			wDate = wDate.addDays((wDate.dayOfWeek() - 1) * -1);
 		break;
 	case Expression::MonthSpan:
-		if(wDate.month() != 1)
-			wDate = wDate.addMonths(13 - wDate.month());
+		if(wDate.day() != 1)
+			wDate = wDate.addDays((wDate.day() - 1) * -1);
 		break;
 	case Expression::YearSpan:
+		wDate.setDate(wDate.year(), 1, 1);
 		break;
 	default:
 		Q_UNREACHABLE();
 		break;
 	}
+	tp.setDate(wDate);
 
-	return wDate;
+	return tp;
 }
 
 TimePoint::TimePoint(QObject *parent) :
@@ -153,8 +193,8 @@ QDate TimePoint::nextDate(QDate wDate) const
 		else
 			return {};
 	case TimePoint::DatumMode:
-		if(datum) //TODO + 1 day/month !!!
-			return datum->nextDate(wDate, false); //no scope reset, count from wDate on
+		if(datum)
+			return datum->nextDate(wDate, false, true); //no scope reset, but not today/this month -> the next possible occurance
 		else
 			return {};
 	case TimePoint::YearMode:
@@ -191,31 +231,7 @@ TimeSpan::TimeSpan(QObject *parent) :
 
 Schedule *TimeSpan::createSchedule(const QDateTime &since, QObject *parent)
 {
-	QDateTime tp;
-	switch (span) {
-	case InvalidSpan:
-		return nullptr;
-	case MinuteSpan:
-		tp = since.addSecs(60 * count);
-		break;
-	case HourSpan:
-		tp = since.addSecs(60 * 60 * count); //TODO check boundaries
-		break;
-	case DaySpan:
-		tp = since.addDays(count);
-		break;
-	case WeekSpan:
-		tp = since.addDays(7 * count);
-		break;
-	case MonthSpan:
-		tp = since.addMonths(count);
-		break;
-	case YearSpan:
-		tp = since.addYears(count);
-		break;
-	default:
-		break;
-	}
+	QDateTime tp = nextSpanDate(span, count, since);
 
 	//apply datum/time, if set (assume valid, as after parsing)
 	if(datum)
@@ -247,10 +263,14 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 
 	if(from)
 		sched->from.setDate(from->nextDate(since.date()));
+
+	if(until && from)
+		sched->until.setDate(sched->from.date());//calculate from "from" on, because of relative datum values
+	else if(until)
+		sched->until.setDate(until->nextDate(since.date()));
+
 	if(fromTime.isValid())
 		sched->from.setTime(fromTime);
-	if(until)
-		sched->until.setDate(until->nextDate(since.date()));
 	if(untilTime.isValid())
 		sched->until.setTime(untilTime);
 
@@ -520,6 +540,8 @@ Type *DateParser::parseType(const QString &data, QObject *parent)
 		if(!span.isEmpty()) {
 			type->isDatum = true;
 			type->count = match.captured(1).toInt();
+			if(type->count < 1)
+				throw tr("Cannot use in 0 days");
 			type->span = parseSpan(span);
 		} else {
 			type->isDatum = true;
