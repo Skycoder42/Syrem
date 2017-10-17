@@ -155,7 +155,9 @@ public:
 	Datum *datum;
 	QTime time;
 	TimePoint *from;
+	QTime fromTime;
 	TimePoint *until;
+	QTime untilTime;
 };
 
 class Point : public Expression
@@ -196,6 +198,7 @@ private:
 	ParserTypes::Datum *parseDatum(const QString &data, QObject *parent);
 	ParserTypes::Type *parseType(const QString &data, QObject *parent);
 	ParserTypes::TimePoint *parseTimePoint(const QString &data, QObject *parent);
+	QPair<ParserTypes::TimePoint*, QTime> parseExtendedTimePoint(const QString &data, QObject *parent);
 
 	QDate parseMonthDay(const QString &data);
 	QDate parseDate(const QString &data);

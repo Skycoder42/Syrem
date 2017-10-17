@@ -232,7 +232,9 @@ Loop::Loop(QObject *parent) :
 	datum(nullptr),
 	time(),
 	from(nullptr),
-	until(nullptr)
+	fromTime(),
+	until(nullptr),
+	untilTime()
 {}
 
 Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
@@ -251,10 +253,10 @@ Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 {
 	QDateTime tp;
 
-	tp.setDate(date->nextDate(since));
+	tp.setDate(date->nextDate(since.date()));
 	if(!tp.date().isValid())
 		return nullptr;
-	if(time)
+	if(time.isValid())
 		tp.setTime(time);
 
 	return new OneTimeSchedule(tp, parent);
@@ -376,11 +378,17 @@ Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 		if(!timeStr.isEmpty())
 			loop->time = parseTime(timeStr);
 		auto fromStr = match.captured(4);
-		if(!fromStr.isEmpty())
-			loop->from = parseTimePoint(fromStr, loop);
+		if(!fromStr.isEmpty()) {
+			auto pair = parseExtendedTimePoint(fromStr, loop);
+			loop->from = pair.first;
+			loop->fromTime = pair.second;
+		}
 		auto untilStr = match.captured(5);
-		if(!untilStr.isEmpty())
-			loop->until = parseTimePoint(untilStr, loop);
+		if(!untilStr.isEmpty()) {
+			auto pair = parseExtendedTimePoint(untilStr, loop);
+			loop->until = pair.first;
+			loop->untilTime = pair.second;
+		}
 
 		if(loop->type->isDatum)
 			validateDatumDatum(loop->type->datum, loop->datum);
@@ -557,6 +565,24 @@ TimePoint *DateParser::parseTimePoint(const QString &data, QObject *parent)
 		return tp;
 	} else
 		throw tr("Invalid type specified");
+}
+
+QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data, QObject *parent)
+{
+	static const QRegularExpression regex(QStringLiteral(R"__(^(.+?)(?: %1)?$)__")
+										  .arg(timeRegex),
+										  QRegularExpression::OptimizeOnFirstUsageOption |
+										  QRegularExpression::CaseInsensitiveOption);
+
+	auto match = regex.match(data.simplified());
+	if(match.hasMatch()) {
+		QPair<TimePoint*, QTime> pair;
+		pair.first = parseTimePoint(match.captured(1), parent);
+		auto time = match.captured(2);
+		if(!time.isEmpty())
+			pair.second = parseTime(time);
+		return pair;
+	}
 }
 
 QDate DateParser::parseMonthDay(const QString &data)
