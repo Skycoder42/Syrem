@@ -22,7 +22,7 @@ bool OneTimeSchedule::isRepeating() const
 
 QDateTime OneTimeSchedule::nextSchedule(const QDateTime &since)
 {
-	if(since <= timepoint)
+	if(since < timepoint)
 		return timepoint;
 	else
 		return {};
@@ -41,8 +41,16 @@ bool LoopSchedule::isRepeating() const
 
 QDateTime LoopSchedule::nextSchedule(const QDateTime &since)
 {
-	Q_UNIMPLEMENTED();
-	return {};
+	QDateTime tp;
+
+	//TODO stuff...
+
+	if(from.isValid() && tp < from)
+		return {};
+	else if(until.isValid() && tp > until)
+		return {};
+	else
+		return tp;
 }
 
 

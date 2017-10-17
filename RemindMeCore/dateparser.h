@@ -109,10 +109,8 @@ class Conjunction : public Expression
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QList<Expression*> expressions MEMBER expressions)
-
 public:
-	Q_INVOKABLE Conjunction(QObject *parent = nullptr);
+	Conjunction(QObject *parent = nullptr);
 	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	QList<Expression*> expressions;
@@ -122,13 +120,8 @@ class TimeSpan : public Expression
 {
 	Q_OBJECT
 
-	Q_PROPERTY(Span span MEMBER span)
-	Q_PROPERTY(int count MEMBER count)
-	Q_PROPERTY(Datum* datum MEMBER datum)
-	Q_PROPERTY(QTime time MEMBER time)
-
 public:
-	Q_INVOKABLE TimeSpan(QObject *parent = nullptr);
+	TimeSpan(QObject *parent = nullptr);
 	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	Span span;
@@ -141,14 +134,8 @@ class Loop : public Expression
 {
 	Q_OBJECT
 
-	Q_PROPERTY(Type* type MEMBER type)
-	Q_PROPERTY(Datum* datum MEMBER datum)
-	Q_PROPERTY(QTime time MEMBER time)
-	Q_PROPERTY(TimePoint* from MEMBER from)
-	Q_PROPERTY(TimePoint* until MEMBER until)
-
 public:
-	Q_INVOKABLE Loop(QObject *parent = nullptr);
+	Loop(QObject *parent = nullptr);
 	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	Type *type;
@@ -164,11 +151,8 @@ class Point : public Expression
 {
 	Q_OBJECT
 
-	Q_PROPERTY(TimePoint* date MEMBER date)
-	Q_PROPERTY(QTime time MEMBER time)
-
 public:
-	Q_INVOKABLE Point(QObject *parent = nullptr);
+	Point(QObject *parent = nullptr);
 	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
 	TimePoint *date;

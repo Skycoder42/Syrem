@@ -239,8 +239,22 @@ Loop::Loop(QObject *parent) :
 
 Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 {
-	Q_UNIMPLEMENTED();
-	return nullptr;
+	auto sched = new LoopSchedule(parent);
+
+	sched->type = type;
+	sched->datum = datum;
+	sched->time = time;
+
+	if(from)
+		sched->from.setDate(from->nextDate(since.date()));
+	if(fromTime.isValid())
+		sched->from.setTime(fromTime);
+	if(until)
+		sched->until.setDate(until->nextDate(since.date()));
+	if(untilTime.isValid())
+		sched->until.setTime(untilTime);
+
+	return sched;
 }
 
 Point::Point(QObject *parent) :
@@ -582,7 +596,8 @@ QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data
 		if(!time.isEmpty())
 			pair.second = parseTime(time);
 		return pair;
-	}
+	} else
+		throw tr("Invalid timepoint and/or time");
 }
 
 QDate DateParser::parseMonthDay(const QString &data)

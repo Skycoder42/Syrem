@@ -4,6 +4,12 @@
 #include <QDateTime>
 #include <QObject>
 
+namespace ParserTypes {
+class Loop;
+class Type;
+class Datum;
+}
+
 class Schedule : public QObject
 {
 	Q_OBJECT
@@ -38,12 +44,46 @@ private:
 class LoopSchedule : public Schedule
 {
 	Q_OBJECT
+	friend class ParserTypes::Loop;
+
+	Q_PROPERTY(ParserTypes::Type* type MEMBER type)
+	Q_PROPERTY(ParserTypes::Datum* datum MEMBER datum)
+	Q_PROPERTY(QTime time MEMBER time)
+
+	Q_PROPERTY(QDateTime from MEMBER from)
+	Q_PROPERTY(QDateTime until MEMBER until)
 
 public:
+	enum Mode {
+		WeekdayMode,
+		DatumMode,
+		SpanMode
+	};
+	Q_ENUM(Mode)
+
+	enum Span {
+		InvalidSpan,
+		MinuteSpan,
+		HourSpan,
+		DaySpan,
+		WeekSpan,
+		MonthSpan,
+		YearSpan
+	};
+	Q_ENUM(Span)
+
 	Q_INVOKABLE LoopSchedule(QObject *parent = nullptr);
 
 	bool isRepeating() const override;
 	QDateTime nextSchedule(const QDateTime &since) override;
+
+private:
+	ParserTypes::Type *type;
+	ParserTypes::Datum *datum;
+	QTime time;
+
+	QDateTime from;
+	QDateTime until;
 };
 
 class MultiSchedule : public Schedule
