@@ -33,6 +33,8 @@ time: (?:at )?(\d{1,2}:\d{2}|\d{1,2} oclock)
 span: <direct match>
 
 datum: ^(?:(<weekday>)|(\d+)\.|(\d+)|(<month>)|(.+?))$
+type: ^(?:(\d+) (\w+)|(.+?))$
+tpoint: ^(?:(today)|(tomorrow)|(\d{4})|(.*?))$
 
 conjuction: (\s+and\s+|\s*;\s*) [seperator]
 timespan: ^in (\d+) (\w+)(?:(?: on| at| in) (.+?))?(?: <time>)?$

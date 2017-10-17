@@ -81,7 +81,7 @@ class TimePoint : public QObject
 	Q_OBJECT
 
 	Q_PROPERTY(Mode mode MEMBER mode)
-	Q_PROPERTY(QDateTime date MEMBER date)
+	Q_PROPERTY(QDate date MEMBER date)
 	Q_PROPERTY(Datum* datum MEMBER datum)
 
 public:
@@ -98,7 +98,7 @@ public:
 	QDate nextDate(QDate wDate) const;
 
 	Mode mode;
-	QDateTime date;
+	QDate date;
 	Datum *datum;
 };
 

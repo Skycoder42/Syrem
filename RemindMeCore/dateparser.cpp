@@ -124,8 +124,8 @@ QDate TimePoint::nextDate(QDate wDate) const
 	case TimePoint::InvalidMode:
 		return {};
 	case TimePoint::DateMode:
-		if(wDate <= date.date())
-			return date.date();
+		if(wDate <= date)
+			return date;
 		else
 			return {};
 	case TimePoint::DatumMode:
@@ -374,12 +374,76 @@ Datum *DateParser::parseDatum(const QString &data, QObject *parent)
 
 Type *DateParser::parseType(const QString &data, QObject *parent)
 {
+	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(\d+) (\w+)|(.+?))$)__"),
+										  QRegularExpression::OptimizeOnFirstUsageOption |
+										  QRegularExpression::CaseInsensitiveOption);
 
+	auto match = regex.match(data.simplified());
+	if(match.hasMatch()) {
+		auto type = new Type(parent);
+		auto span = match.captured(2);
+		if(!span.isEmpty()) {
+			type->isDatum = true;
+			type->count = match.captured(1).toInt();
+			type->span = parseSpan(span);
+		} else {
+			type->isDatum = true;
+			type->datum = parseDatum(match.captured(3), type);
+		}
+		return type;
+	} else
+		throw tr("Invalid type specified");
 }
 
 TimePoint *DateParser::parseTimePoint(const QString &data, QObject *parent)
 {
+	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(%1)|(%2)|(\d{4})|(.*?))$)__")
+										  .arg(tr("today"))
+										  .arg(tr("tomorrow")),
+										  QRegularExpression::OptimizeOnFirstUsageOption |
+										  QRegularExpression::CaseInsensitiveOption);
 
+	auto match = regex.match(data.simplified());
+	if(match.hasMatch()) {
+		auto tp = new TimePoint(parent);
+
+		//today
+		auto mRes = match.captured(1);
+		if(!mRes.isEmpty()) {
+			tp->mode = TimePoint::DateMode;
+			tp->date = QDate::currentDate();
+		}
+
+		//tomorrow
+		mRes = match.captured(2);
+		if(!mRes.isEmpty()) {
+			tp->mode = TimePoint::DateMode;
+			tp->date = QDate::currentDate().addDays(1);
+		}
+
+		//year
+		mRes = match.captured(3);
+		if(!mRes.isEmpty()) {
+			tp->mode = TimePoint::YearMode;
+			tp->date.setDate(mRes.toInt(), 1, 1);
+		}
+
+		//date/datum
+		mRes = match.captured(4);
+		if(!mRes.isEmpty()) {
+			auto date = parseDate(mRes);
+			if(date.isValid()) {
+				tp->mode = TimePoint::DateMode;
+				tp->date = date;
+			} else {
+				tp->mode = TimePoint::DatumMode;
+				tp->datum = parseDatum(mRes, tp);
+			}
+		}
+
+		return tp;
+	} else
+		throw tr("Invalid type specified");
 }
 
 QDate DateParser::parseMonthDay(const QString &data)
@@ -391,12 +455,19 @@ QDate DateParser::parseMonthDay(const QString &data)
 			return date;
 	}
 
-	throw tr("Invalid date specified");
+	throw tr("Invalid month-day specified");
 }
 
 QDate DateParser::parseDate(const QString &data)
 {
+	auto dates = tr("d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy").split(QStringLiteral("|"));
+	foreach(auto pattern, dates) {
+		auto date = QDate::fromString(data, pattern);
+		if(date.isValid())
+			return date;
+	}
 
+	throw tr("Invalid date specified");
 }
 
 QTime DateParser::parseTime(const QString &data)
