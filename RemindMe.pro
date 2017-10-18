@@ -4,9 +4,10 @@ SUBDIRS += \
 	RemindMeWidgets \
 	RemindMeQuick \
 	RemindMeCore \
-    Tests
+	Tests
 
 RemindMeWidgets.depends += RemindMeCore
 RemindMeQuick.depends += RemindMeCore
+Tests.depends += RemindMeCore
 
 DISTFILES += .qmake.conf
