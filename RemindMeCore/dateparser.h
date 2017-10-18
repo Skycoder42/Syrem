@@ -56,6 +56,9 @@ public:
 
 	Scope scope;
 	int value;
+
+	static int toMonthDay(int day, int month);
+	static QPair<int, int> fromMonthDay(int monthDay);
 };
 
 class Type : public QObject
@@ -186,16 +189,16 @@ private:
 	ParserTypes::TimePoint *parseTimePoint(const QString &data, QObject *parent);
 	QPair<ParserTypes::TimePoint*, QTime> parseExtendedTimePoint(const QString &data, QObject *parent);
 
-	QDate parseMonthDay(const QString &data);
-	QDate parseDate(const QString &data);
+	QDate parseMonthDay(const QString &data, bool noThrow = false);
+	QDate parseDate(const QString &data, bool noThrow = false);
 	QTime parseTime(const QString &data);
 	ParserTypes::Expression::Span parseSpan(const QString &data);
 
 	void validateDatumDatum(ParserTypes::Datum *datum, const ParserTypes::Datum *extraDatum);
 	void validateSpanDatum(ParserTypes::Expression::Span span, const ParserTypes::Datum *datum, const QTime &time);
 
-	static QStringList readWeekDays();
-	static QStringList readMonths();
+	static QMap<QString, int> readWeekDays();
+	static QMap<QString, int> readMonths();
 };
 
 #endif // DATEPARSER_H

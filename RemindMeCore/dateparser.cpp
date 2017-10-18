@@ -88,13 +88,9 @@ QDate Datum::nextDate(QDate wDate, bool scopeReset, bool notToday) const
 		if(!scopeReset && notToday)
 			wDate = wDate.addDays(1);
 
-		auto month = ((value >> 16) & 0x00FF);
-		Q_ASSERT_X(month > 0, Q_FUNC_INFO, "invalid value, must be greater 1");
-		Q_ASSERT_X(month <= 12, Q_FUNC_INFO, "invalid month value, must be at most 12");
-
-		auto day = (value & 0x00FF);
-		Q_ASSERT_X(day > 0, Q_FUNC_INFO, "invalid value, must be greater 1");
-		Q_ASSERT_X(day <= 31, Q_FUNC_INFO, "invalid day value, must be at most 31");
+		auto mDayPair = fromMonthDay(value);
+		auto day = mDayPair.first;
+		auto month = mDayPair.second;
 
 		QDate nDate(wDate.year(), month, day);
 		if(!scopeReset && wDate > nDate)
@@ -109,6 +105,25 @@ QDate Datum::nextDate(QDate wDate, bool scopeReset, bool notToday) const
 	}
 
 	return wDate;
+}
+
+int Datum::toMonthDay(int day, int month)
+{
+	return ((month << 16) & 0xFFFF0000) |
+			(day & 0x0000FFFF);
+}
+
+QPair<int, int> Datum::fromMonthDay(int monthDay)
+{
+	auto month = ((monthDay >> 16) & 0x0000FFFF);
+	Q_ASSERT_X(month > 0, Q_FUNC_INFO, "invalid value, must be greater 1");
+	Q_ASSERT_X(month <= 12, Q_FUNC_INFO, "invalid month value, must be at most 12");
+
+	auto day = (monthDay & 0x0000FFFF);
+	Q_ASSERT_X(day > 0, Q_FUNC_INFO, "invalid value, must be greater 1");
+	Q_ASSERT_X(day <= 31, Q_FUNC_INFO, "invalid day value, must be at most 31");
+
+	return {day, month};
 }
 
 Type::Type(QObject *parent) :
@@ -434,9 +449,9 @@ Point *DateParser::tryParsePoint(const QString &data, QObject *parent)
 
 Datum *DateParser::parseDatum(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(%1)|(\d+)\.|(\d+)|(%2)|(.+?))$)__")
-										  .arg(readWeekDays().join(QStringLiteral("|")))
-										  .arg(readMonths().join(QStringLiteral("|"))),
+	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(%1)|(\d+)\.|(%2)|(.+?))$)__")
+										  .arg(readWeekDays().keys().join(QStringLiteral("|")))
+										  .arg(readMonths().keys().join(QStringLiteral("|"))),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -447,12 +462,11 @@ Datum *DateParser::parseDatum(const QString &data, QObject *parent)
 		//weekdays
 		auto mRes = match.captured(1);
 		if(!mRes.isEmpty()) {
-			auto days = readWeekDays();
-			auto idx = days.indexOf(mRes.toLower().trimmed());
-			if(idx == -1)
-				throw tr("Unable to match found weekday to day number");
 			datum->scope = Datum::WeekDayScope;
-			datum->value = idx + 1;
+			datum->value = readWeekDays().value(mRes.toLower().trimmed(), -1);
+			if(datum->value == -1)
+				throw tr("Unable to match found weekday to day number");
+			return datum;
 		}
 
 		//days
@@ -463,41 +477,32 @@ Datum *DateParser::parseDatum(const QString &data, QObject *parent)
 				throw tr("Parsed day value out of valid day range");
 			datum->scope = Datum::DayScope;
 			datum->value = day;
-		}
-
-		//months
-		mRes = match.captured(3);
-		if(!mRes.isEmpty()) {
-			auto month = mRes.toInt();
-			if(month < 1 || month > 12)
-				throw tr("Parsed month value out of valid month range");
-			datum->scope = Datum::MonthScope;
-			datum->value = month;
+			return datum;
 		}
 
 		//month names
-		mRes = match.captured(4);
+		mRes = match.captured(3);
 		if(!mRes.isEmpty()) {
-			auto months = readMonths();
-			auto idx = months.indexOf(mRes.toLower().trimmed());
-			if(idx == -1)
-				throw tr("Unable to match found month to month number");
 			datum->scope = Datum::MonthScope;
-			datum->value = idx + 1;
+			datum->value = readMonths().value(mRes.toLower().trimmed(), -1);
+			if(datum->value == -1)
+				throw tr("Unable to match found month to month number");
+			return datum;
 		}
 
 		//monthday
-		mRes = match.captured(5);
+		mRes = match.captured(4);
 		if(!mRes.isEmpty()) {
-			auto date = parseMonthDay(mRes);
-			datum->scope = Datum::MonthDayScope;
-			datum->value = ((date.month() << 16) & 0xFF00) |
-						   (date.day() & 0x00FF);
+			auto date = parseMonthDay(mRes, true);
+			if(date.isValid()) {
+				datum->scope = Datum::MonthDayScope;
+				datum->value = Datum::toMonthDay(date.day(), date.month());
+				return datum;
+			}
 		}
+	}
 
-		return datum;
-	} else
-		throw tr("Invalid datum specified");
+	throw tr("Invalid datum specified");
 }
 
 Type *DateParser::parseType(const QString &data, QObject *parent)
@@ -561,7 +566,7 @@ TimePoint *DateParser::parseTimePoint(const QString &data, QObject *parent)
 		//date/datum
 		mRes = match.captured(4);
 		if(!mRes.isEmpty()) {
-			auto date = parseDate(mRes);
+			auto date = parseDate(mRes, true);
 			if(date.isValid()) {
 				tp->mode = TimePoint::DateMode;
 				tp->date = date;
@@ -595,35 +600,44 @@ QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data
 		throw tr("Invalid timepoint and/or time");
 }
 
-QDate DateParser::parseMonthDay(const QString &data)
+QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 {
+	QLocale locale;
 	auto dates = tr("d. M.|dd. M.|d. MM.|dd. MM.|d. MMM|d. MMMM|dd. MMM|dd. MMMM|d-M|d-MM|dd-M|dd-MM").split(QStringLiteral("|"));
 	foreach(auto pattern, dates) {
-		auto date = QDate::fromString(data, pattern);
+		auto date = locale.toDate(data, pattern);
 		if(date.isValid())
 			return date;
 	}
 
-	throw tr("Invalid month-day specified");
+	if(noThrow)
+		return {};
+	else
+		throw tr("Invalid month-day specified");
 }
 
-QDate DateParser::parseDate(const QString &data)
+QDate DateParser::parseDate(const QString &data, bool noThrow)
 {
+	QLocale locale;
 	auto dates = tr("d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy").split(QStringLiteral("|"));
 	foreach(auto pattern, dates) {
-		auto date = QDate::fromString(data, pattern);
+		auto date = locale.toDate(data, pattern);
 		if(date.isValid())
 			return date;
 	}
 
-	throw tr("Invalid date specified");
+	if(noThrow)
+		return {};
+	else
+		throw tr("Invalid date specified");
 }
 
 QTime DateParser::parseTime(const QString &data)
 {
+	QLocale locale;
 	auto times = tr("hh:mm|h:mm|h' oclock'").split(QStringLiteral("|"));
 	foreach(auto pattern, times) {
-		auto time = QTime::fromString(data, pattern);
+		auto time = locale.toTime(data, pattern);
 		if(time.isValid())
 			return time;
 	}
@@ -711,18 +725,24 @@ void DateParser::validateSpanDatum(Expression::Span span, const Datum *datum, co
 	}
 }
 
-QStringList DateParser::readWeekDays()
+QMap<QString, int> DateParser::readWeekDays()
 {
-	QStringList dayList;
-	for(int i = Qt::Monday; i <= Qt::Sunday; i++)
-		dayList.append(QDate::longDayName(i, QDate::StandaloneFormat).toLower().trimmed());
+	QLocale locale;
+	QMap<QString, int> dayList;
+	for(int i = Qt::Monday; i <= Qt::Sunday; i++) {
+		dayList.insert(locale.standaloneDayName(i, QLocale::LongFormat).toLower().trimmed(), i);
+		dayList.insert(locale.standaloneDayName(i, QLocale::ShortFormat).toLower().trimmed(), i);
+	}
 	return dayList;
 }
 
-QStringList DateParser::readMonths()
+QMap<QString, int> DateParser::readMonths()
 {
-	QStringList dayList;
-	for(auto i = 1; i <= 12; i++)
-		dayList.append(QDate::longMonthName(i, QDate::StandaloneFormat).toLower().trimmed());
-	return dayList;
+	QLocale locale;
+	QMap<QString, int> monthList;
+	for(auto i = 1; i <= 12; i++) {
+		monthList.insert(locale.standaloneMonthName(i, QLocale::LongFormat).toLower().trimmed(), i);
+		monthList.insert(locale.standaloneMonthName(i, QLocale::ShortFormat).toLower().trimmed(), i);
+	}
+	return monthList;
 }
