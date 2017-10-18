@@ -263,6 +263,8 @@ Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 		return nullptr;
 	if(time.isValid())
 		tp.setTime(time);
+	if(tp <= since)
+		return nullptr;
 
 	return new OneTimeSchedule(tp, parent);
 }
