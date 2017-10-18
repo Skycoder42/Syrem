@@ -3,7 +3,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
 	RemindMeWidgets \
 	RemindMeQuick \
-	RemindMeCore
+	RemindMeCore \
+    Tests
 
 RemindMeWidgets.depends += RemindMeCore
 RemindMeQuick.depends += RemindMeCore
