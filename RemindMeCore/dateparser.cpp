@@ -16,7 +16,7 @@ QDateTime Expression::nextSpanDate(Expression::Span span, int count, const QDate
 	case MinuteSpan:
 		return since.addSecs(60 * count);
 	case HourSpan:
-		return since.addSecs(60 * 60 * count); //TODO TEST check boundaries
+		return since.addSecs(60 * 60 * count);
 	case DaySpan:
 		return since.addDays(count);
 	case WeekSpan:
@@ -301,7 +301,7 @@ Expression *DateParser::parse(const QString &data)
 		dummyParent->deleteLater();
 		return expr;
 	} catch(QString &s) {
-		//TODO use s
+		//TODO use s better
 		qCritical(qUtf8Printable(s));
 		dummyParent->deleteLater();
 		return nullptr;
@@ -652,6 +652,7 @@ QTime DateParser::parseTime(const QString &data)
 
 Expression::Span DateParser::parseSpan(const QString &data)
 {
+	//TODO allow "and" expressions: in/every 2 hours and 20 minutes
 	static const QHash<QRegularExpression, Expression::Span> spanMap = {
 		{SPAN_REGEX(tr("minute|minutes")), Expression::MinuteSpan},
 		{SPAN_REGEX(tr("hour|hours")), Expression::HourSpan},

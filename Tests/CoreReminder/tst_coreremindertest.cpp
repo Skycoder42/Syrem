@@ -18,7 +18,6 @@ private Q_SLOTS:
 	void testTimeSpanReminder_data();
 	void testTimeSpanReminder();
 
-	//TODO test others with 3 times, create, apply, result
 private:
 	DateParser *parser;
 };
