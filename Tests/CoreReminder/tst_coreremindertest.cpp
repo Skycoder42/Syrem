@@ -463,6 +463,23 @@ void CoreReminderTest::testTimeSpanReminder_data()
 	QTest::newRow("timespan.year.date.time.monthday.after") << QStringLiteral("in 10 years on 4. July 15:30")
 															<< QDateTime({2007, 10, 24}, {15, 00})
 															<< QDateTime({2017, 7, 4}, {15, 30});
+
+	//timespan.multi
+	QTest::newRow("timespan.multi") << QStringLiteral("in 2 hours and 30 minutes")
+									<< QDateTime({2017, 10, 24}, {13, 00})
+									<< QDateTime({2017, 10, 24}, {15, 30});
+	QTest::newRow("timespan.multi.all") << QStringLiteral("in 1 year and 2 months and 4 weeks and 3 days and 2 hours and 30 minutes")
+										<< QDateTime({2016, 7, 23}, {13, 00})
+										<< QDateTime({2017, 10, 24}, {15, 30});
+	QTest::newRow("timespan.multi.repeat") << QStringLiteral("in 90 minutes and 30 minutes and 30 minutes")
+										   << QDateTime({2017, 10, 24}, {13, 00})
+										   << QDateTime({2017, 10, 24}, {15, 30});
+	QTest::newRow("timespan.multi.date") << QStringLiteral("in 1 year and 2 months on Sunday 15:30")
+										 << QDateTime({2016, 8, 24}, {15, 00})
+										 << QDateTime({2017, 10, 29}, {15, 30});
+	QTest::newRow("timespan.multi.date.invalid") << QStringLiteral("in 1 year and 2 months and 30 minutes on Sunday 15:30")
+												 << QDateTime()
+												 << QDateTime();
 }
 
 void CoreReminderTest::testTimeSpanReminder()
