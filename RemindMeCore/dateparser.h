@@ -27,8 +27,6 @@ public:
 	virtual inline ~Expression() = default;
 
 	virtual Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) = 0;
-
-	static QDateTime nextSpanDate(Span span, int count, const QDateTime &since);
 };
 
 // ------------- Basic Types -------------
@@ -61,14 +59,16 @@ public:
 	static QPair<int, int> fromMonthDay(int monthDay);
 };
 
+typedef QList<QPair<int, Expression::Span>> Sequence;
+QDateTime nextSequenceDate(const Sequence &sequence, const QDateTime &since);
+
 class Type : public QObject
 {
 	Q_OBJECT
 
 	Q_PROPERTY(bool isDatum MEMBER isDatum)
 	Q_PROPERTY(Datum* datum MEMBER datum)
-	Q_PROPERTY(int count MEMBER count)
-	Q_PROPERTY(Expression::Span span MEMBER span)
+	Q_PROPERTY(Sequence sequence MEMBER sequence)
 
 public:
 	Type(QObject *parent = nullptr);
@@ -77,8 +77,7 @@ public:
 
 	bool isDatum;
 	Datum *datum;
-	int count;
-	Expression::Span span;
+	Sequence sequence;
 };
 
 class TimePoint : public QObject
@@ -129,8 +128,7 @@ public:
 	TimeSpan(QObject *parent = nullptr);
 	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
 
-	Span span;
-	int count;
+	Sequence sequence;
 	Datum *datum;
 	QTime time;
 };
@@ -177,6 +175,7 @@ public:
 
 private:
 	static const QString timeRegex;
+	static const QString sequenceRegex;
 
 	ParserTypes::Expression *parseExpression(const QString &data, QObject *parent);
 	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
@@ -193,8 +192,10 @@ private:
 	QDate parseDate(const QString &data, bool noThrow = false);
 	QTime parseTime(const QString &data);
 	ParserTypes::Expression::Span parseSpan(const QString &data);
+	ParserTypes::Sequence parseSequence(const QString &data);
 
 	void validateDatumDatum(ParserTypes::Datum *datum, const ParserTypes::Datum *extraDatum);
+	void validateSequenceDatum(const ParserTypes::Sequence &sequence, const ParserTypes::Datum *datum, const QTime &time);
 	void validateSpanDatum(ParserTypes::Expression::Span span, const ParserTypes::Datum *datum, const QTime &time);
 
 	static QMap<QString, int> readWeekDays();

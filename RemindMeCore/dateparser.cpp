@@ -8,29 +8,6 @@ Expression::Expression(QObject *parent) :
 	QObject(parent)
 {}
 
-QDateTime Expression::nextSpanDate(Expression::Span span, int count, const QDateTime &since)
-{
-	switch (span) {
-	case InvalidSpan:
-		return {};
-	case MinuteSpan:
-		return since.addSecs(60 * count);
-	case HourSpan:
-		return since.addSecs(60 * 60 * count);
-	case DaySpan:
-		return since.addDays(count);
-	case WeekSpan:
-		return since.addDays(7 * count);
-	case MonthSpan:
-		return since.addMonths(count);
-	case YearSpan:
-		return since.addYears(count);
-	default:
-		Q_UNREACHABLE();
-		break;
-	}
-}
-
 Datum::Datum(QObject *parent) :
 	QObject(parent),
 	scope(InvalidScope),
@@ -126,12 +103,48 @@ QPair<int, int> Datum::fromMonthDay(int monthDay)
 	return {day, month};
 }
 
+QDateTime ParserTypes::nextSequenceDate(const Sequence &sequence, const QDateTime &since)
+{
+	if(sequence.isEmpty())
+		return {};
+
+	auto res = since;
+	foreach(auto span, sequence) {
+		switch (span.second) {
+		case Expression::InvalidSpan:
+			return {};
+		case Expression::MinuteSpan:
+			res = res.addSecs(60 * span.first);
+			break;
+		case Expression::HourSpan:
+			res = res.addSecs(60 * 60 * span.first);
+			break;
+		case Expression::DaySpan:
+			res = res.addDays(span.first);
+			break;
+		case Expression::WeekSpan:
+			res = res.addDays(7 * span.first);
+			break;
+		case Expression::MonthSpan:
+			res = res.addMonths(span.first);
+			break;
+		case Expression::YearSpan:
+			res = res.addYears(span.first);
+			break;
+		default:
+			Q_UNREACHABLE();
+			break;
+		}
+	}
+
+	return res;
+}
+
 Type::Type(QObject *parent) :
 	QObject(parent),
 	isDatum(false),
 	datum(nullptr),
-	count(0),
-	span(Expression::InvalidSpan)
+	sequence()
 {}
 
 QDateTime Type::nextDateTime(const QDateTime &since) const
@@ -145,7 +158,7 @@ QDateTime Type::nextDateTime(const QDateTime &since) const
 		} else
 			return {};
 	} else
-		return Expression::nextSpanDate(span, count, since);
+		return nextSequenceDate(sequence, since);
 }
 
 TimePoint::TimePoint(QObject *parent) :
@@ -209,15 +222,14 @@ Schedule *Conjunction::createSchedule(const QDateTime &since, QObject *parent)
 
 TimeSpan::TimeSpan(QObject *parent) :
 	Expression(parent),
-	span(InvalidSpan),
-	count(0),
+	sequence(),
 	datum(nullptr),
 	time()
 {}
 
 Schedule *TimeSpan::createSchedule(const QDateTime &since, QObject *parent)
 {
-	QDateTime tp = nextSpanDate(span, count, since);
+	QDateTime tp = nextSequenceDate(sequence, since);
 
 	//apply datum/time, if set (assume valid, as after parsing)
 	if(datum)
@@ -290,7 +302,8 @@ DateParser::DateParser(QObject *parent) :
 
 
 
-const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}|\d{1,2} oclock))__");
+const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}|\d{1,2} oclock))__");//TODO translate
+const QString DateParser::sequenceRegex = QStringLiteral(R"__(((?:\d+) (?:\w+)(?: and (?:\d+) (?:\w+))*))__");//TODO translate
 
 Expression *DateParser::parse(const QString &data)
 {
@@ -333,7 +346,7 @@ Expression *DateParser::parseExpression(const QString &data, QObject *parent)
 
 Conjunction *DateParser::tryParseConjunction(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__((\s+and\s+|\s*;\s*))__"),
+	static const QRegularExpression regex(QStringLiteral(R"__(\s*;\s*)__"),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption |
 										  QRegularExpression::DontCaptureOption);
@@ -349,8 +362,9 @@ Conjunction *DateParser::tryParseConjunction(const QString &data, QObject *paren
 
 TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^%1 (\d+) (\w+)(?:(?:%2) (.+?))??(?: %3)?$)__")
+	static const QRegularExpression regex(QStringLiteral(R"__(^%1 %2(?:(?:%3) (.+?))??(?: %4)?$)__")
 										  .arg(tr("in"))
+										  .arg(sequenceRegex)
 										  .arg(tr(" on| at| in"))
 										  .arg(timeRegex),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
@@ -359,19 +373,16 @@ TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 	auto match = regex.match(data.simplified());
 	if(match.hasMatch()) {
 		auto ts = new TimeSpan(parent);
-		ts->count = match.captured(1).toInt();
-		if(ts->count < 1)
-			throw tr("Cannot use in 0 days");
-		ts->span = parseSpan(match.captured(2));
-		auto dateStr = match.captured(3);
+		ts->sequence = parseSequence(match.captured(1));
+		auto dateStr = match.captured(2);
 		if(!dateStr.isEmpty())
 			ts->datum = parseDatum(dateStr, ts);
-		auto timeStr = match.captured(4);
+		auto timeStr = match.captured(3);
 		if(!timeStr.isEmpty())
 			ts->time = parseTime(timeStr);
 
 		//validate the given datum is "logical" for the given span
-		validateSpanDatum(ts->span, ts->datum, ts->time);
+		validateSequenceDatum(ts->sequence, ts->datum, ts->time);
 
 		return ts;
 	} else
@@ -415,7 +426,7 @@ Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 		if(loop->type->isDatum)
 			validateDatumDatum(loop->type->datum, loop->datum);
 		else
-			validateSpanDatum(loop->type->span, loop->datum, loop->time);
+			validateSequenceDatum(loop->type->sequence, loop->datum, loop->time);
 
 		if(loop->from && loop->until) {
 			if(loop->until->isLess(loop->from))
@@ -507,23 +518,21 @@ Datum *DateParser::parseDatum(const QString &data, QObject *parent)
 
 Type *DateParser::parseType(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(\d+) (\w+)|(.+?))$)__"),
+	static const QRegularExpression regex(QStringLiteral(R"__(^(?:%1|(.+?))$)__")
+										  .arg(sequenceRegex),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
 	auto match = regex.match(data.simplified());
 	if(match.hasMatch()) {
 		auto type = new Type(parent);
-		auto span = match.captured(2);
-		if(!span.isEmpty()) {
+		auto sequence = match.captured(1);
+		if(!sequence.isEmpty()) {
 			type->isDatum = true;
-			type->count = match.captured(1).toInt();
-			if(type->count < 1)
-				throw tr("Cannot use in 0 days");
-			type->span = parseSpan(span);
+			type->sequence = parseSequence(sequence);
 		} else {
 			type->isDatum = true;
-			type->datum = parseDatum(match.captured(3), type);
+			type->datum = parseDatum(match.captured(2), type);
 		}
 		return type;
 	} else
@@ -672,6 +681,30 @@ Expression::Span DateParser::parseSpan(const QString &data)
 	throw tr("Invalid time span");
 }
 
+Sequence DateParser::parseSequence(const QString &data)
+{
+	static const QRegularExpression regex(QStringLiteral(R"__(^(\d+) (\w+)$)__"),
+										  QRegularExpression::OptimizeOnFirstUsageOption |
+										  QRegularExpression::CaseInsensitiveOption);
+
+	auto dataList = data.simplified().split(QStringLiteral(" and "));//no regex needed, must look like this after simplify
+	Sequence sequence;
+	foreach(auto span, dataList) {
+		auto match = regex.match(span);
+		if(!match.hasMatch())
+			throw tr("Invalid time span");
+		auto count = match.captured(1).toInt();
+		if(count < 1)
+			throw tr("Cannot use 0 for a span");
+		sequence.append({
+							count,
+							parseSpan(match.captured(2))
+						});
+	}
+
+	return sequence;
+}
+
 void DateParser::validateDatumDatum(Datum *datum, const Datum *extraDatum)
 {
 	if(!datum)
@@ -694,6 +727,12 @@ void DateParser::validateDatumDatum(Datum *datum, const Datum *extraDatum)
 		Q_UNREACHABLE();
 		break;
 	}
+}
+
+void DateParser::validateSequenceDatum(const Sequence &sequence, const Datum *datum, const QTime &time)
+{
+	foreach(auto span, sequence)
+		validateSpanDatum(span.second, datum, time);
 }
 
 void DateParser::validateSpanDatum(Expression::Span span, const Datum *datum, const QTime &time)
