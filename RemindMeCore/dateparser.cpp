@@ -528,7 +528,7 @@ Type *DateParser::parseType(const QString &data, QObject *parent)
 		auto type = new Type(parent);
 		auto sequence = match.captured(1);
 		if(!sequence.isEmpty()) {
-			type->isDatum = true;
+			type->isDatum = false;
 			type->sequence = parseSequence(sequence);
 		} else {
 			type->isDatum = true;
@@ -613,8 +613,9 @@ QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 {
 	QLocale locale;
 	auto dates = tr("d.M.|dd.M.|d.MM.|dd.MM.|d. M.|dd. M.|d. MM.|dd. MM.|d. MMM|d. MMMM|dd. MMM|dd. MMMM|d-M|d-MM|dd-M|dd-MM").split(QStringLiteral("|"));
+	auto sData = data.simplified();
 	foreach(auto pattern, dates) {
-		auto date = locale.toDate(data, pattern);
+		auto date = locale.toDate(sData, pattern);
 		if(date.isValid())
 			return date;
 	}
@@ -629,8 +630,9 @@ QDate DateParser::parseDate(const QString &data, bool noThrow)
 {
 	QLocale locale;
 	auto dates = tr("d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy").split(QStringLiteral("|"));
+	auto sData = data.simplified();
 	foreach(auto pattern, dates) {
-		auto date = locale.toDate(data, pattern);
+		auto date = locale.toDate(sData, pattern);
 		if(date.isValid())
 			return date;
 	}
@@ -645,8 +647,9 @@ QTime DateParser::parseTime(const QString &data)
 {
 	QLocale locale;
 	auto times = tr("hh:mm|h:mm|h' oclock'").split(QStringLiteral("|"));
+	auto sData = data.simplified();
 	foreach(auto pattern, times) {
-		auto time = locale.toTime(data, pattern);
+		auto time = locale.toTime(sData, pattern);
 		if(time.isValid())
 			return time;
 	}
