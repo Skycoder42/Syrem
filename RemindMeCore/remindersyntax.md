@@ -22,7 +22,7 @@ tpoint := <date> | <datum> | <year> | <ahead>
 expression := <conjunction> | <offset> | <timespan> | <loop> | <point>
 
 conjuction := <expression> and|; <expression> [and|; <expression> ...]
-timespan	   := in {int} <span> [on|at|in <datum>] [<time>]
+timespan   := in {int} <span> [on|at|in <datum>] [<time>]
 loop       := every <type> [on|at|in <datum>] [<time>] [from <tpoint> [<time>]] [until <tpoint> [<time>]]
 point	   := [on|next] <tpoint> [<time>]
 ```
@@ -37,8 +37,7 @@ type: ^(?:(\d+) (\w+)|(.+?))$
 tpoint: ^(?:(today)|(tomorrow)|(\d{4})|(.*?))$
 
 conjuction: (\s+and\s+|\s*;\s*) [seperator]
-timespan: ^in (\d+) (\w+)(?:(?: on| at| in) (.+?))?(?: <time>)?$
-loop: ^every (.+?)(?:(?: on| at| in) (.+?))?(?: <time>)?(?: from ((?:(?!until).)*))?(?: until (.*))?$
+timespan: ^in (\d+) (\w+)(?:(?: on| at| in) (.+?))??(?: <time>)?$
+loop: ^every (.+?)(?:(?: on| at| in) (.+?))??(?: <time>)?(?: from ((?:(?!until).)*))?(?: until (.*))?$
 point: ^(?:on |next )?(.+?)(?: <time>)?$
 ```
-in (\d+) (.*) (?:(?:on |at |in ) (.*))? (.*)?

@@ -349,7 +349,7 @@ Conjunction *DateParser::tryParseConjunction(const QString &data, QObject *paren
 
 TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^%1 (\d+) (\w+)(?:(?:%2) (.+?))?(?: %3)?$)__")
+	static const QRegularExpression regex(QStringLiteral(R"__(^%1 (\d+) (\w+)(?:(?:%2) (.+?))??(?: %3)?$)__")
 										  .arg(tr("in"))
 										  .arg(tr(" on| at| in"))
 										  .arg(timeRegex),
@@ -380,7 +380,7 @@ TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 
 Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^%1 (.+?)(?:(?:%2) (.+?))?(?: %3)?(?: %4 ((?:(?!%5).)*))?(?: %5 (.*))?$)__")
+	static const QRegularExpression regex(QStringLiteral(R"__(^%1 (.+?)(?:(?:%2) (.+?))??(?: %3)?(?: %4 ((?:(?!%5).)*))?(?: %5 (.*))?$)__")
 										  .arg(tr("every"))
 										  .arg(tr(" on| at| in"))
 										  .arg(timeRegex)
@@ -603,7 +603,7 @@ QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data
 QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 {
 	QLocale locale;
-	auto dates = tr("d. M.|dd. M.|d. MM.|dd. MM.|d. MMM|d. MMMM|dd. MMM|dd. MMMM|d-M|d-MM|dd-M|dd-MM").split(QStringLiteral("|"));
+	auto dates = tr("d.M.|dd.M.|d.MM.|dd.MM.|d. M.|dd. M.|d. MM.|dd. MM.|d. MMM|d. MMMM|dd. MMM|dd. MMMM|d-M|d-MM|dd-M|dd-MM").split(QStringLiteral("|"));
 	foreach(auto pattern, dates) {
 		auto date = locale.toDate(data, pattern);
 		if(date.isValid())
