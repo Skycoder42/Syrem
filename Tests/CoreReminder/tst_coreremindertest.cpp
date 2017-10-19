@@ -705,6 +705,184 @@ void CoreReminderTest::testLoopReminder_data()
 											  QDateTime({2018, 10, 24}, {15, 30}),
 											  QDateTime({2019, 10, 24}, {15, 30})
 										   };
+
+	//loop.span.datum
+	QTest::newRow("loop.span.minute.datum.invalid") << QStringLiteral("every 30 minutes on Sunday")
+													<< QDateTime()
+													<< QList<QDateTime>();
+	QTest::newRow("loop.span.hour.datum.invalid") << QStringLiteral("every 2 hours in June")
+												  << QDateTime()
+												  << QList<QDateTime>();
+	QTest::newRow("loop.span.day.datum.invalid") << QStringLiteral("every 2 days on Mondays")
+												 << QDateTime()
+												 << QList<QDateTime>();
+	QTest::newRow("loop.span.week.datum.weekday") << QStringLiteral("every 2 weeks on Friday")
+												  << QDateTime({2017, 10, 17})
+												  << QList<QDateTime> {
+														QDateTime({2017, 11, 3}),
+														QDateTime({2017, 11, 17}),
+														QDateTime({2017, 12, 1})
+													 };
+	QTest::newRow("loop.span.week.datum.weekday.time") << QStringLiteral("every 2 weeks on Friday 15:30")
+													   << QDateTime({2017, 10, 17}, {15, 00})
+													   << QList<QDateTime> {
+															 QDateTime({2017, 11, 3}, {15, 30}),
+															 QDateTime({2017, 11, 17}, {15, 30}),
+															 QDateTime({2017, 12, 1}, {15, 30})
+														  };
+	QTest::newRow("loop.span.week.datum.invalid") << QStringLiteral("every 2 weeks in May")
+												  << QDateTime()
+												  << QList<QDateTime>();
+	QTest::newRow("loop.span.month.datum.weekday") << QStringLiteral("every 2 months on Tuesday")
+												   << QDateTime({2017, 8, 20})
+												   << QList<QDateTime> {
+														 QDateTime({2017, 10, 17}),
+														 QDateTime({2017, 12, 12}),
+														 QDateTime({2018, 2, 13}),
+														 QDateTime({2018, 4, 10})
+													  };
+	QTest::newRow("loop.span.month.datum.weekday.time") << QStringLiteral("every 2 months on Tuesday at 15:30")
+														<< QDateTime({2017, 8, 20}, {15, 00})
+														<< QList<QDateTime> {
+															  QDateTime({2017, 10, 17}, {15, 30}),
+															  QDateTime({2017, 12, 12}, {15, 30}),
+															  QDateTime({2018, 2, 13}, {15, 30}),
+															  QDateTime({2018, 4, 10}, {15, 30})
+														   };
+	QTest::newRow("loop.span.month.datum.day") << QStringLiteral("every 2 months at 24.")
+											   << QDateTime({2017, 8, 20})
+											   << QList<QDateTime> {
+													 QDateTime({2017, 10, 24}),
+													 QDateTime({2017, 12, 24}),
+													 QDateTime({2018, 2, 24}),
+													 QDateTime({2018, 4, 24})
+												  };
+	QTest::newRow("loop.span.month.datum.day.time") << QStringLiteral("every 2 months at 24. at 15:30")
+													<< QDateTime({2017, 8, 20}, {15, 00})
+													<< QList<QDateTime> {
+														  QDateTime({2017, 10, 24}, {15, 30}),
+														  QDateTime({2017, 12, 24}, {15, 30}),
+														  QDateTime({2018, 2, 24}, {15, 30}),
+														  QDateTime({2018, 4, 24}, {15, 30})
+													   };
+	QTest::newRow("loop.span.month.datum.invalid") << QStringLiteral("every 2 months at June")
+												   << QDateTime()
+												   << QList<QDateTime>();
+	QTest::newRow("loop.span.year.datum.weekday") << QStringLiteral("every 10 years on Tuesday")
+												  << QDateTime({2007, 10, 20})
+												  << QList<QDateTime> {
+														QDateTime({2017, 10, 17}),
+														QDateTime({2027, 10, 12}),
+														QDateTime({2037, 10, 13})
+													 };
+	QTest::newRow("loop.span.year.datum.weekday.time") << QStringLiteral("every 10 years on Tuesday at 15:30")
+													   << QDateTime({2007, 10, 20}, {15, 00})
+													   << QList<QDateTime> {
+															 QDateTime({2017, 10, 17}, {15, 30}),
+															 QDateTime({2027, 10, 12}, {15, 30}),
+															 QDateTime({2037, 10, 13}, {15, 30})
+														  };
+	QTest::newRow("loop.span.year.datum.day") << QStringLiteral("every 10 years at 24.")
+											  << QDateTime({2007, 10, 20})
+											  << QList<QDateTime> {
+													QDateTime({2017, 10, 24}),
+													QDateTime({2027, 10, 24}),
+													QDateTime({2037, 10, 24})
+												 };
+	QTest::newRow("loop.span.year.datum.day.time") << QStringLiteral("every 10 years at 24. 15:30")
+												   << QDateTime({2007, 10, 20}, {15, 00})
+												   << QList<QDateTime> {
+														 QDateTime({2017, 10, 24}, {15, 30}),
+														 QDateTime({2027, 10, 24}, {15, 30}),
+														 QDateTime({2037, 10, 24}, {15, 30})
+													  };
+	QTest::newRow("loop.span.year.datum.month") << QStringLiteral("every 10 years in November")
+												<< QDateTime({2007, 5, 31})
+												<< QList<QDateTime> {
+													  QDateTime({2017, 11, 30}),
+													  QDateTime({2027, 11, 30}),
+													  QDateTime({2037, 11, 30})
+												   };
+	QTest::newRow("loop.span.year.datum.month.time") << QStringLiteral("every 10 years in November at 15:30")
+													 << QDateTime({2007, 5, 31}, {15, 00})
+													 << QList<QDateTime> {
+														   QDateTime({2017, 11, 30}, {15, 30}),
+														   QDateTime({2027, 11, 30}, {15, 30}),
+														   QDateTime({2037, 11, 30}, {15, 30})
+														};
+	QTest::newRow("loop.span.year.datum.monthday") << QStringLiteral("every 10 years at 24.10.")
+												   << QDateTime({2007, 5, 31})
+												   << QList<QDateTime> {
+														 QDateTime({2017, 10, 24}),
+														 QDateTime({2027, 10, 24}),
+														 QDateTime({2037, 10, 24})
+													  };
+	QTest::newRow("loop.span.year.datum.monthday.time") << QStringLiteral("every 10 years at 24. October 15:30")
+														<< QDateTime({2007, 5, 31}, {15, 00})
+														<< QList<QDateTime> {
+															  QDateTime({2017, 10, 24}, {15, 30}),
+															  QDateTime({2027, 10, 24}, {15, 30}),
+															  QDateTime({2037, 10, 24}, {15, 30})
+														   };
+	QTest::newRow("loop.span.multi.datum.weekday") << QStringLiteral("every 2 years and 3 months on Friday")
+												   << QDateTime({2015, 5, 24})
+												   << QList<QDateTime> {
+														 QDateTime({2017, 8, 25}),
+														 QDateTime({2019, 11, 29}),
+														 QDateTime({2022, 3, 4})
+													  };
+	QTest::newRow("loop.span.multi.datum.weekday.time") << QStringLiteral("every 2 years and 3 months on Friday at 15:30")
+														<< QDateTime({2015, 5, 24}, {15, 00})
+														<< QList<QDateTime> {
+															  QDateTime({2017, 8, 25}, {15, 30}),
+															  QDateTime({2019, 11, 29}, {15, 30}),
+															  QDateTime({2022, 3, 4}, {15, 30})
+														   };
+	QTest::newRow("loop.span.multi.datum.invalid") << QStringLiteral("every 2 years and 3 months and 30 minutes on Friday")
+												   << QDateTime()
+												   << QList<QDateTime>();
+
+	//loop.datum
+	QTest::newRow("loop.weekday.datum.invalid") << QStringLiteral("every Tuesday on Sunday")
+												<< QDateTime()
+												<< QList<QDateTime>();
+	QTest::newRow("loop.day.datum.invalid") << QStringLiteral("every 24. on Friday")
+											<< QDateTime()
+											<< QList<QDateTime>();
+	QTest::newRow("loop.month.datum.weekday") << QStringLiteral("every October on Friday")
+											  << QDateTime({2017, 8, 24})
+											  << QList<QDateTime> {
+													QDateTime({2017, 10, 27}),
+													QDateTime({2018, 10, 26}),
+													QDateTime({2019, 10, 25})
+												 };
+	QTest::newRow("loop.month.datum.weekday.time") << QStringLiteral("every October on Friday at 15:30")
+												   << QDateTime({2017, 8, 24}, {15, 00})
+												   << QList<QDateTime> {
+														 QDateTime({2017, 10, 27}, {15, 30}),
+														 QDateTime({2018, 10, 26}, {15, 30}),
+														 QDateTime({2019, 10, 25}, {15, 30})
+													  };
+	QTest::newRow("loop.month.datum.day") << QStringLiteral("every October at 24.")
+										  << QDateTime({2017, 8, 20})
+										  << QList<QDateTime> {
+												QDateTime({2017, 10, 24}),
+												QDateTime({2018, 10, 24}),
+												QDateTime({2019, 10, 24})
+											 };
+	QTest::newRow("loop.month.datum.day.time") << QStringLiteral("every October at 24. 15:30")
+											   << QDateTime({2017, 8, 20}, {15, 00})
+											   << QList<QDateTime> {
+													 QDateTime({2017, 10, 24}, {15, 30}),
+													 QDateTime({2018, 10, 24}, {15, 30}),
+													 QDateTime({2019, 10, 24}, {15, 30})
+												  };
+	QTest::newRow("loop.month.datum.invalid") << QStringLiteral("every October in August")
+											  << QDateTime()
+											  << QList<QDateTime>();
+	QTest::newRow("loop.monthday.datum.invalid") << QStringLiteral("every 24.10. on Friday")
+												 << QDateTime()
+												 << QList<QDateTime>();
 }
 
 void CoreReminderTest::testLoopReminder()
