@@ -181,7 +181,7 @@ bool TimePoint::isLess(const TimePoint *other) const
 		return date.year() < other->date.year();
 }
 
-QDate TimePoint::nextDate(QDate wDate) const
+QDate TimePoint::nextDate(QDate wDate, bool notToday) const
 {
 	switch (mode) {
 	case TimePoint::InvalidMode:
@@ -193,7 +193,7 @@ QDate TimePoint::nextDate(QDate wDate) const
 			return {};
 	case TimePoint::DatumMode:
 		if(datum)
-			return datum->nextDate(wDate, false, true); //no scope reset, but not today/this month -> the next possible occurance
+			return datum->nextDate(wDate, false, notToday); //no scope reset, but not today/this month -> the next possible occurance
 		else
 			return {};
 	case TimePoint::YearMode:
@@ -268,7 +268,7 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 		fDate = since;
 
 	if(until) {
-		uDate.setDate(until->nextDate(fDate.date()));
+		uDate.setDate(until->nextDate(fDate.date(), false));//include today, as only time difference is possible
 		if(!uDate.isValid())
 			return nullptr;
 		if(untilTime.isValid())

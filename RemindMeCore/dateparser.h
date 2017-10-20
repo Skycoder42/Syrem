@@ -100,7 +100,7 @@ public:
 	TimePoint(QObject *parent = nullptr);
 
 	bool isLess(const TimePoint *other) const;
-	QDate nextDate(QDate wDate) const;
+	QDate nextDate(QDate wDate, bool notToday = true) const;
 
 	Mode mode;
 	QDate date;
