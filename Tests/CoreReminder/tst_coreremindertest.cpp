@@ -46,6 +46,14 @@ void CoreReminderTest::testTimePointReminder_data()
 							 << QDateTime()
 							 << QDateTime();
 
+	//timepoin.time
+	QTest::newRow("time") << QStringLiteral("15:30")
+						  << QDateTime({2017, 10, 24}, {15, 00})
+						  << QDateTime({2017, 10, 24}, {15, 30});
+	QTest::newRow("time.prefix") << QStringLiteral("at 15:30")
+								 << QDateTime({2017, 10, 24}, {15, 00})
+								 << QDateTime({2017, 10, 24}, {15, 30});
+
 	//timepoint.date
 	QTest::newRow("date") << QStringLiteral("24-10-2017")
 						  << QDateTime({2017, 10, 1})
@@ -1103,6 +1111,62 @@ void CoreReminderTest::testLoopReminder_data()
 	QTest::newRow("loop.span.until.datum.invalid") << QStringLiteral("every October in April until 4. July")
 												   << QDateTime()
 												   << QList<QDateTime>();
+
+	//loop.from.until
+	//TODO fix
+	QTest::newRow("loop.span.from.until") << QStringLiteral("every 30 minutes from 25. October until 25. October at 02:45")
+										  << QDateTime({2017, 10, 24}, {22, 00})
+										  << QList<QDateTime> {
+												QDateTime({2017, 10, 25}, {00, 30}),
+												QDateTime({2017, 10, 25}, {1, 00}),
+												QDateTime({2017, 10, 25}, {1, 30}),
+												QDateTime({2017, 10, 25}, {2, 00}),
+												QDateTime({2017, 10, 25}, {2, 30}),
+												QDateTime()
+											 };
+	return;
+	QTest::newRow("loop.span.from.time") << QStringLiteral("every 30 minutes from 25. October at 21:00")
+										 << QDateTime({2017, 10, 24}, {22, 00})
+										 << QList<QDateTime> {
+											   QDateTime({2017, 10, 25}, {21, 30}),
+											   QDateTime({2017, 10, 25}, {22, 00}),
+											   QDateTime({2017, 10, 25}, {22, 30}),
+											   QDateTime({2017, 10, 25}, {23, 00}),
+											   QDateTime({2017, 10, 25}, {23, 30}),
+											   QDateTime({2017, 10, 26}, {0, 00}),
+											   QDateTime({2017, 10, 26}, {0, 30})
+											};
+	QTest::newRow("loop.span.from.datum") << QStringLiteral("every 2 weeks on Friday from 24.10.2017")
+										  << QDateTime({2010, 10, 24})
+										  << QList<QDateTime> {
+												QDateTime({2017, 11, 10}),
+												QDateTime({2017, 11, 24}),
+												QDateTime({2017, 12, 8})
+											 };
+	QTest::newRow("loop.span.from.time.datum") << QStringLiteral("every 2 weeks on Friday from 24.10.2017 15:30")
+											   << QDateTime({2010, 10, 24}, {15, 00})
+											   << QList<QDateTime> {
+													 QDateTime({2017, 11, 10}, {15, 30}),
+													 QDateTime({2017, 11, 24}, {15, 30}),
+													 QDateTime({2017, 12, 8}, {15, 30})
+												  };
+	QTest::newRow("loop.span.from.datum.time") << QStringLiteral("every 2 weeks on Friday at 15:30 from 24.10.2017")
+											   << QDateTime({2010, 10, 24}, {15, 00})
+											   << QList<QDateTime> {
+													 QDateTime({2017, 11, 10}, {15, 30}),
+													 QDateTime({2017, 11, 24}, {15, 30}),
+													 QDateTime({2017, 12, 8}, {15, 30})
+												  };
+	QTest::newRow("loop.span.from.time.datum.time") << QStringLiteral("every 2 weeks on Friday at 15:30 from 24.10.2017 at 17:00")
+													<< QDateTime({2010, 10, 24}, {15, 00})
+													<< QList<QDateTime> {
+														  QDateTime({2017, 11, 10}, {15, 30}),
+														  QDateTime({2017, 11, 24}, {15, 30}),
+														  QDateTime({2017, 12, 8}, {15, 30})
+													   };
+	QTest::newRow("loop.span.from.datum.invalid") << QStringLiteral("every 2 weeks on October from 24.10.2017")
+												  << QDateTime()
+												  << QList<QDateTime>();
 }
 
 void CoreReminderTest::testLoopReminder()

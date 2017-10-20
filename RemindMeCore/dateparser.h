@@ -150,6 +150,17 @@ public:
 	QTime untilTime;
 };
 
+class TimeEx : public Expression
+{
+	Q_OBJECT
+
+public:
+	TimeEx(QObject *parent = nullptr);
+	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
+
+	QTime time;
+};
+
 class Point : public Expression
 {
 	Q_OBJECT
@@ -181,6 +192,7 @@ private:
 	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
 	ParserTypes::TimeSpan *tryParseTimeSpan(const QString &data, QObject *parent);
 	ParserTypes::Loop *tryParseLoop(const QString &data, QObject *parent);
+	ParserTypes::TimeEx *tryParseTimeEx(const QString &data, QObject *parent);
 	ParserTypes::Point *tryParsePoint(const QString &data, QObject *parent);
 
 	ParserTypes::Datum *parseDatum(const QString &data, QObject *parent);

@@ -290,6 +290,21 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 	return sched;
 }
 
+TimeEx::TimeEx(QObject *parent) :
+	Expression(parent),
+	time()
+{}
+
+Schedule *TimeEx::createSchedule(const QDateTime &since, QObject *parent)
+{
+	if(since.time() < time) {
+		auto tp = since;
+		tp.setTime(time);
+		return new OneTimeSchedule(tp, parent);
+	} else
+		return nullptr;
+}
+
 Point::Point(QObject *parent) :
 	Expression(parent),
 	date(nullptr),
@@ -311,14 +326,14 @@ Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 	return new OneTimeSchedule(tp, parent);
 }
 
-DateParser::DateParser(QObject *parent) :
-	QObject(parent)
-{}
-
 
 
 const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}|\d{1,2} oclock))__");//TODO translate
 const QString DateParser::sequenceRegex = QStringLiteral(R"__(((?:\d+) (?:\w+)(?: and (?:\d+) (?:\w+))*))__");//TODO translate
+
+DateParser::DateParser(QObject *parent) :
+	QObject(parent)
+{}
 
 Expression *DateParser::parse(const QString &data)
 {
@@ -349,6 +364,10 @@ Expression *DateParser::parseExpression(const QString &data, QObject *parent)
 		return expr;
 
 	expr = tryParseLoop(data, parent);
+	if(expr)
+		return expr;
+
+	expr = tryParseTimeEx(data, parent);
 	if(expr)
 		return expr;
 
@@ -449,6 +468,20 @@ Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 		}
 
 		return loop;
+	} else
+		return nullptr;
+}
+
+TimeEx *DateParser::tryParseTimeEx(const QString &data, QObject *parent)
+{
+	static const QRegularExpression regex(QStringLiteral("^%1$").arg(timeRegex),
+										  QRegularExpression::OptimizeOnFirstUsageOption |
+										  QRegularExpression::CaseInsensitiveOption);
+	auto match = regex.match(data.simplified());
+	if(match.hasMatch()) {
+		auto tx = new TimeEx(parent);
+		tx->time = parseTime(match.captured(1));
+		return tx;
 	} else
 		return nullptr;
 }
