@@ -1,5 +1,6 @@
 #include "remindmedaemon.h"
 #include <QRemoteObjectHost>
+#include <QCoreApplication>
 
 #include "remindermanager.h"
 
@@ -7,11 +8,11 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	QObject(parent)
 {}
 
-void RemindMeDaemon::setupDaemon()
+void RemindMeDaemon::startDaemon()
 {
 	_hostNode = new QRemoteObjectHost(this);
 	_hostNode->setName(QStringLiteral("daemon"));
-	if(!_hostNode->setHostUrl(QUrl(QStringLiteral("local:remindme")))) {
+	if(!_hostNode->setHostUrl(QUrl(QStringLiteral("local:remindme-daemon")))) {
 		qCritical() << _hostNode->lastError();
 		return;
 	}
@@ -23,4 +24,12 @@ void RemindMeDaemon::setupDaemon()
 	}
 
 	qDebug() << "daemon started";
+}
+
+void RemindMeDaemon::commandMessage(const QStringList &message)
+{
+	if(message.contains(QStringLiteral("--quit"))) {
+		qInfo() << "Received quit command, stopping";
+		qApp->quit();
+	}
 }

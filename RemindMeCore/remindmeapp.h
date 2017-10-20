@@ -13,9 +13,6 @@ class RemindMeApp : public CoreApp
 public:
 	explicit RemindMeApp(QObject *parent = nullptr);
 
-public slots:
-	void commandMessage(const QStringList &message);
-
 protected:
 	void setupParser(QCommandLineParser &parser, bool &allowInvalid) const override;
 	bool startApp(const QCommandLineParser &parser) override;
@@ -27,9 +24,6 @@ private:
 	QRemoteObjectNode *_roNode;
 
 	MainControl *_mainControl;
-
-	bool startMainGui();
-	bool startDaemon();
 };
 
 #undef coreApp

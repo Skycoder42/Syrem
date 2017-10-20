@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <widgetpresenter.h>
 #include <remindmeapp.h>
+#include <remindmedaemon.h>
 #include <qsingleinstance.h>
 #include <QProcess>
 #include <QThread>
@@ -31,16 +32,20 @@ int main(int argc, char *argv[])
 
 	QSingleInstance instance;
 	instance.setStartupFunction([&](){
-		if(!isDaemon){
+		if(isDaemon) {
+			auto daemon = new RemindMeDaemon(qApp);
+
+			QObject::connect(&instance, &QSingleInstance::instanceMessage,
+							 daemon, &RemindMeDaemon::commandMessage);
+
+			QMetaObject::invokeMethod(daemon, "startDaemon", Qt::QueuedConnection);
+		} else {
 			if(!ensureDaemonRunning())
 				return EXIT_FAILURE;
+
+			WidgetPresenter::registerWidget<MainWindow>();
+			coreApp->bootApp();
 		}
-
-		WidgetPresenter::registerWidget<MainWindow>();
-		coreApp->bootApp();
-
-		QObject::connect(&instance, &QSingleInstance::instanceMessage,
-						 coreApp, &RemindMeApp::commandMessage);
 
 		return EXIT_SUCCESS;
 	});

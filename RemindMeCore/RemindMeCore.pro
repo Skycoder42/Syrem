@@ -12,9 +12,6 @@ HEADERS += \
 	remindmeapp.h \
 	maincontrol.h
 
-# special include - the daemon header itself
-HEADERS += ../RemindMeDaemon/remindmedaemon.h
-
 SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp

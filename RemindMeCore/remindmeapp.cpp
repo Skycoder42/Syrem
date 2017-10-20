@@ -1,8 +1,6 @@
 #include "remindmeapp.h"
 #include "rep_remindermanager_replica.h"
 
-#include "../RemindMeDaemon/remindmedaemon.h"
-
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
 	_roNode(nullptr),
@@ -12,19 +10,6 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 
 	//if you are using a qt resource (e.g. "remindmecore.qrc"), initialize it here
 	//Q_INIT_RESOURCE(remindmecore);
-}
-
-void RemindMeApp::commandMessage(const QStringList &message)
-{
-	auto parser = getParser();
-	if(!parser->parse(message))
-		qWarning() << "Invalid arguments received!";
-	else {
-		if(parser->isSet(QStringLiteral("quit"))){
-			qInfo() << "Received quit command, stopping daemon";
-			qApp->quit();
-		}
-	}
 }
 
 void RemindMeApp::setupParser(QCommandLineParser &parser, bool &allowInvalid) const
@@ -48,22 +33,14 @@ bool RemindMeApp::startApp(const QCommandLineParser &parser)
 	if(autoShowHelpOrVersion(parser))
 		return true;
 
-	if(parser.isSet(QStringLiteral("daemon")))
-		return startDaemon();
-	else
-		return startMainGui();
-}
+	if(parser.isSet(QStringLiteral("daemon"))) {
+		qCritical() << "no qtmvvm app should be started when running as daemon";
+		return false;
+	}
 
-void RemindMeApp::aboutToQuit()
-{
-	//if you need to perform any cleanups, do it here
-}
-
-bool RemindMeApp::startMainGui()
-{
 	_roNode = new QRemoteObjectNode(this);
 	_roNode->setName(QStringLiteral("widgets-main"));
-	if(!_roNode->connectToNode(QUrl(QStringLiteral("local:remindme")))) {
+	if(!_roNode->connectToNode(QUrl(QStringLiteral("local:remindme-daemon")))) {
 		qCritical() << _roNode->lastError();
 		return false;
 	}
@@ -79,9 +56,7 @@ bool RemindMeApp::startMainGui()
 	return true;
 }
 
-bool RemindMeApp::startDaemon()
+void RemindMeApp::aboutToQuit()
 {
-	auto daemon = new RemindMeDaemon(this);
-	daemon->setupDaemon();
-	return true;
+	//if you need to perform any cleanups, do it here
 }

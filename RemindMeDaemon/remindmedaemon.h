@@ -13,7 +13,9 @@ public:
 	RemindMeDaemon(QObject *parent = nullptr);
 
 public slots:
-	void setupDaemon();
+	void startDaemon();
+
+	void commandMessage(const QStringList &message);
 
 private:
 	QRemoteObjectHost *_hostNode;
