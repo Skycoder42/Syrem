@@ -11,8 +11,6 @@
 //register the core app to be used
 REGISTER_CORE_APP(RemindMeApp)
 
-static bool ensureDaemonRunning();
-
 int main(int argc, char *argv[])
 {
 	CoreApp::disableBoot();
@@ -23,49 +21,28 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.ico")));
+	//DEBUG QApplication::setQuitOnLastWindowClosed(false);
 
-	auto parser = coreApp->getParser();
-	auto isDaemon = parser->isSet(QStringLiteral("daemon"));
-
-	if(isDaemon)
-		QApplication::setApplicationName(QApplication::applicationName() + QStringLiteral("-daemon"));
+	//NOTE: for widgets, both daemon and app are run as "one"
 
 	QSingleInstance instance;
 	instance.setStartupFunction([&](){
-		if(isDaemon) {
-			auto daemon = new RemindMeDaemon(qApp);
+		//daemon
+		auto daemon = new RemindMeDaemon(qApp);
+		daemon->startDaemon();
+		QObject::connect(&instance, &QSingleInstance::instanceMessage,
+						 daemon, &RemindMeDaemon::commandMessage);
 
-			QObject::connect(&instance, &QSingleInstance::instanceMessage,
-							 daemon, &RemindMeDaemon::commandMessage);
 
-			QMetaObject::invokeMethod(daemon, "startDaemon", Qt::QueuedConnection);
-		} else {
-			if(!ensureDaemonRunning())
-				return EXIT_FAILURE;
+		//app
+		WidgetPresenter::registerWidget<MainWindow>();
 
-			WidgetPresenter::registerWidget<MainWindow>();
-			coreApp->bootApp();
-		}
+		coreApp->bootApp();
+		QObject::connect(&instance, &QSingleInstance::instanceMessage,
+						 coreApp, &RemindMeApp::commandMessage);
 
 		return EXIT_SUCCESS;
 	});
 
 	return instance.singleExec();
-}
-
-static bool ensureDaemonRunning()
-{
-	if(!QProcess::startDetached(QCoreApplication::applicationFilePath(), {QStringLiteral("--daemon")}))
-		return false;
-
-#ifndef QT_NO_DEBUG
-	QObject::connect(qApp, &QApplication::aboutToQuit, []() {
-		QProcess::startDetached(QCoreApplication::applicationFilePath(), {
-									QStringLiteral("--daemon"),
-									QStringLiteral("--quit")
-								});
-	});
-#endif
-
-	return true;
 }

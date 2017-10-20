@@ -28,6 +28,9 @@ void RemindMeDaemon::startDaemon()
 
 void RemindMeDaemon::commandMessage(const QStringList &message)
 {
+	if(!message.contains(QStringLiteral("--daemon")))
+		return;
+
 	if(message.contains(QStringLiteral("--quit"))) {
 		qInfo() << "Received quit command, stopping";
 		qApp->quit();

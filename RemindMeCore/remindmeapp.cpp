@@ -6,10 +6,19 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	_roNode(nullptr),
 	_mainControl(nullptr)
 {
-	//register metatypes etc here, just like you would do in your main before call QCoreApplication::exec
+}
 
-	//if you are using a qt resource (e.g. "remindmecore.qrc"), initialize it here
-	//Q_INIT_RESOURCE(remindmecore);
+void RemindMeApp::commandMessage(const QStringList &message)
+{
+	auto parser = getParser();
+	if(!parser->parse(message))
+		qWarning() << "Invalid arguments received!";
+	else {
+		if(parser->isSet(QStringLiteral("daemon")))
+			return;
+
+		showControl(_mainControl);
+	}
 }
 
 void RemindMeApp::setupParser(QCommandLineParser &parser, bool &allowInvalid) const
@@ -33,11 +42,6 @@ bool RemindMeApp::startApp(const QCommandLineParser &parser)
 	if(autoShowHelpOrVersion(parser))
 		return true;
 
-	if(parser.isSet(QStringLiteral("daemon"))) {
-		qCritical() << "no qtmvvm app should be started when running as daemon";
-		return false;
-	}
-
 	_roNode = new QRemoteObjectNode(this);
 	_roNode->setName(QStringLiteral("widgets-main"));
 	if(!_roNode->connectToNode(QUrl(QStringLiteral("local:remindme-daemon")))) {
@@ -52,7 +56,11 @@ bool RemindMeApp::startApp(const QCommandLineParser &parser)
 	}
 
 	_mainControl = new MainControl(this);
-	showControl(_mainControl);
+
+	if(parser.isSet(QStringLiteral("daemon")))
+		qWarning() << "no qtmvvm app should be started when running as daemon";
+	else
+		showControl(_mainControl);
 	return true;
 }
 
