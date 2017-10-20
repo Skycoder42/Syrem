@@ -16,12 +16,26 @@ class Schedule : public QObject
 	Q_CLASSINFO("polymorphic", "true")
 
 	Q_PROPERTY(bool repeating READ isRepeating STORED false CONSTANT)
+	Q_PROPERTY(QDateTime current READ current MEMBER _current NOTIFY currentChanged)
 
 public:
 	explicit Schedule(QObject *parent = nullptr);
+	explicit Schedule(const QDateTime &since, QObject *parent = nullptr);
 
 	virtual bool isRepeating() const = 0;
-	virtual QDateTime nextSchedule(const QDateTime &since) = 0;//TODO important: for loops always use the last trigger as since
+	QDateTime current() const;
+
+public slots:
+	QDateTime nextSchedule();
+
+signals:
+	void currentChanged(QDateTime current);
+
+protected:
+	virtual QDateTime generateNextSchedule() = 0;
+
+private:
+	QDateTime _current;
 };
 
 class OneTimeSchedule : public Schedule
@@ -32,10 +46,12 @@ class OneTimeSchedule : public Schedule
 
 public:
 	Q_INVOKABLE OneTimeSchedule(QObject *parent = nullptr);
-	OneTimeSchedule(const QDateTime timepoint, QObject *parent = nullptr);
+	OneTimeSchedule(const QDateTime timepoint, const QDateTime &since, QObject *parent = nullptr);
 
 	bool isRepeating() const override;
-	QDateTime nextSchedule(const QDateTime &since) override;
+
+protected:
+	QDateTime generateNextSchedule() override;
 
 private:
 	QDateTime timepoint;
@@ -73,9 +89,12 @@ public:
 	Q_ENUM(Span)
 
 	Q_INVOKABLE LoopSchedule(QObject *parent = nullptr);
+	LoopSchedule(const QDateTime &since, QObject *parent = nullptr);
 
 	bool isRepeating() const override;
-	QDateTime nextSchedule(const QDateTime &since) override;
+
+protected:
+	QDateTime generateNextSchedule() override;
 
 private:
 	ParserTypes::Type *type;
@@ -94,11 +113,14 @@ class MultiSchedule : public Schedule
 
 public:
 	Q_INVOKABLE MultiSchedule(QObject *parent = nullptr);
+	MultiSchedule(const QDateTime &since, QObject *parent = nullptr);
 
 	void addSubSchedule(Schedule *schedule);
 
 	bool isRepeating() const override;
-	QDateTime nextSchedule(const QDateTime &since) override;
+
+protected:
+	QDateTime generateNextSchedule() override;
 
 private:
 	QList<Schedule*> subSchedules;

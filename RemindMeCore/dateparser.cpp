@@ -214,7 +214,7 @@ Conjunction::Conjunction(QObject *parent) :
 
 Schedule *Conjunction::createSchedule(const QDateTime &since, QObject *parent)
 {
-	auto schedule = new MultiSchedule(parent);
+	auto schedule = new MultiSchedule(since, parent);
 	foreach(auto expr, expressions)
 		schedule->addSubSchedule(expr->createSchedule(since, schedule));
 	return schedule;
@@ -237,7 +237,7 @@ Schedule *TimeSpan::createSchedule(const QDateTime &since, QObject *parent)
 	if(time.isValid())
 		tp.setTime(time);
 
-	return new OneTimeSchedule(tp, parent);
+	return new OneTimeSchedule(tp, since, parent);
 }
 
 Loop::Loop(QObject *parent) :
@@ -277,7 +277,7 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 			return nullptr;
 	}
 
-	auto sched = new LoopSchedule(parent);
+	auto sched = new LoopSchedule(since, parent);
 
 	sched->type = type;
 	sched->datum = datum;
@@ -300,7 +300,7 @@ Schedule *TimeEx::createSchedule(const QDateTime &since, QObject *parent)
 	if(since.time() < time) {
 		auto tp = since;
 		tp.setTime(time);
-		return new OneTimeSchedule(tp, parent);
+		return new OneTimeSchedule(tp, since, parent);
 	} else
 		return nullptr;
 }
@@ -323,7 +323,7 @@ Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 	if(tp <= since)
 		return nullptr;
 
-	return new OneTimeSchedule(tp, parent);
+	return new OneTimeSchedule(tp, since, parent);
 }
 
 
