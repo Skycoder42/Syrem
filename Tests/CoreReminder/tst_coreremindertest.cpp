@@ -21,6 +21,9 @@ private Q_SLOTS:
 	void testLoopReminder_data();
 	void testLoopReminder();
 
+	void testConjunctionReminder_data();
+	void testConjunctionReminder();
+
 private:
 	DateParser *parser;
 };
@@ -296,7 +299,7 @@ void CoreReminderTest::testTimePointReminder()
 		if(result.isValid()) {
 			QVERIFY(sched);
 			QVERIFY(!sched->isRepeating());
-			QCOMPARE(sched->nextSchedule(since), result);
+			QCOMPARE(sched->nextSchedule(), result);
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
@@ -506,7 +509,7 @@ void CoreReminderTest::testTimeSpanReminder()
 		if(result.isValid()) {
 			QVERIFY(sched);
 			QVERIFY(!sched->isRepeating());
-			QCOMPARE(sched->nextSchedule(since), result);
+			QCOMPARE(sched->nextSchedule(), result);
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
@@ -1239,10 +1242,123 @@ void CoreReminderTest::testLoopReminder()
 		if(!results.isEmpty()) {
 			QVERIFY(sched);
 			QVERIFY(sched->isRepeating());
-			auto next = since;
 			while(!results.isEmpty()) {
 				auto goal = results.takeFirst();
-				next = sched->nextSchedule(next);
+				auto next = sched->nextSchedule();
+				QCOMPARE(next, goal);
+			}
+			sched->deleteLater();
+		} else
+			QVERIFY(!sched);
+		expr->deleteLater();
+	} else
+		QVERIFY(!expr);
+}
+
+void CoreReminderTest::testConjunctionReminder_data()
+{
+	QTest::addColumn<QString>("query");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QList<QDateTime>>("results");
+
+	//conj.basic
+	QTest::newRow("conj.timepoint") << QStringLiteral("15:30;"
+													  "27.10.2017; 28.10.2017 at 15:30;"
+													  "Sunday; Friday 17:00;"
+													  "11.; 13. 13:13;"
+													  "April; December at 15:30;"
+													  "1. April; 4.7. 17:00;"
+													  "2020; 2020 20:20")
+									<< QDateTime({2017, 10, 24})
+									<< QList<QDateTime> {
+										   QDateTime({2017, 10, 24}, {15, 30}),
+										   QDateTime({2017, 10, 27}),
+										   QDateTime({2017, 10, 27}, {17, 00}),
+										   QDateTime({2017, 10, 28}, {15, 30}),
+										   QDateTime({2017, 10, 29}),
+										   QDateTime({2017, 11, 11}),
+										   QDateTime({2017, 11, 13}, {13, 13}),
+										   QDateTime({2017, 12, 24}, {15, 30}),
+										   QDateTime({2018, 4, 1}),
+										   QDateTime({2018, 4, 24}),
+										   QDateTime({2018, 7, 4}, {17, 00}),
+										   QDateTime({2020, 10, 24}),
+										   QDateTime({2020, 10, 24}, {20, 20}),
+										   QDateTime()
+									   };
+	QTest::newRow("conj.timespan") << QStringLiteral("in 1 hours and 20 minutes;"
+													 "in 2 days at 15:30;"
+													 "in 4 weeks on Monday at 17:00")
+								   << QDateTime({2017, 10, 24}, {15, 00})
+								   << QList<QDateTime> {
+										  QDateTime({2017, 10, 24}, {16, 20}),
+										  QDateTime({2017, 10, 26}, {15, 30}),
+										  QDateTime({2017, 11, 20}, {17, 00}),
+										  QDateTime()
+									  };
+	QTest::newRow("conj.loop") << QStringLiteral("every 12 hours and 30 minutes from 27. at 15:00;"
+												 "every 2 days at 19:45;"
+												 "every Thursday at 18:00")
+							   << QDateTime({2017, 11, 24}, {15, 00})
+							   << QList<QDateTime> {
+									  QDateTime({2017, 11, 26}, {19, 45}),
+									  QDateTime({2017, 11, 28}, {3, 30}),
+									  QDateTime({2017, 11, 28}, {16, 00}),
+									  QDateTime({2017, 11, 28}, {19, 45}),
+									  QDateTime({2017, 11, 29}, {4, 30}),
+									  QDateTime({2017, 11, 29}, {17, 00}),
+									  QDateTime({2017, 11, 30}, {5, 30}),
+									  QDateTime({2017, 11, 30}, {18, 00}),
+									  QDateTime({2017, 11, 30}, {19, 45}),
+									  QDateTime({2017, 12, 1}, {6, 30})
+								  };
+	QTest::newRow("conj.loop.until") << QStringLiteral("every 12 hours and 30 minutes from 27. at 15:00 until 1. December;"
+													   "every 2 days at 19:45 until 1. December;"
+													   "every Thursday at 18:00 until 1. December")
+									 << QDateTime({2017, 11, 24}, {15, 00})
+									 << QList<QDateTime> {
+											QDateTime({2017, 11, 26}, {19, 45}),
+											QDateTime({2017, 11, 28}, {3, 30}),
+											QDateTime({2017, 11, 28}, {16, 00}),
+											QDateTime({2017, 11, 28}, {19, 45}),
+											QDateTime({2017, 11, 29}, {4, 30}),
+											QDateTime({2017, 11, 29}, {17, 00}),
+											QDateTime({2017, 11, 30}, {5, 30}),
+											QDateTime({2017, 11, 30}, {18, 00}),
+											QDateTime({2017, 11, 30}, {19, 45}),
+											QDateTime()
+										};
+
+	//conj.multi
+	QTest::newRow("conj.multi") << QStringLiteral("on 11.11.2017 at 11:11;"
+												  "in 2 Months on 7.;"
+												  "every 2 years at 13. August at 15:30 until 2022")
+								   << QDateTime({2017, 10, 24}, {15, 00})
+								   << QList<QDateTime> {
+										  QDateTime({2017, 11, 11}, {11, 11}),
+										  QDateTime({2017, 12, 7}, {15, 00}),
+										  QDateTime({2019, 8, 13}, {15, 30}),
+										  QDateTime({2021, 8, 13}, {15, 30}),
+										  QDateTime()
+									  };
+}
+
+void CoreReminderTest::testConjunctionReminder()
+{
+	QFETCH(QString, query);
+	QFETCH(QDateTime, since);
+	QFETCH(QList<QDateTime>, results);
+
+	auto expr = parser->parse(query);
+	if(since.isValid()) {
+		QVERIFY(expr);
+		auto sched = expr->createSchedule(since, this);
+		if(!results.isEmpty()) {
+			QVERIFY(sched);
+			QVERIFY(sched->isRepeating());
+			while(!results.isEmpty()) {
+				auto goal = results.takeFirst();
+				auto next = sched->nextSchedule();
 				QCOMPARE(next, goal);
 			}
 			sched->deleteLater();
