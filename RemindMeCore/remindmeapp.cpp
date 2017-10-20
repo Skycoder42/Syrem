@@ -1,6 +1,7 @@
 #include "remindmeapp.h"
-
 #include "rep_remindermanager_replica.h"
+
+#include "../RemindMeDaemon/remindmedaemon.h"
 
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
@@ -80,20 +81,7 @@ bool RemindMeApp::startMainGui()
 
 bool RemindMeApp::startDaemon()
 {
-//	auto node = new QRemoteObjectHost(this);
-//	node->setName(QStringLiteral("daemon"));
-//	if(!node->setHostUrl(QUrl(QStringLiteral("local:remindme")))) {
-//		qCritical() << node->lastError();
-//		return false;
-//	}
-//	_roNode = node;
-
-//	auto rmManager = new ReminderManager(this);
-//	if(!node->enableRemoting(rmManager)) {
-//		qCritical() << node->lastError();
-//		return false;
-//	}
-
-//	qDebug() << "daemon started";
-//	return true;
+	auto daemon = new RemindMeDaemon(this);
+	daemon->setupDaemon();
+	return true;
 }

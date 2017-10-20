@@ -1,14 +1,17 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+	RemindMeDaemon \
+	RemindMeCore \
 	RemindMeWidgets \
 	RemindMeQuick \
-	RemindMeCore \
-	Tests \
-    RemindMeDaemon
+	Tests
 
-RemindMeWidgets.depends += RemindMeCore
-RemindMeQuick.depends += RemindMeCore
-Tests.depends += RemindMeCore
+RemindMeWidgets.depends += RemindMeCore RemindMeDaemon
+RemindMeQuick.depends += RemindMeCore RemindMeDaemon
+Tests.depends += RemindMeDaemon
+
+#DEBUG qpmx bug
+RemindMeCore.depends += RemindMeDaemon
 
 DISTFILES += .qmake.conf

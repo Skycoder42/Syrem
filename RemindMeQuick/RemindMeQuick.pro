@@ -40,5 +40,19 @@ else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PW
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../RemindMeCore/debug/RemindMeCore.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeCore/libRemindMeCore.a
 
+# Link with daemon project
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeDaemon/release/ -lRemindMeDaemon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RemindMeDaemon/debug/ -lRemindMeDaemon
+else:unix: LIBS += -L$$OUT_PWD/../RemindMeDaemon/ -lRemindMeDaemon
+
+INCLUDEPATH += $$PWD/../RemindMeDaemon
+DEPENDPATH += $$PWD/../RemindMeDaemon
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/release/libRemindMeDaemon.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/debug/libRemindMeDaemon.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/release/RemindMeDaemon.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/debug/RemindMeDaemon.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
+
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)

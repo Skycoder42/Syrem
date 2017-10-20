@@ -9,12 +9,14 @@ VERSION = $$RM_VERSION
 DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
+	remindmedaemon.h \
 	remindermanager.h \
 	reminder.h \
 	dateparser.h \
 	schedule.h
 
 SOURCES += \
+	remindmedaemon.cpp \
 	remindermanager.cpp \
 	reminder.cpp \
 	dateparser.cpp \
