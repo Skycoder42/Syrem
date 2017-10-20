@@ -253,24 +253,39 @@ Loop::Loop(QObject *parent) :
 
 Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 {
+	QDateTime fDate;
+	QDateTime uDate;
+
+	if(from) {
+		fDate.setDate(from->nextDate(since.date()));
+		if(!fDate.isValid())
+			return nullptr;
+		if(fromTime.isValid())
+			fDate.setTime(fromTime);
+		if(fDate < since)
+			return nullptr;
+	} else
+		fDate = since;
+
+	if(until) {
+		uDate.setDate(until->nextDate(fDate.date()));
+		if(!uDate.isValid())
+			return nullptr;
+		if(untilTime.isValid())
+			uDate.setTime(untilTime);
+		if(uDate <= fDate)
+			return nullptr;
+	}
+
 	auto sched = new LoopSchedule(parent);
 
 	sched->type = type;
 	sched->datum = datum;
 	sched->time = time;
-
 	if(from)
-		sched->from.setDate(from->nextDate(since.date()));
-
-	if(until && from)
-		sched->until.setDate(sched->from.date());//calculate from "from" on, because of relative datum values
-	else if(until)
-		sched->until.setDate(until->nextDate(since.date()));
-
-	if(fromTime.isValid())
-		sched->from.setTime(fromTime);
-	if(untilTime.isValid())
-		sched->until.setTime(untilTime);
+		sched->from = fDate;
+	if(until)
+		sched->until = uDate;
 
 	return sched;
 }
@@ -629,7 +644,7 @@ QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 QDate DateParser::parseDate(const QString &data, bool noThrow)
 {
 	QLocale locale;
-	auto dates = tr("d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy").split(QStringLiteral("|"));
+	auto dates = tr("d.M.yyyy|dd.M.yyyy|d.MM.yyyy|dd.MM.yyyy|d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy").split(QStringLiteral("|"));
 	auto sData = data.simplified();
 	foreach(auto pattern, dates) {
 		auto date = locale.toDate(sData, pattern);

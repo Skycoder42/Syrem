@@ -43,17 +43,19 @@ bool LoopSchedule::isRepeating() const
 QDateTime LoopSchedule::nextSchedule(const QDateTime &since)
 {
 	QDateTime tp;
+	if(from.isValid() && since < from)
+		tp = from;
+	else
+		tp = since;
 
-	tp = type->nextDateTime(since);
+	tp = type->nextDateTime(tp);
 
 	if(datum)
 		tp.setDate(datum->nextDate(tp.date(), true));
 	if(time.isValid())
 		tp.setTime(time);
 
-	if(from.isValid() && tp < from)
-		return {};
-	else if(until.isValid() && tp > until)
+	if(until.isValid() && tp > until)
 		return {};
 	else
 		return tp;
