@@ -4,7 +4,8 @@ SUBDIRS += \
 	RemindMeWidgets \
 	RemindMeQuick \
 	RemindMeCore \
-	Tests
+	Tests \
+    RemindMeDaemon
 
 RemindMeWidgets.depends += RemindMeCore
 RemindMeQuick.depends += RemindMeCore

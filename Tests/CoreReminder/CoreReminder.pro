@@ -19,15 +19,15 @@ SOURCES += \
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../RemindMeCore/release/ -lRemindMeCore
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../RemindMeCore/debug/ -lRemindMeCore
-else:unix: LIBS += -L$$OUT_PWD/../../RemindMeCore/ -lRemindMeCore
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../RemindMeDaemon/release/ -lRemindMeDaemon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../RemindMeDaemon/debug/ -lRemindMeDaemon
+else:unix: LIBS += -L$$OUT_PWD/../../RemindMeDaemon/ -lRemindMeDaemon
 
-INCLUDEPATH += $$PWD/../../RemindMeCore
-DEPENDPATH += $$PWD/../../RemindMeCore
+INCLUDEPATH += $$PWD/../../RemindMeDaemon
+DEPENDPATH += $$PWD/../../RemindMeDaemon
 
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeCore/release/libRemindMeCore.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeCore/debug/libRemindMeCore.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeCore/release/RemindMeCore.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeCore/debug/RemindMeCore.lib
-else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeCore/libRemindMeCore.a
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeDaemon/release/libRemindMeDaemon.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeDaemon/debug/libRemindMeDaemon.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeDaemon/release/RemindMeDaemon.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeDaemon/debug/RemindMeDaemon.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../RemindMeDaemon/libRemindMeDaemon.a
