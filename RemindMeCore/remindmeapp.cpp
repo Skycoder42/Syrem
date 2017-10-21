@@ -6,6 +6,7 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	_roNode(nullptr),
 	_mainControl(nullptr)
 {
+	Q_INIT_RESOURCE(remindmecore);
 }
 
 void RemindMeApp::commandMessage(const QStringList &message)

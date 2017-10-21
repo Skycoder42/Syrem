@@ -1,4 +1,5 @@
 #include "maincontrol.h"
+#include <settingscontrol.h>
 
 MainControl::MainControl(QObject *parent) :
 	Control(parent),
@@ -35,4 +36,11 @@ void MainControl::onClose()
 QAbstractItemModelReplica *MainControl::reminderModel() const
 {
 	return _reminderModel;
+}
+
+void MainControl::showSettings()
+{
+	auto settings = new SettingsControl(this);
+	settings->setDeleteOnClose(true);
+	settings->show();
 }

@@ -19,6 +19,9 @@ public:
 
 	QAbstractItemModelReplica* reminderModel() const;
 
+public slots:
+	void showSettings();
+
 private:
 	QRemoteObjectNode *_node;
 	QAbstractItemModelReplica* _reminderModel;

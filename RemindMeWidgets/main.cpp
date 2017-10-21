@@ -3,6 +3,7 @@
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
 #include <qsingleinstance.h>
+#include <settingsdialog.h>
 
 #include "mainwindow.h"
 
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
 
 		//app
 		WidgetPresenter::registerWidget<MainWindow>();
+		WidgetPresenter::registerWidget<SettingsDialog>();
 
 		coreApp->bootApp();
 		QObject::connect(&instance, &QSingleInstance::instanceMessage,

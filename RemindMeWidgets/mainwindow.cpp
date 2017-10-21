@@ -18,6 +18,8 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 			this, &MainWindow::close);
 	connect(_ui->action_Quit, &QAction::triggered,
 			qApp, &QApplication::quit);
+	connect(_ui->action_Settings, &QAction::triggered,
+			_control, &MainControl::showSettings);
 
 	auto sep = new QAction(this);
 	sep->setSeparator(true);
@@ -53,7 +55,8 @@ MainWindow::~MainWindow()
 
 
 ReminderProxyModel::ReminderProxyModel(QObject *parent) :
-	QObjectProxyModel({tr("Reminder"), tr("Next trigger")}, parent)
+	QObjectProxyModel({tr("Reminder"), tr("Next trigger")}, parent),
+	_settings(new QSettings(this))
 {}
 
 QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
@@ -75,7 +78,8 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 	case 1:
 		if(role == Qt::DisplayRole) {
 			auto dateTime = data.toDateTime();
-			return QLocale().toString(dateTime, QLocale::ShortFormat);
+			auto format = _settings->value(QStringLiteral("gui/dateformat"), QLocale::ShortFormat).toInt();
+			return QLocale().toString(dateTime, (QLocale::FormatType)format);
 		}
 		break;
 	default:
