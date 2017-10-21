@@ -9,7 +9,7 @@ class MainControl : public Control
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QAbstractItemModel* reminderModel READ reminderModel CONSTANT)
+	Q_PROPERTY(QAbstractItemModelReplica* reminderModel READ reminderModel CONSTANT)
 
 public:
 	explicit MainControl(QObject *parent = nullptr);
@@ -17,7 +17,7 @@ public:
 	void onShow() override;
 	void onClose() override;
 
-	QAbstractItemModel* reminderModel() const;
+	QAbstractItemModelReplica* reminderModel() const;
 
 private:
 	QRemoteObjectNode *_node;

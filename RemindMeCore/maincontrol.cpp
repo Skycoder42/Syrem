@@ -32,7 +32,7 @@ void MainControl::onClose()
 	//logic to execute when the gui was closed
 }
 
-QAbstractItemModel *MainControl::reminderModel() const
+QAbstractItemModelReplica *MainControl::reminderModel() const
 {
 	return _reminderModel;
 }

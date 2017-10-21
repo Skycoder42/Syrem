@@ -19,6 +19,8 @@ class Reminder
 	Q_PROPERTY(QString text READ text WRITE setText)
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)
 
+	Q_PROPERTY(QDateTime current READ current STORED false)
+
 public:
 	Reminder();
 	Reminder(const Reminder &rhs);
@@ -28,6 +30,7 @@ public:
 	QUuid id() const;
 	QString text() const;
 	bool isImportant() const;
+	QDateTime current() const;
 
 public slots:
 	void setId(QUuid id);

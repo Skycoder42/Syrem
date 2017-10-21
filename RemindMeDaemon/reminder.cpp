@@ -43,6 +43,11 @@ bool Reminder::isImportant() const
 	return _data->important;
 }
 
+QDateTime Reminder::current() const
+{
+	return QDateTime::currentDateTime(); //TODO proper implement
+}
+
 void Reminder::setId(QUuid id)
 {
 	_data->id = id;

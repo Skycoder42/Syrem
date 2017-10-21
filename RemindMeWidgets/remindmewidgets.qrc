@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="important.ico">icons/exclamation.ico</file>
+        <file alias="empty.ico">icons/empty.ico</file>
+    </qresource>
+</RCC>

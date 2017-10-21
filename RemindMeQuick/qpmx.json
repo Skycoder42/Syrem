@@ -13,6 +13,7 @@
 	"prcFile": "",
 	"priFile": "",
 	"priIncludes": [
+        "../RemindMeDaemon",
 		"../RemindMeCore"
 	],
 	"publishers": {
