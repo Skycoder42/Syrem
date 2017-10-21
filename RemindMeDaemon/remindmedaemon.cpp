@@ -21,16 +21,19 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	_storeModel(nullptr),
 	_manager(nullptr)
 {
+	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
+	qRegisterMetaType<ParserTypes::Datum*>();
+	qRegisterMetaType<ParserTypes::Type*>();
+	qRegisterMetaType<ParserTypes::TimePoint*>();
 	qRegisterMetaType<Schedule*>();
 	qRegisterMetaType<OneTimeSchedule*>();
 	qRegisterMetaType<LoopSchedule*>();
 	qRegisterMetaType<MultiSchedule*>();
 
-	qRegisterMetaType<ParserTypes::Datum*>();
-	qRegisterMetaType<ParserTypes::Type*>();
-
 	QJsonSerializer::registerAllConverters<Reminder>();
 	QJsonSerializer::registerPointerConverters<Schedule>();
+	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
+	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
 }
 
 void RemindMeDaemon::startDaemon()
@@ -42,6 +45,7 @@ void RemindMeDaemon::startDaemon()
 	}
 
 	Setup setup;
+	setup.serializer()->addJsonTypeConverter(new DateTimeJsonConverter());
 	setup.create();
 	auto auth = Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(this);
 	if(!auth->remoteUrl().isValid()) {
@@ -77,5 +81,50 @@ void RemindMeDaemon::commandMessage(const QStringList &message)
 	if(message.contains(QStringLiteral("--quit"))) {
 		qInfo() << "Received quit command, stopping";
 		qApp->quit();
+	}
+}
+
+
+
+bool DateTimeJsonConverter::canConvert(int metaTypeId) const
+{
+	return metaTypeId == QMetaType::QDateTime ||
+			metaTypeId == QMetaType::QDate ||
+			metaTypeId == QMetaType::QTime;
+}
+
+QList<QJsonValue::Type> DateTimeJsonConverter::jsonTypes() const
+{
+	return {QJsonValue::String};
+}
+
+QJsonValue DateTimeJsonConverter::serialize(int propertyType, const QVariant &value, const QJsonTypeConverter::SerializationHelper *helper) const
+{
+	Q_UNUSED(helper)
+	switch (propertyType) {
+	case QMetaType::QDateTime:
+		return value.toDateTime().toString(Qt::ISODate);
+	case QMetaType::QDate:
+		return value.toDate().toString(Qt::ISODate);
+	case QMetaType::QTime:
+		return value.toTime().toString(Qt::ISODate);
+	default:
+		throw QJsonSerializationException("unsupported type");
+	}
+}
+
+QVariant DateTimeJsonConverter::deserialize(int propertyType, const QJsonValue &value, QObject *parent, const QJsonTypeConverter::SerializationHelper *helper) const
+{
+	Q_UNUSED(parent)
+	Q_UNUSED(helper)
+	switch (propertyType) {
+	case QMetaType::QDateTime:
+		return QDateTime::fromString(value.toString(), Qt::ISODate);
+	case QMetaType::QDate:
+		return QDate::fromString(value.toString(), Qt::ISODate);
+	case QMetaType::QTime:
+		return QTime::fromString(value.toString(), Qt::ISODate);
+	default:
+		throw QJsonSerializationException("unsupported type");
 	}
 }

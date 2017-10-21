@@ -48,7 +48,7 @@ public:
 	};
 	Q_ENUM(Scope)
 
-	Datum(QObject *parent = nullptr);
+	Q_INVOKABLE Datum(QObject *parent = nullptr);
 
 	QDate nextDate(QDate wDate, bool scopeReset = false, bool notToday = false) const;
 
@@ -67,11 +67,11 @@ class Type : public QObject
 	Q_OBJECT
 
 	Q_PROPERTY(bool isDatum MEMBER isDatum)
-	Q_PROPERTY(Datum* datum MEMBER datum)
-	Q_PROPERTY(Sequence sequence MEMBER sequence)
+	Q_PROPERTY(ParserTypes::Datum* datum MEMBER datum)
+	Q_PROPERTY(QList<QPair<int,ParserTypes::Expression::Span>> sequence MEMBER sequence) //dont use typedef to not confuse json serializer
 
 public:
-	Type(QObject *parent = nullptr);
+	Q_INVOKABLE Type(QObject *parent = nullptr);
 
 	QDateTime nextDateTime(const QDateTime &since) const;
 
@@ -86,7 +86,7 @@ class TimePoint : public QObject
 
 	Q_PROPERTY(Mode mode MEMBER mode)
 	Q_PROPERTY(QDate date MEMBER date)
-	Q_PROPERTY(Datum* datum MEMBER datum)
+	Q_PROPERTY(ParserTypes::Datum* datum MEMBER datum)
 
 public:
 	enum Mode {
@@ -97,7 +97,7 @@ public:
 	};
 	Q_ENUM(Mode)
 
-	TimePoint(QObject *parent = nullptr);
+	Q_INVOKABLE TimePoint(QObject *parent = nullptr);
 
 	bool isLess(const TimePoint *other) const;
 	QDate nextDate(QDate wDate, bool notToday = true) const;
@@ -216,5 +216,6 @@ private:
 
 Q_DECLARE_METATYPE(ParserTypes::Datum*)
 Q_DECLARE_METATYPE(ParserTypes::Type*)
+Q_DECLARE_METATYPE(ParserTypes::TimePoint*)
 
 #endif // DATEPARSER_H

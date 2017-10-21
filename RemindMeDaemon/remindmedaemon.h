@@ -2,12 +2,22 @@
 #define REMINDMEDAEMON_H
 
 #include <QObject>
+#include <QJsonTypeConverter>
 class QRemoteObjectHost;
 class ReminderManager;
 
 namespace QtDataSync {
 class DataStoreModel;
 }
+
+class DateTimeJsonConverter : public QJsonTypeConverter
+{
+public:
+	bool canConvert(int metaTypeId) const override;
+	QList<QJsonValue::Type> jsonTypes() const override;
+	QJsonValue serialize(int propertyType, const QVariant &value, const SerializationHelper *helper) const override;
+	QVariant deserialize(int propertyType, const QJsonValue &value, QObject *parent, const SerializationHelper *helper) const override;
+};
 
 class RemindMeDaemon : public QObject
 {
