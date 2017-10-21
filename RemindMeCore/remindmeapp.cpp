@@ -9,6 +9,11 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	Q_INIT_RESOURCE(remindmecore);
 }
 
+QRemoteObjectNode *RemindMeApp::node() const
+{
+	return _roNode;
+}
+
 void RemindMeApp::commandMessage(const QStringList &message)
 {
 	auto parser = getParser();

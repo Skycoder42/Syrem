@@ -10,6 +10,9 @@
     <height>364</height>
    </rect>
   </property>
+  <property name="windowTitle">
+   <string>Manager Reminders</string>
+  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonFollowStyle</enum>
   </property>
@@ -196,7 +199,8 @@
   </action>
   <action name="action_Quit">
    <property name="icon">
-    <iconset theme="gtk-quit"/>
+    <iconset theme="gtk-quit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>

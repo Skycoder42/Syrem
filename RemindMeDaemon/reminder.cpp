@@ -1,5 +1,7 @@
 #include "reminder.h"
 
+using namespace QtDataSync;
+
 class ReminderData : public QSharedData
 {
 public:
@@ -9,6 +11,7 @@ public:
 	QUuid id;
 	QString text;
 	bool important;
+	QSharedPointer<Schedule> schedule;
 };
 
 Reminder::Reminder() :
@@ -45,7 +48,25 @@ bool Reminder::isImportant() const
 
 QDateTime Reminder::current() const
 {
-	return QDateTime::currentDateTime(); //TODO proper implement
+	if(_data->schedule)
+		return _data->schedule->current();
+	else
+		return {};
+}
+
+QSharedPointer<const Schedule> Reminder::schedule() const
+{
+	return _data->schedule.constCast<const Schedule>();
+}
+
+QtDataSync::GenericTask<void> Reminder::nextSchedule(AsyncDataStore *store)
+{
+	Q_ASSERT_X(_data->schedule, Q_FUNC_INFO, "cannot call next schedule without an assigned schedule");
+	auto res = _data->schedule->nextSchedule();
+	if(res.isValid())
+		return store->save(*this);
+	else
+		return store->remove<Reminder>(_data->id).toGeneric<void>();
 }
 
 void Reminder::setId(QUuid id)
@@ -61,6 +82,21 @@ void Reminder::setText(QString text)
 void Reminder::setImportant(bool important)
 {
 	_data->important = important;
+}
+
+void Reminder::setSchedule(QSharedPointer<Schedule> schedule)
+{
+	_data->schedule = schedule;
+}
+
+void Reminder::setSchedule(Schedule *schedule)
+{
+	_data->schedule = QSharedPointer<Schedule>(schedule);
+}
+
+QSharedPointer<Schedule> Reminder::getSchedule() const
+{
+	return _data->schedule;
 }
 
 

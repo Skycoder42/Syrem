@@ -280,7 +280,11 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 	auto sched = new LoopSchedule(since, parent);
 
 	sched->type = type;
+	if(sched->type)
+		sched->type->setParent(sched);
 	sched->datum = datum;
+	if(sched->datum)
+		sched->datum->setParent(sched);
 	sched->time = time;
 	if(from)
 		sched->from = fDate;

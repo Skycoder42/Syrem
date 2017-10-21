@@ -13,6 +13,8 @@ class RemindMeApp : public CoreApp
 public:
 	explicit RemindMeApp(QObject *parent = nullptr);
 
+	QRemoteObjectNode *node() const;
+
 public slots:
 	void commandMessage(const QStringList &message);
 

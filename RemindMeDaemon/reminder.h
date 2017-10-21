@@ -6,6 +6,7 @@
 #include <QSharedDataPointer>
 #include <QSharedPointer>
 #include <QUuid>
+#include <QtDataSync/AsyncDataStore>
 
 #include "schedule.h"
 
@@ -20,6 +21,7 @@ class Reminder
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)
 
 	Q_PROPERTY(QDateTime current READ current STORED false)
+	Q_PROPERTY(QSharedPointer<Schedule> schedule READ getSchedule WRITE setSchedule)
 
 public:
 	Reminder();
@@ -31,14 +33,23 @@ public:
 	QString text() const;
 	bool isImportant() const;
 	QDateTime current() const;
+	QSharedPointer<const Schedule> schedule() const;
+
+	QtDataSync::GenericTask<void> nextSchedule(QtDataSync::AsyncDataStore *store);
 
 public slots:
 	void setId(QUuid id);
 	void setText(QString text);
 	void setImportant(bool important);
+	void setSchedule(QSharedPointer<Schedule> schedule);
+	void setSchedule(Schedule *schedule);
 
 private:
 	QSharedDataPointer<ReminderData> _data;
+
+	QSharedPointer<Schedule> getSchedule() const;
 };
+
+Q_DECLARE_METATYPE(Reminder)
 
 #endif // REMINDER_H

@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 
 #include <dateparser.h>
+#include <schedule.h>
 
 class CoreReminderTest : public QObject
 {

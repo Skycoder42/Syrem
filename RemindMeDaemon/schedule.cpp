@@ -50,11 +50,16 @@ QDateTime OneTimeSchedule::generateNextSchedule()
 
 
 LoopSchedule::LoopSchedule(QObject *parent) :
-	Schedule(parent)
+	LoopSchedule({}, parent)
 {}
 
 LoopSchedule::LoopSchedule(const QDateTime &since, QObject *parent) :
-	Schedule(since, parent)
+	Schedule(since, parent),
+	type(nullptr),
+	datum(nullptr),
+	time(),
+	from(),
+	until()
 {}
 
 bool LoopSchedule::isRepeating() const

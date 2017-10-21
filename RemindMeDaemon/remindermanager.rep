@@ -1,4 +1,7 @@
 class ReminderManager
 {
-	PROP(bool ready=false);
+	SLOT(void createReminder(QString text, bool important, QString expression))
+
+	SIGNAL(reminderCreated())
+	SIGNAL(reminderError(QString error))
 };

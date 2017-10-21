@@ -22,12 +22,15 @@ DEFINES += "COMPANY=\"\\\"$$QMAKE_TARGET_COMPANY\\\"\""
 DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-HEADERS += mainwindow.h
+HEADERS += mainwindow.h \
+    createreminderdialog.h
 
 SOURCES += main.cpp \
-	mainwindow.cpp
+	mainwindow.cpp \
+    createreminderdialog.cpp
 
-FORMS += mainwindow.ui
+FORMS += mainwindow.ui \
+    createreminderdialog.ui
 
 TRANSLATIONS += remindme_widgets_de.ts \
 	remindme_widgets_template.ts

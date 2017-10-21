@@ -1,3 +1,4 @@
+#include "createremindercontrol.h"
 #include "maincontrol.h"
 #include <settingscontrol.h>
 
@@ -43,4 +44,11 @@ void MainControl::showSettings()
 	auto settings = new SettingsControl(this);
 	settings->setDeleteOnClose(true);
 	settings->show();
+}
+
+void MainControl::addReminder()
+{
+	auto addRem = new CreateReminderControl(this);
+	addRem->setDeleteOnClose(true);
+	addRem->show();
 }

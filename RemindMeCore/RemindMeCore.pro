@@ -10,11 +10,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
 	remindmeapp.h \
-	maincontrol.h
+	maincontrol.h \
+    createremindercontrol.h
 
 SOURCES += \
 	remindmeapp.cpp \
-	maincontrol.cpp
+	maincontrol.cpp \
+    createremindercontrol.cpp
 
 REPC_REPLICA += $$fromfile(../RemindMeDaemon/rep.pri, REPC_FILES)
 

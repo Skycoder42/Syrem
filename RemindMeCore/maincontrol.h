@@ -21,6 +21,7 @@ public:
 
 public slots:
 	void showSettings();
+	void addReminder();
 
 private:
 	QRemoteObjectNode *_node;

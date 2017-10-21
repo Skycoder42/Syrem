@@ -126,4 +126,9 @@ private:
 	QList<Schedule*> subSchedules;
 };
 
+Q_DECLARE_METATYPE(Schedule*)
+Q_DECLARE_METATYPE(OneTimeSchedule*)
+Q_DECLARE_METATYPE(LoopSchedule*)
+Q_DECLARE_METATYPE(MultiSchedule*)
+
 #endif // SCHEDULE_H

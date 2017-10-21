@@ -19,9 +19,18 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	QObject(parent),
 	_hostNode(new QRemoteObjectHost(this)),
 	_storeModel(nullptr),
-	_manager(new ReminderManager(this))
+	_manager(nullptr)
 {
+	qRegisterMetaType<Schedule*>();
+	qRegisterMetaType<OneTimeSchedule*>();
+	qRegisterMetaType<LoopSchedule*>();
+	qRegisterMetaType<MultiSchedule*>();
+
+	qRegisterMetaType<ParserTypes::Datum*>();
+	qRegisterMetaType<ParserTypes::Type*>();
+
 	QJsonSerializer::registerAllConverters<Reminder>();
+	QJsonSerializer::registerPointerConverters<Schedule>();
 }
 
 void RemindMeDaemon::startDaemon()
@@ -42,6 +51,9 @@ void RemindMeDaemon::startDaemon()
 	}
 
 	_storeModel = new DataStoreModel(this);
+	connect(_storeModel, &DataStoreModel::storeError, this, [](const QException &e) {
+		qCritical() << "Failed to load DataStoreModel with error:" << e.what();
+	});
 	_storeModel->setTypeId<Reminder>();
 	if(!_hostNode->enableRemoting(_storeModel,
 								  QStringLiteral("ReminderModel"),
@@ -49,6 +61,7 @@ void RemindMeDaemon::startDaemon()
 		qCritical() << "Failed to expose DataStoreModel with error:" << _hostNode->lastError();
 	}
 
+	_manager = new ReminderManager(this);
 	if(!_hostNode->enableRemoting(_manager)) {
 		qCritical() << "Failed to expose ReminderManager with error:" << _hostNode->lastError();
 	}

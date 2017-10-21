@@ -214,4 +214,7 @@ private:
 	static QMap<QString, int> readMonths();
 };
 
+Q_DECLARE_METATYPE(ParserTypes::Datum*)
+Q_DECLARE_METATYPE(ParserTypes::Type*)
+
 #endif // DATEPARSER_H

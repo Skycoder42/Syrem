@@ -5,6 +5,7 @@
 #include <qsingleinstance.h>
 #include <settingsdialog.h>
 
+#include "createreminderdialog.h"
 #include "mainwindow.h"
 
 //register the core app to be used
@@ -35,6 +36,7 @@ int main(int argc, char *argv[])
 
 		//app
 		WidgetPresenter::registerWidget<MainWindow>();
+		WidgetPresenter::registerWidget<CreateReminderDialog>();
 		WidgetPresenter::registerWidget<SettingsDialog>();
 
 		coreApp->bootApp();

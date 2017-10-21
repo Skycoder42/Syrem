@@ -20,6 +20,8 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 			qApp, &QApplication::quit);
 	connect(_ui->action_Settings, &QAction::triggered,
 			_control, &MainControl::showSettings);
+	connect(_ui->action_Add_Reminder, &QAction::triggered,
+			_control, &MainControl::addReminder);
 
 	auto sep = new QAction(this);
 	sep->setSeparator(true);
