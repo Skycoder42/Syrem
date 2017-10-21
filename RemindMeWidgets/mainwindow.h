@@ -30,6 +30,9 @@ public:
 	Q_INVOKABLE MainWindow(Control *mControl, QWidget *parent = nullptr);
 	~MainWindow();
 
+private slots:
+	void on_action_About_triggered();
+
 private:
 	MainControl *_control;
 	Ui::MainWindow *_ui;

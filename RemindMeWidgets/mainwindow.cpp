@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDateTime>
-#include <qtmvvmbinding.h>
+#include <dialogmaster.h>
 
 MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 	QMainWindow(parent),
@@ -11,6 +11,22 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 	_sortModel(new QSortFilterProxyModel(this))
 {
 	_ui->setupUi(this);
+	setCentralWidget(_ui->treeView);
+	_ui->centralWidget->deleteLater();
+
+	connect(_ui->action_Close, &QAction::triggered,
+			this, &MainWindow::close);
+	connect(_ui->action_Quit, &QAction::triggered,
+			qApp, &QApplication::quit);
+
+	auto sep = new QAction(this);
+	sep->setSeparator(true);
+	_ui->treeView->addActions({
+								  _ui->action_Add_Reminder,
+								  sep,
+								  _ui->actionEdit_Reminder,
+								  _ui->action_Delete_Reminder
+							  });
 
 	auto remModel = _control->reminderModel();
 	auto initFn = [this](){
@@ -75,4 +91,13 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "text");
 	addMapping(1, Qt::DisplayRole, "current");
+}
+
+void MainWindow::on_action_About_triggered()
+{
+	DialogMaster::about(this,
+						tr("A simple reminder application for desktop and mobile, with synchronized reminder."),
+						QStringLiteral("https://github.com/Skycoder42/RemindMe"),
+						tr("BSD 3 Clause"),
+						QStringLiteral("https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"));
 }
