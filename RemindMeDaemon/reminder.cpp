@@ -9,9 +9,6 @@ public:
 	QUuid id;
 	QString text;
 	bool important;
-	QDateTime nextSchedule;
-
-	QSharedPointer<const ReminderRule> rule;
 };
 
 Reminder::Reminder() :
@@ -46,16 +43,6 @@ bool Reminder::isImportant() const
 	return _data->important;
 }
 
-QDateTime Reminder::nextSchedule() const
-{
-	return _data->nextSchedule;
-}
-
-QSharedPointer<const ReminderRule> Reminder::rule() const
-{
-	return _data->rule;
-}
-
 void Reminder::setId(QUuid id)
 {
 	_data->id = id;
@@ -71,38 +58,18 @@ void Reminder::setImportant(bool important)
 	_data->important = important;
 }
 
-void Reminder::setNextSchedule(QDateTime nextSchedule)
-{
-	_data->nextSchedule = nextSchedule;
-}
-
-void Reminder::setRule(QSharedPointer<const ReminderRule> rule)
-{
-	_data->rule = rule;
-}
-
 
 
 ReminderData::ReminderData() :
 	QSharedData(),
 	id(QUuid::createUuid()),
 	text(),
-	important(false),
-	nextSchedule(),
-	rule(nullptr)
+	important(false)
 {}
 
 ReminderData::ReminderData(const ReminderData &other):
 	QSharedData(other),
 	id(other.id),
 	text(other.text),
-	important(other.important),
-	nextSchedule(other.nextSchedule),
-	rule(other.rule)
-{}
-
-
-
-ReminderRule::ReminderRule(QObject *parent) :
-	QObject(parent)
+	important(other.important)
 {}

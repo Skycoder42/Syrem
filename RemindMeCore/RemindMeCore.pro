@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += core gui remoteobjects datasync
+QT += core gui remoteobjects
 CONFIG += c++11 staticlib #important because dlls are problematic
 
 TARGET = RemindMeCore

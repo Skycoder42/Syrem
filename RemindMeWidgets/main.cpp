@@ -3,8 +3,6 @@
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
 #include <qsingleinstance.h>
-#include <QProcess>
-#include <QThread>
 
 #include "mainwindow.h"
 

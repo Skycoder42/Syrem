@@ -5,6 +5,10 @@
 class QRemoteObjectHost;
 class ReminderManager;
 
+namespace QtDataSync {
+class DataStoreModel;
+}
+
 class RemindMeDaemon : public QObject
 {
 	Q_OBJECT
@@ -19,6 +23,8 @@ public slots:
 
 private:
 	QRemoteObjectHost *_hostNode;
+
+	QtDataSync::DataStoreModel *_storeModel;
 	ReminderManager *_manager;
 };
 

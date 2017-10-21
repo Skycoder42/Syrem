@@ -2,21 +2,22 @@
 
 MainControl::MainControl(QObject *parent) :
 	Control(parent),
-	_text(QStringLiteral("hello world"))
-{}
-
-QString MainControl::text() const
+	_node(new QRemoteObjectNode(this)),
+	_reminderModel(nullptr)
 {
-	return _text;
-}
-
-void MainControl::setText(QString text)
-{
-	if (_text == text)
+	if(!_node->connectToNode(QUrl(QStringLiteral("local:remindme-daemon")))) {
+		qCritical() << "Failed to connect to host node with error:" << _node->lastError();
 		return;
+	}
 
-	_text = text;
-	emit textChanged(_text);
+	_reminderModel = _node->acquireModel(QStringLiteral("ReminderModel"));
+	if(!_reminderModel)
+		qCritical() << "Failed to aquire model from node with error:" << _node->lastError();
+
+	//DEBUG
+	connect(_reminderModel, &QAbstractItemModelReplica::initialized, this, [](){
+		qDebug() << "ReminderModel initialized";
+	});
 }
 
 void MainControl::onShow()
@@ -29,4 +30,9 @@ void MainControl::onClose()
 {
 	qDebug("Main gui is now closed");
 	//logic to execute when the gui was closed
+}
+
+QAbstractItemModel *MainControl::reminderModel() const
+{
+	return _reminderModel;
 }

@@ -9,8 +9,7 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	QtMvvmBinding::bind(control, "text", ui->lineEdit, "text");
-	QtMvvmBinding::bind(control, "text", ui->label, "text", QtMvvmBinding::OneWayFromControl);
+	ui->treeView->setModel(control->reminderModel());
 }
 
 MainWindow::~MainWindow()

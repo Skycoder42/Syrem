@@ -2,12 +2,14 @@
 #define MAINCONTROL_H
 
 #include <control.h>
+#include <QAbstractItemModelReplica>
+#include <QRemoteObjectHost>
 
 class MainControl : public Control
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
+	Q_PROPERTY(QAbstractItemModel* reminderModel READ reminderModel CONSTANT)
 
 public:
 	explicit MainControl(QObject *parent = nullptr);
@@ -15,16 +17,11 @@ public:
 	void onShow() override;
 	void onClose() override;
 
-	QString text() const;
-
-public slots:
-	void setText(QString text);
-
-signals:
-	void textChanged(QString text);
+	QAbstractItemModel* reminderModel() const;
 
 private:
-	QString _text;
+	QRemoteObjectNode *_node;
+	QAbstractItemModelReplica* _reminderModel;
 };
 
 #endif // MAINCONTROL_H
