@@ -23,12 +23,8 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 	connect(_ui->action_Add_Reminder, &QAction::triggered,
 			_control, &MainControl::addReminder);
 
-	auto sep = new QAction(this);
-	sep->setSeparator(true);
 	_ui->treeView->addActions({
 								  _ui->action_Add_Reminder,
-								  sep,
-								  _ui->actionEdit_Reminder,
 								  _ui->action_Delete_Reminder
 							  });
 

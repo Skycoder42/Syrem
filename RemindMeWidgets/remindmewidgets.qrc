@@ -2,5 +2,8 @@
     <qresource prefix="/icons">
         <file alias="important.ico">icons/exclamation.ico</file>
         <file alias="empty.ico">icons/empty.ico</file>
+        <file alias="add.ico">icons/add.ico</file>
+        <file alias="delete.ico">icons/delete.ico</file>
+        <file alias="about.ico">icons/information.ico</file>
     </qresource>
 </RCC>
