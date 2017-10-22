@@ -26,6 +26,9 @@
    </item>
    <item row="0" column="1">
     <widget class="QLineEdit" name="textLineEdit">
+     <property name="placeholderText">
+      <string>Enter a description…</string>
+     </property>
      <property name="clearButtonEnabled">
       <bool>true</bool>
      </property>

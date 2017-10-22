@@ -14,7 +14,7 @@ public:
 	explicit ReminderManager(QObject *parent = nullptr);
 
 public slots:
-	void createReminder(QString text, bool important, QString expression) override;
+	void createReminder(const QString &text, bool important, const QString &expression) override;
 
 private:
 	QtDataSync::AsyncDataStore *_store;

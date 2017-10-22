@@ -54,6 +54,15 @@ MainWindow::~MainWindow()
 	delete _ui;
 }
 
+void MainWindow::on_action_About_triggered()
+{
+	DialogMaster::about(this,
+						tr("A simple reminder application for desktop and mobile, with synchronized reminder."),
+						QStringLiteral("https://github.com/Skycoder42/RemindMe"),
+						tr("BSD 3 Clause"),
+						QStringLiteral("https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"));
+}
+
 
 
 ReminderProxyModel::ReminderProxyModel(QObject *parent) :
@@ -75,6 +84,10 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 				return QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
 			else
 				return QIcon(QStringLiteral(":/icons/empty.ico"));
+		} else if(role == Qt::DisplayRole) {
+			//fetch the id data, to make shure the models data is loaded!
+			auto sIndex = mapToSource(index);
+			sourceModel()->data(sIndex, Qt::DisplayRole);
 		}
 		break;
 	case 1:
@@ -97,13 +110,4 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "text");
 	addMapping(1, Qt::DisplayRole, "current");
-}
-
-void MainWindow::on_action_About_triggered()
-{
-	DialogMaster::about(this,
-						tr("A simple reminder application for desktop and mobile, with synchronized reminder."),
-						QStringLiteral("https://github.com/Skycoder42/RemindMe"),
-						tr("BSD 3 Clause"),
-						QStringLiteral("https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"));
 }

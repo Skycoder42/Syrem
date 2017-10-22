@@ -9,13 +9,13 @@ ReminderManager::ReminderManager(QObject *parent) :
 	_parser(new DateParser(this))
 {}
 
-void ReminderManager::createReminder(QString text, bool important, QString expression)
+void ReminderManager::createReminder(const QString &text, bool important, const QString &expression)
 {
 	auto expr = _parser->parse(expression);
 	if(!expr) {
 		emit reminderError(tr("Invalid \"when\" expression!"));//TODO add error message
 		return;
-	}
+}
 	auto sched = expr->createSchedule(QDateTime::currentDateTime());
 	expr->deleteLater();
 	if(!sched) {
