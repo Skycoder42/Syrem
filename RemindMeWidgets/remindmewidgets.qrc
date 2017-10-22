@@ -5,5 +5,6 @@
         <file alias="add.ico">icons/add.ico</file>
         <file alias="delete.ico">icons/delete.ico</file>
         <file alias="about.ico">icons/information.ico</file>
+        <file alias="help.ico">icons/help.ico</file>
     </qresource>
 </RCC>

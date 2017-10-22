@@ -22,6 +22,8 @@ public slots:
 private slots:
 	void created(bool success);
 
+	void on_actionExpression_Syntax_triggered();
+
 private:
 	CreateReminderControl *_control;
 	Ui::CreateReminderDialog *_ui;

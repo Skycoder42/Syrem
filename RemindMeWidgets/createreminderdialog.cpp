@@ -1,6 +1,7 @@
 #include "createreminderdialog.h"
 #include "ui_createreminderdialog.h"
 #include <QSettings>
+#include <QWhatsThis>
 #include <dialogmaster.h>
 #include <qtmvvmbinding.h>
 
@@ -11,6 +12,8 @@ CreateReminderDialog::CreateReminderDialog(Control *mControl, QWidget *parent) :
 {
 	_ui->setupUi(this);
 	DialogMaster::masterDialog(this);
+
+	_ui->whenLineEdit->addAction(_ui->actionExpression_Syntax, QLineEdit::TrailingPosition);
 
 	QtMvvmBinding::bind(_control, "text", _ui->textLineEdit, "text");
 	QtMvvmBinding::bind(_control, "expression", _ui->whenLineEdit, "text");
@@ -55,4 +58,9 @@ void CreateReminderDialog::created(bool success)
 		QDialog::accept();
 	else
 		_ui->buttonBox->setEnabled(true);
+}
+
+void CreateReminderDialog::on_actionExpression_Syntax_triggered()
+{
+	QWhatsThis::showText(QPoint(0, 0), _ui->whenLineEdit->whatsThis(), _ui->whenLineEdit);
 }
