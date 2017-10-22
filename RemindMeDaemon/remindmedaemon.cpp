@@ -17,7 +17,7 @@ using namespace QtDataSync;
 
 RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	QObject(parent),
-	_hostNode(new QRemoteObjectHost(this)),
+	_hostNode(nullptr),
 	_storeModel(nullptr),
 	_manager(nullptr)
 {
@@ -38,6 +38,7 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 
 void RemindMeDaemon::startDaemon()
 {
+	_hostNode = new QRemoteObjectHost(this);
 	_hostNode->setName(QStringLiteral("daemon"));
 	if(!_hostNode->setHostUrl(QUrl(QStringLiteral("local:remindme-daemon")))) {
 		qCritical() << "Failed to create host node with error:" << _hostNode->lastError();

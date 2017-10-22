@@ -4,4 +4,5 @@ class ReminderManager
 
 	SIGNAL(reminderCreated())
 	SIGNAL(reminderError(const QString &error))
+	SIGNAL(reminderCreateError(const QString &error))
 };

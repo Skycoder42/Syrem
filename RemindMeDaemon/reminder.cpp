@@ -59,10 +59,15 @@ QSharedPointer<const Schedule> Reminder::schedule() const
 	return _data->schedule.constCast<const Schedule>();
 }
 
-QtDataSync::GenericTask<void> Reminder::nextSchedule(AsyncDataStore *store)
+QtDataSync::GenericTask<void> Reminder::nextSchedule(AsyncDataStore *store, const QDateTime &current)
 {
 	Q_ASSERT_X(_data->schedule, Q_FUNC_INFO, "cannot call next schedule without an assigned schedule");
-	auto res = _data->schedule->nextSchedule();
+
+	QDateTime res;
+	do {
+		res = _data->schedule->nextSchedule();
+	} while(res.isValid() && res <= current);
+
 	if(res.isValid())
 		return store->save(*this);
 	else

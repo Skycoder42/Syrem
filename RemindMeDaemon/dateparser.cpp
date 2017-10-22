@@ -2,6 +2,7 @@
 
 #include <QLocale>
 #include <QRegularExpression>
+#include <chrono>
 using namespace ParserTypes;
 
 Expression::Expression(QObject *parent) :
@@ -105,6 +106,7 @@ QPair<int, int> Datum::fromMonthDay(int monthDay)
 
 QDateTime ParserTypes::nextSequenceDate(const Sequence &sequence, const QDateTime &since)
 {
+	using namespace std::chrono;
 	if(sequence.isEmpty())
 		return {};
 
@@ -114,10 +116,10 @@ QDateTime ParserTypes::nextSequenceDate(const Sequence &sequence, const QDateTim
 		case Expression::InvalidSpan:
 			return {};
 		case Expression::MinuteSpan:
-			res = res.addSecs(60 * span.first);
+			res = res.addSecs(duration_cast<seconds>(minutes(span.first)).count());
 			break;
 		case Expression::HourSpan:
-			res = res.addSecs(60 * 60 * span.first);
+			res = res.addSecs(duration_cast<seconds>(hours(span.first)).count());
 			break;
 		case Expression::DaySpan:
 			res = res.addDays(span.first);

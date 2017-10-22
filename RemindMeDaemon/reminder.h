@@ -35,7 +35,7 @@ public:
 	QDateTime current() const;
 	QSharedPointer<const Schedule> schedule() const;
 
-	QtDataSync::GenericTask<void> nextSchedule(QtDataSync::AsyncDataStore *store);
+	QtDataSync::GenericTask<void> nextSchedule(QtDataSync::AsyncDataStore *store, const QDateTime &current);
 
 public slots:
 	void setId(QUuid id);

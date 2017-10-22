@@ -23,11 +23,13 @@ DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
 HEADERS += mainwindow.h \
-    createreminderdialog.h
+    createreminderdialog.h \
+    widgetsscheduler.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
-    createreminderdialog.cpp
+    createreminderdialog.cpp \
+    widgetsscheduler.cpp
 
 FORMS += mainwindow.ui \
     createreminderdialog.ui

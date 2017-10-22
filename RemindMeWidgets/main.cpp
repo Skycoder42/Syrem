@@ -4,9 +4,11 @@
 #include <remindmedaemon.h>
 #include <qsingleinstance.h>
 #include <settingsdialog.h>
+#include <registry.h>
 
 #include "createreminderdialog.h"
 #include "mainwindow.h"
+#include "widgetsscheduler.h"
 
 //register the core app to be used
 REGISTER_CORE_APP(RemindMeApp)
@@ -27,6 +29,9 @@ int main(int argc, char *argv[])
 
 	QSingleInstance instance;
 	instance.setStartupFunction([&](){
+		//setup
+		Registry::registerClass<Scheduler, WidgetsScheduler>();
+
 		//daemon
 		auto daemon = new RemindMeDaemon(qApp);
 		daemon->startDaemon();

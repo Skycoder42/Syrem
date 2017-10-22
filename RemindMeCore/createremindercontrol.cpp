@@ -12,7 +12,7 @@ CreateReminderControl::CreateReminderControl(QObject *parent) :
 {
 	connect(_reminderManager, &ReminderManagerReplica::reminderCreated,
 			this, &CreateReminderControl::remCreated);
-	connect(_reminderManager, &ReminderManagerReplica::reminderError,
+	connect(_reminderManager, &ReminderManagerReplica::reminderCreateError,
 			this, &CreateReminderControl::remError);
 }
 

@@ -13,14 +13,17 @@ HEADERS += \
 	remindermanager.h \
 	reminder.h \
 	dateparser.h \
-	schedule.h
+	schedule.h \
+    registry.h \
+    scheduler.h
 
 SOURCES += \
 	remindmedaemon.cpp \
 	remindermanager.cpp \
 	reminder.cpp \
 	dateparser.cpp \
-	schedule.cpp
+	schedule.cpp \
+    registry.cpp
 
 REPC_SOURCE += $$fromfile(rep.pri, REPC_FILES)
 
