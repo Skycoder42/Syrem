@@ -15,7 +15,7 @@ void Registry::registerObject(const char *interface, QObject *object)
 	_instances.insert(interface, object);
 }
 
-QObject *Registry::aquireObject(const char *interface)
+QObject *Registry::acquireObject(const char *interface)
 {
 	return _instances.value(interface);
 }

@@ -36,7 +36,7 @@ public:
 	static void registerClass();
 
 	template <typename TInterface>
-	static TInterface *aquire();
+	static TInterface *acquire();
 
 	template <typename TInterface, typename TImplementation>
 	static void registerFactory(GenericFactory<TInterface, TImplementation> *factory);
@@ -51,7 +51,7 @@ public:
 	static TInterface *create(QObject *parent);
 
 	static void registerObject(const char *interface, QObject *object);
-	static QObject *aquireObject(const char *interface);
+	static QObject *acquireObject(const char *interface);
 
 	static void registerFactory(const char *interface, Factory *factory);
 	static void registerFactory(const char *interface, const std::function<QObject *(QObject *)> &factory);
@@ -113,9 +113,9 @@ void Registry::registerClass()
 }
 
 template<typename TInterface>
-TInterface *Registry::aquire()
+TInterface *Registry::acquire()
 {
-	return qobject_cast<TInterface*>(aquireObject(qobject_interface_iid<TInterface*>()));
+	return qobject_cast<TInterface*>(acquireObject(qobject_interface_iid<TInterface*>()));
 }
 
 template<typename TInterface, typename TImplementation>

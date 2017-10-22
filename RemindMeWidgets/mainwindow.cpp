@@ -50,6 +50,23 @@ MainWindow::~MainWindow()
 	delete _ui;
 }
 
+void MainWindow::on_action_Delete_Reminder_triggered()
+{
+	auto sIndex = _ui->treeView->currentIndex();
+	if(!sIndex.isValid())
+		return;
+
+	auto pIndex = _sortModel->mapToSource(sIndex);
+	if(!pIndex.isValid())
+		return;
+
+	auto index = _proxyModel->mapToSource(pIndex);
+	if(!index.isValid())
+		return;
+
+	_control->removeReminder(index.row());
+}
+
 void MainWindow::on_action_About_triggered()
 {
 	DialogMaster::about(this,

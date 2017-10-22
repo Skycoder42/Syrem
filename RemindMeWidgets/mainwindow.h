@@ -34,6 +34,7 @@ public:
 	~MainWindow();
 
 private slots:
+	void on_action_Delete_Reminder_triggered();
 	void on_action_About_triggered();
 
 private:

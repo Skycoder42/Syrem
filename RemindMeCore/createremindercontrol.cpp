@@ -1,6 +1,6 @@
 #include "createremindercontrol.h"
 #include "remindmeapp.h"
-#include "rep_remindermanager_replica.h"
+#include <rep_remindermanager_replica.h>
 #include <coremessage.h>
 
 CreateReminderControl::CreateReminderControl(QObject *parent) :

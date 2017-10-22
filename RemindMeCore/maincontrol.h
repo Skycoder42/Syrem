@@ -4,6 +4,7 @@
 #include <control.h>
 #include <QAbstractItemModelReplica>
 #include <QRemoteObjectHost>
+class ReminderManagerReplica;
 
 class MainControl : public Control
 {
@@ -22,9 +23,11 @@ public:
 public slots:
 	void showSettings();
 	void addReminder();
+	void removeReminder(int index);
 
 private:
 	QRemoteObjectNode *_node;
+	ReminderManagerReplica *_reminderManager;
 	QAbstractItemModelReplica* _reminderModel;
 };
 

@@ -17,6 +17,7 @@ public:
 
 public slots:
 	void createReminder(const QString &text, bool important, const QString &expression) override;
+	void removeReminder(const QUuid &id) override;
 
 private slots:
 	void scheduleTriggered(const QUuid &id);

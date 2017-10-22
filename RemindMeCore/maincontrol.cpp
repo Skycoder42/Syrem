@@ -1,10 +1,13 @@
 #include "createremindercontrol.h"
 #include "maincontrol.h"
 #include <settingscontrol.h>
+#include <QUuid>
+#include <rep_remindermanager_replica.h>
 
 MainControl::MainControl(QObject *parent) :
 	Control(parent),
 	_node(new QRemoteObjectNode(this)),
+	_reminderManager(nullptr),
 	_reminderModel(nullptr)
 {
 	if(!_node->connectToNode(QUrl(QStringLiteral("local:remindme-daemon")))) {
@@ -14,12 +17,11 @@ MainControl::MainControl(QObject *parent) :
 
 	_reminderModel = _node->acquireModel(QStringLiteral("ReminderModel"));
 	if(!_reminderModel)
-		qCritical() << "Failed to aquire model from node with error:" << _node->lastError();
+		qCritical() << "Failed to acquire model from node with error:" << _node->lastError();
 
-	//DEBUG
-	connect(_reminderModel, &QAbstractItemModelReplica::initialized, this, [](){
-		qDebug() << "ReminderModel initialized";
-	});
+	_reminderManager = _node->acquire<ReminderManagerReplica>();
+	if(!_reminderManager)
+		qCritical() << "Failed to acquire manager from node with error:" << _node->lastError();
 }
 
 void MainControl::onShow()
@@ -51,4 +53,12 @@ void MainControl::addReminder()
 	auto addRem = new CreateReminderControl(this);
 	addRem->setDeleteOnClose(true);
 	addRem->show();
+}
+
+void MainControl::removeReminder(int index)
+{
+	auto id = _reminderModel->data(_reminderModel->index(index, 0)).toUuid();
+	if(id.isNull())
+		return;
+	_reminderManager->removeReminder(id);
 }

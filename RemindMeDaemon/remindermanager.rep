@@ -1,6 +1,9 @@
+#include <QUuid>
+
 class ReminderManager
 {
 	SLOT(void createReminder(const QString &text, bool important, const QString &expression))
+	SLOT(void removeReminder(const QUuid &id))
 
 	SIGNAL(reminderCreated())
 	SIGNAL(reminderError(const QString &error))

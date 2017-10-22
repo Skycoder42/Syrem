@@ -7,7 +7,7 @@ ReminderManager::ReminderManager(QObject *parent) :
 	ReminderManagerSimpleSource(parent),
 	_store(new AsyncDataStore(this)),
 	_parser(new DateParser(this)),
-	_scheduler(Registry::aquire<Scheduler>())
+	_scheduler(Registry::acquire<Scheduler>())
 {
 	connect(dynamic_cast<QObject*>(_scheduler), SIGNAL(scheduleTriggered(QUuid)),
 			this, SLOT(scheduleTriggered(QUuid)),
@@ -56,6 +56,18 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 	}, [this](const QException &e) {
 		qCritical() << "Failed to create reminder with error:" << e.what();
 		emit reminderCreateError(tr("Failed to save reminder!"));
+	});
+}
+
+void ReminderManager::removeReminder(const QUuid &id)
+{
+	_scheduler->cancleReminder(id);
+	_store->remove<Reminder>(id).onResult(this, [this, id](bool removed) {
+		if(!removed)
+			qWarning() << "Reminder with id" << id << "has already been removed";
+	}, [this](const QException &e) {
+		qCritical() << "Failed to load reminder with error:" << e.what();
+		emit reminderError(tr("Failed to delete reminder!"));
 	});
 }
 
