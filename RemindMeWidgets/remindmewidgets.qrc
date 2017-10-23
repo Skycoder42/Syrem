@@ -1,10 +1,14 @@
 <RCC>
     <qresource prefix="/icons">
+        <file alias="main.svg">icons/remindme.svg</file>
         <file alias="important.ico">icons/exclamation.ico</file>
         <file alias="empty.ico">icons/empty.ico</file>
         <file alias="add.ico">icons/add.ico</file>
         <file alias="delete.ico">icons/delete.ico</file>
         <file alias="about.ico">icons/information.ico</file>
         <file alias="help.ico">icons/help.ico</file>
+    </qresource>
+    <qresource prefix="/icons/tray">
+        <file alias="main.ico">icons/remindme.ico</file>
     </qresource>
 </RCC>

@@ -5,6 +5,7 @@
 #include <QJsonTypeConverter>
 class QRemoteObjectHost;
 class ReminderManager;
+class NotificationManager;
 
 namespace QtDataSync {
 class DataStoreModel;
@@ -35,7 +36,8 @@ private:
 	QRemoteObjectHost *_hostNode;
 
 	QtDataSync::DataStoreModel *_storeModel;
-	ReminderManager *_manager;
+	ReminderManager *_remManager;
+	NotificationManager *_notManager;
 };
 
 #endif // REMINDMEDAEMON_H

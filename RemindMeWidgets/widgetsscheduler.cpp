@@ -6,7 +6,7 @@ using namespace std::chrono;
 
 WidgetsScheduler::WidgetsScheduler(QObject *parent) :
 	QObject(parent),
-	Scheduler(),
+	IScheduler(),
 	_schedules(),
 	_loopTimerId(startTimer(minutes(50), Qt::VeryCoarseTimer))
 {

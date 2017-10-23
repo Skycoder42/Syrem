@@ -3,12 +3,12 @@
 
 #include <QObject>
 #include <QTimer>
-#include "../RemindMeDaemon/scheduler.h"
+#include <ischeduler.h>
 
-class WidgetsScheduler : public QObject, public Scheduler
+class WidgetsScheduler : public QObject, public IScheduler
 {
 	Q_OBJECT
-	Q_INTERFACES(Scheduler)
+	Q_INTERFACES(IScheduler)
 
 public:
 	explicit WidgetsScheduler(QObject *parent = nullptr);

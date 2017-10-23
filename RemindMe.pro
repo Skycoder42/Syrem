@@ -14,4 +14,5 @@ Tests.depends += RemindMeDaemon
 #DEBUG qpmx bug
 RemindMeCore.depends += RemindMeDaemon
 
-DISTFILES += .qmake.conf
+DISTFILES += .qmake.conf \
+	README.md

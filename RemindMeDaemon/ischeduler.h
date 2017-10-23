@@ -1,14 +1,14 @@
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef ISCHEDULER_H
+#define ISCHEDULER_H
 
 #include <QDateTime>
 #include <QObject>
 #include <QUuid>
 
-class Scheduler
+class IScheduler
 {
 public:
-	virtual inline ~Scheduler() = default;
+	virtual inline ~IScheduler() = default;
 
 public slots:
 	virtual bool scheduleReminder(const QUuid &id, const QDateTime &timepoint) = 0;
@@ -18,7 +18,7 @@ signals:
 	virtual void scheduleTriggered(const QUuid &id) = 0;
 };
 
-#define Scheduler_iid "de.skycoder42.remindme.daemon.Scheduler"
-Q_DECLARE_INTERFACE(Scheduler, Scheduler_iid)
+#define IScheduler_iid "de.skycoder42.remindme.daemon.IScheduler"
+Q_DECLARE_INTERFACE(IScheduler, IScheduler_iid)
 
-#endif // SCHEDULER_H
+#endif // ISCHEDULER_H

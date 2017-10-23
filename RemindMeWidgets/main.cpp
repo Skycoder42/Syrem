@@ -9,6 +9,11 @@
 #include "createreminderdialog.h"
 #include "mainwindow.h"
 #include "widgetsscheduler.h"
+#ifdef USE_KDE_NOTIFIER
+#include "kdenotifier.h"
+#else
+#include "widgetsnotifier.h"
+#endif
 
 //register the core app to be used
 REGISTER_CORE_APP(RemindMeApp)
@@ -22,22 +27,26 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
-	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.ico")));
+	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 	//DEBUG QApplication::setQuitOnLastWindowClosed(false);
 
 	//NOTE: for widgets, both daemon and app are run as "one"
 
 	QSingleInstance instance;
 	instance.setStartupFunction([&](){
-		//setup
-		Registry::registerClass<Scheduler, WidgetsScheduler>();
+		//setup interfaces
+		Registry::registerClass<IScheduler, WidgetsScheduler>();
+#ifdef USE_KDE_NOTIFIER
+		Registry::registerClass<INotifier, KdeNotifier>();
+#else
+		Registry::registerClass<INotifier, WidgetsNotifier>();
+#endif
 
 		//daemon
 		auto daemon = new RemindMeDaemon(qApp);
 		daemon->startDaemon();
 		QObject::connect(&instance, &QSingleInstance::instanceMessage,
 						 daemon, &RemindMeDaemon::commandMessage);
-
 
 		//app
 		WidgetPresenter::registerWidget<MainWindow>();

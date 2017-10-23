@@ -3,6 +3,11 @@ TEMPLATE = app
 QT += core gui widgets remoteobjects datasync
 CONFIG += c++11
 
+kde_notifier {
+	QT += KNotifications
+	DEFINES += USE_KDE_NOTIFIER
+}
+
 TARGET = remind-me
 VERSION = $$RM_VERSION
 
@@ -23,19 +28,33 @@ DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
 HEADERS += mainwindow.h \
-    createreminderdialog.h \
-    widgetsscheduler.h
+	createreminderdialog.h \
+	widgetsscheduler.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
-    createreminderdialog.cpp \
-    widgetsscheduler.cpp
+	createreminderdialog.cpp \
+	widgetsscheduler.cpp
+
+kde_notifier {
+	HEADERS += kdenotifier.h
+	SOURCES += kdenotifier.cpp
+} else {
+	HEADERS += widgetsnotifier.h
+	SOURCES += widgetsnotifier.cpp
+}
 
 FORMS += mainwindow.ui \
-    createreminderdialog.ui
+	createreminderdialog.ui
+
+RESOURCES += \
+	remindmewidgets.qrc
 
 TRANSLATIONS += remindme_widgets_de.ts \
 	remindme_widgets_template.ts
+
+DISTFILES += \
+	remind-me.desktop
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
@@ -67,6 +86,3 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)
-
-RESOURCES += \
-    remindmewidgets.qrc

@@ -8,6 +8,7 @@
 
 #include "remindermanager.h"
 #include "reminder.h"
+#include "notificationmanager.h"
 
 #ifndef DATASYNC_SERVER_SECRET
 #define DATASYNC_SERVER_SECRET "debug-secret"
@@ -19,7 +20,8 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	QObject(parent),
 	_hostNode(nullptr),
 	_storeModel(nullptr),
-	_manager(nullptr)
+	_remManager(nullptr),
+	_notManager(nullptr)
 {
 	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
 	qRegisterMetaType<ParserTypes::Datum*>();
@@ -38,6 +40,7 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 
 void RemindMeDaemon::startDaemon()
 {
+	//basic setup
 	_hostNode = new QRemoteObjectHost(this);
 	_hostNode->setName(QStringLiteral("daemon"));
 	if(!_hostNode->setHostUrl(QUrl(QStringLiteral("local:remindme-daemon")))) {
@@ -55,6 +58,7 @@ void RemindMeDaemon::startDaemon()
 		auth->reconnect();
 	}
 
+	//exposed classes
 	_storeModel = new DataStoreModel(this);
 	connect(_storeModel, &DataStoreModel::storeError, this, [](const QException &e) {
 		qCritical() << "Failed to load DataStoreModel with error:" << e.what();
@@ -66,10 +70,15 @@ void RemindMeDaemon::startDaemon()
 		qCritical() << "Failed to expose DataStoreModel with error:" << _hostNode->lastError();
 	}
 
-	_manager = new ReminderManager(this);
-	if(!_hostNode->enableRemoting(_manager)) {
+	_remManager = new ReminderManager(this);
+	if(!_hostNode->enableRemoting(_remManager)) {
 		qCritical() << "Failed to expose ReminderManager with error:" << _hostNode->lastError();
 	}
+
+	//unexposed classes
+	_notManager = new NotificationManager(this);
+	connect(_remManager, &ReminderManager::initEmpty,
+			_notManager, &NotificationManager::initEmpty);
 
 	qDebug() << "daemon started";
 }

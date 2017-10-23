@@ -7,8 +7,10 @@ ReminderManager::ReminderManager(QObject *parent) :
 	ReminderManagerSimpleSource(parent),
 	_store(new AsyncDataStore(this)),
 	_parser(new DateParser(this)),
-	_scheduler(Registry::acquire<Scheduler>())
+	_scheduler(Registry::acquire<IScheduler>())
 {
+	Q_ASSERT(_scheduler);
+
 	connect(dynamic_cast<QObject*>(_scheduler), SIGNAL(scheduleTriggered(QUuid)),
 			this, SLOT(scheduleTriggered(QUuid)),
 			Qt::QueuedConnection);
@@ -17,6 +19,8 @@ ReminderManager::ReminderManager(QObject *parent) :
 			this, &ReminderManager::dataChanged);
 
 	_store->loadAll<Reminder>().onResult([this](QList<Reminder> reminders) {
+		if(reminders.isEmpty())
+			emit initEmpty();
 		foreach(auto rem, reminders)
 			_scheduler->scheduleReminder(rem.id(), rem.current());
 	}, [this](const QException &e) {

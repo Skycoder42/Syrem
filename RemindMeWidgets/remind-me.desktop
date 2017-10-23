@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=Remind-Me
+Comment=A simple reminder application for desktop and mobile, with synchronized reminders
+Exec=remind-me
+Icon=remind-me
+Terminal=false

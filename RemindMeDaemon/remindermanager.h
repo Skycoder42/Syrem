@@ -6,7 +6,7 @@
 #include "dateparser.h"
 #include "reminder.h"
 #include "rep_remindermanager_source.h"
-#include "scheduler.h"
+#include "ischeduler.h"
 
 class ReminderManager : public ReminderManagerSimpleSource
 {
@@ -19,6 +19,9 @@ public slots:
 	void createReminder(const QString &text, bool important, const QString &expression) override;
 	void removeReminder(const QUuid &id) override;
 
+signals:
+	void initEmpty();
+
 private slots:
 	void scheduleTriggered(const QUuid &id);
 	void dataChanged(int metaTypeId, const QString &key, bool wasDeleted);
@@ -26,7 +29,7 @@ private slots:
 private:
 	QtDataSync::AsyncDataStore *_store;
 	DateParser *_parser;
-	Scheduler *_scheduler;
+	IScheduler *_scheduler;
 };
 
 #endif // REMINDERMANAGER_H
