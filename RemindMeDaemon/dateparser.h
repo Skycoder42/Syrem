@@ -184,9 +184,13 @@ public:
 
 	ParserTypes::Expression *parse(const QString &data);
 
+	QString lastError() const;
+
 private:
 	static const QString timeRegex;
 	static const QString sequenceRegex;
+
+	QString _lastError;
 
 	ParserTypes::Expression *parseExpression(const QString &data, QObject *parent);
 	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);

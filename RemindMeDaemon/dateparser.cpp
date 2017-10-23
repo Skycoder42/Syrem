@@ -338,7 +338,8 @@ const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}
 const QString DateParser::sequenceRegex = QStringLiteral(R"__(((?:\d+) (?:\w+)(?: and (?:\d+) (?:\w+))*))__");//TODO translate
 
 DateParser::DateParser(QObject *parent) :
-	QObject(parent)
+	QObject(parent),
+	_lastError()
 {}
 
 Expression *DateParser::parse(const QString &data)
@@ -351,10 +352,15 @@ Expression *DateParser::parse(const QString &data)
 		return expr;
 	} catch(QString &s) {
 		//TODO use s better
-		qCritical(qUtf8Printable(s));
+		_lastError = s;
 		dummyParent->deleteLater();
 		return nullptr;
 	}
+}
+
+QString DateParser::lastError() const
+{
+	return _lastError;
 }
 
 Expression *DateParser::parseExpression(const QString &data, QObject *parent)

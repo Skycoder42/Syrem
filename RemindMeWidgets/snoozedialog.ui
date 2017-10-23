@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SnoozeDialog</class>
+ <widget class="QDialog" name="SnoozeDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>307</width>
+    <height>76</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QComboBox" name="comboBox">
+     <property name="toolTip">
+      <string>Choose one of the pre-defined snooze times, or enter a custom one</string>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="duplicatesEnabled">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>in 20 minutes</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>in 1 hour</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>in 3 hours</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>tomorrow</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>in 1 week on Monday</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SnoozeDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SnoozeDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

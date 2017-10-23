@@ -1,4 +1,5 @@
 #include "kdenotifier.h"
+#include "snoozedialog.h"
 
 #include <QApplication>
 
@@ -91,7 +92,25 @@ void KdeNotifier::removeNotification(const QUuid &id)
 
 void KdeNotifier::snoozed(const QUuid &id, bool defaultSnooze)
 {
+	if(!removeNot(id))
+		return;
 
+	if(defaultSnooze)
+		emit messageDelayed(id, {});//invalid datetime == default snooze
+	else {
+		auto diag = new SnoozeDialog(nullptr);
+
+		connect(diag, &SnoozeDialog::accepted, this, [this, id, diag]() {
+			emit messageDelayed(id, diag->snoozeTime());
+			diag->deleteLater();
+		});
+		connect(diag, &SnoozeDialog::rejected, this, [this, id, diag]() {
+			emit messageDismissed(id);
+			diag->deleteLater();
+		});
+
+		diag->open();
+	}
 }
 
 void KdeNotifier::updateIcon()
@@ -140,6 +159,7 @@ bool KdeNotifier::removeNot(const QUuid &id, bool close)
 		if(close)
 			info.second->close();
 		info.second->deleteLater();
+		updateIcon();
 		return true;
 	} else
 		return false;
