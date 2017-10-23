@@ -37,7 +37,7 @@ private:
 	QHash<QUuid, NotifyInfo> _notifications;
 
 	void updateIcon();
-	bool removeNot(const QUuid &id, bool close = false);
+	bool removeNot(const QUuid &id, bool close = false, Reminder *remPtr = nullptr);
 };
 
 #endif // KDENOTIFIER_H

@@ -2,27 +2,21 @@
 #define SNOOZEDIALOG_H
 
 #include <QDateTime>
-#include <QDialog>
+#include <QInputDialog>
 #include <dateparser.h> //direct use ok here, as it's part of a daemon service...
 
-namespace Ui {
-class SnoozeDialog;
-}
-
-class SnoozeDialog : public QDialog
+class KdeSnoozeDialog : public QInputDialog
 {
 	Q_OBJECT
 
 public:
-	explicit SnoozeDialog(QWidget *parent = nullptr);
-	~SnoozeDialog();
+	explicit KdeSnoozeDialog(const QString &text, QWidget *parent = nullptr);
 
 	QDateTime snoozeTime() const;
 
 	void accept() override;
 
 private:
-	Ui::SnoozeDialog *_ui;
 	DateParser *_parser;
 	QDateTime _nextTime;
 };

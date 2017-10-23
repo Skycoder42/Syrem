@@ -1,5 +1,5 @@
 #include "kdenotifier.h"
-#include "snoozedialog.h"
+#include "kdesnoozedialog.h"
 
 #include <QApplication>
 
@@ -92,19 +92,20 @@ void KdeNotifier::removeNotification(const QUuid &id)
 
 void KdeNotifier::snoozed(const QUuid &id, bool defaultSnooze)
 {
-	if(!removeNot(id))
+	Reminder rem;
+	if(!removeNot(id, false, &rem))
 		return;
 
 	if(defaultSnooze)
 		emit messageDelayed(id, {});//invalid datetime == default snooze
 	else {
-		auto diag = new SnoozeDialog(nullptr);
+		auto diag = new KdeSnoozeDialog(rem.text() ,nullptr);
 
-		connect(diag, &SnoozeDialog::accepted, this, [this, id, diag]() {
+		connect(diag, &KdeSnoozeDialog::accepted, this, [this, id, diag]() {
 			emit messageDelayed(id, diag->snoozeTime());
 			diag->deleteLater();
 		});
-		connect(diag, &SnoozeDialog::rejected, this, [this, id, diag]() {
+		connect(diag, &KdeSnoozeDialog::rejected, this, [this, id, diag]() {
 			emit messageDismissed(id);
 			diag->deleteLater();
 		});
@@ -152,7 +153,7 @@ void KdeNotifier::updateIcon()
 	}
 }
 
-bool KdeNotifier::removeNot(const QUuid &id, bool close)
+bool KdeNotifier::removeNot(const QUuid &id, bool close, Reminder *remPtr)
 {
 	auto info = _notifications.take(id);
 	if(info.second) {
@@ -160,6 +161,10 @@ bool KdeNotifier::removeNot(const QUuid &id, bool close)
 			info.second->close();
 		info.second->deleteLater();
 		updateIcon();
+
+		if(remPtr)
+			*remPtr = info.first;
+
 		return true;
 	} else
 		return false;

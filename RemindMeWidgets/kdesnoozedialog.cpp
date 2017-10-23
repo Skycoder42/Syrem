@@ -1,30 +1,35 @@
-#include "snoozedialog.h"
-#include "ui_snoozedialog.h"
+#include "kdesnoozedialog.h"
 #include <dialogmaster.h>
 
-SnoozeDialog::SnoozeDialog(QWidget *parent) :
-	QDialog(parent),
-	_ui(new Ui::SnoozeDialog),
+KdeSnoozeDialog::KdeSnoozeDialog(const QString &text, QWidget *parent) :
+	QInputDialog(parent),
 	_parser(new DateParser(this)),
 	_nextTime()
 {
-	_ui->setupUi(this);
+	setInputMode(QInputDialog::TextInput);
+	setComboBoxEditable(true);
+	setComboBoxItems({
+						 tr("in 20 minutes"),
+						 tr("in 1 hour"),
+						 tr("in 3 hours"),
+						 tr("tomorrow"),
+						 tr("in 1 week on Monday")
+					 });
+	setLabelText(tr("Choose a snooze time for the reminder:<br/>"
+					"<i>%1</i>")
+				 .arg(text));
+
 	DialogMaster::masterDialog(this);
 }
 
-SnoozeDialog::~SnoozeDialog()
-{
-	delete _ui;
-}
-
-QDateTime SnoozeDialog::snoozeTime() const
+QDateTime KdeSnoozeDialog::snoozeTime() const
 {
 	return _nextTime;
 }
 
-void SnoozeDialog::accept()
+void KdeSnoozeDialog::accept()
 {
-	auto expression = _parser->parse(_ui->comboBox->currentText());
+	auto expression = _parser->parse(textValue());
 	if(!expression) {
 		DialogMaster::critical(this,
 							   tr("The entered text is not a valid expression. Error message:\n%1").arg(_parser->lastError()),
