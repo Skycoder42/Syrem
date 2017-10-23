@@ -39,6 +39,7 @@ SOURCES += main.cpp \
 kde_notifier {
 	HEADERS += kdenotifier.h
 	SOURCES += kdenotifier.cpp
+	DISTFILES += remind-me.notifyrc
 } else {
 	HEADERS += widgetsnotifier.h
 	SOURCES += widgetsnotifier.cpp

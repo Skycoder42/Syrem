@@ -1,0 +1,16 @@
+[Global]
+IconName=remind-me
+Comment=Remind-Me
+
+[Event/remindnormal]
+Name=Normal Reminder
+Comment=A reminder has been triggered
+Action=Sound|Popup
+Sound=KDE-Sys-App-Message.ogg
+
+[Event/remindimportant]
+Name=Important Reminder
+Comment=An important reminder has been triggered
+Action=Complete|Snooze|Snooze Custom
+Action=Sound|Popup
+Sound=KDE-Sys-App-Positive.ogg

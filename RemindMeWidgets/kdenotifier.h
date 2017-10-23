@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <KStatusNotifierItem>
+#include <KNotification>
 #include <inotifier.h>
 #include <qtaskbarcontrol.h>
 
@@ -24,13 +25,19 @@ signals:
 	void messageCompleted(const QUuid &id) final;
 	void messageDelayed(const QUuid &id, const QDateTime &nextTrigger) final;
 
+private slots:
+	void snoozed(const QUuid &id, bool defaultSnooze);
+
 private:
+	typedef QPair<Reminder, KNotification*> NotifyInfo;
+
 	KStatusNotifierItem *_statusNotifier;
 	QTaskbarControl *_taskbar;
 
-	QHash<QUuid, Reminder> _notifications;
+	QHash<QUuid, NotifyInfo> _notifications;
 
 	void updateIcon();
+	bool removeNot(const QUuid &id, bool close = false);
 };
 
 #endif // KDENOTIFIER_H
