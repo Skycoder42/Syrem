@@ -26,7 +26,7 @@ public slots:
 	void reject() override;
 
 signals:
-	void reacted(const QUuid &id, Action action, const QDateTime &snoozeTime = {});
+	void reacted(Reminder reminder, Action action, const QDateTime &snoozeTime = {});
 	void aborted(const QList<Reminder> &reminders);
 
 private slots:

@@ -5,6 +5,7 @@
 #include <QtDataSync/AsyncDataStore>
 #include <ischeduler.h>
 #include <inotifier.h>
+#include <QSettings>
 
 class NotificationManager : public QObject
 {
@@ -16,12 +17,17 @@ public:
 private slots:
 	void scheduleTriggered(const QUuid &id);
 
+	void messageDismissed(Reminder reminder);
+	void messageCompleted(Reminder reminder);
+	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger);
+
 	void dataChanged(int metaTypeId, const QString &key, bool wasDeleted);
 
 private:
 	IScheduler *_scheduler;
 	INotifier *_notifier;
 
+	QSettings *_settings;
 	QtDataSync::AsyncDataStore *_store;
 };
 

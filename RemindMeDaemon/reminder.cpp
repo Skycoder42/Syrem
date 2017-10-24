@@ -12,6 +12,7 @@ public:
 	QString text;
 	bool important;
 	QSharedPointer<Schedule> schedule;
+	QDateTime snooze;
 };
 
 Reminder::Reminder() :
@@ -59,6 +60,11 @@ QSharedPointer<const Schedule> Reminder::schedule() const
 	return _data->schedule.constCast<const Schedule>();
 }
 
+QDateTime Reminder::snooze() const
+{
+	return _data->snooze;
+}
+
 QtDataSync::GenericTask<void> Reminder::nextSchedule(AsyncDataStore *store, const QDateTime &current)
 {
 	Q_ASSERT_X(_data->schedule, Q_FUNC_INFO, "cannot call next schedule without an assigned schedule");
@@ -99,6 +105,11 @@ void Reminder::setSchedule(Schedule *schedule)
 	_data->schedule = QSharedPointer<Schedule>(schedule);
 }
 
+void Reminder::setSnooze(QDateTime snooze)
+{
+	_data->snooze = snooze;
+}
+
 QSharedPointer<Schedule> Reminder::getSchedule() const
 {
 	return _data->schedule;
@@ -110,12 +121,16 @@ ReminderData::ReminderData() :
 	QSharedData(),
 	id(QUuid::createUuid()),
 	text(),
-	important(false)
+	important(false),
+	schedule(nullptr),
+	snooze()
 {}
 
 ReminderData::ReminderData(const ReminderData &other):
 	QSharedData(other),
 	id(other.id),
 	text(other.text),
-	important(other.important)
+	important(other.important),
+	schedule(other.schedule),
+	snooze(other.snooze)
 {}

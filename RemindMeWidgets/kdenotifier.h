@@ -21,9 +21,9 @@ public slots:
 	void showErrorMessage(const QString &error) override;
 
 signals:
-	void messageDismissed(const QUuid &id) final;
-	void messageCompleted(const QUuid &id) final;
-	void messageDelayed(const QUuid &id, const QDateTime &nextTrigger) final;
+	void messageDismissed(Reminder reminder) final;
+	void messageCompleted(Reminder reminder) final;
+	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger) final;
 
 private slots:
 	void snoozed(const QUuid &id);
@@ -35,7 +35,7 @@ private:
 	QHash<QUuid, NotifyInfo> _notifications;
 
 	void updateBar();
-	bool removeNot(const QUuid &id, bool close = false, Reminder *remPtr = nullptr);
+	bool removeNot(const QUuid &id, Reminder *remPtr = nullptr, bool close = false);
 };
 
 #endif // KDENOTIFIER_H

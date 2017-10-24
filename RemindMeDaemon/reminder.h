@@ -23,6 +23,8 @@ class Reminder
 	Q_PROPERTY(QDateTime current READ current STORED false)
 	Q_PROPERTY(QSharedPointer<Schedule> schedule READ getSchedule WRITE setSchedule)
 
+	Q_PROPERTY(QDateTime snooze READ snooze WRITE setSnooze)
+
 public:
 	Reminder();
 	Reminder(const Reminder &rhs);
@@ -34,6 +36,7 @@ public:
 	bool isImportant() const;
 	QDateTime current() const;
 	QSharedPointer<const Schedule> schedule() const;
+	QDateTime snooze() const;
 
 	QtDataSync::GenericTask<void> nextSchedule(QtDataSync::AsyncDataStore *store, const QDateTime &current);
 
@@ -43,6 +46,7 @@ public slots:
 	void setImportant(bool important);
 	void setSchedule(QSharedPointer<Schedule> schedule);
 	void setSchedule(Schedule *schedule);
+	void setSnooze(QDateTime snooze);
 
 private:
 	QSharedDataPointer<ReminderData> _data;

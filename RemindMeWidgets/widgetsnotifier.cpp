@@ -108,17 +108,17 @@ void WidgetsNotifier::invert()
 	}
 }
 
-void WidgetsNotifier::snoozeAction(const QUuid &id, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime)
+void WidgetsNotifier::snoozeAction(Reminder reminder, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime)
 {
 	switch (action) {
 	case WidgetsSnoozeDialog::CompleteAction:
-		emit messageCompleted(id);
+		emit messageCompleted(reminder);
 		break;
 	case WidgetsSnoozeDialog::DefaultSnoozeAction:
-		emit messageDismissed(id);
+		emit messageDismissed(reminder);
 		break;
 	case WidgetsSnoozeDialog::SnoozeAction:
-		emit messageDelayed(id, snoozeTime);
+		emit messageDelayed(reminder, snoozeTime);
 		break;
 	default:
 		Q_UNREACHABLE();

@@ -525,6 +525,8 @@ void CoreReminderTest::testLoopReminder_data()
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QList<QDateTime>>("results");
 
+	//TODO test until time only!!!
+
 	//loop.span
 	QTest::newRow("loop.span.minute") << QStringLiteral("every 30 minutes")
 									  << QDateTime({2017, 10, 24}, {22, 00})

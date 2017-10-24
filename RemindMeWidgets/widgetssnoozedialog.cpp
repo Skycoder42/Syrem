@@ -35,7 +35,7 @@ void WidgetsSnoozeDialog::performComplete()
 		_toolBox->removeItem(_toolBox->currentIndex());
 		auto reminder = _reminders.take(remWidget);
 
-		emit reacted(reminder.id(), CompleteAction);
+		emit reacted(reminder, CompleteAction);
 		remWidget->deleteLater();
 		resizeUi();
 	}
@@ -48,7 +48,7 @@ void WidgetsSnoozeDialog::performDefaultSnooze()
 		_toolBox->removeItem(_toolBox->currentIndex());
 		auto reminder = _reminders.take(remWidget);
 
-		emit reacted(reminder.id(), DefaultSnoozeAction);
+		emit reacted(reminder, DefaultSnoozeAction);
 		remWidget->deleteLater();
 		resizeUi();
 	}
@@ -69,7 +69,7 @@ void WidgetsSnoozeDialog::performSnooze()
 		_toolBox->removeItem(_toolBox->currentIndex());
 		auto reminder = _reminders.take(remWidget);
 
-		emit reacted(reminder.id(), SnoozeAction, when);
+		emit reacted(reminder, SnoozeAction, when);
 		remWidget->deleteLater();
 		resizeUi();
 	}

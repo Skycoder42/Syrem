@@ -48,11 +48,11 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 void ReminderManager::removeReminder(const QUuid &id)
 {
 	_scheduler->cancleReminder(id);
-	_store->remove<Reminder>(id).onResult(this, [this, id](bool removed) {
+	_store->remove<Reminder>(id).onResult(this, [id](bool removed) {
 		if(!removed)
 			qWarning() << "Reminder with id" << id << "has already been removed";
 	}, [this](const QException &e) {
-		qCritical() << "Failed to load reminder with error:" << e.what();
+		qCritical() << "Failed to remove reminder with error:" << e.what();
 		emit reminderError(false, tr("Failed to delete reminder!"));
 	});
 }

@@ -64,8 +64,9 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 
 	auto remId = reminder.id();
 	connect(notification, &KNotification::action1Activated, this, [this, remId](){
-		if(removeNot(remId))
-			emit messageCompleted(remId);
+		Reminder rem;
+		if(removeNot(remId, &rem))
+			emit messageCompleted(rem);
 	});
 	connect(notification, &KNotification::action2Activated, this, [this, remId](){
 		snoozed(remId);
@@ -74,8 +75,9 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 		//TODO settings...
 	});
 	connect(notification, &KNotification::closed, this, [this, remId](){
-		if(removeNot(remId))
-			emit messageDismissed(remId);
+		Reminder rem;
+		if(removeNot(remId, &rem))
+			emit messageDismissed(rem);
 	});
 
 	notification->sendEvent();
@@ -83,7 +85,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 
 void KdeNotifier::removeNotification(const QUuid &id)
 {
-	removeNot(id, true);
+	removeNot(id, nullptr, true);
 }
 
 void KdeNotifier::showErrorMessage(const QString &error)
@@ -107,17 +109,17 @@ void KdeNotifier::showErrorMessage(const QString &error)
 void KdeNotifier::snoozed(const QUuid &id)
 {
 	Reminder rem;
-	if(!removeNot(id, false, &rem))
+	if(!removeNot(id, &rem))
 		return;
 
 	auto diag = new KdeSnoozeDialog(rem.text() ,nullptr);
 
-	connect(diag, &KdeSnoozeDialog::accepted, this, [this, id, diag]() {
-		emit messageDelayed(id, diag->snoozeTime());
+	connect(diag, &KdeSnoozeDialog::accepted, this, [this, rem, diag]() {
+		emit messageDelayed(rem, diag->snoozeTime());
 		diag->deleteLater();
 	});
-	connect(diag, &KdeSnoozeDialog::rejected, this, [this, id, diag]() {
-		emit messageDismissed(id);
+	connect(diag, &KdeSnoozeDialog::rejected, this, [this, rem, diag]() {
+		emit messageDismissed(rem);
 		diag->deleteLater();
 	});
 
@@ -135,7 +137,7 @@ void KdeNotifier::updateBar()
 	}
 }
 
-bool KdeNotifier::removeNot(const QUuid &id, bool close, Reminder *remPtr)
+bool KdeNotifier::removeNot(const QUuid &id, Reminder *remPtr, bool close)
 {
 	auto info = _notifications.take(id);
 	if(info.second) {

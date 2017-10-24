@@ -5,6 +5,7 @@
 #include <QtDataSync/Setup>
 #include <QtDataSync/WsAuthenticator>
 #include <QtDataSync/DataStoreModel>
+#include <QtDataSync/DataMerger>
 
 #include "remindermanager.h"
 #include "reminder.h"
@@ -50,6 +51,7 @@ void RemindMeDaemon::startDaemon()
 
 	Setup setup;
 	setup.serializer()->addJsonTypeConverter(new DateTimeJsonConverter());
+	setup.dataMerger()->setSyncPolicy(DataMerger::PreferDeleted);
 	setup.create();
 	auto auth = Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(this);
 	if(!auth->remoteUrl().isValid()) {

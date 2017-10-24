@@ -23,15 +23,15 @@ public slots:
 	void showErrorMessage(const QString &error) override;
 
 signals:
-	void messageDismissed(const QUuid &id) final;
-	void messageCompleted(const QUuid &id) final;
-	void messageDelayed(const QUuid &id, const QDateTime &nextTrigger) final;
+	void messageDismissed(Reminder reminder) final;
+	void messageCompleted(Reminder reminder) final;
+	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger) final;
 
 private slots:
 	void activated(QSystemTrayIcon::ActivationReason reason);
 	void invert();
 
-	void snoozeAction(const QUuid &id, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime);
+	void snoozeAction(Reminder reminder, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime);
 	void snoozeAborted(const QList<Reminder> &reminders);
 
 private:
