@@ -5,23 +5,16 @@
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
-#define Icon QIcon(QStringLiteral(":/icons/tray/main.ico"))
-#define IconPixmap Icon.pixmap(64, 64)
-#define setIcon setIconByPixmap
-#define setToolTipIcon setToolTipIconByPixmap
+#define Icon QIcon(QStringLiteral(":/icons/tray/main.ico")).pixmap(64, 64)
 #define setNotifyIcon setPixmap
 #else
 #define Icon QStringLiteral("remind-me")
-#define IconPixmap Icon
-#define setIcon setIconByName
-#define setToolTipIcon setToolTipIconByName
 #define setNotifyIcon setIconName
 #endif
 
 KdeNotifier::KdeNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
-	_statusNotifier(nullptr),
 	_taskbar(new QTaskbarControl(new QWidget())), //create with a dummy widget parent
 	_notifications()
 {
@@ -31,14 +24,13 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 
 	connect(qApp, &QApplication::aboutToQuit, this, [this](){
 		foreach(auto info, _notifications)
-			info.second->close();//TODO ??? -> or not?
+			info.second->close();
 	});
 }
 
 void KdeNotifier::setupEmtpy()
 {
-	_taskbar->setCounter(0);
-	_taskbar->setCounterVisible(false);
+	updateBar();
 }
 
 void KdeNotifier::showNotification(const Reminder &reminder)
@@ -49,21 +41,22 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 											  QStringLiteral("remindnormal"),
 										  KNotification::Persistent | KNotification::SkipGrouping,
 										  this);
+
 	_notifications.insert(reminder.id(), {reminder, notification});
-	updateIcon();
+	updateBar();
 
 	notification->setTitle(important ?
 							   tr("Important Reminder triggered!") :
 							   tr("Reminder triggered!"));
 	notification->setText(reminder.text());
-	notification->setNotifyIcon(IconPixmap);
-	auto delayAct = tr("Delay…");
+	notification->setNotifyIcon(Icon);
 	notification->setActions({
 								 tr("Complete"),
-								 tr("Snooze"),
-								 delayAct
+								 tr("Snooze")
 							 });
-	notification->setDefaultAction(delayAct);
+	//TODO settings notification->setDefaultAction(notification->actions().last());
+	if(important)
+		notification->setFlags(notification->flags() | KNotification::LoopSound);
 
 	auto remId = reminder.id();
 	connect(notification, &KNotification::action1Activated, this, [this, remId](){
@@ -71,10 +64,10 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 			emit messageCompleted(remId);
 	});
 	connect(notification, &KNotification::action2Activated, this, [this, remId](){
-		snoozed(remId, true);
+		snoozed(remId);
 	});
-	connect(notification, &KNotification::action3Activated, this, [this, remId](){
-		snoozed(remId, false);
+	connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId](){
+		//TODO settings...
 	});
 	connect(notification, &KNotification::closed, this, [this, remId](){
 		if(removeNot(remId))
@@ -86,70 +79,37 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 
 void KdeNotifier::removeNotification(const QUuid &id)
 {
-	if(removeNot(id, true))
-		updateIcon();
+	removeNot(id, true);
 }
 
-void KdeNotifier::snoozed(const QUuid &id, bool defaultSnooze)
+void KdeNotifier::snoozed(const QUuid &id)
 {
 	Reminder rem;
 	if(!removeNot(id, false, &rem))
 		return;
 
-	if(defaultSnooze)
-		emit messageDelayed(id, {});//invalid datetime == default snooze
-	else {
-		auto diag = new KdeSnoozeDialog(rem.text() ,nullptr);
+	auto diag = new KdeSnoozeDialog(rem.text() ,nullptr);
 
-		connect(diag, &KdeSnoozeDialog::accepted, this, [this, id, diag]() {
-			emit messageDelayed(id, diag->snoozeTime());
-			diag->deleteLater();
-		});
-		connect(diag, &KdeSnoozeDialog::rejected, this, [this, id, diag]() {
-			emit messageDismissed(id);
-			diag->deleteLater();
-		});
+	connect(diag, &KdeSnoozeDialog::accepted, this, [this, id, diag]() {
+		emit messageDelayed(id, diag->snoozeTime());
+		diag->deleteLater();
+	});
+	connect(diag, &KdeSnoozeDialog::rejected, this, [this, id, diag]() {
+		emit messageDismissed(id);
+		diag->deleteLater();
+	});
 
-		diag->open();
-	}
+	diag->open();
 }
 
-void KdeNotifier::updateIcon()
+void KdeNotifier::updateBar()
 {
 	_taskbar->setCounter(_notifications.size());
-	if(_notifications.isEmpty()) {
-		if(_statusNotifier) {
-			_statusNotifier->deleteLater();
-			_statusNotifier = nullptr;
-		}
+	if(_notifications.isEmpty())
 		_taskbar->setCounterVisible(false);
-	} else {
+	else {
 		if(!_taskbar->counterVisible())
 			_taskbar->setCounterVisible(true);
-
-		if(!_statusNotifier) {
-			_statusNotifier = new KStatusNotifierItem(this);
-			_statusNotifier->setCategory(KStatusNotifierItem::Communications);
-			_statusNotifier->setIcon(Icon);
-			_statusNotifier->setStandardActionsEnabled(true);
-			_statusNotifier->setTitle(QApplication::applicationDisplayName());
-			_statusNotifier->setToolTipIcon(Icon);
-			_statusNotifier->setToolTipTitle(QApplication::applicationDisplayName());
-		}
-
-		_statusNotifier->setToolTipSubTitle(tr("You have %n active reminder(s)", "", _notifications.size()));
-		auto anyImportant = false;
-		foreach(auto info, _notifications) {
-			if(info.first.isImportant()) {
-				anyImportant = true;
-				break;
-			}
-		}
-
-		if(anyImportant)
-			_statusNotifier->setStatus(KStatusNotifierItem::NeedsAttention);
-		else
-			_statusNotifier->setStatus(KStatusNotifierItem::Active);
 	}
 }
 
@@ -160,7 +120,7 @@ bool KdeNotifier::removeNot(const QUuid &id, bool close, Reminder *remPtr)
 		if(close)
 			info.second->close();
 		info.second->deleteLater();
-		updateIcon();
+		updateBar();
 
 		if(remPtr)
 			*remPtr = info.first;

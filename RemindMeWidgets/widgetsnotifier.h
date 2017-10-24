@@ -5,6 +5,8 @@
 #include <inotifier.h>
 #include <QSystemTrayIcon>
 #include <qtaskbarcontrol.h>
+#include <QTimer>
+#include "widgetssnoozedialog.h"
 
 class WidgetsNotifier : public QObject, public INotifier
 {
@@ -26,12 +28,23 @@ signals:
 
 private slots:
 	void activated(QSystemTrayIcon::ActivationReason reason);
+	void invert();
+
+	void snoozeAction(const QUuid &id, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime);
+	void snoozeAborted(const QList<Reminder> &reminders);
 
 private:
+	const QIcon _normalIcon;
+	const QIcon _inverseIcon;
+
 	QSystemTrayIcon *_trayIco;
 	QTaskbarControl *_taskbar;
+	QTimer *_blinkTimer;
+	bool _inverted;
 
 	QHash<QUuid, Reminder> _notifications;
+
+	void updateIcon();
 };
 
 #endif // WIDGETSNOTIFIER_H

@@ -6,8 +6,12 @@
 WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
-	_trayIco(new QSystemTrayIcon(QIcon(QStringLiteral(":/icons/tray/main.ico")), this)),
+	_normalIcon(QStringLiteral(":/icons/tray/main.ico")),
+	_inverseIcon(QStringLiteral(":/icons/tray/inverse.ico")),
+	_trayIco(new QSystemTrayIcon(_normalIcon, this)),
 	_taskbar(new QTaskbarControl(new QWidget())), //create with a dummy widget parent
+	_blinkTimer(new QTimer(this)),
+	_inverted(false),//true as default
 	_notifications()
 {
 	connect(this, &WidgetsNotifier::destroyed,
@@ -21,25 +25,25 @@ WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 			this, [this]() {
 		activated(QSystemTrayIcon::Trigger);
 	});
+
+	_blinkTimer->setInterval(750);//TODO settings
+	connect(_blinkTimer, &QTimer::timeout,
+			this, &WidgetsNotifier::invert);
 }
 
 void WidgetsNotifier::setupEmtpy()
 {
-	_taskbar->setCounter(0);
-	_taskbar->setCounterVisible(false);
-	_trayIco->setVisible(false);
+	updateIcon();
 }
 
 void WidgetsNotifier::showNotification(const Reminder &reminder)
 {
 	_notifications.insert(reminder.id(), reminder);
+	updateIcon();
 
-	_taskbar->setCounter(_notifications.size());
-	if(!_taskbar->counterVisible())
-		_taskbar->setCounterVisible(true);
-
-	_trayIco->show();
-	_trayIco->showMessage(tr("Reminder triggered!"),
+	_trayIco->showMessage(reminder.isImportant() ?
+							  tr("Important Reminder triggered!") :
+							  tr("Reminder triggered!"),
 						  reminder.text(),
 						  QSystemTrayIcon::Information,
 						  10000);
@@ -47,17 +51,91 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 
 void WidgetsNotifier::removeNotification(const QUuid &id)
 {
-	if(_notifications.remove(id) > 0) {
-		_taskbar->setCounter(_notifications.size());
-		if(_notifications.isEmpty()) {
-			_taskbar->setCounterVisible(false);
-			_trayIco->hide();
-		}
-	}
+	if(_notifications.remove(id) > 0)
+		updateIcon();
 }
 
 void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 {
-	//TODO show proper GUI, for now debug:
-	Q_UNIMPLEMENTED();
+	Q_UNUSED(reason)
+	auto dialog = new WidgetsSnoozeDialog(true);
+	dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+	connect(dialog, &WidgetsSnoozeDialog::reacted,
+			this, &WidgetsNotifier::snoozeAction);
+	connect(dialog, &WidgetsSnoozeDialog::aborted,
+			this, &WidgetsNotifier::snoozeAborted);
+
+	dialog->addReminders(_notifications.values());
+	dialog->open();
+
+	_notifications.clear();
+	updateIcon();
+}
+
+void WidgetsNotifier::invert()
+{
+	if(_inverted) {
+		_trayIco->setIcon(_normalIcon);
+		_inverted = false;
+	} else {
+		_trayIco->setIcon(_inverseIcon);
+		_inverted = true;
+	}
+}
+
+void WidgetsNotifier::snoozeAction(const QUuid &id, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime)
+{
+	switch (action) {
+	case WidgetsSnoozeDialog::CompleteAction:
+		emit messageCompleted(id);
+		break;
+	case WidgetsSnoozeDialog::DefaultSnoozeAction:
+		emit messageDismissed(id);
+		break;
+	case WidgetsSnoozeDialog::SnoozeAction:
+		emit messageDelayed(id, snoozeTime);
+		break;
+	default:
+		Q_UNREACHABLE();
+		break;
+	}
+}
+
+void WidgetsNotifier::snoozeAborted(const QList<Reminder> &reminders)
+{
+	foreach(auto rem, reminders)
+		_notifications.insert(rem.id(), rem);
+	updateIcon();
+}
+
+void WidgetsNotifier::updateIcon()
+{
+	if(_notifications.isEmpty()) {
+		_blinkTimer->stop();
+		_inverted = false;
+		_taskbar->setCounter(0);
+		_taskbar->setCounterVisible(false);
+		_trayIco->setVisible(false);
+		_trayIco->setIcon(_normalIcon);
+	} else {
+		_taskbar->setCounter(_notifications.size());
+		if(!_taskbar->counterVisible())
+			_taskbar->setCounterVisible(true);
+
+		auto important = false;
+		foreach(auto rem, _notifications) {
+			if(rem.isImportant()) {
+				important = true;
+				break;
+			}
+		}
+
+		if(important) {
+			if(!_blinkTimer->isActive())
+				_blinkTimer->start();
+		}
+		if(!_trayIco->isVisible())
+			_trayIco->show();
+	}
 }

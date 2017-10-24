@@ -6,6 +6,7 @@ KdeSnoozeDialog::KdeSnoozeDialog(const QString &text, QWidget *parent) :
 	_parser(new DateParser(this)),
 	_nextTime()
 {
+	setWindowTitle(tr("Snooze Reminder"));
 	setInputMode(QInputDialog::TextInput);
 	setComboBoxEditable(true);
 	setComboBoxItems({

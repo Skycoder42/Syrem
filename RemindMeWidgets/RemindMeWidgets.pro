@@ -43,8 +43,10 @@ kde_notifier {
 		kdesnoozedialog.cpp
 	DISTFILES += remind-me.notifyrc
 } else {
-	HEADERS += widgetsnotifier.h
-	SOURCES += widgetsnotifier.cpp
+	HEADERS += widgetsnotifier.h \
+		widgetssnoozedialog.h
+	SOURCES += widgetsnotifier.cpp \
+		widgetssnoozedialog.cpp
 }
 
 FORMS += mainwindow.ui \

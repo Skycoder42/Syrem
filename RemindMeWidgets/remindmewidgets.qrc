@@ -10,5 +10,6 @@
     </qresource>
     <qresource prefix="/icons/tray">
         <file alias="main.ico">icons/remindme.ico</file>
+        <file alias="inverse.ico">icons/remindme_inverse.ico</file>
     </qresource>
 </RCC>
