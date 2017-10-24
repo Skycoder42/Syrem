@@ -34,7 +34,7 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 {
 	auto expr = _parser->parse(expression);
 	if(!expr) {
-		emit reminderCreateError(tr("Invalid \"when\" expression!"));//TODO add error message
+		emit reminderCreateError(tr("Invalid \"when\" expression! Error message:\n%1").arg(_parser->lastError()));
 		return;
 }
 	auto sched = expr->createSchedule(QDateTime::currentDateTime());

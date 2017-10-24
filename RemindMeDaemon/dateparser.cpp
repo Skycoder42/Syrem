@@ -351,7 +351,6 @@ Expression *DateParser::parse(const QString &data)
 		dummyParent->deleteLater();
 		return expr;
 	} catch(QString &s) {
-		//TODO use s better
 		_lastError = s;
 		dummyParent->deleteLater();
 		return nullptr;
@@ -724,7 +723,6 @@ QTime DateParser::parseTime(const QString &data)
 
 Expression::Span DateParser::parseSpan(const QString &data)
 {
-	//TODO allow "and" expressions: in/every 2 hours and 20 minutes
 	static const QHash<QRegularExpression, Expression::Span> spanMap = {
 		{SPAN_REGEX(tr("minute|minutes")), Expression::MinuteSpan},
 		{SPAN_REGEX(tr("hour|hours")), Expression::HourSpan},
