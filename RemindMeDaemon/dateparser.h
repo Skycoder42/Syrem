@@ -7,6 +7,8 @@
 
 namespace ParserTypes {
 
+class TimePoint;
+
 class Expression : public QObject
 {
 	Q_OBJECT
@@ -27,6 +29,9 @@ public:
 	virtual inline ~Expression() = default;
 
 	virtual Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) = 0;
+
+protected:
+	static QDateTime calcTpoint(const QDateTime &since, const TimePoint *tPoint, const QTime &time, bool notToday = true);
 };
 
 // ------------- Basic Types -------------
@@ -150,17 +155,6 @@ public:
 	QTime untilTime;
 };
 
-class TimeEx : public Expression
-{
-	Q_OBJECT
-
-public:
-	TimeEx(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
-
-	QTime time;
-};
-
 class Point : public Expression
 {
 	Q_OBJECT
@@ -196,7 +190,6 @@ private:
 	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
 	ParserTypes::TimeSpan *tryParseTimeSpan(const QString &data, QObject *parent);
 	ParserTypes::Loop *tryParseLoop(const QString &data, QObject *parent);
-	ParserTypes::TimeEx *tryParseTimeEx(const QString &data, QObject *parent);
 	ParserTypes::Point *tryParsePoint(const QString &data, QObject *parent);
 
 	ParserTypes::Datum *parseDatum(const QString &data, QObject *parent);

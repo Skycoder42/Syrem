@@ -9,6 +9,30 @@ Expression::Expression(QObject *parent) :
 	QObject(parent)
 {}
 
+QDateTime Expression::calcTpoint(const QDateTime &since, const TimePoint *tPoint, const QTime &time, bool notToday)
+{
+	QDateTime tp;
+	auto sDay = true;
+	if(tPoint) {
+		sDay = false;
+		tp.setDate(tPoint->nextDate(since.date(), notToday));
+		if(!tp.date().isValid())
+			return {};
+	} else
+		tp.setDate(since.date());
+
+	if(time.isValid()) {
+		if(sDay && since.time() >= time)
+			tp = tp.addDays(1);
+		tp.setTime(time);
+	}
+
+	if(tp <= since)
+		return {};
+	else
+		return tp;
+}
+
 Datum::Datum(QObject *parent) :
 	QObject(parent),
 	scope(InvalidScope),
@@ -258,23 +282,17 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 	QDateTime fDate;
 	QDateTime uDate;
 
-	if(from) {
-		fDate.setDate(from->nextDate(since.date()));
+	if(from || fromTime.isValid()) {
+		fDate = calcTpoint(since, from, fromTime);
 		if(!fDate.isValid())
-			return nullptr;
-		if(fromTime.isValid())
-			fDate.setTime(fromTime);
-		if(fDate < since)
 			return nullptr;
 	} else
 		fDate = since;
 
-	if(until) {
-		uDate.setDate(until->nextDate(fDate.date(), false));//include today, as only time difference is possible
+	if(until || untilTime.isValid()) {
+		uDate = calcTpoint(fDate, until, untilTime, false);//include today, as only time difference is possible
 		if(!uDate.isValid())
 			return nullptr;
-		if(untilTime.isValid())
-			uDate.setTime(untilTime);
 		if(uDate <= fDate)
 			return nullptr;
 	}
@@ -288,27 +306,12 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 	if(sched->datum)
 		sched->datum->setParent(sched);
 	sched->time = time;
-	if(from)
+	if(from || fromTime.isValid())
 		sched->from = fDate;
-	if(until)
+	if(until || untilTime.isValid())
 		sched->until = uDate;
 
 	return sched;
-}
-
-TimeEx::TimeEx(QObject *parent) :
-	Expression(parent),
-	time()
-{}
-
-Schedule *TimeEx::createSchedule(const QDateTime &since, QObject *parent)
-{
-	if(since.time() < time) {
-		auto tp = since;
-		tp.setTime(time);
-		return new OneTimeSchedule(tp, since, parent);
-	} else
-		return nullptr;
 }
 
 Point::Point(QObject *parent) :
@@ -319,17 +322,11 @@ Point::Point(QObject *parent) :
 
 Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 {
-	QDateTime tp;
-
-	tp.setDate(date->nextDate(since.date()));
-	if(!tp.date().isValid())
+	auto tp = calcTpoint(since, date, time);
+	if(tp.isValid())
+		return new OneTimeSchedule(tp, since, parent);
+	else
 		return nullptr;
-	if(time.isValid())
-		tp.setTime(time);
-	if(tp <= since)
-		return nullptr;
-
-	return new OneTimeSchedule(tp, since, parent);
 }
 
 
@@ -375,10 +372,6 @@ Expression *DateParser::parseExpression(const QString &data, QObject *parent)
 		return expr;
 
 	expr = tryParseLoop(data, parent);
-	if(expr)
-		return expr;
-
-	expr = tryParseTimeEx(data, parent);
 	if(expr)
 		return expr;
 
@@ -483,23 +476,9 @@ Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 		return nullptr;
 }
 
-TimeEx *DateParser::tryParseTimeEx(const QString &data, QObject *parent)
-{
-	static const QRegularExpression regex(QStringLiteral("^%1$").arg(timeRegex),
-										  QRegularExpression::OptimizeOnFirstUsageOption |
-										  QRegularExpression::CaseInsensitiveOption);
-	auto match = regex.match(data.simplified());
-	if(match.hasMatch()) {
-		auto tx = new TimeEx(parent);
-		tx->time = parseTime(match.captured(1));
-		return tx;
-	} else
-		return nullptr;
-}
-
 Point *DateParser::tryParsePoint(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^(?:%1)?(.+?)(?: %2)?$)__")
+	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(?:%1)?(.+?))??(?:(?<= |^)%2)?$)__") //see https://regex101.com/r/JLthE8/3 why this works
 										  .arg(tr("on |next "))
 										  .arg(timeRegex),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
@@ -508,10 +487,14 @@ Point *DateParser::tryParsePoint(const QString &data, QObject *parent)
 	auto match = regex.match(data.simplified());
 	if(match.hasMatch()) {
 		auto pnt = new Point(parent);
-		pnt->date = parseTimePoint(match.captured(1), pnt);
+		auto fData = match.captured(1);
+		if(!fData.isEmpty())
+			pnt->date = parseTimePoint(fData, pnt);
 		auto timeStr = match.captured(2);
 		if(!timeStr.isEmpty())
 			pnt->time = parseTime(timeStr);
+		if(!pnt->date && !pnt->time.isValid())
+			throw tr("Neither a timepoint nor a time was given");
 		return pnt;
 	} else
 		return nullptr;
@@ -651,7 +634,7 @@ TimePoint *DateParser::parseTimePoint(const QString &data, QObject *parent)
 
 QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(^(.+?)(?: %1)?$)__")
+	static const QRegularExpression regex(QStringLiteral(R"__(^(.*?)(?:(?<= |^)%1)?$)__")
 										  .arg(timeRegex),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
@@ -659,10 +642,14 @@ QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data
 	auto match = regex.match(data.simplified());
 	if(match.hasMatch()) {
 		QPair<TimePoint*, QTime> pair;
-		pair.first = parseTimePoint(match.captured(1), parent);
+		auto fData = match.captured(1);
+		if(!fData.isEmpty())
+			pair.first = parseTimePoint(fData, parent);
 		auto time = match.captured(2);
 		if(!time.isEmpty())
 			pair.second = parseTime(time);
+		if(!pair.first && !pair.second.isValid())
+			throw tr("Neither a timepoint nor a time was given");
 		return pair;
 	} else
 		throw tr("Invalid timepoint and/or time");

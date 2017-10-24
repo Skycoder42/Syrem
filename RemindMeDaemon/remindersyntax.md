@@ -24,9 +24,8 @@ expression := <conjunction> | <offset> | <timespan> | <loop> | <timeex> | <point
 
 conjuction := <expression> ; <expression> [; <expression> ...]
 timespan   := in <sequence> [on|at|in <datum>] [<time>]
-loop       := every <type> [on|at|in <datum>] [<time>] [from <tpoint> [<time>]] [until <tpoint> [<time>]]
-timeex     := <time>
-point	   := [on|next] <tpoint> [<time>]
+loop       := every <type> [on|at|in <datum>] [<time>] [from [<tpoint>] [<time>]] [until [<tpoint>] [<time>]]
+point	   := [[on|next] <tpoint>] [<time>]
 ```
 
 ## Regular Expressions:
@@ -42,6 +41,5 @@ tpoint: ^(?:(today)|(tomorrow)|(\d{4})|(.*?))$
 conjuction: (\s*;\s*) 				[seperator]
 timespan: ^in <sequence>(?:(?: on| at| in) (.+?))??(?: <time>)?$
 loop: ^every (.+?)(?:(?: on| at| in) (.+?))??(?: <time>)?(?: from ((?:(?!until).)*))?(?: until (.*))?$
-timeex: ^<time>$
 point: ^(?:on |next )?(.+?)(?: <time>)?$
 ```
