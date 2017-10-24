@@ -18,6 +18,8 @@ bool WidgetsScheduler::scheduleReminder(const QUuid &id, const QDateTime &timepo
 {
 	if(!timepoint.isValid())
 		return false;
+
+	cancleReminder(id);
 	auto tId = trySchedule(timepoint);
 	if(tId == -1)
 		emit scheduleTriggered(id);

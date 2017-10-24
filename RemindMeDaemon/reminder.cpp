@@ -74,6 +74,7 @@ QtDataSync::GenericTask<void> Reminder::nextSchedule(AsyncDataStore *store, cons
 		res = _data->schedule->nextSchedule();
 	} while(res.isValid() && res <= current);
 
+	_data->snooze = QDateTime();//reset any snoozes
 	if(res.isValid())
 		return store->save(*this);
 	else

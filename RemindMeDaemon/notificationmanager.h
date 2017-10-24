@@ -29,6 +29,8 @@ private:
 
 	QSettings *_settings;
 	QtDataSync::AsyncDataStore *_store;
+
+	void doSchedule(const Reminder &reminder);
 };
 
 #endif // NOTIFICATIONMANAGER_H

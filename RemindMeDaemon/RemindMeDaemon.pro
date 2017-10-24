@@ -14,10 +14,10 @@ HEADERS += \
 	reminder.h \
 	dateparser.h \
 	schedule.h \
-    registry.h \
-    ischeduler.h \
-    inotifier.h \
-    notificationmanager.h
+	registry.h \
+	ischeduler.h \
+	inotifier.h \
+	notificationmanager.h
 
 SOURCES += \
 	remindmedaemon.cpp \
@@ -25,13 +25,13 @@ SOURCES += \
 	reminder.cpp \
 	dateparser.cpp \
 	schedule.cpp \
-    registry.cpp \
-    notificationmanager.cpp
+	registry.cpp \
+	notificationmanager.cpp
 
 REPC_SOURCE += $$fromfile(rep.pri, REPC_FILES)
 
 TRANSLATIONS += remindme_daemon_de.ts \
-	remindme_daemo_template.ts
+	remindme_daemon_template.ts
 
 DISTFILES += \
 	remindersyntax.md

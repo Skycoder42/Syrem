@@ -32,7 +32,7 @@ NotificationManager::NotificationManager(QObject *parent) :
 		if(reminders.isEmpty())
 			_notifier->setupEmtpy();
 		foreach(auto rem, reminders)
-			_scheduler->scheduleReminder(rem.id(), rem.current());
+			doSchedule(rem);
 	}, [this](const QException &e) {
 		qCritical() << "Failed to load stored reminders with error:" << e.what();
 		_notifier->showErrorMessage(tr("Failed to load any reminders!"));
@@ -93,12 +93,20 @@ void NotificationManager::dataChanged(int metaTypeId, const QString &key, bool w
 			_notifier->removeNotification(QUuid(key));
 		} else {
 			_store->load<Reminder>(key).onResult(this, [this](Reminder rem) {
-				_notifier->removeNotification(rem.id());
-				_scheduler->scheduleReminder(rem.id(), rem.current());
+				doSchedule(rem);
 			}, [this](const QException &e) {
 				qCritical() << "Failed to load reminder with error:" << e.what();
 				_notifier->showErrorMessage(tr("Failed to load newly added reminder!"));
 			});
 		}
 	}
+}
+
+void NotificationManager::doSchedule(const Reminder &reminder)
+{
+	_notifier->removeNotification(reminder.id());
+	if(reminder.snooze().isValid())
+		_scheduler->scheduleReminder(reminder.id(), reminder.snooze());
+	else
+		_scheduler->scheduleReminder(reminder.id(), reminder.current());
 }

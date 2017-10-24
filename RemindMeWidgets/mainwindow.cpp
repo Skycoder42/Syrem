@@ -79,7 +79,7 @@ void MainWindow::on_action_About_triggered()
 
 
 ReminderProxyModel::ReminderProxyModel(QObject *parent) :
-	QObjectProxyModel({tr("Reminder"), tr("Next trigger")}, parent),
+	QObjectProxyModel({tr("Reminder"), tr("Due on")}, parent),
 	_settings(new QSettings(this))
 {}
 
@@ -89,11 +89,11 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 	if(!data.isValid())
 		return {};
 
+	auto format = (QLocale::FormatType)_settings->value(QStringLiteral("gui/dateformat"), QLocale::ShortFormat).toInt();
 	switch (index.column()) {
 	case 0:
 		if(role == Qt::DecorationRole) {
-			auto important = data.toBool();
-			if(important)
+			if(data.toBool())
 				return QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
 			else
 				return QIcon(QStringLiteral(":/icons/empty.ico"));
@@ -104,10 +104,20 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 		}
 		break;
 	case 1:
-		if(role == Qt::DisplayRole) {
+		if(role == Qt::DecorationRole) {
+			if(data.toDateTime().isValid())
+				return QIcon::fromTheme(QStringLiteral("clock"), QIcon(QStringLiteral(":/icons/snooze.ico")));
+			else
+				return QIcon(QStringLiteral(":/icons/empty.ico"));
+		} else if(role == Qt::ToolTipRole) {
+			auto snooze = data.toDateTime();
+			if(snooze.isValid())
+				return tr("Snoozed until: %1").arg(QLocale().toString(snooze, format));
+			else
+				return QVariant();
+		} else if(role == Qt::DisplayRole) {
 			auto dateTime = data.toDateTime();
-			auto format = _settings->value(QStringLiteral("gui/dateformat"), QLocale::ShortFormat).toInt();
-			return QLocale().toString(dateTime, (QLocale::FormatType)format);
+			return QLocale().toString(dateTime, format);
 		}
 		break;
 	default:
@@ -123,4 +133,6 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "text");
 	addMapping(1, Qt::DisplayRole, "current");
+	addMapping(1, Qt::DecorationRole, "snooze");
+	addMapping(1, Qt::ToolTipRole, "snooze");
 }
