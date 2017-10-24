@@ -20,6 +20,7 @@ public slots:
 	void setupEmtpy() override;
 	void showNotification(const Reminder &reminder) override;
 	void removeNotification(const QUuid &id) override;
+	void showErrorMessage(const QString &error) override;
 
 signals:
 	void messageDismissed(const QUuid &id) final;
@@ -36,6 +37,7 @@ private slots:
 private:
 	const QIcon _normalIcon;
 	const QIcon _inverseIcon;
+	const QIcon _errorIcon;
 
 	QSystemTrayIcon *_trayIco;
 	QTaskbarControl *_taskbar;
@@ -43,6 +45,7 @@ private:
 	bool _inverted;
 
 	QHash<QUuid, Reminder> _notifications;
+	QString _lastError;
 
 	void updateIcon();
 };

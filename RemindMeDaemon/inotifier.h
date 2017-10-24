@@ -16,6 +16,8 @@ public slots:
 	virtual void showNotification(const Reminder &reminder) = 0;
 	virtual void removeNotification(const QUuid &id) = 0;
 
+	virtual void showErrorMessage(const QString &error) = 0;
+
 signals:
 	virtual void messageDismissed(const QUuid &id) = 0;
 	virtual void messageCompleted(const QUuid &id) = 0;

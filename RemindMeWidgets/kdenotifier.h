@@ -18,6 +18,7 @@ public slots:
 	void setupEmtpy() override;
 	void showNotification(const Reminder &reminder) override;
 	void removeNotification(const QUuid &id) override;
+	void showErrorMessage(const QString &error) override;
 
 signals:
 	void messageDismissed(const QUuid &id) final;

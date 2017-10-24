@@ -2,13 +2,16 @@
 #include "kdesnoozedialog.h"
 
 #include <QApplication>
+#include <dialogmaster.h>
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
 #define Icon QIcon(QStringLiteral(":/icons/tray/main.ico")).pixmap(64, 64)
+#define ErrorIcon QIcon(QStringLiteral(":/icons/tray/error.ico")).pixmap(64, 64)
 #define setNotifyIcon setPixmap
 #else
 #define Icon QStringLiteral("remind-me")
+#define ErrorIcon QStringLiteral("remind-me-error")
 #define setNotifyIcon setIconName
 #endif
 
@@ -45,9 +48,10 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 	_notifications.insert(reminder.id(), {reminder, notification});
 	updateBar();
 
-	notification->setTitle(important ?
-							   tr("Important Reminder triggered!") :
-							   tr("Reminder triggered!"));
+	notification->setTitle((important ?
+							   tr("%1 — Important Reminder") :
+							   tr("%1 — Reminder"))
+						   .arg(QApplication::applicationDisplayName()));
 	notification->setText(reminder.text());
 	notification->setNotifyIcon(Icon);
 	notification->setActions({
@@ -80,6 +84,24 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 void KdeNotifier::removeNotification(const QUuid &id)
 {
 	removeNot(id, true);
+}
+
+void KdeNotifier::showErrorMessage(const QString &error)
+{
+	auto notification = new KNotification(QStringLiteral("error"),
+										  KNotification::Persistent | KNotification::SkipGrouping,
+										  this);
+
+	notification->setTitle(tr("%1 — Error").arg(QApplication::applicationDisplayName()));
+	notification->setText(error);
+	notification->setNotifyIcon(ErrorIcon);
+	connect(notification, &KNotification::closed, this, [notification]() {
+		notification->deleteLater();
+	});
+	connect(qApp, &QApplication::aboutToQuit,
+			notification, &KNotification::close);
+
+	notification->sendEvent();
 }
 
 void KdeNotifier::snoozed(const QUuid &id)

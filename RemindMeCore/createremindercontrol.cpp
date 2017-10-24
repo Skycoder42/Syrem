@@ -12,7 +12,7 @@ CreateReminderControl::CreateReminderControl(QObject *parent) :
 {
 	connect(_reminderManager, &ReminderManagerReplica::reminderCreated,
 			this, &CreateReminderControl::remCreated);
-	connect(_reminderManager, &ReminderManagerReplica::reminderCreateError,
+	connect(_reminderManager, &ReminderManagerReplica::reminderError,
 			this, &CreateReminderControl::remError);
 }
 
@@ -77,10 +77,10 @@ void CreateReminderControl::remCreated()
 	emit createComplete(true);
 }
 
-void CreateReminderControl::remError(const QString &error)
+void CreateReminderControl::remError(bool isCreate, const QString &error)
 {
-	CoreMessage::critical(tr("Failed to create reminder"),
-						  tr("Failed to create the new reminder with error:\n%1")
-						  .arg(error));
-	emit createComplete(false);
+	if(isCreate) {
+		CoreMessage::critical(tr("Failed to create reminder"), error);
+		emit createComplete(false);
+	}
 }

@@ -11,5 +11,6 @@
     <qresource prefix="/icons/tray">
         <file alias="main.ico">icons/remindme.ico</file>
         <file alias="inverse.ico">icons/remindme_inverse.ico</file>
+        <file alias="error.ico">icons/remindme_error.ico</file>
     </qresource>
 </RCC>

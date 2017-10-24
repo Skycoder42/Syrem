@@ -6,6 +6,5 @@ class ReminderManager
 	SLOT(void removeReminder(const QUuid &id))
 
 	SIGNAL(reminderCreated())
-	SIGNAL(reminderError(const QString &error))
-	SIGNAL(reminderCreateError(const QString &error))
+	SIGNAL(reminderError(bool isCreateError, const QString &error))
 };

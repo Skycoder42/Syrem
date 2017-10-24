@@ -35,7 +35,7 @@ signals:
 
 private slots:
 	void remCreated();
-	void remError(const QString &error);
+	void remError(bool isCreate, const QString &error);
 
 private:
 	ReminderManagerReplica *_reminderManager;

@@ -77,8 +77,6 @@ void RemindMeDaemon::startDaemon()
 
 	//unexposed classes
 	_notManager = new NotificationManager(this);
-	connect(_remManager, &ReminderManager::initEmpty,
-			_notManager, &NotificationManager::initEmpty);
 
 	qDebug() << "daemon started";
 }

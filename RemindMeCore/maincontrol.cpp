@@ -3,6 +3,7 @@
 #include <settingscontrol.h>
 #include <QUuid>
 #include <rep_remindermanager_replica.h>
+#include <coremessage.h>
 
 MainControl::MainControl(QObject *parent) :
 	Control(parent),
@@ -22,6 +23,8 @@ MainControl::MainControl(QObject *parent) :
 	_reminderManager = _node->acquire<ReminderManagerReplica>();
 	if(!_reminderManager)
 		qCritical() << "Failed to acquire manager from node with error:" << _node->lastError();
+	connect(_reminderManager, &ReminderManagerReplica::reminderError,
+			this, &MainControl::reminderError);
 }
 
 void MainControl::onShow()
@@ -61,4 +64,10 @@ void MainControl::removeReminder(int index)
 	if(id.isNull())
 		return;
 	_reminderManager->removeReminder(id);
+}
+
+void MainControl::reminderError(bool isCreate, const QString &error)
+{
+	if(!isCreate)
+		CoreMessage::critical(tr("Failed to remove reminder"), error);
 }

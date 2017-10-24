@@ -2,12 +2,14 @@
 
 #include <QApplication>
 #include <QTimer>
+#include <dialogmaster.h>
 
 WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
 	_normalIcon(QStringLiteral(":/icons/tray/main.ico")),
 	_inverseIcon(QStringLiteral(":/icons/tray/inverse.ico")),
+	_errorIcon(QStringLiteral(":/icons/tray/error.ico")),
 	_trayIco(new QSystemTrayIcon(_normalIcon, this)),
 	_taskbar(new QTaskbarControl(new QWidget())), //create with a dummy widget parent
 	_blinkTimer(new QTimer(this)),
@@ -41,12 +43,12 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 	_notifications.insert(reminder.id(), reminder);
 	updateIcon();
 
-	_trayIco->showMessage(reminder.isImportant() ?
-							  tr("Important Reminder triggered!") :
-							  tr("Reminder triggered!"),
+	_trayIco->showMessage((reminder.isImportant() ?
+							  tr("%1 — Important Reminder") :
+							  tr("%1 — Reminder"))
+						  .arg(QApplication::applicationDisplayName()),
 						  reminder.text(),
-						  QSystemTrayIcon::Information,
-						  10000);
+						  QSystemTrayIcon::Information);
 }
 
 void WidgetsNotifier::removeNotification(const QUuid &id)
@@ -55,22 +57,41 @@ void WidgetsNotifier::removeNotification(const QUuid &id)
 		updateIcon();
 }
 
+void WidgetsNotifier::showErrorMessage(const QString &error)
+{
+	_lastError = error;
+	updateIcon();
+
+	_trayIco->showMessage(tr("%1 — Error").arg(QApplication::applicationDisplayName()),
+						  error,
+						  QSystemTrayIcon::Critical);
+}
+
 void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 {
 	Q_UNUSED(reason)
-	auto dialog = new WidgetsSnoozeDialog(true);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-	connect(dialog, &WidgetsSnoozeDialog::reacted,
-			this, &WidgetsNotifier::snoozeAction);
-	connect(dialog, &WidgetsSnoozeDialog::aborted,
-			this, &WidgetsNotifier::snoozeAborted);
+	if(!_lastError.isNull()) {
+		auto error = _lastError;
+		_lastError.clear();
+		updateIcon();
 
-	dialog->addReminders(_notifications.values());
-	dialog->open();
+		DialogMaster::critical(nullptr, error, tr("An error occured!"));
+	} else if(!_notifications.isEmpty()) {
+		auto dialog = new WidgetsSnoozeDialog(true);
+		dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-	_notifications.clear();
-	updateIcon();
+		connect(dialog, &WidgetsSnoozeDialog::reacted,
+				this, &WidgetsNotifier::snoozeAction);
+		connect(dialog, &WidgetsSnoozeDialog::aborted,
+				this, &WidgetsNotifier::snoozeAborted);
+
+		dialog->addReminders(_notifications.values());
+		dialog->open();
+
+		_notifications.clear();
+		updateIcon();
+	}
 }
 
 void WidgetsNotifier::invert()
@@ -79,7 +100,10 @@ void WidgetsNotifier::invert()
 		_trayIco->setIcon(_normalIcon);
 		_inverted = false;
 	} else {
-		_trayIco->setIcon(_inverseIcon);
+		if(_lastError.isNull())
+			_trayIco->setIcon(_inverseIcon);
+		else
+			_trayIco->setIcon(_errorIcon);
 		_inverted = true;
 	}
 }
@@ -111,7 +135,7 @@ void WidgetsNotifier::snoozeAborted(const QList<Reminder> &reminders)
 
 void WidgetsNotifier::updateIcon()
 {
-	if(_notifications.isEmpty()) {
+	if(_notifications.isEmpty() && _lastError.isNull()) {
 		_blinkTimer->stop();
 		_inverted = false;
 		_taskbar->setCounter(0);
@@ -120,14 +144,26 @@ void WidgetsNotifier::updateIcon()
 		_trayIco->setIcon(_normalIcon);
 	} else {
 		_taskbar->setCounter(_notifications.size());
-		if(!_taskbar->counterVisible())
-			_taskbar->setCounterVisible(true);
+		auto showCtr = !_notifications.isEmpty();
+		if(_taskbar->counterVisible() != showCtr)
+			_taskbar->setCounterVisible(showCtr);
 
 		auto important = false;
-		foreach(auto rem, _notifications) {
-			if(rem.isImportant()) {
-				important = true;
-				break;
+		if(_lastError.isNull())
+			_trayIco->setToolTip(tr("%1 — %n active reminder(s)", "", _notifications.size())
+								 .arg(QApplication::applicationDisplayName()));
+		else {
+			important = true;
+			_trayIco->setToolTip(tr("%1 — An error occured!")
+								 .arg(QApplication::applicationDisplayName()));
+		}
+
+		if(!important) {
+			foreach(auto rem, _notifications) {
+				if(rem.isImportant()) {
+					important = true;
+					break;
+				}
 			}
 		}
 

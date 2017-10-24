@@ -10,43 +10,25 @@ ReminderManager::ReminderManager(QObject *parent) :
 	_scheduler(Registry::acquire<IScheduler>())
 {
 	Q_ASSERT(_scheduler);
-
-	connect(dynamic_cast<QObject*>(_scheduler), SIGNAL(scheduleTriggered(QUuid)),
-			this, SLOT(scheduleTriggered(QUuid)),
-			Qt::QueuedConnection);
-
-	connect(_store, &AsyncDataStore::dataChanged,
-			this, &ReminderManager::dataChanged);
-
-	_store->loadAll<Reminder>().onResult([this](QList<Reminder> reminders) {
-		if(reminders.isEmpty())
-			emit initEmpty();
-		foreach(auto rem, reminders)
-			_scheduler->scheduleReminder(rem.id(), rem.current());
-	}, [this](const QException &e) {
-		qCritical() << "Failed to load stored reminders with error:" << e.what();
-		//TODO proper error handling -> reminderError not used yet
-		emit reminderError(tr("Failed to load existing reminders!"));
-	});
 }
 
 void ReminderManager::createReminder(const QString &text, bool important, const QString &expression)
 {
 	auto expr = _parser->parse(expression);
 	if(!expr) {
-		emit reminderCreateError(tr("Invalid \"when\" expression! Error message:\n%1").arg(_parser->lastError()));
+		emit reminderError(true, tr("<p>Invalid \"when\" expression! Error message:</p><p><i>%1</i></p>").arg(_parser->lastError()));
 		return;
 }
 	auto sched = expr->createSchedule(QDateTime::currentDateTime());
 	expr->deleteLater();
 	if(!sched) {
-		emit reminderCreateError(tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));
+		emit reminderError(true, tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));
 		return;
 	}
 
 	auto next = sched->nextSchedule();
 	if(!next.isValid()) {
-		emit reminderCreateError(tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));
+		emit reminderError(true, tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));
 		return;
 	}
 
@@ -59,7 +41,7 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 		emit reminderCreated();
 	}, [this](const QException &e) {
 		qCritical() << "Failed to create reminder with error:" << e.what();
-		emit reminderCreateError(tr("Failed to save reminder!"));
+		emit reminderError(true, tr("Failed to save reminder!"));
 	});
 }
 
@@ -71,27 +53,6 @@ void ReminderManager::removeReminder(const QUuid &id)
 			qWarning() << "Reminder with id" << id << "has already been removed";
 	}, [this](const QException &e) {
 		qCritical() << "Failed to load reminder with error:" << e.what();
-		emit reminderError(tr("Failed to delete reminder!"));
+		emit reminderError(false, tr("Failed to delete reminder!"));
 	});
-}
-
-void ReminderManager::scheduleTriggered(const QUuid &id)
-{
-	qDebug() << "triggered!" << id << "at" << QDateTime::currentDateTime().toString(Qt::TextDate);
-}
-
-void ReminderManager::dataChanged(int metaTypeId, const QString &key, bool wasDeleted)
-{
-	if(metaTypeId == qMetaTypeId<Reminder>()) {
-		if(wasDeleted)
-			_scheduler->cancleReminder(QUuid(key));
-		else {
-			_store->load<Reminder>(key).onResult(this, [this](Reminder rem) {
-				_scheduler->scheduleReminder(rem.id(), rem.current());
-			}, [this](const QException &e) {
-				qCritical() << "Failed to load reminder with error:" << e.what();
-				emit reminderError(tr("Failed to schedule reminder!"));
-			});
-		}
-	}
 }

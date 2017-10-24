@@ -13,9 +13,6 @@ class NotificationManager : public QObject
 public:
 	explicit NotificationManager(QObject *parent = nullptr);
 
-public slots:
-	void initEmpty();
-
 private slots:
 	void scheduleTriggered(const QUuid &id);
 

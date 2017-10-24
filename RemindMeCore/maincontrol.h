@@ -25,6 +25,9 @@ public slots:
 	void addReminder();
 	void removeReminder(int index);
 
+private slots:
+	void reminderError(bool isCreate, const QString &error);
+
 private:
 	QRemoteObjectNode *_node;
 	ReminderManagerReplica *_reminderManager;
