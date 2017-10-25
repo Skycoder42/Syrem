@@ -423,6 +423,15 @@ QString DateParser::word(DateParser::WordKey key)
 		return tr("month|months");
 	case DateParser::SpanYearKey:
 		return tr("year|years");
+	case DateParser::AllSpans:
+		return QStringList {
+			word(SpanMinuteKey),
+			word(SpanHourKey),
+			word(SpanDayKey),
+			word(SpanWeekKey),
+			word(SpanMonthKey),
+			word(SpanYearKey)
+		}.join(QStringLiteral("|"));
 	case DateParser::DatumKey:
 		return tr(" on| at| in");
 	case DateParser::SequenceKey:
@@ -452,8 +461,9 @@ QString DateParser::timeRegex()
 
 QString DateParser::sequenceRegex()
 {
-	return QStringLiteral(R"__(((?:\d+) (?:\w+)(?:%1(?:\d+) (?:\w+))*))__")
-			.arg(word(SequenceKey));
+	return QStringLiteral(R"__(((?:\d+ )?(?:%2)(?:%1(?:\d+ )?(?:%2))*))__")
+			.arg(word(SequenceKey))
+			.arg(word(AllSpans));
 }
 
 Expression *DateParser::parseExpression(const QString &data, QObject *parent)
@@ -821,7 +831,7 @@ Expression::Span DateParser::parseSpan(const QString &data)
 
 Sequence DateParser::parseSequence(const QString &data)
 {
-	const QRegularExpression regex(QStringLiteral(R"__(^(\d+) (\w+)$)__"),
+	const QRegularExpression regex(QStringLiteral(R"__(^(?:(\d+) )?(\w+)$)__"),
 								   QRegularExpression::CaseInsensitiveOption);
 
 	auto dataList = data.simplified().split(word(SequenceKey));//no regex needed, must look like this after simplify
@@ -830,8 +840,11 @@ Sequence DateParser::parseSequence(const QString &data)
 		auto match = regex.match(span);
 		if(!match.hasMatch())
 			throw tr("Invalid time span");
-		auto count = match.captured(1).toInt();
-		if(count < 1)
+		auto ok = false;
+		auto count = match.captured(1).toInt(&ok);
+		if(!ok)
+			count = 1;
+		else if(count < 1)
 			throw tr("Cannot use 0 for a span");
 		sequence.append({
 							count,

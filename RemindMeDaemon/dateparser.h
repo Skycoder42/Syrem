@@ -188,6 +188,7 @@ public:
 		SpanWeekKey,
 		SpanMonthKey,
 		SpanYearKey,
+		AllSpans,
 
 		DatumKey,
 		SequenceKey,
