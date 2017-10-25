@@ -311,7 +311,7 @@ void CoreReminderTest::testTimePointReminder()
 	auto expr = parser->parse(query);
 	if(since.isValid()) {
 		QVERIFY(expr);
-		auto sched = expr->createSchedule(since, this);
+		auto sched = expr->createSchedule(since, QTime(), this);
 		if(result.isValid()) {
 			QVERIFY(sched);
 			QVERIFY(!sched->isRepeating());
@@ -521,7 +521,7 @@ void CoreReminderTest::testTimeSpanReminder()
 	auto expr = parser->parse(query);
 	if(since.isValid()) {
 		QVERIFY(expr);
-		auto sched = expr->createSchedule(since, this);
+		auto sched = expr->createSchedule(since, QTime(), this);
 		if(result.isValid()) {
 			QVERIFY(sched);
 			QVERIFY(!sched->isRepeating());
@@ -1304,7 +1304,7 @@ void CoreReminderTest::testLoopReminder()
 	auto expr = parser->parse(query);
 	if(since.isValid()) {
 		QVERIFY(expr);
-		auto sched = expr->createSchedule(since, this);
+		auto sched = expr->createSchedule(since, QTime(), this);
 		if(!results.isEmpty()) {
 			QVERIFY(sched);
 			QVERIFY(sched->isRepeating());
@@ -1418,7 +1418,7 @@ void CoreReminderTest::testConjunctionReminder()
 	auto expr = parser->parse(query);
 	if(since.isValid()) {
 		QVERIFY(expr);
-		auto sched = expr->createSchedule(since, this);
+		auto sched = expr->createSchedule(since, QTime(), this);
 		if(!results.isEmpty()) {
 			QVERIFY(sched);
 			QVERIFY(sched->isRepeating());

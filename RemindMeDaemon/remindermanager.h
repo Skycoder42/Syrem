@@ -2,6 +2,7 @@
 #define REMINDERMANAGER_H
 
 #include <QObject>
+#include <QSettings>
 #include <QtDataSync/AsyncDataStore>
 #include "dateparser.h"
 #include "reminder.h"
@@ -21,6 +22,7 @@ public slots:
 
 private:
 	QtDataSync::AsyncDataStore *_store;
+	QSettings *_settings;
 	DateParser *_parser;
 	IScheduler *_scheduler;
 };

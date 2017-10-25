@@ -6,10 +6,12 @@ using namespace QtDataSync;
 ReminderManager::ReminderManager(QObject *parent) :
 	ReminderManagerSimpleSource(parent),
 	_store(new AsyncDataStore(this)),
+	_settings(new QSettings(this)),
 	_parser(new DateParser(this)),
 	_scheduler(Registry::acquire<IScheduler>())
 {
 	Q_ASSERT(_scheduler);
+	_settings->beginGroup(QStringLiteral("daemon"));
 }
 
 void ReminderManager::createReminder(const QString &text, bool important, const QString &expression)
@@ -19,7 +21,7 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 		emit reminderError(true, tr("<p>Invalid \"when\" expression! Error message:</p><p><i>%1</i></p>").arg(_parser->lastError()));
 		return;
 }
-	auto sched = expr->createSchedule(QDateTime::currentDateTime());
+	auto sched = expr->createSchedule(QDateTime::currentDateTime(), _settings->value(QStringLiteral("defaultTime"), QTime(9,0)).toTime());
 	expr->deleteLater();
 	if(!sched) {
 		emit reminderError(true, tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));

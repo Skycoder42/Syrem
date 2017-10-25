@@ -7,6 +7,7 @@
 #include <settingsdialog.h>
 #include <registry.h>
 #include <qhotkey.h>
+#include <QTimeEdit>
 
 #include "createreminderdialog.h"
 #include "mainwindow.h"
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
 		WidgetPresenter::registerWidget<CreateReminderDialog>();
 		WidgetPresenter::registerWidget<SettingsDialog>();
 		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QKeySequence, QKeySequenceEdit>();
+		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QTime, QTimeEdit>();
 		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
 
 		coreApp->bootApp();

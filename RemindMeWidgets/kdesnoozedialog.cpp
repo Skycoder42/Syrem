@@ -5,19 +5,22 @@
 
 KdeSnoozeDialog::KdeSnoozeDialog(const QString &text, QWidget *parent) :
 	QInputDialog(parent),
+	_settings(new QSettings(this)),
 	_parser(new DateParser(this)),
 	_nextTime()
 {
+	_settings->beginGroup(QStringLiteral("daemon"));
+
 	setWindowTitle(tr("Snooze Reminder"));
 	setInputMode(QInputDialog::TextInput);
 	setComboBoxEditable(true);
-	setComboBoxItems(QSettings().value(QStringLiteral("daemon/snooze/times"), SnoozeTimes {
-										   tr("in 20 minutes"),
-										   tr("in 1 hour"),
-										   tr("in 3 hours"),
-										   tr("tomorrow"),
-										   tr("in 1 week on Monday")
-									   }).value<SnoozeTimes>());
+	setComboBoxItems(_settings->value(QStringLiteral("snooze/times"), QVariant::fromValue<SnoozeTimes>({
+										  tr("in 20 minutes"),
+										  tr("in 1 hour"),
+										  tr("in 3 hours"),
+										  tr("tomorrow"),
+										  tr("in 1 week on Monday")
+									  })).value<SnoozeTimes>());
 	setLabelText(tr("Choose a snooze time for the reminder:<br/>"
 					"<i>%1</i>")
 				 .arg(text));
@@ -40,7 +43,7 @@ void KdeSnoozeDialog::accept()
 		return;
 	}
 
-	auto schedule = expression->createSchedule(QDateTime::currentDateTime(), this);
+	auto schedule = expression->createSchedule(QDateTime::currentDateTime(), _settings->value(QStringLiteral("defaultTime"), QTime(9,0)).toTime(), this);
 	if(!schedule) {
 		DialogMaster::critical(this,
 							   tr("Given expression is valid, but evaluates to a timepoint in the past!"),

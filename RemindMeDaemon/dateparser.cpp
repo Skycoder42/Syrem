@@ -128,21 +128,27 @@ QPair<int, int> Datum::fromMonthDay(int monthDay)
 	return {day, month};
 }
 
-QDateTime ParserTypes::nextSequenceDate(const Sequence &sequence, const QDateTime &since)
+QDateTime ParserTypes::nextSequenceDate(const Sequence &sequence, const QDateTime &since, bool *timeChange)
 {
 	using namespace std::chrono;
 	if(sequence.isEmpty())
 		return {};
 
+	if(timeChange)
+		*timeChange = false;
 	auto res = since;
 	foreach(auto span, sequence) {
 		switch (span.second) {
 		case Expression::InvalidSpan:
 			return {};
 		case Expression::MinuteSpan:
+			if(timeChange)
+				*timeChange = true;
 			res = res.addSecs(duration_cast<seconds>(minutes(span.first)).count());
 			break;
 		case Expression::HourSpan:
+			if(timeChange)
+				*timeChange = true;
 			res = res.addSecs(duration_cast<seconds>(hours(span.first)).count());
 			break;
 		case Expression::DaySpan:
@@ -238,11 +244,14 @@ Conjunction::Conjunction(QObject *parent) :
 	expressions()
 {}
 
-Schedule *Conjunction::createSchedule(const QDateTime &since, QObject *parent)
+Schedule *Conjunction::createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent)
 {
+	if(defaultTime == QTime(0, 0))
+		defaultTime = QTime();
+
 	auto schedule = new MultiSchedule(since, parent);
 	foreach(auto expr, expressions)
-		schedule->addSubSchedule(expr->createSchedule(since, schedule));
+		schedule->addSubSchedule(expr->createSchedule(since, defaultTime, schedule));
 	return schedule;
 }
 
@@ -253,15 +262,21 @@ TimeSpan::TimeSpan(QObject *parent) :
 	time()
 {}
 
-Schedule *TimeSpan::createSchedule(const QDateTime &since, QObject *parent)
+Schedule *TimeSpan::createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent)
 {
-	QDateTime tp = nextSequenceDate(sequence, since);
+	if(defaultTime == QTime(0, 0))
+		defaultTime = QTime();
+
+	auto timeChange = false;
+	QDateTime tp = nextSequenceDate(sequence, since, &timeChange);
 
 	//apply datum/time, if set (assume valid, as after parsing)
 	if(datum)
 		tp.setDate(datum->nextDate(tp.date(), true)); //with scope reset, because the target "scope" is already given
 	if(time.isValid())
 		tp.setTime(time);
+	else if(!timeChange && defaultTime.isValid())
+		tp.setTime(defaultTime);
 
 	return new OneTimeSchedule(tp, since, parent);
 }
@@ -277,8 +292,11 @@ Loop::Loop(QObject *parent) :
 	untilTime()
 {}
 
-Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
+Schedule *Loop::createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent)
 {
+	if(defaultTime == QTime(0, 0))
+		defaultTime = QTime();
+
 	QDateTime fDate;
 	QDateTime uDate;
 
@@ -305,7 +323,18 @@ Schedule *Loop::createSchedule(const QDateTime &since, QObject *parent)
 	sched->datum = datum;
 	if(sched->datum)
 		sched->datum->setParent(sched);
-	sched->time = time;
+
+	if(time.isValid())
+		sched->time = time;
+	else if(defaultTime.isValid()) {
+		foreach(auto span, type->sequence) {
+			if(span.second == Expression::MinuteSpan || span.second == Expression::HourSpan) {
+				sched->time = defaultTime;
+				break;
+			}
+		}
+	}
+
 	if(from || fromTime.isValid())
 		sched->from = fDate;
 	if(until || untilTime.isValid())
@@ -320,9 +349,12 @@ Point::Point(QObject *parent) :
 	time()
 {}
 
-Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
+Schedule *Point::createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent)
 {
-	auto tp = calcTpoint(since, date, time);
+	if(defaultTime == QTime(0, 0))
+		defaultTime = QTime();
+
+	auto tp = calcTpoint(since,date, time.isValid() ? time : defaultTime);
 	if(tp.isValid())
 		return new OneTimeSchedule(tp, since, parent);
 	else

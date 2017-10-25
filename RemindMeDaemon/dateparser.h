@@ -28,7 +28,7 @@ public:
 	Expression(QObject *parent = nullptr);
 	virtual inline ~Expression() = default;
 
-	virtual Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) = 0;
+	virtual Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) = 0;
 
 protected:
 	static QDateTime calcTpoint(const QDateTime &since, const TimePoint *tPoint, const QTime &time, bool notToday = true);
@@ -65,7 +65,7 @@ public:
 };
 
 typedef QList<QPair<int, Expression::Span>> Sequence;
-QDateTime nextSequenceDate(const Sequence &sequence, const QDateTime &since);
+QDateTime nextSequenceDate(const Sequence &sequence, const QDateTime &since, bool *timeChange = nullptr);
 
 class Type : public QObject
 {
@@ -120,7 +120,7 @@ class Conjunction : public Expression
 
 public:
 	Conjunction(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
+	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
 
 	QList<Expression*> expressions;
 };
@@ -131,7 +131,7 @@ class TimeSpan : public Expression
 
 public:
 	TimeSpan(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
+	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
 
 	Sequence sequence;
 	Datum *datum;
@@ -144,7 +144,7 @@ class Loop : public Expression
 
 public:
 	Loop(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
+	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
 
 	Type *type;
 	Datum *datum;
@@ -161,7 +161,7 @@ class Point : public Expression
 
 public:
 	Point(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QObject *parent = nullptr) override;
+	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
 
 	TimePoint *date;
 	QTime time;

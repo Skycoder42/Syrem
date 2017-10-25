@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QInputDialog>
+#include <QSettings>
 #include <dateparser.h> //direct use ok here, as it's part of a daemon service...
 
 class KdeSnoozeDialog : public QInputDialog
@@ -17,6 +18,7 @@ public:
 	void accept() override;
 
 private:
+	QSettings *_settings;
 	DateParser *_parser;
 	QDateTime _nextTime;
 };
