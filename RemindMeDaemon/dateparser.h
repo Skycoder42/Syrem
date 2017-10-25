@@ -182,6 +182,13 @@ public:
 		TodayKey,
 		TomorrowKey,
 
+		SpanMinuteKey,
+		SpanHourKey,
+		SpanDayKey,
+		SpanWeekKey,
+		SpanMonthKey,
+		SpanYearKey,
+
 		DatumKey,
 		SequenceKey,
 
