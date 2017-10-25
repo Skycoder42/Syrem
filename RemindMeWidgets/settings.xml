@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SettingsConfig allowSearch="true" allowRestore="true">
+	<Group>
+		<Entry key="gui/dateformat"
+			   type="list"
+			   title="&amp;Date Format"
+			   tooltip="Select the format to display dates as"
+			   default="1">
+			<Property key="_list_data" type="string">int</Property>
+			<Property key="_list_elements" type="list">
+			   <Element type="object">
+				   <Property key="name" type="string">Long</Property>
+				   <Property key="value" type="number">0</Property>
+			   </Element>
+			   <Element type="object">
+				   <Property key="name" type="string">Short</Property>
+				   <Property key="value" type="number">1</Property>
+			   </Element>
+			   <Element type="object">
+				   <Property key="name" type="string">Narrow</Property>
+				   <Property key="value" type="number">2</Property>
+			   </Element>
+			</Property>
+		</Entry>
+		<Entry key="gui/hotkey"
+			   type="QKeySequence"
+			   title="Create Reminder &amp;Hotkey"
+			   tooltip="Enter a key sequence to be used as hotkey to create a reminder"
+			   default="CTRL+META+R"/>
+	</Group>
+	<Group title="Reminder &amp;Notifications"
+		   key="gui/notifications">
+		<Entry key="blinkinterval"
+			   type="int"
+			   title="Blink &amp;interval"
+			   tooltip="Choose a blink interval for the tray icon in case of an important reminder"
+			   default="750">
+			<Property key="minimum" type="number">100</Property>
+			<Property key="maximum" type="number">10000</Property>
+			<Property key="singleStep" type="number">10</Property>
+			<Property key="suffix" type="string"> ms</Property>
+			<Property key="accelerated" type="bool">true</Property>
+			<Property key="showGroupSeparator" type="bool">true</Property>
+		</Entry>
+		<Entry key="action"
+			   type="list"
+			   title="Default &amp;Action"
+			   tooltip="The action to perform when the notification is clicked (instead of one of the buttons)"
+			   default="0">
+			<Property key="_list_data" type="string">string</Property>
+			<Property key="_list_elements" type="list">
+			   <Element type="object">
+				   <Property key="name" type="string">&lt;None&gt;</Property>
+				   <Property key="value" type="string"></Property>
+			   </Element>
+			   <Element type="object">
+				   <Property key="name" type="string">Complete</Property>
+				   <Property key="value" type="string">Complete</Property>
+			   </Element>
+			   <Element type="object">
+				   <Property key="name" type="string">Snooze</Property>
+				   <Property key="value" type="string">Snooze</Property>
+			   </Element>
+			</Property>
+		</Entry>
+	</Group>
+</SettingsConfig>

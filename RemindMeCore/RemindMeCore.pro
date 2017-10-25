@@ -11,16 +11,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
 	remindmeapp.h \
 	maincontrol.h \
-    createremindercontrol.h
+	createremindercontrol.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp \
-    createremindercontrol.cpp
+	createremindercontrol.cpp
 
 REPC_REPLICA += $$fromfile(../RemindMeDaemon/rep.pri, REPC_FILES)
 
-QTMVVM_SETTINGS_FILES += settings.xml
+QTMVVM_SETTINGS_FILES += settings_core.xml
 never_true_lupdate_only: SOURCES += .qtmvvm_settings_xml_ts.cppdummy
 CONFIG += no_settings_ts_warn
 
@@ -31,4 +31,4 @@ TRANSLATIONS += remindme_core_de.ts \
 else: include($$OUT_PWD/qpmx_generated.pri)
 
 RESOURCES += \
-    remindmecore.qrc
+	remindmecore.qrc

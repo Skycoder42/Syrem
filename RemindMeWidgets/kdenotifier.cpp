@@ -19,6 +19,7 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
 	_taskbar(new QTaskbarControl(new QWidget())), //create with a dummy widget parent
+	_settings(new QSettings(this)),
 	_notifications()
 {
 	connect(this, &KdeNotifier::destroyed,
@@ -29,6 +30,8 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 		foreach(auto info, _notifications)
 			info.second->close();
 	});
+
+	_settings->beginGroup(QStringLiteral("gui/notifications"));
 }
 
 void KdeNotifier::setupEmtpy()
@@ -58,7 +61,10 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 								 tr("Complete"),
 								 tr("Snooze")
 							 });
-	//TODO settings notification->setDefaultAction(notification->actions().last());
+	auto defaultAction = _settings->value(QStringLiteral("action")).toString();
+	auto actIndex = notification->actions().indexOf(defaultAction);
+	if(actIndex != -1)
+		notification->setDefaultAction(notification->actions().value(actIndex));
 	if(important)
 		notification->setFlags(notification->flags() | KNotification::LoopSound);
 
@@ -71,9 +77,16 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 	connect(notification, &KNotification::action2Activated, this, [this, remId](){
 		snoozed(remId);
 	});
-	connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId](){
-		//TODO settings...
-	});
+	if(actIndex != -1) {
+		connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId, actIndex](){
+			if(actIndex == 0) {
+				Reminder rem;
+				if(removeNot(remId, &rem))
+					emit messageCompleted(rem);
+			} else if(actIndex == 1)
+				snoozed(remId);
+		});
+	}
 	connect(notification, &KNotification::closed, this, [this, remId](){
 		Reminder rem;
 		if(removeNot(remId, &rem))

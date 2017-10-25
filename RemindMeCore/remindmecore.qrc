@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/etc">
-        <file>settings.xml</file>
+        <file>settings_core.xml</file>
     </qresource>
 </RCC>

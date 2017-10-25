@@ -5,6 +5,7 @@
 #include <KNotification>
 #include <inotifier.h>
 #include <qtaskbarcontrol.h>
+#include <QSettings>
 
 class KdeNotifier : public QObject, public INotifier
 {
@@ -32,6 +33,7 @@ private:
 	typedef QPair<Reminder, KNotification*> NotifyInfo;
 
 	QTaskbarControl *_taskbar;
+	QSettings *_settings;
 	QHash<QUuid, NotifyInfo> _notifications;
 
 	void updateBar();

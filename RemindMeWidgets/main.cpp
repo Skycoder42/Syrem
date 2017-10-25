@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QKeySequenceEdit>
 #include <widgetpresenter.h>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
 		WidgetPresenter::registerWidget<MainWindow>();
 		WidgetPresenter::registerWidget<CreateReminderDialog>();
 		WidgetPresenter::registerWidget<SettingsDialog>();
+		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QKeySequence, QKeySequenceEdit>();
 
 		coreApp->bootApp();
 		QObject::connect(&instance, &QSingleInstance::instanceMessage,
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
 			control->setDeleteOnClose(true);
 			control->show();
 		});
-		hk->setShortcut(QKeySequence(QSettings().value(QStringLiteral("gui/hotkey"), QStringLiteral("CTRL+META+R")).toString()), true);//TODO settings
+		hk->setShortcut(QKeySequence(QSettings().value(QStringLiteral("gui/hotkey"), QStringLiteral("CTRL+META+R")).toString()), true);
 
 		return EXIT_SUCCESS;
 	});

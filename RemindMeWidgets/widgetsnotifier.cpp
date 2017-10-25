@@ -1,6 +1,7 @@
 #include "widgetsnotifier.h"
 
 #include <QApplication>
+#include <QSettings>
 #include <QTimer>
 #include <dialogmaster.h>
 
@@ -28,7 +29,8 @@ WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 		activated(QSystemTrayIcon::Trigger);
 	});
 
-	_blinkTimer->setInterval(750);//TODO settings
+	QSettings settings;
+	_blinkTimer->setInterval(settings.value(QStringLiteral("gui/notifications/blinkinterval"), 750).toInt());
 	connect(_blinkTimer, &QTimer::timeout,
 			this, &WidgetsNotifier::invert);
 }
