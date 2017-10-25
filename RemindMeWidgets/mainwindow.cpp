@@ -105,14 +105,20 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 		break;
 	case 1:
 		if(role == Qt::DecorationRole) {
-			if(data.toDateTime().isValid())
-				return QIcon::fromTheme(QStringLiteral("clock"), QIcon(QStringLiteral(":/icons/snooze.ico")));
+			auto decorData = QObjectProxyModel::data(index, Qt::ToolTipRole);
+			if(decorData.toDateTime().isValid())
+				return QIcon::fromTheme(QStringLiteral("alarm-symbolic"), QIcon(QStringLiteral(":/icons/snooze.ico")));
+			else if(data.toBool())
+				return QIcon::fromTheme(QStringLiteral("media-playlist-repeat"), QIcon(QStringLiteral(":/icons/snooze.ico")));
 			else
 				return QIcon(QStringLiteral(":/icons/empty.ico"));
 		} else if(role == Qt::ToolTipRole) {
+			auto toolData = QObjectProxyModel::data(index, Qt::DecorationRole);
 			auto snooze = data.toDateTime();
 			if(snooze.isValid())
 				return tr("Snoozed until: %1").arg(QLocale().toString(snooze, format));
+			else if(toolData.toBool())
+				return tr("Reminder will repeatedly trigger, not only once");
 			else
 				return QVariant();
 		} else if(role == Qt::DisplayRole) {
@@ -133,6 +139,6 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "text");
 	addMapping(1, Qt::DisplayRole, "current");
-	addMapping(1, Qt::DecorationRole, "snooze");
+	addMapping(1, Qt::DecorationRole, "repeating");
 	addMapping(1, Qt::ToolTipRole, "snooze");
 }

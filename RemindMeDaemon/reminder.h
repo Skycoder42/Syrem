@@ -22,6 +22,7 @@ class Reminder
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)
 
 	Q_PROPERTY(QDateTime current READ current STORED false)
+	Q_PROPERTY(bool repeating READ isRepeating STORED false)
 	Q_PROPERTY(QSharedPointer<Schedule> schedule READ getSchedule WRITE setSchedule)
 
 	Q_PROPERTY(QDateTime snooze READ snooze WRITE setSnooze)
@@ -37,6 +38,7 @@ public:
 	QString text() const;
 	bool isImportant() const;
 	QDateTime current() const;
+	bool isRepeating() const;
 	QSharedPointer<const Schedule> schedule() const;
 	QDateTime snooze() const;
 

@@ -61,6 +61,14 @@ QDateTime Reminder::current() const
 		return {};
 }
 
+bool Reminder::isRepeating() const
+{
+	if(_data->schedule)
+		return _data->schedule->isRepeating();
+	else
+		return false;
+}
+
 QSharedPointer<const Schedule> Reminder::schedule() const
 {
 	return _data->schedule.constCast<const Schedule>();
