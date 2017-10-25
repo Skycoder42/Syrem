@@ -331,9 +331,6 @@ Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 
 
 
-//const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}(?: am| pm)?|\d{1,2}(?: am| pm)))__");//TODO translate
-//const QString DateParser::sequenceRegex = QStringLiteral(R"__(((?:\d+) (?:\w+)(?: and (?:\d+) (?:\w+))*))__");//TODO translate
-
 DateParser::DateParser(QObject *parent) :
 	QObject(parent),
 	_lastError()

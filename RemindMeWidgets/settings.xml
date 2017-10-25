@@ -9,15 +9,15 @@
 			<Property key="_list_data" type="string">int</Property>
 			<Property key="_list_elements" type="list">
 			   <Element type="object">
-				   <Property key="name" type="string">Long</Property>
+				   <Property key="name" type="string" ts="true">Long</Property>
 				   <Property key="value" type="number">0</Property>
 			   </Element>
 			   <Element type="object">
-				   <Property key="name" type="string">Short</Property>
+				   <Property key="name" type="string" ts="true">Short</Property>
 				   <Property key="value" type="number">1</Property>
 			   </Element>
 			   <Element type="object">
-				   <Property key="name" type="string">Narrow</Property>
+				   <Property key="name" type="string" ts="true">Narrow</Property>
 				   <Property key="value" type="number">2</Property>
 			   </Element>
 			</Property>
@@ -38,7 +38,7 @@
 			<Property key="minimum" type="number">100</Property>
 			<Property key="maximum" type="number">10000</Property>
 			<Property key="singleStep" type="number">10</Property>
-			<Property key="suffix" type="string"> ms</Property>
+			<Property key="suffix" type="string" ts="true"> ms</Property>
 			<Property key="accelerated" type="bool">true</Property>
 			<Property key="showGroupSeparator" type="bool">true</Property>
 		</Entry>
@@ -50,16 +50,16 @@
 			<Property key="_list_data" type="string">string</Property>
 			<Property key="_list_elements" type="list">
 			   <Element type="object">
-				   <Property key="name" type="string">&lt;None&gt;</Property>
+				   <Property key="name" type="string" ts="true">&lt;None&gt;</Property>
 				   <Property key="value" type="string"></Property>
 			   </Element>
 			   <Element type="object">
-				   <Property key="name" type="string">Complete</Property>
-				   <Property key="value" type="string">Complete</Property>
+				   <Property key="name" type="string" ts="true">Complete</Property>
+				   <Property key="value" type="string" ts="true">Complete</Property>
 			   </Element>
 			   <Element type="object">
-				   <Property key="name" type="string">Snooze</Property>
-				   <Property key="value" type="string">Snooze</Property>
+				   <Property key="name" type="string" ts="true">Snooze</Property>
+				   <Property key="value" type="string" ts="true">Snooze</Property>
 			   </Element>
 			</Property>
 		</Entry>
