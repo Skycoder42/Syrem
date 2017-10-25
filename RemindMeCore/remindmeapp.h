@@ -29,6 +29,8 @@ private:
 	QRemoteObjectNode *_roNode;
 
 	MainControl *_mainControl;
+
+	void createFromCli(const QString &text, const QString &when, bool important);
 };
 
 #undef coreApp
