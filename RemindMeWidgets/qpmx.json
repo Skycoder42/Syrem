@@ -24,6 +24,11 @@
             "package": "de.skycoder42.qtaskbarcontrol",
             "provider": "qpm",
             "version": "1.1.0"
+        },
+        {
+            "package": "de.skycoder42.qhotkey",
+            "provider": "qpm",
+            "version": "1.2.1"
         }
     ],
     "license": {

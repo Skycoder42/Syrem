@@ -5,6 +5,7 @@
 #include <qsingleinstance.h>
 #include <settingsdialog.h>
 #include <registry.h>
+#include <qhotkey.h>
 
 #include "createreminderdialog.h"
 #include "mainwindow.h"
@@ -56,6 +57,15 @@ int main(int argc, char *argv[])
 		coreApp->bootApp();
 		QObject::connect(&instance, &QSingleInstance::instanceMessage,
 						 coreApp, &RemindMeApp::commandMessage);
+
+		//hotkey
+		auto hk = new QHotkey(qApp);
+		QObject::connect(hk, &QHotkey::activated, coreApp, [](){
+			auto control = new CreateReminderControl();
+			control->setDeleteOnClose(true);
+			control->show();
+		});
+		hk->setShortcut(QKeySequence(QSettings().value(QStringLiteral("gui/hotkey"), QStringLiteral("CTRL+META+R")).toString()), true);//TODO settings
 
 		return EXIT_SUCCESS;
 	});
