@@ -1,11 +1,14 @@
 #include "remindmeapp.h"
 #include "rep_remindermanager_replica.h"
+#include "snoozetimes.h"
 
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
 	_roNode(nullptr),
 	_mainControl(nullptr)
 {
+	SnoozeTimes::setup();
+
 	Q_INIT_RESOURCE(remindmecore);
 }
 

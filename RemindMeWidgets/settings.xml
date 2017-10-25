@@ -28,9 +28,31 @@
 			   tooltip="Enter a key sequence to be used as hotkey to create a reminder"
 			   default="CTRL+META+R"/>
 	</Group>
-	<Group title="Reminder &amp;Notifications"
-		   key="gui/notifications">
-		<Entry key="blinkinterval"
+	<Group title="Reminder &amp;Snoozing">
+		<Entry key="daemon/snooze/default"
+			   type="int"
+			   title="&amp;Default snooze time"
+			   tooltip="Enter a time (in minutes) as the default snooze time"
+			   default="20">
+		   <Property key="minimum" type="number">1</Property>
+		   <Property key="maximum" type="number">14400</Property><!--max 10 days-->
+		   <Property key="suffix" type="string" ts="true"> minutes</Property>
+		</Entry>
+		<Entry key="daemon/snooze/times"
+			   type="SnoozeTimes"
+			   title="&amp;Predefined snooze times"
+			   tooltip="Create custom standard snooze times for fast selection from the combo box">
+			<Property key="times" type="list">
+				<Element type="string" ts="true">in 20 minutes</Element>
+				<Element type="string" ts="true">in 1 hour</Element>
+				<Element type="string" ts="true">in 3 hours</Element>
+				<Element type="string" ts="true">tomorrow</Element>
+				<Element type="string" ts="true">in 1 week on Monday</Element>
+			</Property>
+		</Entry>
+	</Group>
+	<Group title="Reminder &amp;Notifications">
+		<Entry key="gui/notifications/blinkinterval"
 			   type="int"
 			   title="Blink &amp;interval"
 			   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)"
@@ -42,7 +64,7 @@
 			<Property key="accelerated" type="bool">true</Property>
 			<Property key="showGroupSeparator" type="bool">true</Property>
 		</Entry>
-		<Entry key="action"
+		<Entry key="gui/notifications/action"
 			   type="list"
 			   title="Default &amp;Action"
 			   tooltip="The action to perform when the notification is clicked (instead of one of the buttons, KDE Notifications only)"

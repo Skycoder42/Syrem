@@ -5,6 +5,7 @@
 #include <QToolBox>
 #include <reminder.h>
 #include <dateparser.h> //direct use ok here, as it's part of a daemon service...
+#include <QSettings>
 
 class WidgetsSnoozeDialog : public QDialog
 {
@@ -36,6 +37,7 @@ private slots:
 
 private:
 	const bool _showDefaults;
+	QSettings *_settings;
 	QToolBox *_toolBox;
 
 	QHash<QWidget*, Reminder> _reminders;

@@ -17,6 +17,7 @@ class Reminder
 	Q_GADGET
 
 	Q_PROPERTY(QUuid id READ id WRITE setId USER true)
+	Q_PROPERTY(int versionCode READ versionCode)
 	Q_PROPERTY(QString text READ text WRITE setText)
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)
 
@@ -32,6 +33,7 @@ public:
 	~Reminder();
 
 	QUuid id() const;
+	int versionCode() const;
 	QString text() const;
 	bool isImportant() const;
 	QDateTime current() const;
@@ -39,6 +41,7 @@ public:
 	QDateTime snooze() const;
 
 	QtDataSync::GenericTask<void> nextSchedule(QtDataSync::AsyncDataStore *store, const QDateTime &current);
+	QtDataSync::GenericTask<void> performSnooze(QtDataSync::AsyncDataStore *store, const QDateTime &snooze);
 
 public slots:
 	void setId(QUuid id);
@@ -46,12 +49,12 @@ public slots:
 	void setImportant(bool important);
 	void setSchedule(QSharedPointer<Schedule> schedule);
 	void setSchedule(Schedule *schedule);
-	void setSnooze(QDateTime snooze);
 
 private:
 	QSharedDataPointer<ReminderData> _data;
 
 	QSharedPointer<Schedule> getSchedule() const;
+	void setSnooze(QDateTime snooze);
 };
 
 Q_DECLARE_METATYPE(Reminder)

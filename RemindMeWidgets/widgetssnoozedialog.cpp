@@ -4,14 +4,17 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <dialogmaster.h>
+#include <snoozetimes.h>
 
 WidgetsSnoozeDialog::WidgetsSnoozeDialog(bool showDefaults, QWidget *parent) :
 	QDialog(parent),
 	_showDefaults(showDefaults),
+	_settings(new QSettings(this)),
 	_toolBox(nullptr),
 	_reminders(),
 	_parser(new DateParser(this))
 {
+	_settings->beginGroup(QStringLiteral("daemon/snooze"));
 	setupUi();
 }
 
@@ -139,13 +142,13 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 
 	auto cBox = new QComboBox(remWidet);
 	cBox->setEditable(true);
-	cBox->addItems({
-					   tr("in 20 minutes"),
-					   tr("in 1 hour"),
-					   tr("in 3 hours"),
-					   tr("tomorrow"),
-					   tr("in 1 week on Monday")
-				   });
+	cBox->addItems(_settings->value(QStringLiteral("times"), SnoozeTimes {
+										tr("in 20 minutes"),
+										tr("in 1 hour"),
+										tr("in 3 hours"),
+										tr("tomorrow"),
+										tr("in 1 week on Monday")
+									}).value<SnoozeTimes>());
 
 	auto sButton = new QPushButton(remWidet);
 	sButton->setText(tr("&Snooze"));

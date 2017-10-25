@@ -11,6 +11,8 @@
 #include "createreminderdialog.h"
 #include "mainwindow.h"
 #include "widgetsscheduler.h"
+#include "snoozetimesedit.h"
+
 #ifdef USE_KDE_NOTIFIER
 #include "kdenotifier.h"
 #else
@@ -55,6 +57,7 @@ int main(int argc, char *argv[])
 		WidgetPresenter::registerWidget<CreateReminderDialog>();
 		WidgetPresenter::registerWidget<SettingsDialog>();
 		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QKeySequence, QKeySequenceEdit>();
+		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
 
 		coreApp->bootApp();
 		QObject::connect(&instance, &QSingleInstance::instanceMessage,

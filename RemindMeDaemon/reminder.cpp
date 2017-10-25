@@ -9,6 +9,7 @@ public:
 	ReminderData(const ReminderData &other);
 
 	QUuid id;
+	int versionCode;
 	QString text;
 	bool important;
 	QSharedPointer<Schedule> schedule;
@@ -35,6 +36,11 @@ Reminder::~Reminder() = default;
 QUuid Reminder::id() const
 {
 	return _data->id;
+}
+
+int Reminder::versionCode() const
+{
+	return _data->versionCode;
 }
 
 QString Reminder::text() const
@@ -75,10 +81,18 @@ QtDataSync::GenericTask<void> Reminder::nextSchedule(AsyncDataStore *store, cons
 	} while(res.isValid() && res <= current);
 
 	_data->snooze = QDateTime();//reset any snoozes
+	_data->versionCode++;
 	if(res.isValid())
 		return store->save(*this);
 	else
 		return store->remove<Reminder>(_data->id).toGeneric<void>();
+}
+
+QtDataSync::GenericTask<void> Reminder::performSnooze(AsyncDataStore *store, const QDateTime &snooze)
+{
+	_data->snooze = snooze;
+	_data->versionCode++;
+	return store->save(*this);
 }
 
 void Reminder::setId(QUuid id)
@@ -106,14 +120,14 @@ void Reminder::setSchedule(Schedule *schedule)
 	_data->schedule = QSharedPointer<Schedule>(schedule);
 }
 
-void Reminder::setSnooze(QDateTime snooze)
-{
-	_data->snooze = snooze;
-}
-
 QSharedPointer<Schedule> Reminder::getSchedule() const
 {
 	return _data->schedule;
+}
+
+void Reminder::setSnooze(QDateTime snooze)
+{
+	_data->snooze = snooze;
 }
 
 
@@ -121,6 +135,7 @@ QSharedPointer<Schedule> Reminder::getSchedule() const
 ReminderData::ReminderData() :
 	QSharedData(),
 	id(QUuid::createUuid()),
+	versionCode(0),
 	text(),
 	important(false),
 	schedule(nullptr),
@@ -130,6 +145,7 @@ ReminderData::ReminderData() :
 ReminderData::ReminderData(const ReminderData &other):
 	QSharedData(other),
 	id(other.id),
+	versionCode(other.versionCode),
 	text(other.text),
 	important(other.important),
 	schedule(other.schedule),

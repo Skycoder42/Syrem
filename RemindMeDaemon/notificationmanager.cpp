@@ -16,7 +16,8 @@ NotificationManager::NotificationManager(QObject *parent) :
 	_settings->beginGroup(QStringLiteral("daemon"));
 
 	connect(dynamic_cast<QObject*>(_scheduler), SIGNAL(scheduleTriggered(QUuid)),
-			this, SLOT(scheduleTriggered(QUuid)));
+			this, SLOT(scheduleTriggered(QUuid)),
+			Qt::QueuedConnection);
 
 	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDismissed(Reminder)),
 			this, SLOT(messageDismissed(Reminder)));
@@ -53,12 +54,11 @@ void NotificationManager::messageDismissed(Reminder reminder)
 {
 	using namespace std::chrono;
 
-	auto defaultSnooze = _settings->value(QStringLiteral("snooze/default"), 0).toInt();
+	auto defaultSnooze = _settings->value(QStringLiteral("snooze"), 0).toInt();
 	if(defaultSnooze < 1)
 		defaultSnooze = 20;//default is 20 minutes
-	reminder.setSnooze(QDateTime::currentDateTime().addSecs(duration_cast<seconds>(minutes(defaultSnooze)).count()));
-
-	_store->save(reminder).onResult(this, [](){}, [this](const QException &e) {
+	auto snoozeTime = QDateTime::currentDateTime().addSecs(duration_cast<seconds>(minutes(defaultSnooze)).count());
+	reminder.performSnooze(_store, snoozeTime).onResult(this, [](){}, [this](const QException &e) {
 		qCritical() << "Failed to save snooze time with error:" << e.what();
 		_notifier->showErrorMessage(tr("Failed save snooze time!"));
 	});
@@ -77,8 +77,7 @@ void NotificationManager::messageDelayed(Reminder reminder, const QDateTime &nex
 	if(!nextTrigger.isValid() || QDateTime::currentDateTime().secsTo(nextTrigger) < 60) //1 minute -> simply use the default stuff
 		messageDismissed(reminder);
 	else {
-		reminder.setSnooze(nextTrigger);
-		_store->save(reminder).onResult(this, [](){}, [this](const QException &e) {
+		reminder.performSnooze(_store, nextTrigger).onResult(this, [](){}, [this](const QException &e) {
 			qCritical() << "Failed to save snooze time with error:" << e.what();
 			_notifier->showErrorMessage(tr("Failed save snooze time!"));
 		});

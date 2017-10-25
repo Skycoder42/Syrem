@@ -1,5 +1,7 @@
 #include "kdesnoozedialog.h"
+#include <QSettings>
 #include <dialogmaster.h>
+#include <snoozetimes.h>
 
 KdeSnoozeDialog::KdeSnoozeDialog(const QString &text, QWidget *parent) :
 	QInputDialog(parent),
@@ -9,13 +11,13 @@ KdeSnoozeDialog::KdeSnoozeDialog(const QString &text, QWidget *parent) :
 	setWindowTitle(tr("Snooze Reminder"));
 	setInputMode(QInputDialog::TextInput);
 	setComboBoxEditable(true);
-	setComboBoxItems({
-						 tr("in 20 minutes"),
-						 tr("in 1 hour"),
-						 tr("in 3 hours"),
-						 tr("tomorrow"),
-						 tr("in 1 week on Monday")
-					 });
+	setComboBoxItems(QSettings().value(QStringLiteral("daemon/snooze/times"), SnoozeTimes {
+										   tr("in 20 minutes"),
+										   tr("in 1 hour"),
+										   tr("in 3 hours"),
+										   tr("tomorrow"),
+										   tr("in 1 week on Monday")
+									   }).value<SnoozeTimes>());
 	setLabelText(tr("Choose a snooze time for the reminder:<br/>"
 					"<i>%1</i>")
 				 .arg(text));

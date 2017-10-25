@@ -11,7 +11,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
 	remindmeapp.h \
 	maincontrol.h \
-	createremindercontrol.h
+	createremindercontrol.h \
+	snoozetimes.h
 
 SOURCES += \
 	remindmeapp.cpp \
