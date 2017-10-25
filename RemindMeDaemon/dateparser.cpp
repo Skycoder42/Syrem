@@ -331,8 +331,8 @@ Schedule *Point::createSchedule(const QDateTime &since, QObject *parent)
 
 
 
-const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}|\d{1,2} oclock))__");//TODO translate
-const QString DateParser::sequenceRegex = QStringLiteral(R"__(((?:\d+) (?:\w+)(?: and (?:\d+) (?:\w+))*))__");//TODO translate
+//const QString DateParser::timeRegex = QStringLiteral(R"__((?:at )?(\d{1,2}:\d{2}(?: am| pm)?|\d{1,2}(?: am| pm)))__");//TODO translate
+//const QString DateParser::sequenceRegex = QStringLiteral(R"__(((?:\d+) (?:\w+)(?: and (?:\d+) (?:\w+))*))__");//TODO translate
 
 DateParser::DateParser(QObject *parent) :
 	QObject(parent),
@@ -357,6 +357,62 @@ Expression *DateParser::parse(const QString &data)
 QString DateParser::lastError() const
 {
 	return _lastError;
+}
+
+QString DateParser::word(DateParser::WordKey key)
+{
+	switch(key) {
+	case DateParser::TimeRegexKey:
+		return tr("(?:at )?(\\d{1,2}:\\d{1,2}(?: am| pm)?|\\d{1,2}(?: am| pm))");
+	case DateParser::TimeKey:
+		return tr("hh:mm|h:mm|hh:m|h:m|"
+				  "hh:mm ap|h:mm ap|hh:m ap|h:m ap|h ap|"
+				  "hh:mm AP|h:mm AP|hh:m AP|h:m AP|h AP");
+	case DateParser::DateKey:
+		return tr("d.M.yyyy|dd.M.yyyy|d.MM.yyyy|dd.MM.yyyy|"
+				  "d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|"
+				  "d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|"
+				  "d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy");
+	case DateParser::MonthDayKey:
+		return tr("d.M.|dd.M.|d.MM.|dd.MM.|"
+				  "d. M.|dd. M.|d. MM.|dd. MM.|"
+				  "d. MMM|d. MMMM|dd. MMM|dd. MMMM|"
+				  "d-M|d-MM|dd-M|dd-MM");
+	case DateParser::TodayKey:
+		return tr("today");
+	case DateParser::TomorrowKey:
+		return tr("tomorrow");
+	case DateParser::DatumKey:
+		return tr(" on| at| in");
+	case DateParser::SequenceKey:
+		return tr(" and ");
+	case DateParser::ConjunctionKey:
+		return tr(";");
+	case DateParser::TimeSpanKey:
+		return tr("in");
+	case DateParser::LoopKey:
+		return tr("every");
+	case DateParser::FromKey:
+		return tr("from");
+	case DateParser::UntilKey:
+		return tr("until");
+	case DateParser::PointKey:
+		return tr("on |next ");
+	default:
+		Q_UNREACHABLE();
+		break;
+	}
+}
+
+QString DateParser::timeRegex()
+{
+	return word(TimeRegexKey);
+}
+
+QString DateParser::sequenceRegex()
+{
+	return QStringLiteral(R"__(((?:\d+) (?:\w+)(?:%1(?:\d+) (?:\w+))*))__")
+			.arg(word(SequenceKey));
 }
 
 Expression *DateParser::parseExpression(const QString &data, QObject *parent)
@@ -384,7 +440,8 @@ Expression *DateParser::parseExpression(const QString &data, QObject *parent)
 
 Conjunction *DateParser::tryParseConjunction(const QString &data, QObject *parent)
 {
-	static const QRegularExpression regex(QStringLiteral(R"__(\s*;\s*)__"),
+	static const QRegularExpression regex(QStringLiteral(R"__(\s*%1\s*)__")
+										  .arg(word(ConjunctionKey)),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption |
 										  QRegularExpression::DontCaptureOption);
@@ -401,10 +458,10 @@ Conjunction *DateParser::tryParseConjunction(const QString &data, QObject *paren
 TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 {
 	static const QRegularExpression regex(QStringLiteral(R"__(^%1 %2(?:(?:%3) (.+?))??(?: %4)?$)__")
-										  .arg(tr("in"))
-										  .arg(sequenceRegex)
-										  .arg(tr(" on| at| in"))
-										  .arg(timeRegex),
+										  .arg(word(TimeSpanKey))
+										  .arg(sequenceRegex())
+										  .arg(word(DatumKey))
+										  .arg(timeRegex()),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -430,11 +487,11 @@ TimeSpan *DateParser::tryParseTimeSpan(const QString &data, QObject *parent)
 Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 {
 	static const QRegularExpression regex(QStringLiteral(R"__(^%1 (.+?)(?:(?:%2) (.+?))??(?: %3)?(?: %4 ((?:(?!%5).)*))?(?: %5 (.*))?$)__")
-										  .arg(tr("every"))
-										  .arg(tr(" on| at| in"))
-										  .arg(timeRegex)
-										  .arg(tr("from"))
-										  .arg(tr("until")),
+										  .arg(word(LoopKey))
+										  .arg(word(DatumKey))
+										  .arg(timeRegex())
+										  .arg(word(FromKey))
+										  .arg(word(UntilKey)),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -479,8 +536,8 @@ Loop *DateParser::tryParseLoop(const QString &data, QObject *parent)
 Point *DateParser::tryParsePoint(const QString &data, QObject *parent)
 {
 	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(?:%1)?(.+?))??(?:(?<= |^)%2)?$)__") //see https://regex101.com/r/JLthE8/3 why this works
-										  .arg(tr("on |next "))
-										  .arg(timeRegex),
+										  .arg(word(PointKey))
+										  .arg(timeRegex()),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -561,7 +618,7 @@ Datum *DateParser::parseDatum(const QString &data, QObject *parent)
 Type *DateParser::parseType(const QString &data, QObject *parent)
 {
 	static const QRegularExpression regex(QStringLiteral(R"__(^(?:%1|(.+?))$)__")
-										  .arg(sequenceRegex),
+										  .arg(sequenceRegex()),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -584,8 +641,8 @@ Type *DateParser::parseType(const QString &data, QObject *parent)
 TimePoint *DateParser::parseTimePoint(const QString &data, QObject *parent)
 {
 	static const QRegularExpression regex(QStringLiteral(R"__(^(?:(%1)|(%2)|(\d{4})|(.*?))$)__")
-										  .arg(tr("today"))
-										  .arg(tr("tomorrow")),
+										  .arg(word(TodayKey))
+										  .arg(word(TomorrowKey)),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -635,7 +692,7 @@ TimePoint *DateParser::parseTimePoint(const QString &data, QObject *parent)
 QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data, QObject *parent)
 {
 	static const QRegularExpression regex(QStringLiteral(R"__(^(.*?)(?:(?<= |^)%1)?$)__")
-										  .arg(timeRegex),
+										  .arg(timeRegex()),
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
@@ -658,7 +715,7 @@ QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data
 QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 {
 	QLocale locale;
-	auto dates = tr("d.M.|dd.M.|d.MM.|dd.MM.|d. M.|dd. M.|d. MM.|dd. MM.|d. MMM|d. MMMM|dd. MMM|dd. MMMM|d-M|d-MM|dd-M|dd-MM").split(QStringLiteral("|"));
+	auto dates = word(MonthDayKey).split(QStringLiteral("|"));
 	auto sData = data.simplified();
 	foreach(auto pattern, dates) {
 		auto date = locale.toDate(sData, pattern);
@@ -675,7 +732,7 @@ QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 QDate DateParser::parseDate(const QString &data, bool noThrow)
 {
 	QLocale locale;
-	auto dates = tr("d.M.yyyy|dd.M.yyyy|d.MM.yyyy|dd.MM.yyyy|d. M. yyyy|dd. M. yyyy|d. MM. yyyy|dd. MM. yyyy|d. MMM yyyy|d. MMMM yyyy|dd. MMM yyyy|dd. MMMM yyyy|d-M-yyyy|d-MM-yyyy|dd-M-yyyy|dd-MM-yyyy").split(QStringLiteral("|"));
+	auto dates = word(DateKey).split(QStringLiteral("|"));
 	auto sData = data.simplified();
 	foreach(auto pattern, dates) {
 		auto date = locale.toDate(sData, pattern);
@@ -692,7 +749,7 @@ QDate DateParser::parseDate(const QString &data, bool noThrow)
 QTime DateParser::parseTime(const QString &data)
 {
 	QLocale locale;
-	auto times = tr("hh:mm|h:mm|h' oclock'").split(QStringLiteral("|"));
+	auto times = word(TimeKey).split(QStringLiteral("|"));
 	auto sData = data.simplified();
 	foreach(auto pattern, times) {
 		auto time = locale.toTime(sData, pattern);
@@ -710,6 +767,7 @@ QTime DateParser::parseTime(const QString &data)
 
 Expression::Span DateParser::parseSpan(const QString &data)
 {
+	//only local ts exception, because of special format...)
 	static const QHash<QRegularExpression, Expression::Span> spanMap = {
 		{SPAN_REGEX(tr("minute|minutes")), Expression::MinuteSpan},
 		{SPAN_REGEX(tr("hour|hours")), Expression::HourSpan},
@@ -735,7 +793,7 @@ Sequence DateParser::parseSequence(const QString &data)
 										  QRegularExpression::OptimizeOnFirstUsageOption |
 										  QRegularExpression::CaseInsensitiveOption);
 
-	auto dataList = data.simplified().split(QStringLiteral(" and "));//no regex needed, must look like this after simplify
+	auto dataList = data.simplified().split(word(SequenceKey));//no regex needed, must look like this after simplify
 	Sequence sequence;
 	foreach(auto span, dataList) {
 		auto match = regex.match(span);

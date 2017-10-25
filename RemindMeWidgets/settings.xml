@@ -33,7 +33,7 @@
 		<Entry key="blinkinterval"
 			   type="int"
 			   title="Blink &amp;interval"
-			   tooltip="Choose a blink interval for the tray icon in case of an important reminder"
+			   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)"
 			   default="750">
 			<Property key="minimum" type="number">100</Property>
 			<Property key="maximum" type="number">10000</Property>
@@ -45,7 +45,7 @@
 		<Entry key="action"
 			   type="list"
 			   title="Default &amp;Action"
-			   tooltip="The action to perform when the notification is clicked (instead of one of the buttons)"
+			   tooltip="The action to perform when the notification is clicked (instead of one of the buttons, KDE Notifications only)"
 			   default="0">
 			<Property key="_list_data" type="string">string</Property>
 			<Property key="_list_elements" type="list">

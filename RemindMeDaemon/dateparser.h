@@ -174,6 +174,26 @@ class DateParser : public QObject
 	Q_OBJECT
 
 public:
+	enum WordKey {
+		TimeRegexKey,
+		TimeKey,
+		DateKey,
+		MonthDayKey,
+		TodayKey,
+		TomorrowKey,
+
+		DatumKey,
+		SequenceKey,
+
+		ConjunctionKey,
+		TimeSpanKey,
+		LoopKey,
+		FromKey,
+		UntilKey,
+		PointKey
+	};
+	Q_ENUM(WordKey)
+
 	explicit DateParser(QObject *parent = nullptr);
 
 	ParserTypes::Expression *parse(const QString &data);
@@ -181,10 +201,11 @@ public:
 	QString lastError() const;
 
 private:
-	static const QString timeRegex;
-	static const QString sequenceRegex;
-
 	QString _lastError;
+
+	static QString word(WordKey key);
+	static QString timeRegex();
+	static QString sequenceRegex();
 
 	ParserTypes::Expression *parseExpression(const QString &data, QObject *parent);
 	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
