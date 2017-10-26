@@ -35,7 +35,9 @@ WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 			this, &WidgetsNotifier::invert);
 }
 
-void WidgetsNotifier::setupEmtpy()
+void WidgetsNotifier::beginSetup() {}
+
+void WidgetsNotifier::endSetup()
 {
 	updateIcon();
 }

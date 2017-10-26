@@ -11,7 +11,8 @@ public:
 	virtual inline ~INotifier() = default;
 
 public slots:
-	virtual void setupEmtpy() = 0;
+	virtual void beginSetup() = 0;
+	virtual void endSetup() = 0;
 
 	virtual void showNotification(const Reminder &reminder) = 0;
 	virtual void removeNotification(const QUuid &id) = 0;

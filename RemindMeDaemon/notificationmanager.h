@@ -2,6 +2,7 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <QObject>
+#include <QtDataSync/SyncController>
 #include <QtDataSync/AsyncDataStore>
 #include <ischeduler.h>
 #include <inotifier.h>
@@ -28,9 +29,11 @@ private:
 	INotifier *_notifier;
 
 	QSettings *_settings;
+	QtDataSync::SyncController *_controller;
 	QtDataSync::AsyncDataStore *_store;
 
-	void doSchedule(const Reminder &reminder);
+	bool _settingUp;
+	quint32 _loadingNotCnt;
 };
 
 #endif // NOTIFICATIONMANAGER_H

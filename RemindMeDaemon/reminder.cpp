@@ -9,7 +9,7 @@ public:
 	ReminderData(const ReminderData &other);
 
 	QUuid id;
-	int versionCode;
+	quint32 versionCode;
 	QString text;
 	bool important;
 	QSharedPointer<Schedule> schedule;
@@ -38,7 +38,7 @@ QUuid Reminder::id() const
 	return _data->id;
 }
 
-int Reminder::versionCode() const
+quint32 Reminder::versionCode() const
 {
 	return _data->versionCode;
 }
@@ -55,9 +55,12 @@ bool Reminder::isImportant() const
 
 QDateTime Reminder::current() const
 {
-	if(_data->schedule)
-		return _data->schedule->current();
-	else
+	if(_data->schedule) {
+		if(_data->snooze.isValid())
+			return _data->snooze;
+		else
+			return _data->schedule->current();
+	} else
 		return {};
 }
 
@@ -128,6 +131,11 @@ void Reminder::setSchedule(Schedule *schedule)
 	_data->schedule = QSharedPointer<Schedule>(schedule);
 }
 
+void Reminder::setVersionCode(quint32 versionCode)
+{
+	_data->versionCode = versionCode;
+}
+
 QSharedPointer<Schedule> Reminder::getSchedule() const
 {
 	return _data->schedule;
@@ -143,7 +151,7 @@ void Reminder::setSnooze(QDateTime snooze)
 ReminderData::ReminderData() :
 	QSharedData(),
 	id(QUuid::createUuid()),
-	versionCode(0),
+	versionCode(1),
 	text(),
 	important(false),
 	schedule(nullptr),

@@ -34,7 +34,9 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 	_settings->beginGroup(QStringLiteral("gui/notifications"));
 }
 
-void KdeNotifier::setupEmtpy()
+void KdeNotifier::beginSetup() {}
+
+void KdeNotifier::endSetup()
 {
 	updateBar();
 }

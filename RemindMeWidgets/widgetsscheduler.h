@@ -14,7 +14,8 @@ public:
 	explicit WidgetsScheduler(QObject *parent = nullptr);
 
 public slots:
-	bool scheduleReminder(const QUuid &id, const QDateTime &timepoint) override;
+	void initialize(const QList<Reminder> &allReminders) override;
+	bool scheduleReminder(const QUuid &id, quint32 versionCode, const QDateTime &timepoint) override;
 	void cancleReminder(const QUuid &id) override;
 
 signals:
@@ -24,7 +25,11 @@ protected:
 	void timerEvent(QTimerEvent *event) override;
 
 private:
-	typedef QPair<QDateTime, int> SchedInfo;
+	struct SchedInfo {
+		quint32 version;
+		QDateTime date;
+		int timerId;
+	};
 	QHash<QUuid, SchedInfo> _schedules;
 
 	int _loopTimerId;

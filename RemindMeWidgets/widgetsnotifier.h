@@ -17,7 +17,8 @@ public:
 	explicit WidgetsNotifier(QObject *parent = nullptr);
 
 public slots:
-	void setupEmtpy() override;
+	void beginSetup() override;
+	void endSetup() override;
 	void showNotification(const Reminder &reminder) override;
 	void removeNotification(const QUuid &id) override;
 	void showErrorMessage(const QString &error) override;

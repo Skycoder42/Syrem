@@ -14,25 +14,41 @@ WidgetsScheduler::WidgetsScheduler(QObject *parent) :
 		qCritical() << "Failed to start main timer loop";
 }
 
-bool WidgetsScheduler::scheduleReminder(const QUuid &id, const QDateTime &timepoint)
+void WidgetsScheduler::initialize(const QList<Reminder> &allReminders)
+{
+	foreach (auto sched, _schedules) {
+		if(sched.timerId != 0)
+			killTimer(sched.timerId);
+	}
+	_schedules.clear();
+
+	foreach(auto rem, allReminders)
+		scheduleReminder(rem.id(), rem.versionCode(), rem.current());
+}
+
+bool WidgetsScheduler::scheduleReminder(const QUuid &id, quint32 versionCode, const QDateTime &timepoint)
 {
 	if(!timepoint.isValid())
 		return false;
+
+	auto current = _schedules.value(id);
+	if(current.date.isValid() && current.version == versionCode)
+		return false;//already scheduled
 
 	cancleReminder(id);
 	auto tId = trySchedule(timepoint);
 	if(tId == -1)
 		emit scheduleTriggered(id);
 	else
-		_schedules.insert(id, {timepoint, tId});
+		_schedules.insert(id, {versionCode, timepoint, tId});
 	return true;
 }
 
 void WidgetsScheduler::cancleReminder(const QUuid &id)
 {
 	auto tInfo = _schedules.take(id);
-	if(tInfo.first.isValid() && tInfo.second != 0)
-		killTimer(tInfo.second);
+	if(tInfo.date.isValid() && tInfo.timerId != 0)
+		killTimer(tInfo.timerId);
 }
 
 
@@ -43,10 +59,10 @@ void WidgetsScheduler::timerEvent(QTimerEvent *event)
 		reschedule();
 	else {
 		for(auto it = _schedules.begin(); it != _schedules.end(); it++) {
-			if(it->second == timerId) {
+			if(it->timerId == timerId) {
 				killTimer(timerId);
 
-				auto tDiff = qAbs(it->first.secsTo(QDateTime::currentDateTime()));
+				auto tDiff = qAbs(it->date.secsTo(QDateTime::currentDateTime()));
 				if(tDiff > 60)
 					qWarning() << "Timer triggered with great target time difference of" << tDiff << "seconds";
 
@@ -64,9 +80,9 @@ void WidgetsScheduler::timerEvent(QTimerEvent *event)
 void WidgetsScheduler::reschedule()
 {
 	for(auto it = _schedules.begin(); it != _schedules.end();) {
-		if(it->second == 0) {
-			it->second = trySchedule(it->first);
-			if(it->second == -1) {//trigger now, as it's in the past
+		if(it->timerId == 0) {
+			it->timerId = trySchedule(it->date);
+			if(it->timerId == -1) {//trigger now, as it's in the past
 				emit scheduleTriggered(it.key());
 				it = _schedules.erase(it);
 				continue;

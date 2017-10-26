@@ -116,7 +116,7 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 			auto toolData = QObjectProxyModel::data(index, Qt::DecorationRole);
 			auto snooze = data.toDateTime();
 			if(snooze.isValid())
-				return tr("Snoozed until: %1").arg(QLocale().toString(snooze, format));
+				return tr("Reminder has been snoozed until the displayed time");
 			else if(toolData.toBool())
 				return tr("Reminder will repeatedly trigger, not only once");
 			else

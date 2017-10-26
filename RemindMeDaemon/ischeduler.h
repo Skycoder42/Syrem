@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QUuid>
+#include "reminder.h"
 
 class IScheduler
 {
@@ -11,7 +12,9 @@ public:
 	virtual inline ~IScheduler() = default;
 
 public slots:
-	virtual bool scheduleReminder(const QUuid &id, const QDateTime &timepoint) = 0;
+	virtual void initialize(const QList<Reminder> &allReminders) = 0;
+
+	virtual bool scheduleReminder(const QUuid &id, quint32 versionCode, const QDateTime &timepoint) = 0;
 	virtual void cancleReminder(const QUuid &id) = 0;
 
 signals:
