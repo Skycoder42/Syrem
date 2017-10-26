@@ -1,8 +1,12 @@
 <RCC>
     <qresource prefix="/qml">
         <file>App.qml</file>
+        <file>ReminderDelegate.qml</file>
     </qresource>
     <qresource prefix="/qml/views">
         <file>MainView.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="main.svg">icons/remindme.svg</file>
     </qresource>
 </RCC>

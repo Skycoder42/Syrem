@@ -11,14 +11,12 @@ kde_notifier {
 TARGET = remind-me
 VERSION = $$RM_VERSION
 
-RC_ICONS += ../icn/remindme.ico
+RC_ICONS += ../icon/remindme.ico
+ICON = ../icon/remindme.icns
 QMAKE_TARGET_COMPANY = "Skycoder42"
 QMAKE_TARGET_PRODUCT = "Remind-Me"
 QMAKE_TARGET_DESCRIPTION = "Simple reminder app"
 QMAKE_TARGET_COPYRIGHT = "Felix Barz"
-QMAKE_TARGET_BUNDLE_PREFIX = de.skycoder42
-
-ICON = ../icn/remindme.icns
 QMAKE_TARGET_BUNDLE_PREFIX = de.skycoder42
 
 DEFINES += "TARGET=\\\"$$TARGET\\\""
@@ -30,13 +28,13 @@ DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 HEADERS += mainwindow.h \
 	createreminderdialog.h \
 	widgetsscheduler.h \
-    snoozetimesedit.h
+	snoozetimesedit.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
 	createreminderdialog.cpp \
 	widgetsscheduler.cpp \
-    snoozetimesedit.cpp
+	snoozetimesedit.cpp
 
 kde_notifier {
 	HEADERS += kdenotifier.h \
@@ -53,7 +51,7 @@ kde_notifier {
 
 FORMS += mainwindow.ui \
 	createreminderdialog.ui \
-    snoozetimesedit.ui
+	snoozetimesedit.ui
 
 RESOURCES += \
 	remindmewidgets.qrc

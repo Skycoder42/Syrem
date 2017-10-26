@@ -1,17 +1,18 @@
 TEMPLATE = app
 
-QT += core gui qml quick quickcontrols2 remoteobjects datasync
+QT += core gui qml quick remoteobjects datasync
 CONFIG += c++11
 
-TARGET = RemindMeQuick
+TARGET = remind-me
+VERSION = $$RM_VERSION
 
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+QMAKE_TARGET_BUNDLE_PREFIX = de.skycoder42
 
-# Additional import path used to resolve QML modules just for Qt Quick Designer
-QML_DESIGNER_IMPORT_PATH =
-
-DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += "TARGET=\\\"$$TARGET\\\""
+DEFINES += "VERSION=\\\"$$VERSION\\\""
+DEFINES += "COMPANY=\"\\\"Skycoder42\\\"\""
+DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
+DEFINES += "DISPLAY_NAME=\"\\\"Remind-Me\\\"\""
 
 SOURCES += main.cpp
 
@@ -20,11 +21,6 @@ RESOURCES += \
 
 TRANSLATIONS += remindme_quick_de.ts \
 	remindme_quick_template.ts
-
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
