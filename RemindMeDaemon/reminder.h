@@ -18,7 +18,7 @@ class Reminder
 
 	Q_PROPERTY(QUuid id READ id WRITE setId USER true)
 	Q_PROPERTY(quint32 versionCode READ versionCode WRITE setVersionCode)
-	Q_PROPERTY(QString text READ text WRITE setText)
+	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)
 
 	Q_PROPERTY(QDateTime current READ current STORED false)
@@ -35,7 +35,7 @@ public:
 
 	QUuid id() const;
 	quint32 versionCode() const;
-	QString text() const;
+	QString description() const;
 	bool isImportant() const;
 	QDateTime current() const;
 	bool isRepeating() const;
@@ -47,7 +47,7 @@ public:
 
 public slots:
 	void setId(QUuid id);
-	void setText(QString text);
+	void setDescription(QString description);
 	void setImportant(bool important);
 	void setSchedule(QSharedPointer<Schedule> schedule);
 	void setSchedule(Schedule *schedule);

@@ -43,7 +43,7 @@ quint32 Reminder::versionCode() const
 	return _data->versionCode;
 }
 
-QString Reminder::text() const
+QString Reminder::description() const
 {
 	return _data->text;
 }
@@ -111,7 +111,7 @@ void Reminder::setId(QUuid id)
 	_data->id = id;
 }
 
-void Reminder::setText(QString text)
+void Reminder::setDescription(QString text)
 {
 	_data->text = text;
 }

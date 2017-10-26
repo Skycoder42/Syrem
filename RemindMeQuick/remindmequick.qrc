@@ -8,5 +8,12 @@
     </qresource>
     <qresource prefix="/icons">
         <file alias="main.svg">icons/remindme.svg</file>
+        <file alias="ic_add.svg">icons/ic_add_white_24px.svg</file>
+        <file alias="/ic_delete_forever.svg">icons/ic_delete_forever_white_24px.svg</file>
+        <file alias="ic_repeat.svg">icons/ic_repeat_white_24px.svg</file>
+        <file alias="ic_snooze.svg">icons/ic_snooze_white_24px.svg</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
     </qresource>
 </RCC>

@@ -35,7 +35,7 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 	}
 
 	Reminder rem;
-	rem.setText(text);
+	rem.setDescription(text);
 	rem.setImportant(important);
 	rem.setSchedule(sched);
 

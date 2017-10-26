@@ -57,7 +57,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 							   tr("%1 — Important Reminder") :
 							   tr("%1 — Reminder"))
 						   .arg(QApplication::applicationDisplayName()));
-	notification->setText(reminder.text());
+	notification->setText(reminder.description());
 	notification->setNotifyIcon(Icon);
 	notification->setActions({
 								 tr("Complete"),
@@ -127,7 +127,7 @@ void KdeNotifier::snoozed(const QUuid &id)
 	if(!removeNot(id, &rem))
 		return;
 
-	auto diag = new KdeSnoozeDialog(rem.text() ,nullptr);
+	auto diag = new KdeSnoozeDialog(rem.description() ,nullptr);
 
 	connect(diag, &KdeSnoozeDialog::accepted, this, [this, rem, diag]() {
 		emit messageDelayed(rem, diag->snoozeTime());

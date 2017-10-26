@@ -177,7 +177,7 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 					  reminder.isImportant() ?
 						  QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico"))) :
 						  QIcon(QStringLiteral(":/icons/empty.ico")),
-					  reminder.text());
+					  reminder.description());
 
 	_reminders.insert(remWidet, reminder);
 }

@@ -51,7 +51,7 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 							  tr("%1 — Important Reminder") :
 							  tr("%1 — Reminder"))
 						  .arg(QApplication::applicationDisplayName()),
-						  reminder.text(),
+						  reminder.description(),
 						  QSystemTrayIcon::Information);
 }
 

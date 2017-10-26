@@ -1,5 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.1
+import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.3
 import de.skycoder42.quickextras 2.0
 import de.skycoder42.qtmvvm.quick 1.0
@@ -14,6 +15,8 @@ Page {
 		id: toolbar
 		title: qsTr("Manager Reminders")
 		showMenuButton: false
+
+		Material.foreground: "white"
 
 		moreMenu: Menu {
 			id: moreMenu
@@ -61,6 +64,8 @@ Page {
 
 	FloatingActionButton {
 		id: addButton
+
+		Material.foreground: "white"
 
 		anchors.right: parent.right
 		anchors.rightMargin: 10

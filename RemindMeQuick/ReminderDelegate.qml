@@ -1,3 +1,4 @@
+import QtQml 2.2
 import QtQuick 2.8
 import QtQuick.Controls 2.1
 import QtQuick.Controls.Material 2.1
@@ -8,8 +9,8 @@ import de.skycoder42.quickextras 2.0
 SwipeDelegate {
 	id: delegate
 	width: parent.width
-	text: text
-	highlighted: important
+	text: description ? description : ""
+	highlighted: important ? important == "true" : false
 
 	CommonStyle {
 		id: style
@@ -34,26 +35,6 @@ SwipeDelegate {
 	signal reminderDeleted
 
 	contentItem: RowLayout {
-		Image {
-			id: stateImage
-			asynchronous: true
-			fillMode: Image.PreserveAspectFit
-			horizontalAlignment: Image.AlignHCenter
-			verticalAlignment: Image.AlignVCenter
-			Layout.minimumWidth: 42
-			Layout.maximumWidth: 42
-			Layout.minimumHeight: 42
-			Layout.maximumHeight: 42
-			source: {
-				if(snooze.isValid())
-					return "image://svg/icons/snooze";
-				else if(repeating)
-					return "image://svg/icons/loop";
-				else
-					return "";
-			}
-		}
-
 		Label {
 			id: titleLabel
 			elide: Label.ElideRight
@@ -61,9 +42,29 @@ SwipeDelegate {
 			verticalAlignment: Qt.AlignVCenter
 			Layout.fillWidth: true
 			Layout.fillHeight: true
-			font.bold: important
-			color: style.highlight(important)
+			font.bold: delegate.highlighted
+			color: style.highlight(delegate.highlighted)
 			text: delegate.text
+		}
+
+		TintIcon {
+			id: stateImage
+
+			Layout.minimumWidth: 42
+			Layout.maximumWidth: 42
+			Layout.minimumHeight: 42
+			Layout.maximumHeight: 42
+
+			tintColor: highlighted ? style.accent : style.foreground
+
+			source: {
+				if(snooze)
+					return "image://svg/icons/ic_snooze";
+				else if(repeating == "true")
+					return "image://svg/icons/ic_repeat";
+				else
+					return "";
+			}
 		}
 
 		Label {
@@ -71,8 +72,8 @@ SwipeDelegate {
 			Layout.fillHeight: true
 			horizontalAlignment: Qt.AlignRight
 			verticalAlignment: Qt.AlignVCenter
-			color: style.highlight(important)
-			text: current
+			color: style.highlight(delegate.highlighted)
+			text: current ? new Date(current).toLocaleString(Qt.locale(), Locale.ShortFormat) : "" //TODO settings format
 		}
 	}
 
@@ -85,6 +86,8 @@ SwipeDelegate {
 			size: parent.height
 			imageSource: "image://svg/icons/ic_delete_forever"
 			text: qsTr("Delete Reminder")
+
+			Material.foreground: "white"
 
 			onClicked: reminderDeleted()
 		}

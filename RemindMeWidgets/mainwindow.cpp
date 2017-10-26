@@ -137,7 +137,7 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
 	QObjectProxyModel::setSourceModel(sourceModel);
 	addMapping(0, Qt::DecorationRole, "important");
-	addMapping(0, Qt::DisplayRole, "text");
+	addMapping(0, Qt::DisplayRole, "description");
 	addMapping(1, Qt::DisplayRole, "current");
 	addMapping(1, Qt::DecorationRole, "repeating");
 	addMapping(1, Qt::ToolTipRole, "snooze");
