@@ -4,6 +4,7 @@
 #include <control.h>
 #include <QAbstractItemModelReplica>
 #include <QRemoteObjectHost>
+#include <QUuid>
 class ReminderManagerReplica;
 
 class MainControl : public Control
@@ -23,7 +24,7 @@ public:
 public slots:
 	void showSettings();
 	void addReminder();
-	void removeReminder(int index);
+	void removeReminder(const QUuid &id);
 
 private slots:
 	void reminderError(bool isCreate, const QString &error);

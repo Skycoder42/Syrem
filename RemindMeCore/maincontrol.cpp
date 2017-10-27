@@ -58,9 +58,8 @@ void MainControl::addReminder()
 	addRem->show();
 }
 
-void MainControl::removeReminder(int index)
+void MainControl::removeReminder(const QUuid &id)
 {
-	auto id = _reminderModel->data(_reminderModel->index(index, 0)).toUuid();
 	if(id.isNull())
 		return;
 	_reminderManager->removeReminder(id);

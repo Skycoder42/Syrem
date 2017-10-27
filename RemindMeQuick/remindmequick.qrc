@@ -6,6 +6,7 @@
     </qresource>
     <qresource prefix="/qml/views">
         <file>MainView.qml</file>
+        <file>CreateReminderView.qml</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="main.svg">icons/remindme.svg</file>

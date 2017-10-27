@@ -19,7 +19,7 @@ CreateReminderDialog::CreateReminderDialog(Control *mControl, QWidget *parent) :
 	QtMvvmBinding::bind(_control, "expression", _ui->whenLineEdit, "text");
 	QtMvvmBinding::bind(_control, "important", _ui->importantCheckBox, "checked");
 
-	connect(_control, &CreateReminderControl::createComplete,
+	connect(_control, &CreateReminderControl::createCompleted,
 			this, &CreateReminderDialog::created);
 
 	QSettings settings;

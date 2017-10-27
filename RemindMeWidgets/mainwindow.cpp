@@ -64,7 +64,8 @@ void MainWindow::on_action_Delete_Reminder_triggered()
 	if(!index.isValid())
 		return;
 
-	_control->removeReminder(index.row());
+	auto id = _control->reminderModel()->data(index).toUuid();
+	_control->removeReminder(id);
 }
 
 void MainWindow::on_action_About_triggered()

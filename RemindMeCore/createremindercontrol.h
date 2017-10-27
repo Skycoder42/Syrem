@@ -31,7 +31,7 @@ signals:
 	void importantChanged(bool important);
 	void expressionChanged(QString expression);
 
-	void createComplete(bool success);
+	void createCompleted(bool success);
 
 private slots:
 	void remCreated();

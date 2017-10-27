@@ -74,13 +74,13 @@ void CreateReminderControl::create()
 
 void CreateReminderControl::remCreated()
 {
-	emit createComplete(true);
+	emit createCompleted(true);
 }
 
 void CreateReminderControl::remError(bool isCreate, const QString &error)
 {
 	if(isCreate) {
 		CoreMessage::critical(tr("Failed to create reminder"), error);
-		emit createComplete(false);
+		emit createCompleted(false);
 	}
 }
