@@ -81,21 +81,6 @@ bool RemindMeApp::startApp(const QCommandLineParser &parser)
 		qCritical() << "RO_ERROR:" << errorCode;
 	});
 
-//	//DEBUG
-//	qDebug() << "RO created";
-//	auto manager = _roNode->acquire<ReminderManagerReplica>();
-//	if(!manager)
-//		qCritical() << _roNode->lastError();
-//	connect(manager, &ReminderManagerReplica::stateChanged, this, [=](ReminderManagerReplica::State state){
-//		qDebug() << Q_FUNC_INFO << "MANAGER state changed!!!" << state;
-//	});
-//	if(manager->isInitialized())
-//		qDebug() << Q_FUNC_INFO << "MANAGER already inizialized!!!";
-//	else {
-//		connect(manager, &ReminderManagerReplica::initialized, this, [=](){
-//			qDebug() << Q_FUNC_INFO << "MANAGER finally inizialized!!!";
-//		});
-//	}
 
 	_mainControl = new MainControl(this);
 

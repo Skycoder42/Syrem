@@ -70,6 +70,7 @@ DISTFILES += \
 	android/AndroidManifest.xml \
 	android/res/values/libs.xml \
 	android/build.gradle \
-	android/src/de/skycoder42/remindme/RemindmeService.java
+	android/src/de/skycoder42/remindme/RemindmeService.java \
+    android/src/de/skycoder42/remindme/RemindmeActivity.java
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

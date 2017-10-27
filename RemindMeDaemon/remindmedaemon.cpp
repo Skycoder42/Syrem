@@ -68,14 +68,12 @@ void RemindMeDaemon::startDaemon()
 	_storeModel->setTypeId<Reminder>();
 	if(!_hostNode->enableRemoting(_storeModel,
 								  QStringLiteral("ReminderModel"),
-								  _storeModel->roleNames().keys().toVector())) {
+								  _storeModel->roleNames().keys().toVector()))
 		qCritical() << "Failed to expose DataStoreModel with error:" << _hostNode->lastError();
-	}
 
 	_remManager = new ReminderManager(this);
-	if(!_hostNode->enableRemoting(_remManager)) {
+	if(!_hostNode->enableRemoting(_remManager))
 		qCritical() << "Failed to expose ReminderManager with error:" << _hostNode->lastError();
-	}
 
 	//unexposed classes
 	_notManager = new NotificationManager(this);
