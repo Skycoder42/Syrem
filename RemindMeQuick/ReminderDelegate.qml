@@ -1,8 +1,8 @@
 import QtQml 2.2
-import QtQuick 2.8
-import QtQuick.Controls 2.1
-import QtQuick.Controls.Material 2.1
-import QtQuick.Controls.Universal 2.1
+import QtQuick 2.9
+import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.2
+import QtQuick.Controls.Universal 2.2
 import QtQuick.Layouts 1.3
 import de.skycoder42.quickextras 2.0
 
@@ -78,12 +78,12 @@ SwipeDelegate {
 	}
 
 	swipe.right: Rectangle {
-		width: parent.height
+		width: parent.width
 		height: parent.height
 		anchors.right: parent.right
 		color: style.redColor()
 		AppBarButton {
-			size: parent.height
+			anchors.fill: parent
 			imageSource: "image://svg/icons/ic_delete_forever"
 			text: qsTr("Delete Reminder")
 

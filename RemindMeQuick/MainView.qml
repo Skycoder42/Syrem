@@ -1,6 +1,6 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.1
-import QtQuick.Controls.Material 2.1
+import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
 import de.skycoder42.quickextras 2.0
 import de.skycoder42.qtmvvm.quick 1.0
@@ -38,6 +38,8 @@ Page {
 			MenuItem {
 				id: about
 				text: qsTr("About")
+
+				onClicked: aboutDialog.open()
 			}
 		}
 	}
@@ -76,5 +78,14 @@ Page {
 		text: qsTr("Add Reminder")
 
 		onClicked: control.addReminder()
+	}
+
+	AboutDialog {
+		id: aboutDialog
+
+		text: qsTr("A simple reminder application for desktop and mobile, with synchronized reminder.")
+		websiteUrl: "https://github.com/Skycoder42/RemindMe"
+		licenseName: qsTr("BSD 3 Clause")
+		licenseUrl: "https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"
 	}
 }
