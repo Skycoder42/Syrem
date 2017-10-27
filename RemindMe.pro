@@ -16,3 +16,5 @@ RemindMeCore.depends += RemindMeDaemon
 
 DISTFILES += .qmake.conf \
 	README.md
+
+android: SUBDIRS -= RemindMeWidgets Tests

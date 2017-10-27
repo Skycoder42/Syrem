@@ -1,6 +1,7 @@
 TEMPLATE = app
 
 QT += core gui qml quick remoteobjects datasync
+android: QT += androidextras
 CONFIG += c++11
 
 TARGET = remind-me
@@ -14,7 +15,19 @@ DEFINES += "COMPANY=\"\\\"Skycoder42\\\"\""
 DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
 DEFINES += "DISPLAY_NAME=\"\\\"Remind-Me\\\"\""
 
+HEADERS +=
+
 SOURCES += main.cpp
+
+android {
+HEADERS += \
+	androidscheduler.h \
+	androidnotifier.h
+
+SOURCES += \
+	androidscheduler.cpp \
+	androidnotifier.cpp
+}
 
 RESOURCES += \
 	remindmequick.qrc
@@ -52,3 +65,11 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)
+
+DISTFILES += \
+	android/AndroidManifest.xml \
+	android/res/values/libs.xml \
+	android/build.gradle \
+	android/src/de/skycoder42/remindme/RemindmeService.java
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

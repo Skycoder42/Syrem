@@ -30,25 +30,24 @@ NotificationManager::NotificationManager(QObject *parent) :
 	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDelayed(Reminder,QDateTime)),
 			this, SLOT(messageDelayed(Reminder,QDateTime)));
 
-	QTimer::singleShot(0, this, [this](){
-		_controller->triggerSyncWithResult([this](SyncController::SyncState) {
-			_store->loadAll<Reminder>().onResult([this](QList<Reminder> reminders) {
-				_notifier->beginSetup();
-				_settingUp = true;
-				_scheduler->initialize(reminders);
-				if(_loadingNotCnt == 0) {
-					_settingUp = false;
-					_notifier->endSetup();
-				}
+	//TODO crashes -> FIX
+//	_controller->triggerSyncWithResult([this](SyncController::SyncState) {
+		_store->loadAll<Reminder>().onResult([this](QList<Reminder> reminders) {
+			_notifier->beginSetup();
+			_settingUp = true;
+			_scheduler->initialize(reminders);
+			if(_loadingNotCnt == 0) {
+				_settingUp = false;
+				_notifier->endSetup();
+			}
 
-				connect(_store, &AsyncDataStore::dataChanged,
-						this, &NotificationManager::dataChanged);
-			}, [this](const QException &e) {
-				qCritical() << "Failed to load stored reminders with error:" << e.what();
-				_notifier->showErrorMessage(tr("Failed to load any reminders!"));
-			});
+			connect(_store, &AsyncDataStore::dataChanged,
+					this, &NotificationManager::dataChanged);
+		}, [this](const QException &e) {
+			qCritical() << "Failed to load stored reminders with error:" << e.what();
+			_notifier->showErrorMessage(tr("Failed to load any reminders!"));
 		});
-	});
+//	});
 }
 
 void NotificationManager::scheduleTriggered(const QUuid &id)

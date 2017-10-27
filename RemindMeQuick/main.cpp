@@ -3,8 +3,15 @@
 #include <QQmlApplicationEngine>
 #include <createremindercontrol.h>
 #include <quickpresenter.h>
+#include <registry.h>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include "androidscheduler.h"
+#include "androidnotifier.h"
+#endif
 
 REGISTER_CORE_APP(RemindMeApp)
 
@@ -24,6 +31,8 @@ int main(int argc, char *argv[])
 	QGuiApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 
+	qDebug() << "HERE!!!" << QCoreApplication::arguments();
+
 	auto parser = coreApp->getParser();
 	if(parser->isSet(QStringLiteral("daemon")))
 		setupDaemon();
@@ -35,6 +44,13 @@ int main(int argc, char *argv[])
 
 static void setupApp()
 {
+#ifdef Q_OS_ANDROID
+	QAndroidJniObject::callStaticMethod<void>("de/skycoder42/remindme/RemindmeService",
+												  "startService",
+												  "(Landroid/content/Context;)V",
+												  QtAndroid::androidActivity().object());
+#endif
+
 	qmlRegisterUncreatableType<MainControl>("de.skycoder42.remindme", 1, 0, "MainControl", QStringLiteral("Controls cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderControl>("de.skycoder42.remindme", 1, 0, "CreateReminderControl", QStringLiteral("Controls cannot be created!"));
 
@@ -45,6 +61,13 @@ static void setupApp()
 
 static void setupDaemon()
 {
+#ifdef Q_OS_ANDROID
+	Registry::registerClass<IScheduler, AndroidScheduler>();
+	Registry::registerClass<INotifier, AndroidNotifier>();
+#else
+#error No Scheduler/Notifier implementation available
+#endif
+
 	auto daemon = new RemindMeDaemon(qApp);
 	daemon->startDaemon();
 }
