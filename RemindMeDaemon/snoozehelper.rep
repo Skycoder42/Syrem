@@ -6,6 +6,6 @@ class SnoozeHelper
 	SLOT(void snoozeReminder(const QUuid &id, const QString &expression))
 
 	SIGNAL(reminderLoaded(const QUuid &id, const QString &description))
-	SIGNAL(remindeSnoozed())
-	SIGNAL(reminderError(const QString &error))
+	SIGNAL(reminderSnoozed(const QUuid &id))
+	SIGNAL(reminderError(const QUuid &id, const QString &error))
 };

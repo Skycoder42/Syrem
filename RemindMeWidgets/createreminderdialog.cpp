@@ -15,9 +15,9 @@ CreateReminderDialog::CreateReminderDialog(Control *mControl, QWidget *parent) :
 
 	_ui->whenLineEdit->addAction(_ui->actionExpression_Syntax, QLineEdit::TrailingPosition);
 
-	QtMvvmBinding::bind(_control, "text", _ui->textLineEdit, "text");
-	QtMvvmBinding::bind(_control, "expression", _ui->whenLineEdit, "text");
-	QtMvvmBinding::bind(_control, "important", _ui->importantCheckBox, "checked");
+	QtMvvmBinding::bind(_control, "text", _ui->textLineEdit, "text", QtMvvmBinding::OneWayToControl);
+	QtMvvmBinding::bind(_control, "expression", _ui->whenLineEdit, "text", QtMvvmBinding::OneWayToControl);
+	QtMvvmBinding::bind(_control, "important", _ui->importantCheckBox, "checked", QtMvvmBinding::OneWayToControl);
 
 	connect(_control, &CreateReminderControl::createCompleted,
 			this, &CreateReminderDialog::created);
