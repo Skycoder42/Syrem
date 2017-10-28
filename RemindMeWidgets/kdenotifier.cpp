@@ -1,11 +1,11 @@
 #include "kdenotifier.h"
-#include "snoozedialog.h"
 
 #include <QApplication>
 #include <dialogmaster.h>
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
+#include <snoozecontrol.h>
 #define Icon QIcon(QStringLiteral(":/icons/tray/main.ico")).pixmap(64, 64)
 #define ErrorIcon QIcon(QStringLiteral(":/icons/tray/error.ico")).pixmap(64, 64)
 #define setNotifyIcon setPixmap
@@ -127,18 +127,9 @@ void KdeNotifier::snoozed(const QUuid &id)
 	if(!removeNot(id, &rem))
 		return;
 
-	auto diag = new SnoozeDialog(rem.description() ,nullptr);
-
-	connect(diag, &SnoozeDialog::accepted, this, [this, rem, diag]() {
-		emit messageDelayed(rem, diag->snoozeTime());
-		diag->deleteLater();
-	});
-	connect(diag, &SnoozeDialog::rejected, this, [this, rem, diag]() {
-		emit messageDismissed(rem);
-		diag->deleteLater();
-	});
-
-	diag->open();
+	auto snoozeControl = new SnoozeControl(this);
+	snoozeControl->setDeleteOnClose(true);
+	snoozeControl->show(id);
 }
 
 void KdeNotifier::updateBar()
