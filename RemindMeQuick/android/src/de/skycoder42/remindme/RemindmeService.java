@@ -68,6 +68,7 @@ public class RemindmeService extends QtService {
 		if(allNots == null)
 			return null;
 
+		String[] allKeys = new String[allNots.length];
 		for(int i = 0; i < allNots.length; i++)
 			allKeys[i] = allNots[i].getTag();
 		return allKeys;
