@@ -15,7 +15,7 @@ public:
 
 public slots:
 	void initialize(const QList<Reminder> &allReminders) override;
-	bool scheduleReminder(const QUuid &id, quint32 versionCode, const QDateTime &timepoint) override;
+	bool scheduleReminder(const Reminder &reminder) override;
 	void cancleReminder(const QUuid &id) override;
 
 signals:

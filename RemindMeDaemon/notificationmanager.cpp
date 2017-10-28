@@ -108,7 +108,10 @@ void NotificationManager::dataChanged(int metaTypeId, const QString &key, bool w
 		} else {
 			_store->load<Reminder>(key).onResult(this, [this](Reminder reminder) {
 				_notifier->removeNotification(reminder.id());
-				_scheduler->scheduleReminder(reminder.id(), reminder.versionCode(), reminder.current());
+				if(!_scheduler->scheduleReminder(reminder)) {
+					qCritical() << "Failed to schedule reminder";
+					_notifier->showErrorMessage(tr("Failed to schedule reminder!"));
+				}
 			}, [this](const QException &e) {
 				qCritical() << "Failed to load reminder with error:" << e.what();
 				_notifier->showErrorMessage(tr("Failed to load newly added reminder!"));

@@ -23,24 +23,24 @@ void WidgetsScheduler::initialize(const QList<Reminder> &allReminders)
 	_schedules.clear();
 
 	foreach(auto rem, allReminders)
-		scheduleReminder(rem.id(), rem.versionCode(), rem.current());
+		scheduleReminder(rem);
 }
 
-bool WidgetsScheduler::scheduleReminder(const QUuid &id, quint32 versionCode, const QDateTime &timepoint)
+bool WidgetsScheduler::scheduleReminder(const Reminder &reminder)
 {
-	if(!timepoint.isValid())
+	if(!reminder.current().isValid())
 		return false;
 
-	auto current = _schedules.value(id);
-	if(current.date.isValid() && current.version == versionCode)
+	auto current = _schedules.value(reminder.id());
+	if(current.date.isValid() && current.version == reminder.versionCode())
 		return false;//already scheduled
 
-	cancleReminder(id);
-	auto tId = trySchedule(timepoint);
+	cancleReminder(reminder.id());
+	auto tId = trySchedule(reminder.current());
 	if(tId == -1)
-		emit scheduleTriggered(id);
+		emit scheduleTriggered(reminder.id());
 	else
-		_schedules.insert(id, {versionCode, timepoint, tId});
+		_schedules.insert(reminder.id(), {reminder.versionCode(), reminder.current(), tId});
 	return true;
 }
 
