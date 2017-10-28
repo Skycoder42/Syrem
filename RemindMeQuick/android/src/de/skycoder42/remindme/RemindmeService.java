@@ -20,10 +20,6 @@ import android.support.v4.app.NotificationCompat.BigTextStyle;
 import org.qtproject.qt5.android.bindings.QtService;
 
 public class RemindmeService extends QtService {
-	public class LocalBinder extends Binder {
-		//TODO empty class
-	}
-
 	private static final String NormalChannelId = "normal_channel";
 	private static final String ImportantChannelId = "important_channel";
 	private static final String ErrorChannelId = "error_channel";
@@ -31,7 +27,7 @@ public class RemindmeService extends QtService {
 	private static final int ErrorNotifyId = 66;
 	private static final int OpenIntentId = 10;
 
-	private final IBinder _binder = new LocalBinder();
+	private final IBinder _binder = new Binder();
 
 	public static void startService(Context context) {
 		context.startService(new Intent(context, RemindmeService.class));
@@ -162,9 +158,7 @@ public class RemindmeService extends QtService {
 		normal.enableLights(true);
 		normal.setLightColor(Color.GREEN);
 		normal.enableVibration(true);
-		normal.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		normal.setShowBadge(true);
-		//TODO set sound needed?
 		manager.createNotificationChannel(normal);
 
 		//create important channel
@@ -176,9 +170,8 @@ public class RemindmeService extends QtService {
 		important.enableLights(true);
 		important.setLightColor(Color.RED);
 		important.enableVibration(true);
-		important.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 		important.setShowBadge(true);
-		//TODO set sound needed?
+		important.setBypassDnd(true);
 		manager.createNotificationChannel(important);
 
 		//create error channel
@@ -191,7 +184,6 @@ public class RemindmeService extends QtService {
 		error.setLightColor(Color.RED);
 		error.enableVibration(true);
 		error.setShowBadge(true);
-		//TODO set sound needed?
 		manager.createNotificationChannel(error);
 	}
 }
