@@ -412,7 +412,7 @@ QString DateParser::word(DateParser::WordKey key)
 	case DateParser::TomorrowKey:
 		return tr("tomorrow");
 	case DateParser::SpanMinuteKey:
-		return tr("minute|minutes");
+		return tr("minute|minutes|min|mins");
 	case DateParser::SpanHourKey:
 		return tr("hour|hours");
 	case DateParser::SpanDayKey:

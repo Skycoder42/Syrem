@@ -8,6 +8,7 @@ AndroidScheduler::AndroidScheduler(QObject *parent) :
 	_settings(new QSettings(this)),
 	_autoSync(true)
 {
+	//TODO add boot receiver
 	_settings->beginGroup(QStringLiteral("scheduler"));
 }
 
@@ -77,7 +78,7 @@ void AndroidScheduler::cancleReminder(const QUuid &id)
 		auto alarmId = _settings->value(remKey).toInt();
 
 		auto service = QtAndroid::androidService();
-		service.callMethod<void>("cancleSchedule", "(I)V", (jint)alarmId);
+		service.callMethod<void>("cancelSchedule", "(I)V", (jint)alarmId);
 
 		_settings->remove(remKey);
 		if(_autoSync)
