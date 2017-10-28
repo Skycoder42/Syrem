@@ -10,6 +10,7 @@ import android.app.Notification;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
+import android.service.notification.StatusBarNotification;
 import android.graphics.Color;
 import android.graphics.BitmapFactory;
 
@@ -20,12 +21,15 @@ import org.qtproject.qt5.android.bindings.QtService;
 
 public class RemindmeService extends QtService {
 	public class LocalBinder extends Binder {
-		//empty class
+		//TODO empty class
 	}
 
 	private static final String NormalChannelId = "normal_channel";
 	private static final String ImportantChannelId = "important_channel";
+	private static final String ErrorChannelId = "error_channel";
 	private static final int NotifyId = 42;
+	private static final int ErrorNotifyId = 66;
+	private static final int OpenIntentId = 10;
 
 	private final IBinder _binder = new LocalBinder();
 
@@ -60,6 +64,19 @@ public class RemindmeService extends QtService {
 		manager.cancel(createPending(id));
 	}
 
+	public String[] activeNotifications()
+	{
+		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+		StatusBarNotification[] allNots = manager.getActiveNotifications();
+		if(allNots == null)
+			return null;
+
+		for(int i = 0; i < allNots.length; i++)
+			allKeys[i] = allNots[i].getTag();
+		return allKeys;
+	}
+
 	public void notify(String id, boolean important, String text)
 	{
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -72,8 +89,11 @@ public class RemindmeService extends QtService {
 //			.setContentIntent(pending)
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
+			.setOnlyAlertOnce(true)
 //			.setAutoCancel(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER);
+
+		//TODO addAction, setContentIntent, setDeleteIntent
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -85,6 +105,33 @@ public class RemindmeService extends QtService {
 			notification.flags |= NotificationCompat.FLAG_INSISTENT;
 
 		manager.notify(id, NotifyId, notification);
+	}
+
+	public void notifyError(String text)
+	{
+		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+		Intent intent = new Intent(this, RemindmeActivity.class);
+		PendingIntent pending = PendingIntent.getActivity(this,
+			OpenIntentId,
+			intent,
+			PendingIntent.FLAG_UPDATE_CURRENT);
+
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ErrorChannelId)
+			.setContentTitle("Reminder Error")
+			.setContentText(text)
+			.setStyle(new NotificationCompat.BigTextStyle()
+				.bigText(text))
+			.setContentIntent(pending)
+			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
+			.setSmallIcon(R.drawable.ic_notification)
+			.setAutoCancel(true)
+			.setCategory(NotificationCompat.CATEGORY_ERROR);
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+			builder.setDefaults(NotificationCompat.DEFAULT_ALL);
+
+		manager.notify(ErrorNotifyId,  builder.build());
 	}
 
 	public void cancelNotify(String id)
@@ -133,5 +180,18 @@ public class RemindmeService extends QtService {
 		important.setShowBadge(true);
 		//TODO set sound needed?
 		manager.createNotificationChannel(important);
+
+		//create error channel
+		NotificationChannel error = new NotificationChannel(ErrorChannelId,
+			"Error Messages",
+			NotificationManager.IMPORTANCE_DEFAULT);
+		// Configure the notification channel.
+		error.setDescription("Notifications for possible internal errors");
+		error.enableLights(true);
+		error.setLightColor(Color.RED);
+		error.enableVibration(true);
+		error.setShowBadge(true);
+		//TODO set sound needed?
+		manager.createNotificationChannel(error);
 	}
 }

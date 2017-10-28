@@ -23,6 +23,10 @@ signals:
 	void messageDismissed(Reminder reminder) final;
 	void messageCompleted(Reminder reminder) final;
 	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger) final;
+
+private:
+	bool _setup;
+	QList<QUuid> _setupIds;
 };
 
 #endif // ANDROIDNOTIFIER_H
