@@ -1,5 +1,5 @@
 #include "kdenotifier.h"
-#include "kdesnoozedialog.h"
+#include "snoozedialog.h"
 
 #include <QApplication>
 #include <dialogmaster.h>
@@ -127,13 +127,13 @@ void KdeNotifier::snoozed(const QUuid &id)
 	if(!removeNot(id, &rem))
 		return;
 
-	auto diag = new KdeSnoozeDialog(rem.description() ,nullptr);
+	auto diag = new SnoozeDialog(rem.description() ,nullptr);
 
-	connect(diag, &KdeSnoozeDialog::accepted, this, [this, rem, diag]() {
+	connect(diag, &SnoozeDialog::accepted, this, [this, rem, diag]() {
 		emit messageDelayed(rem, diag->snoozeTime());
 		diag->deleteLater();
 	});
-	connect(diag, &KdeSnoozeDialog::rejected, this, [this, rem, diag]() {
+	connect(diag, &SnoozeDialog::rejected, this, [this, rem, diag]() {
 		emit messageDismissed(rem);
 		diag->deleteLater();
 	});

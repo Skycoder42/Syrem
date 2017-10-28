@@ -5,6 +5,7 @@
 #include <QJsonTypeConverter>
 class QRemoteObjectHost;
 class ReminderManager;
+class SnoozeHelper;
 class NotificationManager;
 
 namespace QtDataSync {
@@ -37,6 +38,7 @@ private:
 
 	QtDataSync::DataStoreModel *_storeModel;
 	ReminderManager *_remManager;
+	SnoozeHelper *_snoozeHelper;
 	NotificationManager *_notManager;
 };
 

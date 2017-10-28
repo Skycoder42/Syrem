@@ -8,6 +8,7 @@
 #include <QtDataSync/DataMerger>
 
 #include "remindermanager.h"
+#include "snoozehelper.h"
 #include "reminder.h"
 #include "notificationmanager.h"
 
@@ -22,6 +23,7 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	_hostNode(nullptr),
 	_storeModel(nullptr),
 	_remManager(nullptr),
+	_snoozeHelper(nullptr),
 	_notManager(nullptr)
 {
 	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
@@ -74,6 +76,9 @@ void RemindMeDaemon::startDaemon()
 	_remManager = new ReminderManager(this);
 	if(!_hostNode->enableRemoting(_remManager))
 		qCritical() << "Failed to expose ReminderManager with error:" << _hostNode->lastError();
+	_snoozeHelper = new SnoozeHelper(this);
+	if(!_hostNode->enableRemoting(_snoozeHelper))
+		qCritical() << "Failed to expose SnoozeHelper with error:" << _hostNode->lastError();
 
 	//unexposed classes
 	_notManager = new NotificationManager(this);

@@ -9,6 +9,16 @@ AndroidNotifier::AndroidNotifier(QObject *parent) :
 	_setupIds()
 {}
 
+//TODO how-to-actions:
+// static c++ callback from java (+ init var) -> waits until endSetup / or not if already setup done
+// block id + versionCode from beeing notified
+// the laods the reminder and emits the correct signal
+// triggerSync and stopService once done
+
+// for custom snooze -> open GUI instead
+// in gui, call startService with another custom intend, INCLUDING the calculated time
+// in svc, do the same as usual
+
 void AndroidNotifier::beginSetup()
 {
 	_setupIds.clear();

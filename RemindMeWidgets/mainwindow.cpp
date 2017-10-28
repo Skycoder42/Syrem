@@ -52,20 +52,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_Delete_Reminder_triggered()
 {
-	auto sIndex = _ui->treeView->currentIndex();
-	if(!sIndex.isValid())
-		return;
-
-	auto pIndex = _sortModel->mapToSource(sIndex);
-	if(!pIndex.isValid())
-		return;
-
-	auto index = _proxyModel->mapToSource(pIndex);
-	if(!index.isValid())
-		return;
-
-	auto id = _control->reminderModel()->data(index).toUuid();
-	_control->removeReminder(id);
+	_control->removeReminder(idFromIndex(_ui->treeView->currentIndex()));
 }
 
 void MainWindow::on_action_About_triggered()
@@ -76,6 +63,41 @@ void MainWindow::on_action_About_triggered()
 						tr("BSD 3 Clause"),
 						QStringLiteral("https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"));
 }
+
+void MainWindow::on_treeView_activated(const QModelIndex &index)
+{
+	if(!index.isValid())
+		return;
+	auto mIndex = indexFromIndex(index);
+	auto mRole = _control->reminderModel()->roleNames().key("state");
+	auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
+	if(mData == 3)
+		_control->snoozeReminder(idFromIndex(index));
+}
+
+QModelIndex MainWindow::indexFromIndex(const QModelIndex &sIndex)
+{
+	if(!sIndex.isValid())
+		return {};
+
+	auto pIndex = _sortModel->mapToSource(sIndex);
+	if(!pIndex.isValid())
+		return {};
+
+	auto index = _proxyModel->mapToSource(pIndex);
+	if(!index.isValid())
+		return {};
+	return index;
+}
+
+QUuid MainWindow::idFromIndex(const QModelIndex &sIndex)
+{
+	auto index = indexFromIndex(sIndex);
+	if(!index.isValid())
+		return {};
+	return _control->reminderModel()->data(index).toUuid();
+}
+
 
 
 
@@ -106,22 +128,31 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 		break;
 	case 1:
 		if(role == Qt::DecorationRole) {
-			auto decorData = QObjectProxyModel::data(index, Qt::ToolTipRole);
-			if(decorData.toDateTime().isValid())
-				return QIcon::fromTheme(QStringLiteral("alarm-symbolic"), QIcon(QStringLiteral(":/icons/snooze.ico")));
-			else if(data.toBool())
-				return QIcon::fromTheme(QStringLiteral("media-playlist-repeat"), QIcon(QStringLiteral(":/icons/snooze.ico")));
-			else
+			switch(data.toInt()) {
+			case 0:
 				return QIcon(QStringLiteral(":/icons/empty.ico"));
+			case 1:
+				return QIcon::fromTheme(QStringLiteral("media-playlist-repeat"), QIcon(QStringLiteral(":/icons/loop.ico")));
+			case 2:
+				return QIcon::fromTheme(QStringLiteral("alarm-symbolic"), QIcon(QStringLiteral(":/icons/snooze.ico")));
+			case 3:
+				return QIcon::fromTheme(QStringLiteral("view-calendar-upcoming-events"), QIcon(QStringLiteral(":/icons/trigger.ico")));
+			default:
+				break;
+			}
 		} else if(role == Qt::ToolTipRole) {
-			auto toolData = QObjectProxyModel::data(index, Qt::DecorationRole);
-			auto snooze = data.toDateTime();
-			if(snooze.isValid())
-				return tr("Reminder has been snoozed until the displayed time");
-			else if(toolData.toBool())
-				return tr("Reminder will repeatedly trigger, not only once");
-			else
+			switch(data.toInt()) {
+			case 0:
 				return QVariant();
+			case 1:
+				return tr("Reminder will repeatedly trigger, not only once");
+			case 2:
+				return tr("Reminder has been snoozed until the displayed time");
+			case 3:
+				return tr("Reminder has been triggered and needs a reaction!");
+			default:
+				break;
+			}
 		} else if(role == Qt::DisplayRole) {
 			auto dateTime = data.toDateTime();
 			return QLocale().toString(dateTime, format);
@@ -140,6 +171,6 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "description");
 	addMapping(1, Qt::DisplayRole, "current");
-	addMapping(1, Qt::DecorationRole, "repeating");
-	addMapping(1, Qt::ToolTipRole, "snooze");
+	addMapping(1, Qt::DecorationRole, "state");
+	addMapping(1, Qt::ToolTipRole, "state");
 }

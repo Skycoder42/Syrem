@@ -1,5 +1,5 @@
-#ifndef SNOOZEDIALOG_H
-#define SNOOZEDIALOG_H
+#ifndef WIDGETSSNOOZEDIALOG_H
+#define WIDGETSSNOOZEDIALOG_H
 
 #include <QDialog>
 #include <QToolBox>
@@ -50,4 +50,4 @@ private:
 	QDateTime tryParse(const QString &text);
 };
 
-#endif // SNOOZEDIALOG_H
+#endif // WIDGETSSNOOZEDIALOG_H

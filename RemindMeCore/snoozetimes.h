@@ -3,6 +3,7 @@
 
 #include <QStringList>
 #include <QObject>
+#include <QVariant>
 
 class SnoozeTimes : public QStringList
 {
@@ -24,7 +25,6 @@ Q_DECLARE_METATYPE(SnoozeTimes)
 
 inline void SnoozeTimes::setup() {
 	qRegisterMetaType<SnoozeTimes>();
-	qRegisterMetaTypeStreamOperators<SnoozeTimes>();
 
 	QMetaType::registerConverter<SnoozeTimes, QVariantList>([](const SnoozeTimes &list) -> QVariantList {
 		QVariantList l;

@@ -37,12 +37,17 @@ private slots:
 	void on_action_Delete_Reminder_triggered();
 	void on_action_About_triggered();
 
+	void on_treeView_activated(const QModelIndex &index);
+
 private:
 	MainControl *_control;
 	Ui::MainWindow *_ui;
 
 	ReminderProxyModel *_proxyModel;
 	QSortFilterProxyModel *_sortModel;
+
+	QModelIndex indexFromIndex(const QModelIndex &sIndex);
+	QUuid idFromIndex(const QModelIndex &sIndex);
 };
 
 #endif // MAINWINDOW_H

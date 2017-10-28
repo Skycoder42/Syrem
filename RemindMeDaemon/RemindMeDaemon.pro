@@ -17,7 +17,8 @@ HEADERS += \
 	registry.h \
 	ischeduler.h \
 	inotifier.h \
-	notificationmanager.h
+	notificationmanager.h \
+    snoozehelper.h
 
 SOURCES += \
 	remindmedaemon.cpp \
@@ -26,7 +27,8 @@ SOURCES += \
 	dateparser.cpp \
 	schedule.cpp \
 	registry.cpp \
-	notificationmanager.cpp
+	notificationmanager.cpp \
+    snoozehelper.cpp
 
 REPC_SOURCE += $$fromfile(rep.pri, REPC_FILES)
 

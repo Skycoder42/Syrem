@@ -12,12 +12,14 @@ HEADERS += \
 	remindmeapp.h \
 	maincontrol.h \
 	createremindercontrol.h \
-	snoozetimes.h
+	snoozetimes.h \
+    snoozecontrol.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp \
-	createremindercontrol.cpp
+	createremindercontrol.cpp \
+    snoozecontrol.cpp
 
 REPC_REPLICA += $$fromfile(../RemindMeDaemon/rep.pri, REPC_FILES)
 

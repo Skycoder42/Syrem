@@ -1,5 +1,6 @@
 #include "createremindercontrol.h"
 #include "maincontrol.h"
+#include "snoozecontrol.h"
 #include <settingscontrol.h>
 #include <QUuid>
 #include <rep_remindermanager_replica.h>
@@ -63,6 +64,16 @@ void MainControl::removeReminder(const QUuid &id)
 	if(id.isNull())
 		return;
 	_reminderManager->removeReminder(id);
+}
+
+void MainControl::snoozeReminder(const QUuid &id)
+{
+	if(id.isNull())
+		return;
+
+	auto snoozeControl = new SnoozeControl(this);
+	snoozeControl->setDeleteOnClose(true);
+	snoozeControl->show(id);
 }
 
 void MainControl::reminderError(bool isCreate, const QString &error)

@@ -1,0 +1,11 @@
+#include <QUuid>
+
+class SnoozeHelper
+{
+	SLOT(void loadReminder(const QUuid &id))
+	SLOT(void snoozeReminder(const QUuid &id, const QString &expression))
+
+	SIGNAL(reminderLoaded(const QUuid &id, const QString &description))
+	SIGNAL(remindeSnoozed())
+	SIGNAL(reminderError(const QString &error))
+};

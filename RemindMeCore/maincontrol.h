@@ -23,8 +23,10 @@ public:
 
 public slots:
 	void showSettings();
+
 	void addReminder();
 	void removeReminder(const QUuid &id);
+	void snoozeReminder(const QUuid &id);
 
 private slots:
 	void reminderError(bool isCreate, const QString &error);

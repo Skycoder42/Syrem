@@ -10,6 +10,8 @@
         <file alias="snooze.ico">icons/clock_15.ico</file>
         <file alias="down.ico">icons/arrow_down.ico</file>
         <file alias="up.ico">icons/arrow_up.ico</file>
+        <file alias="loop.ico">icons/arrow_repeat.ico</file>
+        <file alias="trigger.ico">icons/date_error.ico</file>
     </qresource>
     <qresource prefix="/icons/tray">
         <file alias="main.ico">icons/remindme.ico</file>

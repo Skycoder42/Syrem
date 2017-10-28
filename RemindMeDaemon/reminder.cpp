@@ -72,6 +72,18 @@ bool Reminder::isRepeating() const
 		return false;
 }
 
+Reminder::State Reminder::state() const
+{
+	if(current() <= QDateTime::currentDateTime())
+		return Triggered;
+	else if(snooze().isValid())
+		return Snoozed;
+	else if(isRepeating())
+		return NormalRepeating;
+	else
+		return Normal;
+}
+
 QSharedPointer<const Schedule> Reminder::schedule() const
 {
 	return _data->schedule.constCast<const Schedule>();

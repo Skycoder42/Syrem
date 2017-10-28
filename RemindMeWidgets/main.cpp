@@ -13,6 +13,7 @@
 #include "mainwindow.h"
 #include "widgetsscheduler.h"
 #include "snoozetimesedit.h"
+#include "snoozedialog.h"
 
 #ifdef USE_KDE_NOTIFIER
 #include "kdenotifier.h"
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
 		//app
 		WidgetPresenter::registerWidget<MainWindow>();
 		WidgetPresenter::registerWidget<CreateReminderDialog>();
+		WidgetPresenter::registerWidget<SnoozeDialog>();
 		WidgetPresenter::registerWidget<SettingsDialog>();
 		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QKeySequence, QKeySequenceEdit>();
 		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QTime, QTimeEdit>();

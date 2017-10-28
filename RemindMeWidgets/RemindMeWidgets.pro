@@ -28,19 +28,19 @@ DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 HEADERS += mainwindow.h \
 	createreminderdialog.h \
 	widgetsscheduler.h \
-	snoozetimesedit.h
+	snoozetimesedit.h \
+    snoozedialog.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
 	createreminderdialog.cpp \
 	widgetsscheduler.cpp \
-	snoozetimesedit.cpp
+	snoozetimesedit.cpp \
+    snoozedialog.cpp
 
 kde_notifier {
-	HEADERS += kdenotifier.h \
-		kdesnoozedialog.h
-	SOURCES += kdenotifier.cpp \
-		kdesnoozedialog.cpp
+	HEADERS += kdenotifier.h
+	SOURCES += kdenotifier.cpp
 	DISTFILES += remind-me.notifyrc
 } else {
 	HEADERS += widgetsnotifier.h \

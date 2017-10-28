@@ -23,11 +23,20 @@ class Reminder
 
 	Q_PROPERTY(QDateTime current READ current STORED false)
 	Q_PROPERTY(bool repeating READ isRepeating STORED false)
+	Q_PROPERTY(State state READ state STORED false)
 	Q_PROPERTY(QSharedPointer<Schedule> schedule READ getSchedule WRITE setSchedule)
 
 	Q_PROPERTY(QDateTime snooze READ snooze WRITE setSnooze)
 
 public:
+	enum State {
+		Normal,
+		NormalRepeating,
+		Snoozed,
+		Triggered
+	};
+	Q_ENUM(State)
+
 	Reminder();
 	Reminder(const Reminder &rhs);
 	Reminder &operator=(const Reminder &rhs);
@@ -39,6 +48,7 @@ public:
 	bool isImportant() const;
 	QDateTime current() const;
 	bool isRepeating() const;
+	State state() const;
 	QSharedPointer<const Schedule> schedule() const;
 	QDateTime snooze() const;
 
