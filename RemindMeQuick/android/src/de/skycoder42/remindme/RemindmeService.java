@@ -10,6 +10,7 @@ import android.app.Notification;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
+import android.net.Uri;
 import android.service.notification.StatusBarNotification;
 import android.graphics.Color;
 import android.graphics.BitmapFactory;
@@ -20,12 +21,18 @@ import android.support.v4.app.NotificationCompat.BigTextStyle;
 import org.qtproject.qt5.android.bindings.QtService;
 
 public class RemindmeService extends QtService {
+	private static final String ForegroundChannelId = "foreground_channel";
 	private static final String NormalChannelId = "normal_channel";
 	private static final String ImportantChannelId = "important_channel";
 	private static final String ErrorChannelId = "error_channel";
+	private static final int ForegroudId = 40;
 	private static final int NotifyId = 42;
 	private static final int ErrorNotifyId = 66;
 	private static final int OpenIntentId = 10;
+
+	private static final String ActionScheduler = "de.skycoder42.remindme.ActionScheduler";
+	private static final String ActionComplete = "de.skycoder42.remindme.ActionComplete";
+	private static final String ActionDelay = "de.skycoder42.remindme.ActionDelay";
 
 	private final IBinder _binder = new Binder();
 
@@ -44,9 +51,34 @@ public class RemindmeService extends QtService {
 		return _binder;
 	}
 
-	public void createSchedule(int id, boolean important, long triggerAt)
-	{
-		PendingIntent pending = createPending(id);
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		int result = super.onStartCommand(intent, flags, startId);
+
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ForegroundChannelId)
+			.setContentTitle("Remind-Me Service")
+			.setContentText("Synchronizing Reminders…")
+			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
+			.setSmallIcon(R.drawable.ic_notification)
+			.setLocalOnly(true)
+			.setOngoing(true)
+			.setCategory(NotificationCompat.CATEGORY_REMINDER);
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+			builder.setPriority(NotificationCompat.PRIORITY_MIN);
+
+		startForeground(ForegroudId, builder.build());
+
+		return result;
+	}
+
+	public void completeAction() {
+		stopForeground(STOP_FOREGROUND_REMOVE);
+		stopSelf();
+	}
+
+	public void createSchedule(int id, boolean important, long triggerAt) {
+		PendingIntent pending = createPending(id, ActionScheduler, null);
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 		if(important)
 			manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
@@ -54,14 +86,12 @@ public class RemindmeService extends QtService {
 			manager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, 5 * 60 * 1000, pending);//max 5 min window
 	}
 
-	public void cancelSchedule(int id)
-	{
+	public void cancelSchedule(int id) {
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		manager.cancel(createPending(id));
+		manager.cancel(createPending(id, ActionScheduler, null));
 	}
 
-	public String[] activeNotifications()
-	{
+	public String[] activeNotifications() {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		StatusBarNotification[] allNots = manager.getActiveNotifications();
@@ -74,8 +104,7 @@ public class RemindmeService extends QtService {
 		return allKeys;
 	}
 
-	public void notify(String id, boolean important, String text)
-	{
+	public void notify(String id, boolean important, String text) {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, important ? ImportantChannelId : NormalChannelId)
@@ -104,8 +133,7 @@ public class RemindmeService extends QtService {
 		manager.notify(id, NotifyId, notification);
 	}
 
-	public void notifyError(String text)
-	{
+	public void notifyError(String text) {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		Intent intent = new Intent(this, RemindmeActivity.class);
@@ -131,17 +159,26 @@ public class RemindmeService extends QtService {
 		manager.notify(ErrorNotifyId,  builder.build());
 	}
 
-	public void cancelNotify(String id)
-	{
+	public void cancelNotify(String id) {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		manager.cancel(id, NotifyId);
 	}
 
-	private PendingIntent createPending(int id)
-	{
-		Intent intent = new Intent(this, AlarmReceiver.class);
+	private PendingIntent createPending(int id, String action, String extra) 	{
+		Uri uri = null;
+		if(extra != null) {
+			uri = new Uri.Builder()
+				.scheme("remindme")
+				.path(extra)
+				.build();
+		}
+
+		Intent intent = new Intent(action, uri, this, RemindmeService.class);
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-		return PendingIntent.getBroadcast(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+			return PendingIntent.getService(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		else
+			return PendingIntent.getForegroundService(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
 	private void createChannels() {
@@ -165,7 +202,7 @@ public class RemindmeService extends QtService {
 		//create important channel
 		NotificationChannel important = new NotificationChannel(ImportantChannelId,
 			"Important Reminders",
-			NotificationManager.IMPORTANCE_HIGH);
+			NotificationManager.IMPORTANCE_MIN);
 		// Configure the notification channel.
 		important.setDescription("Notifications of important reminders");
 		important.enableLights(true);
@@ -186,5 +223,16 @@ public class RemindmeService extends QtService {
 		error.enableVibration(true);
 		error.setShowBadge(true);
 		manager.createNotificationChannel(error);
+
+		//create foreground channel
+		NotificationChannel foreground = new NotificationChannel(ForegroundChannelId,
+			"Service Status",
+			NotificationManager.IMPORTANCE_DEFAULT);
+		// Configure the notification channel.
+		foreground.setDescription("Status notifications that Remind-Me is synchronizing reminders");
+		foreground.enableLights(false);
+		foreground.enableVibration(false);
+		foreground.setShowBadge(false);
+		manager.createNotificationChannel(foreground);
 	}
 }
