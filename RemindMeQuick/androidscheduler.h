@@ -13,6 +13,8 @@ class AndroidScheduler : public QObject, public IScheduler
 public:
 	explicit AndroidScheduler(QObject *parent = nullptr);
 
+	static void triggerSchedule(const QString &id);
+
 public slots:
 	void initialize(const QList<Reminder> &allReminders) override;
 	bool scheduleReminder(const Reminder &reminder) override;
@@ -24,6 +26,8 @@ signals:
 private:
 	QSettings *_settings;
 	bool _autoSync;
+
+	void performTrigger(const QUuid &id, quint32 versionCode);
 };
 
 #endif // ANDROIDSCHEDULER_H

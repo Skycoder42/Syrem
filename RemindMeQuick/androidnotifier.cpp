@@ -1,6 +1,12 @@
 #include "androidnotifier.h"
+#include "androidscheduler.h"
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
+#include <registry.h>
+
+bool AndroidNotifier::_canInvoke = false;
+QMutex AndroidNotifier::_invokeMutex;
+QList<QPair<QString, QString>> AndroidNotifier::_startServiceCache;
 
 AndroidNotifier::AndroidNotifier(QObject *parent) :
 	QObject(parent),
@@ -8,6 +14,17 @@ AndroidNotifier::AndroidNotifier(QObject *parent) :
 	_setup(false),
 	_setupIds()
 {}
+
+void AndroidNotifier::initIntent(const QString &action, const QString &data)
+{
+	QMutexLocker _(&_invokeMutex);
+
+	_startServiceCache.append({action, data});
+	if(_canInvoke) {
+		auto obj = Registry::acquireObject(INotifier_iid);
+		QMetaObject::invokeMethod(obj, "reactToStart", Qt::QueuedConnection);
+	}
+}
 
 //TODO how-to-actions:
 // static c++ callback from java (+ init var) -> waits until endSetup / or not if already setup done
@@ -48,6 +65,10 @@ void AndroidNotifier::endSetup()
 	_setupIds.clear();
 	foreach(auto key, cancelList)
 		removeNotification(key);
+
+	_canInvoke = true;
+	if(!_startServiceCache.isEmpty())
+		QMetaObject::invokeMethod(this, "reactToStart", Qt::QueuedConnection);
 }
 
 void AndroidNotifier::showNotification(const Reminder &reminder)
@@ -75,4 +96,32 @@ void AndroidNotifier::showErrorMessage(const QString &error)
 	auto service = QtAndroid::androidService();
 	service.callMethod<void>("notifyError", "(Ljava/lang/String;)V",
 							 QAndroidJniObject::fromString(error).object());
+}
+
+void AndroidNotifier::reactToStart()
+{
+	QMutexLocker _(&_invokeMutex);
+
+	auto shouldQuit = true;
+	foreach(auto entry, _startServiceCache) {
+		if(entry.first == QStringLiteral("de.skycoder42.remindme.ActionScheduler"))
+			AndroidScheduler::triggerSchedule(entry.second);
+	}
+	_startServiceCache.clear();
+
+	if(shouldQuit) {
+		auto service = QtAndroid::androidService();
+		service.callMethod<void>("completeAction");
+	}
+}
+
+extern "C" {
+
+JNIEXPORT void JNICALL Java_de_skycoder42_remindme_RemindmeService_initIntent(JNIEnv */*env*/, jobject /*obj*/, jstring action, jstring data)
+{
+	auto jAction = QAndroidJniObject(action).toString();
+	auto jData = QAndroidJniObject(data).toString();
+	AndroidNotifier::initIntent(jAction, jData);
+}
+
 }

@@ -42,8 +42,12 @@ public:
 	Reminder &operator=(const Reminder &rhs);
 	~Reminder();
 
+	static QPair<QUuid, quint32> readUniqueString(const QString &string);
+
 	QUuid id() const;
 	quint32 versionCode() const;
+	QString uniqueString() const;
+
 	QString description() const;
 	bool isImportant() const;
 	QDateTime current() const;

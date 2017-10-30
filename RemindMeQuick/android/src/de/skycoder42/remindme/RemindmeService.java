@@ -20,12 +20,14 @@ import android.support.v4.app.NotificationCompat.BigTextStyle;
 
 import org.qtproject.qt5.android.bindings.QtService;
 
+import android.util.Log;
+
 public class RemindmeService extends QtService {
 	private static final String ForegroundChannelId = "foreground_channel";
 	private static final String NormalChannelId = "normal_channel";
 	private static final String ImportantChannelId = "important_channel";
 	private static final String ErrorChannelId = "error_channel";
-	private static final int ForegroudId = 40;
+	private static final int ForegroundId = 40;
 	private static final int NotifyId = 42;
 	private static final int ErrorNotifyId = 66;
 	private static final int OpenIntentId = 10;
@@ -35,6 +37,18 @@ public class RemindmeService extends QtService {
 	private static final String ActionDelay = "de.skycoder42.remindme.ActionDelay";
 
 	private final IBinder _binder = new Binder();
+
+	public static native void initIntent(String action, String data);
+	public static void initIntent(Intent intent) {
+		Uri data = intent.getData();
+		String path = null;
+		if(data != null) {
+			path = data.getPath();
+			if(path != null)
+				path = path.substring(1);
+		}
+		initIntent(intent.getAction(), path);
+	}
 
 	public static void startService(Context context) {
 		context.startService(new Intent(context, RemindmeService.class));
@@ -67,18 +81,19 @@ public class RemindmeService extends QtService {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
 			builder.setPriority(NotificationCompat.PRIORITY_MIN);
 
-		startForeground(ForegroudId, builder.build());
+		startForeground(ForegroundId, builder.build());
+		initIntent(intent);
 
 		return result;
 	}
 
 	public void completeAction() {
 		stopForeground(STOP_FOREGROUND_REMOVE);
-		stopSelf();
+		stopService(new Intent(this, RemindmeService.class));//Stop myself
 	}
 
-	public void createSchedule(int id, boolean important, long triggerAt) {
-		PendingIntent pending = createPending(id, ActionScheduler, null);
+	public void createSchedule(int id, boolean important, long triggerAt, String remId) {
+		PendingIntent pending = createPending(id, ActionScheduler, remId);
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 		if(important)
 			manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
