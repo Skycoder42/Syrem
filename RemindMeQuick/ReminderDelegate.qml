@@ -89,7 +89,12 @@ SwipeDelegate {
 			horizontalAlignment: Qt.AlignRight
 			verticalAlignment: Qt.AlignVCenter
 			color: style.highlight(delegate.highlighted)
-			text: current ? new Date(current).toLocaleString(Qt.locale(), Locale.ShortFormat) : "" //TODO settings format
+			text: current ? new parseDateISOString(current).toLocaleString(Qt.locale(), Locale.ShortFormat) : "" //TODO settings format
+
+			function parseDateISOString(s) {
+				var b = s.split(/\D/);
+				return new Date(b[0], b[1]-1, b[2], b[3], b[4], b[5]);
+			}
 		}
 	}
 
