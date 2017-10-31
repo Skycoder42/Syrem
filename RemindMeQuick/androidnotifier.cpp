@@ -74,8 +74,9 @@ void AndroidNotifier::endSetup()
 void AndroidNotifier::showNotification(const Reminder &reminder)
 {
 	auto service = QtAndroid::androidService();
-	service.callMethod<void>("notify", "(Ljava/lang/String;ZLjava/lang/String;)V",
+	service.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/String;)V",
 							 QAndroidJniObject::fromString(reminder.id().toString()).object(),
+							 (jint)reminder.versionCode(),
 							 (jboolean)reminder.isImportant(),
 							 QAndroidJniObject::fromString(reminder.description()).object());
 	if(_setup)

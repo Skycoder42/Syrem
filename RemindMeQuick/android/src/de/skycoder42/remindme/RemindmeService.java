@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
+import android.support.v4.app.RemoteInput;
 
 import org.qtproject.qt5.android.bindings.QtService;
 
@@ -50,9 +51,9 @@ public class RemindmeService extends QtService {
 	private static final String ImportantChannelId = "important_channel";
 	private static final String ErrorChannelId = "error_channel";
 	private static final int ForegroundId = 40;
-	private static final int NotifyId = 42;
-	private static final int ErrorNotifyId = 66;
-	private static final int OpenIntentId = 10;
+	private static final int NotifyId = 41;
+	private static final int ErrorNotifyId = 42;
+	private static final int OpenIntentId = 43;
 
 	private static final String ExtraId = "id";
 	private static final String ExtraVersion = "versionCode";
@@ -135,7 +136,7 @@ public class RemindmeService extends QtService {
 		return allKeys;
 	}
 
-	public void notify(String id, boolean important, String text) {
+	public void notify(String remId, int versionCode, boolean important, String text) {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, important ? ImportantChannelId : NormalChannelId)
@@ -143,14 +144,22 @@ public class RemindmeService extends QtService {
 			.setContentText(text)
 			.setStyle(new NotificationCompat.BigTextStyle()
 				.bigText(text))
-//			.setContentIntent(pending)
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setOnlyAlertOnce(true)
-//			.setAutoCancel(true)
-			.setCategory(NotificationCompat.CATEGORY_REMINDER);
-
-		//TODO addAction, setContentIntent, setDeleteIntent
+			.setAutoCancel(true)
+			.setShowWhen(true)
+			.setCategory(NotificationCompat.CATEGORY_REMINDER)
+			.setContentIntent(RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionOpen, null, 0))
+			.setDeleteIntent(createPending(Actions.ActionDelay, remId, versionCode))
+			.addAction(R.drawable.ic_notification, "Complete", createPending(Actions.ActionComplete, remId, versionCode))
+			.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze", createPending(Actions.ActionComplete, remId, versionCode))
+				.addRemoteInput(new RemoteInput.Builder("snoozeTime")
+					.setLabel("Enter a snooze time")
+					.setAllowFreeFormInput(true)
+					.setChoices(new String[] { "Choice 1", "Choice 2", "Choice 3" })
+					.build())
+				.build());
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -161,7 +170,7 @@ public class RemindmeService extends QtService {
 		if(important)
 			notification.flags |= NotificationCompat.FLAG_INSISTENT;
 
-		manager.notify(id, NotifyId, notification);
+		manager.notify(remId, NotifyId, notification);
 	}
 
 	public void notifyError(String text) {
@@ -200,7 +209,7 @@ public class RemindmeService extends QtService {
 		if(remId != null) {
 			uri = new Uri.Builder()
 				.scheme("remindme")
-				.path(remId)
+				.path("/service/" + remId)
 				.build();
 		}
 
