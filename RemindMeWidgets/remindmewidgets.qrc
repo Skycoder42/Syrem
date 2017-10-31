@@ -12,6 +12,7 @@
         <file alias="up.ico">icons/arrow_up.ico</file>
         <file alias="loop.ico">icons/arrow_repeat.ico</file>
         <file alias="trigger.ico">icons/date_error.ico</file>
+        <file alias="complete.ico">icons/tick.ico</file>
     </qresource>
     <qresource prefix="/icons/tray">
         <file alias="main.ico">icons/remindme.ico</file>

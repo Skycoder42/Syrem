@@ -14,6 +14,9 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 	setCentralWidget(_ui->treeView);
 	_ui->centralWidget->deleteLater();
 
+	connect(_ui->action_Complete_Reminder, &QAction::triggered,
+			this, &MainWindow::on_action_Delete_Reminder_triggered);//same as delete
+
 	connect(_ui->action_Close, &QAction::triggered,
 			this, &MainWindow::close);
 	connect(_ui->action_Quit, &QAction::triggered,
@@ -23,9 +26,14 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 	connect(_ui->action_Add_Reminder, &QAction::triggered,
 			_control, &MainControl::addReminder);
 
+	auto sep = new QAction(this);
+	sep->setSeparator(true);
 	_ui->treeView->addActions({
 								  _ui->action_Add_Reminder,
-								  _ui->action_Delete_Reminder
+								  _ui->action_Delete_Reminder,
+								  sep,
+								  _ui->action_Complete_Reminder,
+								  _ui->action_Snooze_Reminder
 							  });
 
 	auto remModel = _control->reminderModel();
@@ -37,6 +45,9 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 
 		_ui->treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 		_ui->treeView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+
+		connect(_ui->treeView->selectionModel(), &QItemSelectionModel::currentChanged,
+				this, &MainWindow::updateCurrent);
 	};
 
 	if(remModel->isInitialized())
@@ -53,6 +64,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_action_Delete_Reminder_triggered()
 {
 	_control->removeReminder(idFromIndex(_ui->treeView->currentIndex()));
+}
+
+void MainWindow::on_action_Snooze_Reminder_triggered()
+{
+	on_treeView_activated(_ui->treeView->currentIndex());
 }
 
 void MainWindow::on_action_About_triggered()
@@ -73,6 +89,23 @@ void MainWindow::on_treeView_activated(const QModelIndex &index)
 	auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
 	if(mData == 3)
 		_control->snoozeReminder(idFromIndex(index));
+}
+
+void MainWindow::updateCurrent(const QModelIndex &index)
+{
+	auto mIndex = indexFromIndex(index);
+	if(mIndex.isValid()) {
+		auto mRole = _control->reminderModel()->roleNames().key("state");
+		auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
+		auto isReady = (mData == 3);
+		_ui->action_Delete_Reminder->setVisible(!isReady);
+		_ui->action_Complete_Reminder->setVisible(isReady);
+		_ui->action_Snooze_Reminder->setVisible(isReady);
+	} else {
+		_ui->action_Delete_Reminder->setVisible(true);
+		_ui->action_Complete_Reminder->setVisible(false);
+		_ui->action_Snooze_Reminder->setVisible(false);
+	}
 }
 
 QModelIndex MainWindow::indexFromIndex(const QModelIndex &sIndex)
@@ -120,6 +153,10 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 				return QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
 			else
 				return QIcon(QStringLiteral(":/icons/empty.ico"));
+		} else if(role == Qt::ToolTipRole) {
+			auto important = QObjectProxyModel::data(index, Qt::DecorationRole).toBool();
+			if(important)
+				return data.toString().append(tr("<br/><i>This is an important reminder</i>"));
 		} else if(role == Qt::DisplayRole) {
 			//fetch the id data, to make shure the models data is loaded!
 			auto sIndex = mapToSource(index);
@@ -141,22 +178,22 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 				break;
 			}
 		} else if(role == Qt::ToolTipRole) {
+			auto dateTime = QObjectProxyModel::data(index, Qt::DisplayRole);
+			auto baseStr = QLocale().toString(dateTime.toDateTime(), QLocale::LongFormat);
 			switch(data.toInt()) {
 			case 0:
-				return QVariant();
+				return baseStr;
 			case 1:
-				return tr("Reminder will repeatedly trigger, not only once");
+				return baseStr.append(tr("\nReminder will repeatedly trigger, not only once"));
 			case 2:
-				return tr("Reminder has been snoozed until the displayed time");
+				return baseStr.append(tr("\nReminder has been snoozed until the displayed time"));
 			case 3:
-				return tr("Reminder has been triggered and needs a reaction!");
+				return baseStr.append(tr("\nReminder has been triggered and needs a reaction!"));
 			default:
 				break;
 			}
-		} else if(role == Qt::DisplayRole) {
-			auto dateTime = data.toDateTime();
-			return QLocale().toString(dateTime, format);
-		}
+		} else if(role == Qt::DisplayRole)
+			return QLocale().toString(data.toDateTime(), format);
 		break;
 	default:
 		break;
@@ -170,6 +207,7 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	QObjectProxyModel::setSourceModel(sourceModel);
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "description");
+	addMapping(0, Qt::ToolTipRole, "description");
 	addMapping(1, Qt::DisplayRole, "current");
 	addMapping(1, Qt::DecorationRole, "state");
 	addMapping(1, Qt::ToolTipRole, "state");
