@@ -85,7 +85,7 @@ void MainWindow::on_treeView_activated(const QModelIndex &index)
 	if(!index.isValid())
 		return;
 	auto mIndex = indexFromIndex(index);
-	auto mRole = _control->reminderModel()->roleNames().key("state");
+	auto mRole = _control->reminderModel()->roleNames().key("triggerState");
 	auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
 	if(mData == 3)
 		_control->snoozeReminder(idFromIndex(index));
@@ -95,7 +95,7 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 {
 	auto mIndex = indexFromIndex(index);
 	if(mIndex.isValid()) {
-		auto mRole = _control->reminderModel()->roleNames().key("state");
+		auto mRole = _control->reminderModel()->roleNames().key("triggerState");
 		auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
 		auto isReady = (mData == 3);
 		_ui->action_Delete_Reminder->setVisible(!isReady);
@@ -209,6 +209,6 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DisplayRole, "description");
 	addMapping(0, Qt::ToolTipRole, "description");
 	addMapping(1, Qt::DisplayRole, "current");
-	addMapping(1, Qt::DecorationRole, "state");
-	addMapping(1, Qt::ToolTipRole, "state");
+	addMapping(1, Qt::DecorationRole, "triggerState");
+	addMapping(1, Qt::ToolTipRole, "triggerState");
 }

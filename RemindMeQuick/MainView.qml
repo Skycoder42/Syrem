@@ -60,6 +60,7 @@ Page {
 		ScrollBar.vertical: ScrollBar {}
 
 		delegate: ReminderDelegate {
+			onReminderActivated: control.snoozeReminder(id)
 			onReminderDeleted: control.removeReminder(id)
 		}
 	}

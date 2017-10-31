@@ -23,7 +23,7 @@ class Reminder
 
 	Q_PROPERTY(QDateTime current READ current STORED false)
 	Q_PROPERTY(bool repeating READ isRepeating STORED false)
-	Q_PROPERTY(State state READ state STORED false)
+	Q_PROPERTY(State triggerState READ triggerState STORED false)
 	Q_PROPERTY(QSharedPointer<Schedule> schedule READ getSchedule WRITE setSchedule)
 
 	Q_PROPERTY(QDateTime snooze READ snooze WRITE setSnooze)
@@ -49,7 +49,7 @@ public:
 	bool isImportant() const;
 	QDateTime current() const;
 	bool isRepeating() const;
-	State state() const;
+	State triggerState() const;
 	QSharedPointer<const Schedule> schedule() const;
 	QDateTime snooze() const;
 

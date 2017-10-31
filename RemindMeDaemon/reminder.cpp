@@ -74,7 +74,7 @@ bool Reminder::isRepeating() const
 		return false;
 }
 
-Reminder::State Reminder::state() const
+Reminder::State Reminder::triggerState() const
 {
 	if(current() <= QDateTime::currentDateTime())
 		return Triggered;

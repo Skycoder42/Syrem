@@ -12,6 +12,9 @@ SwipeDelegate {
 	text: description ? description : ""
 	highlighted: important ? important == "true" : false
 
+	signal reminderDeleted
+	signal reminderActivated
+
 	CommonStyle {
 		id: style
 
@@ -30,9 +33,16 @@ SwipeDelegate {
 			else
 				return "#FF0000";
 		}
-	}
 
-	signal reminderDeleted
+		function accentColor() {
+			if(style.isMaterial)
+				return style.accent;
+			else if(style.isUniversal)
+				return style.accent;
+			else
+				return "#00FFFF";
+		}
+	}
 
 	contentItem: RowLayout {
 		Label {
@@ -58,12 +68,18 @@ SwipeDelegate {
 			tintColor: highlighted ? style.accent : style.foreground
 
 			source: {
-				if(snooze)
-					return "image://svg/icons/ic_snooze";
-				else if(repeating == "true")
-					return "image://svg/icons/ic_repeat";
-				else
+				switch(Number(triggerState)) {
+				case 0:
 					return "";
+				case 1:
+					return "image://svg/icons/ic_repeat";
+				case 2:
+					return "image://svg/icons/ic_snooze";
+				case 3:
+					return "image://svg/icons/ic_assignment_late";
+				default:
+					return "";
+				}
 			}
 		}
 
@@ -77,15 +93,22 @@ SwipeDelegate {
 		}
 	}
 
+	onClicked: {
+		if(triggerState == 3)
+			reminderActivated()
+	}
+
 	swipe.right: Rectangle {
+		readonly property bool isTriggered: triggerState == 3
+
 		width: parent.width
 		height: parent.height
 		anchors.right: parent.right
-		color: style.redColor()
+		color: isTriggered ? style.accentColor() : style.redColor()
 		AppBarButton {
 			anchors.fill: parent
-			imageSource: "image://svg/icons/ic_delete_forever"
-			text: qsTr("Delete Reminder")
+			imageSource: isTriggered ? "image://svg/icons/ic_check" : "image://svg/icons/ic_delete_forever"
+			text: isTriggered ? qsTr("Complete Reminder") : qsTr("Delete Reminder")
 
 			Material.foreground: "white"
 

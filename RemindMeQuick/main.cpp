@@ -7,6 +7,7 @@
 #include <registry.h>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
+#include <snoozecontrol.h>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -53,6 +54,7 @@ static void setupApp()
 
 	qmlRegisterUncreatableType<MainControl>("de.skycoder42.remindme", 1, 0, "MainControl", QStringLiteral("Controls cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderControl>("de.skycoder42.remindme", 1, 0, "CreateReminderControl", QStringLiteral("Controls cannot be created!"));
+	qmlRegisterUncreatableType<SnoozeControl>("de.skycoder42.remindme", 1, 0, "SnoozeControl", QStringLiteral("Controls cannot be created!"));
 
 	QuickPresenter::createAppEngine(QUrl(QLatin1String("qrc:/qml/App.qml")));
 
