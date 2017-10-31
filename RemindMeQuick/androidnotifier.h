@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <inotifier.h>
+#include <tuple>
 
 class AndroidNotifier : public QObject, public INotifier
 {
@@ -12,7 +13,7 @@ class AndroidNotifier : public QObject, public INotifier
 public:
 	explicit AndroidNotifier(QObject *parent = nullptr);
 
-	static void initIntent(const QString &action, const QString &data);
+	static void handleIntent(const QString &action, const QUuid &id, quint32 versionCode);
 
 public slots:
 	void beginSetup() override;
@@ -21,7 +22,7 @@ public slots:
 	void removeNotification(const QUuid &id) override;
 	void showErrorMessage(const QString &error) override;
 
-	void reactToStart();
+	void handleIntentImpl();
 
 signals:
 	void messageDismissed(Reminder reminder) final;
@@ -29,9 +30,11 @@ signals:
 	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger) final;
 
 private:
+	typedef std::tuple<QString, QUuid, quint32> Intent;
+
 	static bool _canInvoke;
 	static QMutex _invokeMutex;
-	static QList<QPair<QString, QString>> _startServiceCache;
+	static QList<Intent> _intentCache;
 
 	bool _setup;
 	QList<QUuid> _setupIds;

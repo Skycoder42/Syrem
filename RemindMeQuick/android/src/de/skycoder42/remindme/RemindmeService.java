@@ -23,6 +23,28 @@ import org.qtproject.qt5.android.bindings.QtService;
 import android.util.Log;
 
 public class RemindmeService extends QtService {
+	public enum Actions {
+		ActionScheduler(20, "de.skycoder42.remindme.ActionScheduler"),
+		ActionComplete(21, "de.skycoder42.remindme.ActionComplete"),
+		ActionDelay(22, "de.skycoder42.remindme.ActionDelay");
+
+		private int id;
+		private String action;
+
+		Actions(int id, String action) {
+			this.id = id;
+			this.action = action;
+		}
+
+		public int getId() {
+			return id;
+		}
+
+		public String getAction() {
+			return action;
+		}
+	}
+
 	private static final String ForegroundChannelId = "foreground_channel";
 	private static final String NormalChannelId = "normal_channel";
 	private static final String ImportantChannelId = "important_channel";
@@ -32,22 +54,16 @@ public class RemindmeService extends QtService {
 	private static final int ErrorNotifyId = 66;
 	private static final int OpenIntentId = 10;
 
-	private static final String ActionScheduler = "de.skycoder42.remindme.ActionScheduler";
-	private static final String ActionComplete = "de.skycoder42.remindme.ActionComplete";
-	private static final String ActionDelay = "de.skycoder42.remindme.ActionDelay";
+	private static final String ExtraId = "id";
+	private static final String ExtraVersion = "versionCode";
 
 	private final IBinder _binder = new Binder();
 
-	public static native void initIntent(String action, String data);
-	public static void initIntent(Intent intent) {
-		Uri data = intent.getData();
-		String path = null;
-		if(data != null) {
-			path = data.getPath();
-			if(path != null)
-				path = path.substring(1);
-		}
-		initIntent(intent.getAction(), path);
+	public static native void handleIntent(String action, String remId, int versionCode);
+	public static void handleIntent(Intent intent) {
+		String remId = intent.getStringExtra(ExtraId);
+		int versionCode = intent.getIntExtra(ExtraVersion, 0);
+		handleIntent(intent.getAction(), remId, versionCode);
 	}
 
 	public static void startService(Context context) {
@@ -82,7 +98,7 @@ public class RemindmeService extends QtService {
 			builder.setPriority(NotificationCompat.PRIORITY_MIN);
 
 		startForeground(ForegroundId, builder.build());
-		initIntent(intent);
+		handleIntent(intent);
 
 		return result;
 	}
@@ -92,8 +108,8 @@ public class RemindmeService extends QtService {
 		stopService(new Intent(this, RemindmeService.class));//Stop myself
 	}
 
-	public void createSchedule(int id, boolean important, long triggerAt, String remId) {
-		PendingIntent pending = createPending(id, ActionScheduler, remId);
+	public void createSchedule(String remId, int versionCode, boolean important, long triggerAt) {
+		PendingIntent pending = createPending(Actions.ActionScheduler, remId, versionCode);
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 		if(important)
 			manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
@@ -101,9 +117,9 @@ public class RemindmeService extends QtService {
 			manager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, 5 * 60 * 1000, pending);//max 5 min window
 	}
 
-	public void cancelSchedule(int id) {
+	public void cancelSchedule(String remId) {
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		manager.cancel(createPending(id, ActionScheduler, null));
+		manager.cancel(createPending(Actions.ActionScheduler, remId, 0));
 	}
 
 	public String[] activeNotifications() {
@@ -179,21 +195,25 @@ public class RemindmeService extends QtService {
 		manager.cancel(id, NotifyId);
 	}
 
-	private PendingIntent createPending(int id, String action, String extra) 	{
+	private PendingIntent createPending(Actions action, String remId, int versionCode) 	{
 		Uri uri = null;
-		if(extra != null) {
+		if(remId != null) {
 			uri = new Uri.Builder()
 				.scheme("remindme")
-				.path(extra)
+				.path(remId)
 				.build();
 		}
 
-		Intent intent = new Intent(action, uri, this, RemindmeService.class);
+		Intent intent = new Intent(action.getAction(), uri, this, RemindmeService.class);
+		if (remId != null) {
+			intent.putExtra(ExtraId, remId);
+			intent.putExtra(ExtraVersion, versionCode);
+		}
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-			return PendingIntent.getService(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			return PendingIntent.getService(this, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		else
-			return PendingIntent.getForegroundService(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			return PendingIntent.getForegroundService(this, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 
 	private void createChannels() {

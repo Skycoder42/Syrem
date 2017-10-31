@@ -35,19 +35,6 @@ Reminder &Reminder::operator=(const Reminder &rhs)
 
 Reminder::~Reminder() = default;
 
-QPair<QUuid, quint32> Reminder::readUniqueString(const QString &string)
-{
-	static const QRegularExpression regex(QStringLiteral(R"__((\{[\d\w]{8}-[\d\w]{4}-[\d\w]{4}-[\d\w]{4}-[\d\w]{12}\})@(\d+))__"));
-	auto match = regex.match(string);
-	if(match.hasMatch()) {
-		return {
-			QUuid(match.captured(1)),
-			match.captured(2).toUInt()
-		};
-	} else
-		return {QUuid(), 0};
-}
-
 QUuid Reminder::id() const
 {
 	return _data->id;
@@ -56,13 +43,6 @@ QUuid Reminder::id() const
 quint32 Reminder::versionCode() const
 {
 	return _data->versionCode;
-}
-
-QString Reminder::uniqueString() const
-{
-	return QStringLiteral("%1@%2")
-			.arg(_data->id.toString())
-			.arg(_data->versionCode);
 }
 
 QString Reminder::description() const

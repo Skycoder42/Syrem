@@ -13,7 +13,7 @@ class AndroidScheduler : public QObject, public IScheduler
 public:
 	explicit AndroidScheduler(QObject *parent = nullptr);
 
-	static void triggerSchedule(const QString &id);
+	static void triggerSchedule(const QUuid &id, quint32 versionCode);
 
 public slots:
 	void initialize(const QList<Reminder> &allReminders) override;

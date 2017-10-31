@@ -13,28 +13,25 @@ AndroidScheduler::AndroidScheduler(QObject *parent) :
 	_settings->beginGroup(QStringLiteral("scheduler"));
 }
 
-void AndroidScheduler::triggerSchedule(const QString &id)
+void AndroidScheduler::triggerSchedule(const QUuid &id, quint32 versionCode)
 {
-	auto data = Reminder::readUniqueString(id);
-	if(data.first.isNull())
+	if(id.isNull())
 		return;
 	auto self = qobject_cast<AndroidScheduler*>(Registry::acquireObject(IScheduler_iid));
 	if(self)
-		self->performTrigger(data.first, data.second);
+		self->performTrigger(id, versionCode);
 }
 
 void AndroidScheduler::initialize(const QList<Reminder> &allReminders)
 {
 	_autoSync = false;
 
-	auto currentKeys = _settings->childGroups();
+	auto currentKeys = _settings->childKeys();
 	foreach(auto rem, allReminders) {
 		scheduleReminder(rem);
 		currentKeys.removeOne(rem.id().toString());
 	}
 	foreach(auto oldKey, currentKeys) {
-		if(oldKey == QStringLiteral("cnt"))
-			continue;
 		QUuid oldId(oldKey);
 		if(!oldId.isNull())
 			cancleReminder(oldKey);
@@ -63,45 +60,28 @@ bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 	else
 		trigger = trigger.addSecs(duration_cast<seconds>(minutes(5)).count());
 
-	//get alarm id
-	int alarmId = 0;
-	if(!_settings->childGroups().contains(remKey)) {
-		alarmId = _settings->value(QStringLiteral("cnt"), 0).toInt() + 1;
-		_settings->setValue(QStringLiteral("cnt"), alarmId);
-		_settings->beginGroup(remKey);
-		_settings->setValue(QStringLiteral("version"), reminder.versionCode());
-		_settings->setValue(QStringLiteral("id"), alarmId);
-		_settings->endGroup();
-		if(_autoSync)
-			_settings->sync();
-	} else {
-		_settings->beginGroup(remKey);
-		alarmId = _settings->value(QStringLiteral("id")).toInt();
-		_settings->setValue(QStringLiteral("version"), reminder.versionCode());
-		_settings->endGroup();
-		if(_autoSync)
-			_settings->sync();
-	}
+	//save the used versionCode
+	_settings->setValue(remKey, reminder.versionCode());
+	if(_autoSync)
+		_settings->sync();
 
 	auto service = QtAndroid::androidService();
-	service.callMethod<void>("createSchedule", "(IZJLjava/lang/String;)V",
-							 (jint)alarmId,
+	service.callMethod<void>("createSchedule", "(Ljava/lang/String;IZJ)V",
+							 QAndroidJniObject::fromString(remKey).object<jstring>(),
+							 (jint)reminder.versionCode(),
 							 (jboolean)reminder.isImportant(),
-							 (jlong)trigger.toMSecsSinceEpoch(),
-							 QAndroidJniObject::fromString(reminder.uniqueString()).object<jstring>());
+							 (jlong)trigger.toMSecsSinceEpoch());
 	return true;
 }
 
 void AndroidScheduler::cancleReminder(const QUuid &id)
 {
 	auto remKey = id.toString();
-	auto idKey = QStringLiteral("%1/id").arg(remKey);
-	if(_settings->contains(idKey)) {
-		auto alarmId = _settings->value(idKey).toInt();
+	auto service = QtAndroid::androidService();
+	service.callMethod<void>("cancelSchedule", "(Ljava/lang/String;)V",
+							 QAndroidJniObject::fromString(remKey).object<jstring>());
 
-		auto service = QtAndroid::androidService();
-		service.callMethod<void>("cancelSchedule", "(I)V", (jint)alarmId);
-
+	if(_settings->contains(remKey)) {
 		_settings->remove(remKey);
 		if(_autoSync)
 			_settings->sync();
@@ -111,8 +91,8 @@ void AndroidScheduler::cancleReminder(const QUuid &id)
 void AndroidScheduler::performTrigger(const QUuid &id, quint32 versionCode)
 {
 	auto remKey = id.toString();
-	if(_settings->childGroups().contains(remKey)) {
-		auto vCode = _settings->value(QStringLiteral("%1/version").arg(remKey)).toUInt();
+	if(_settings->contains(remKey)) {
+		auto vCode = _settings->value(remKey).toUInt();
 		if(vCode == versionCode) {
 			_settings->remove(remKey);
 			if(_autoSync)
