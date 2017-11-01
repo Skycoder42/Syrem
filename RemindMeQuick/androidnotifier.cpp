@@ -4,6 +4,11 @@
 #include <QAndroidJniEnvironment>
 #include <registry.h>
 
+const QString AndroidNotifier::ActionScheduler(QStringLiteral("de.skycoder42.remindme.ActionScheduler"));
+const QString AndroidNotifier::ActionComplete(QStringLiteral("de.skycoder42.remindme.ActionComplete"));
+const QString AndroidNotifier::ActionDismiss(QStringLiteral("de.skycoder42.remindme.ActionDismiss"));
+const QString AndroidNotifier::ActionSnooze(QStringLiteral("de.skycoder42.remindme.ActionSnooze"));
+
 bool AndroidNotifier::_canInvoke = false;
 QMutex AndroidNotifier::_invokeMutex;
 QList<AndroidNotifier::Intent> AndroidNotifier::_intentCache;
@@ -22,13 +27,15 @@ void AndroidNotifier::handleIntent(const QString &action, const QUuid &id, quint
 	QMutexLocker _(&_invokeMutex);
 	auto obj = Registry::acquireObject(INotifier_iid);
 
-	if(action == QStringLiteral("de.skycoder42.remindme.ActionComplete")) {
+	//block notifications from beeing re-shown while starting up
+	if(action == ActionComplete) {
 		_blockList.insert(id);
 		if(obj) {
 			QMetaObject::invokeMethod(obj, "removeNotification", Qt::QueuedConnection,
 									  Q_ARG(QUuid, id));
 		}
-	}
+	} else if(action == ActionDismiss)
+		_blockList.insert(id);
 
 	_intentCache.append(Intent{action, id, versionCode});
 	if(_canInvoke && obj)
@@ -131,11 +138,14 @@ void AndroidNotifier::handleIntentImpl()
 		auto id = std::get<1>(entry);
 		auto versionCode = std::get<2>(entry);
 
-		if(action == QStringLiteral("de.skycoder42.remindme.ActionScheduler"))
+		if(action == ActionScheduler)
 			AndroidScheduler::triggerSchedule(id, versionCode);
-		else if(action == QStringLiteral("de.skycoder42.remindme.ActionComplete")) {
+		else if(action == ActionComplete) {
 			_actionIds.insert(id);
 			emit messageCompleted(id, versionCode);
+		} else if(action == ActionDismiss) {
+			_actionIds.insert(id);
+			emit messageDismissed(id, versionCode);
 		}
 	}
 	_intentCache.clear();

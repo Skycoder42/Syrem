@@ -11,6 +11,11 @@ class AndroidNotifier : public QObject, public INotifier
 	Q_INTERFACES(INotifier)
 
 public:
+	static const QString ActionScheduler;
+	static const QString ActionComplete;
+	static const QString ActionDismiss;
+	static const QString ActionSnooze;
+
 	explicit AndroidNotifier(QObject *parent = nullptr);
 
 	static void handleIntent(const QString &action, const QUuid &id, quint32 versionCode);

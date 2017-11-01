@@ -27,7 +27,7 @@ public class RemindmeService extends QtService {
 	public enum Actions {
 		ActionScheduler(20, "de.skycoder42.remindme.ActionScheduler"),
 		ActionComplete(21, "de.skycoder42.remindme.ActionComplete"),
-		ActionDelay(22, "de.skycoder42.remindme.ActionDelay"),
+		ActionDismiss(22, "de.skycoder42.remindme.ActionDismiss"),
 		ActionSnooze(23, "de.skycoder42.remindme.ActionSnooze");
 
 		private int id;
@@ -149,7 +149,7 @@ public class RemindmeService extends QtService {
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)
 			.setGroup(important ? "important" : "normal")
 			.setContentIntent(RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionOpen, null, 0))
-			.setDeleteIntent(createPending(Actions.ActionDelay, remId, versionCode))
+			.setDeleteIntent(createPending(Actions.ActionDismiss, remId, versionCode))
 			.addAction(R.drawable.ic_notification, "Complete", createPending(Actions.ActionComplete, remId, versionCode))
 			.addAction(R.drawable.ic_notification, "Snooze", RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionSnooze, remId, versionCode));
 

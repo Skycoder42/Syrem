@@ -35,17 +35,17 @@ public class RemindmeActivity extends QtActivity {
 	private static final String ExtraId = "id";
 	private static final String ExtraVersion = "versionCode";
 
-	private IBinder _binder;
+	private boolean _isBound;
 
 	private ServiceConnection _connection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			_binder = service;
+			_isBound = true;
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName className) {
-			_binder = null;
+			_isBound = false;
 		}
 	};
 
@@ -59,9 +59,9 @@ public class RemindmeActivity extends QtActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (_binder != null) {
+		if (_isBound) {
 			unbindService(_connection);
-			_binder = null;
+			_isBound = false;
 		}
 	}
 
