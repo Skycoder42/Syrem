@@ -97,10 +97,11 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 	if(mIndex.isValid()) {
 		auto mRole = _control->reminderModel()->roleNames().key("triggerState");
 		auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
-		auto isReady = (mData == 3);
+		auto canSnooze = (mData == 3);
+		auto isReady = (canSnooze || mData == 2);
 		_ui->action_Delete_Reminder->setVisible(!isReady);
 		_ui->action_Complete_Reminder->setVisible(isReady);
-		_ui->action_Snooze_Reminder->setVisible(isReady);
+		_ui->action_Snooze_Reminder->setVisible(canSnooze);
 	} else {
 		_ui->action_Delete_Reminder->setVisible(true);
 		_ui->action_Complete_Reminder->setVisible(false);

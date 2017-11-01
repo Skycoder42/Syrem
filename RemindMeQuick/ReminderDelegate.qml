@@ -104,7 +104,7 @@ SwipeDelegate {
 	}
 
 	swipe.right: Rectangle {
-		readonly property bool isTriggered: triggerState == 3
+		readonly property bool isTriggered: triggerState == 3 || triggerState == 2
 
 		width: parent.width
 		height: parent.height
