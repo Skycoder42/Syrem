@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Binder;
+import android.os.Bundle;
 import android.app.PendingIntent;
 import android.app.Notification;
 import android.app.AlarmManager;
@@ -20,8 +21,6 @@ import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.support.v4.app.RemoteInput;
 
 import org.qtproject.qt5.android.bindings.QtService;
-
-import android.util.Log;
 
 public class RemindmeService extends QtService {
 	public enum Actions {
@@ -58,14 +57,23 @@ public class RemindmeService extends QtService {
 
 	private static final String ExtraId = "id";
 	private static final String ExtraVersion = "versionCode";
+	private static final String ExtraSnoozeTime = "snoozeTime";
 
 	private final IBinder _binder = new Binder();
 
-	public static native void handleIntent(String action, String remId, int versionCode);
+	public static native void handleIntent(String action, String remId, int versionCode, String resultExtra);
 	public static void handleIntent(Intent intent) {
 		String remId = intent.getStringExtra(ExtraId);
 		int versionCode = intent.getIntExtra(ExtraVersion, 0);
-		handleIntent(intent.getAction(), remId, versionCode);
+
+		String resultExtra = null;
+		if(intent.getAction() == Actions.ActionSnooze.getAction()) {
+			Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+			if(remoteInput != null)
+				resultExtra = remoteInput.getCharSequence(ExtraSnoozeTime).toString();
+		}
+
+		handleIntent(intent.getAction(), remId, versionCode, resultExtra);
 	}
 
 	@Override
@@ -160,7 +168,7 @@ public class RemindmeService extends QtService {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze for…", createPending(Actions.ActionSnooze, remId, versionCode))
-				.addRemoteInput(new RemoteInput.Builder("snoozeTime")
+				.addRemoteInput(new RemoteInput.Builder(ExtraSnoozeTime)
 					.setLabel("Enter a snooze time")
 					.setAllowFreeFormInput(true)
 					.build())

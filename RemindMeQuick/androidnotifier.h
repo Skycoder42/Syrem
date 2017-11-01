@@ -20,7 +20,7 @@ public:
 
 	static void guiStarted();
 
-	static void handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode);
+	static void handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode, const QString &result);
 	static void handleActivityIntent(const QString &action, const QUuid &id, quint32 versionCode);
 
 public slots:
@@ -40,7 +40,7 @@ private slots:
 	void handleIntentImpl();
 
 private:
-	typedef std::tuple<QString, QUuid, quint32> Intent;
+	typedef std::tuple<QString, QUuid, quint32, QString> Intent;
 
 	static bool _canInvoke;
 	static QMutex _invokeMutex;
@@ -49,9 +49,9 @@ private:
 
 	bool _setup;
 	QSet<QUuid> _setupIds;
-
 	QSet<QUuid> _actionIds;
 
+	QDateTime parseExpression(const QString &expression);
 	void tryQuit();
 };
 
