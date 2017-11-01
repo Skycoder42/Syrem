@@ -8,8 +8,9 @@
 SnoozeControl::SnoozeControl(QObject *parent) :
 	Control(parent),
 	_snoozeHelper(coreApp->node()->acquire<SnoozeHelperReplica>()),
+	_loaded(false),
 	_reminderId(),
-	_description(),
+	_description(tr("<i>Loading Reminder, please wait…</i>")),
 	_snoozeTimes()
 {
 	QSettings settings;
@@ -30,6 +31,11 @@ SnoozeControl::SnoozeControl(QObject *parent) :
 			this, &SnoozeControl::reminderSnoozed);
 }
 
+bool SnoozeControl::isLoaded() const
+{
+	return _loaded;
+}
+
 QString SnoozeControl::description() const
 {
 	return _description;
@@ -45,10 +51,16 @@ QString SnoozeControl::expression() const
 	return _expression;
 }
 
-void SnoozeControl::show(const QUuid &id)
+void SnoozeControl::show(const QUuid &id, quint32 versionCode)
 {
 	_reminderId = id;
-	_snoozeHelper->loadReminder(id);
+	if(_snoozeHelper->isInitialized())
+		_snoozeHelper->loadReminder(id, versionCode);
+	else {
+		connect(_snoozeHelper, &SnoozeHelperReplica::initialized, _snoozeHelper, [this, id, versionCode](){
+			_snoozeHelper->loadReminder(id, versionCode);
+		});
+	}
 	Control::show();
 }
 
@@ -69,8 +81,10 @@ void SnoozeControl::setExpression(QString expression)
 void SnoozeControl::reminderLoaded(const QUuid &id, const QString &description)
 {
 	if(id == _reminderId) {
-		_description = description;
+		_description = tr("Choose a snooze time for the reminder:<br/><i>%1</i>").arg(description);
 		emit descriptionChanged(description);
+		_loaded = true;
+		emit loadedChanged(_loaded);
 	}
 }
 
@@ -80,8 +94,11 @@ void SnoozeControl::reminderSnoozed(const QUuid &id)
 		close();
 }
 
-void SnoozeControl::reminderError(const QUuid &id, const QString &error)
+void SnoozeControl::reminderError(const QUuid &id, const QString &error, bool close)
 {
-	if(id == _reminderId)
+	if(id == _reminderId) {
+		if(close)
+			this->close();
 		CoreMessage::critical(tr("Failed to snooze reminder"), error);
+	}
 }

@@ -15,21 +15,14 @@ AlertDialog {
 
 		Label {
 			Layout.fillWidth: true
-			text: {
-				if(control) {
-					if(control.description === "")
-						return qsTr("<i>Loading Reminder, please wait…</i>");
-					else
-						return qsTr("Choose a snooze time for the reminder:<br/><i>%1</i>").arg(control.description);
-				} else
-					return "";
-			}
+			text: control ? control.description : ""
 		}
 
 		ComboBox {
 			id: snoozeBox
 			Layout.fillWidth: true
 			editable: true
+			enabled: control && control.loaded
 
 			model: control ? control.snoozeTimes : null
 
@@ -43,7 +36,7 @@ AlertDialog {
 		}
 	}
 
-	standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
+	standardButtons: control && control.loaded ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
 
 	onAccepted: {
 		snoozeDialog.visible = true;

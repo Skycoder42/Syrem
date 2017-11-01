@@ -28,9 +28,6 @@ signals:
 	void messageCompleted(const QUuid &id, quint32 versionCode) final;
 	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger) final;
 
-private slots:
-	void snoozed(const QUuid &id);
-
 private:
 	QTaskbarControl *_taskbar;
 	QSettings *_settings;

@@ -1,5 +1,6 @@
 #include "remindmeapp.h"
 #include "rep_remindermanager_replica.h"
+#include "snoozecontrol.h"
 #include "snoozetimes.h"
 
 RemindMeApp::RemindMeApp(QObject *parent) :
@@ -44,6 +45,15 @@ void RemindMeApp::commandMessage(const QStringList &message)
 void RemindMeApp::showMainControl()
 {
 	showControl(_mainControl);
+}
+
+void RemindMeApp::showSnoozeControl(const QUuid &id, quint32 versionCode)
+{
+	if(id.isNull())
+		return;
+	auto snoozeControl = new SnoozeControl(_mainControl);
+	snoozeControl->setDeleteOnClose(true);
+	snoozeControl->show(id, versionCode);
 }
 
 void RemindMeApp::setupParser(QCommandLineParser &parser, bool &allowInvalid) const

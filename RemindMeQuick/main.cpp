@@ -44,14 +44,6 @@ int main(int argc, char *argv[])
 
 static void setupApp()
 {
-#ifdef Q_OS_ANDROID
-//  DEBUG call to keep service running
-//	QAndroidJniObject::callStaticMethod<void>("de/skycoder42/remindme/RemindmeService",
-//												  "startService",
-//												  "(Landroid/content/Context;)V",
-//												  QtAndroid::androidActivity().object());
-#endif
-
 	qmlRegisterUncreatableType<MainControl>("de.skycoder42.remindme", 1, 0, "MainControl", QStringLiteral("Controls cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderControl>("de.skycoder42.remindme", 1, 0, "CreateReminderControl", QStringLiteral("Controls cannot be created!"));
 	qmlRegisterUncreatableType<SnoozeControl>("de.skycoder42.remindme", 1, 0, "SnoozeControl", QStringLiteral("Controls cannot be created!"));
@@ -59,6 +51,9 @@ static void setupApp()
 	QuickPresenter::createAppEngine(QUrl(QLatin1String("qrc:/qml/App.qml")));
 
 	QMetaObject::invokeMethod(coreApp, "bootApp", Qt::QueuedConnection);
+#ifdef Q_OS_ANDROID
+	AndroidNotifier::guiStarted();
+#endif
 }
 
 static void setupDaemon()

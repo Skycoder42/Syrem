@@ -49,11 +49,33 @@ public class RemindmeActivity extends QtActivity {
 		}
 	};
 
+	public static native void handleIntent(String action, String remId, int versionCode);
+	public static void handleIntent(Intent intent) {
+		String remId = intent.getStringExtra(ExtraId);
+		int versionCode = intent.getIntExtra(ExtraVersion, 0);
+		handleIntent(intent.getAction(), remId, versionCode);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = new Intent(this, RemindmeService.class);
 		bindService(intent, _connection, Context.BIND_AUTO_CREATE);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Intent intent = getIntent();
+		if(intent != null)
+			handleIntent(intent);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if(intent != null)
+			handleIntent(intent);
 	}
 
 	@Override

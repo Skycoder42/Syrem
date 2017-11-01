@@ -3,6 +3,7 @@
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
 #include <registry.h>
+#include <remindmeapp.h>
 
 const QString AndroidNotifier::ActionScheduler(QStringLiteral("de.skycoder42.remindme.ActionScheduler"));
 const QString AndroidNotifier::ActionComplete(QStringLiteral("de.skycoder42.remindme.ActionComplete"));
@@ -22,7 +23,21 @@ AndroidNotifier::AndroidNotifier(QObject *parent) :
 	_actionIds()
 {}
 
-void AndroidNotifier::handleIntent(const QString &action, const QUuid &id, quint32 versionCode)
+void AndroidNotifier::guiStarted()
+{
+	QMutexLocker _(&_invokeMutex);
+
+	if(!_intentCache.isEmpty()) {
+		auto intent = _intentCache.last();
+		_intentCache.clear();
+		QMetaObject::invokeMethod(coreApp, "showSnoozeControl", Qt::QueuedConnection,
+								  Q_ARG(QUuid, std::get<1>(intent)),
+								  Q_ARG(quint32, std::get<2>(intent)));
+	}
+	_canInvoke = true;
+}
+
+void AndroidNotifier::handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode)
 {
 	QMutexLocker _(&_invokeMutex);
 	auto obj = Registry::acquireObject(INotifier_iid);
@@ -40,6 +55,20 @@ void AndroidNotifier::handleIntent(const QString &action, const QUuid &id, quint
 	_intentCache.append(Intent{action, id, versionCode});
 	if(_canInvoke && obj)
 		QMetaObject::invokeMethod(obj, "handleIntentImpl", Qt::QueuedConnection);
+}
+
+void AndroidNotifier::handleActivityIntent(const QString &action, const QUuid &id, quint32 versionCode)
+{
+	QMutexLocker _(&_invokeMutex);
+
+	if(action == ActionSnooze) {
+		if(_canInvoke) {
+			QMetaObject::invokeMethod(coreApp, "showSnoozeControl", Qt::QueuedConnection,
+									  Q_ARG(QUuid, id),
+									  Q_ARG(quint32, versionCode));
+		} else
+			_intentCache.append(Intent{action, id, versionCode});
+	}
 }
 
 //TODO how-to-actions:
@@ -170,7 +199,18 @@ JNIEXPORT void JNICALL Java_de_skycoder42_remindme_RemindmeService_handleIntent(
 	if(uId.isNull())
 		return;
 
-	AndroidNotifier::handleIntent(jAction, uId, (quint32)versionCode);
+	AndroidNotifier::handleServiceIntent(jAction, uId, (quint32)versionCode);
+}
+
+JNIEXPORT void JNICALL Java_de_skycoder42_remindme_RemindmeActivity_handleIntent(JNIEnv */*env*/, jobject /*obj*/, jstring action, jstring id, jint versionCode)
+{
+	auto jAction = QAndroidJniObject(action).toString();
+	auto jId = QAndroidJniObject(id).toString();
+	QUuid uId(jId);
+	if(uId.isNull())
+		return;
+
+	AndroidNotifier::handleActivityIntent(jAction, uId, (quint32)versionCode);
 }
 
 }

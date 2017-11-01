@@ -50,7 +50,7 @@ private:
 	QSortFilterProxyModel *_sortModel;
 
 	QModelIndex indexFromIndex(const QModelIndex &sIndex);
-	QUuid idFromIndex(const QModelIndex &sIndex);
+	QUuid idFromIndex(const QModelIndex &index);
 };
 
 #endif // MAINWINDOW_H

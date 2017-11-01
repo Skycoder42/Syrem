@@ -18,6 +18,7 @@ public:
 public slots:
 	void commandMessage(const QStringList &message);
 	void showMainControl();
+	void showSnoozeControl(const QUuid &id, quint32 versionCode);
 
 protected:
 	void setupParser(QCommandLineParser &parser, bool &allowInvalid) const override;

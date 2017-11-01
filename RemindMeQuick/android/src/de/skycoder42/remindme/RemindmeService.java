@@ -144,7 +144,7 @@ public class RemindmeService extends QtService {
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setOnlyAlertOnce(true)
-			.setAutoCancel(true)
+			.setAutoCancel(true) //TODO auto-reappearing because of sync...
 			.setShowWhen(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)
 			.setGroup(important ? "important" : "normal")

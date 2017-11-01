@@ -77,8 +77,9 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 		if(removeNot(remId))
 			emit messageCompleted(remId, vCode);
 	});
-	connect(notification, &KNotification::action2Activated, this, [this, remId](){
-		snoozed(remId);
+	connect(notification, &KNotification::action2Activated, this, [this, remId, vCode](){
+		if(removeNot(remId))
+			coreApp->showSnoozeControl(remId, vCode);
 	});
 	connect(notification, &KNotification::closed, this, [this, remId, vCode](){
 		if(removeNot(remId))
@@ -116,16 +117,6 @@ void KdeNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
 	removeNotification(id);
 	if(!errorMsg.isNull())
 		showErrorMessage(errorMsg);
-}
-
-void KdeNotifier::snoozed(const QUuid &id)
-{
-	if(!removeNot(id))
-		return;
-
-	auto snoozeControl = new SnoozeControl(this);
-	snoozeControl->setDeleteOnClose(true);
-	snoozeControl->show(id);
 }
 
 void KdeNotifier::updateBar()

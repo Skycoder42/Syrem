@@ -5,6 +5,7 @@
 #include <QUuid>
 #include <rep_remindermanager_replica.h>
 #include <coremessage.h>
+#include <remindmeapp.h>
 
 MainControl::MainControl(QObject *parent) :
 	Control(parent),
@@ -66,14 +67,11 @@ void MainControl::removeReminder(const QUuid &id)
 	_reminderManager->removeReminder(id);
 }
 
-void MainControl::snoozeReminder(const QUuid &id)
+void MainControl::snoozeReminder(const QUuid &id, quint32 versionCode)
 {
 	if(id.isNull())
 		return;
-
-	auto snoozeControl = new SnoozeControl(this);
-	snoozeControl->setDeleteOnClose(true);
-	snoozeControl->show(id);
+	coreApp->showSnoozeControl(id, versionCode);
 }
 
 void MainControl::reminderError(bool isCreate, const QString &error)

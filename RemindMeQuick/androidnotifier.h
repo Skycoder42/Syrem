@@ -18,7 +18,10 @@ public:
 
 	explicit AndroidNotifier(QObject *parent = nullptr);
 
-	static void handleIntent(const QString &action, const QUuid &id, quint32 versionCode);
+	static void guiStarted();
+
+	static void handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode);
+	static void handleActivityIntent(const QString &action, const QUuid &id, quint32 versionCode);
 
 public slots:
 	void beginSetup() override;
@@ -28,12 +31,13 @@ public slots:
 	void showErrorMessage(const QString &error) override;
 	void notificationHandled(const QUuid &id, const QString &errorMsg) override;
 
-	void handleIntentImpl();
-
 signals:
 	void messageDismissed(const QUuid &id, quint32 versionCode) final;
 	void messageCompleted(const QUuid &id, quint32 versionCode) final;
 	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger) final;
+
+private slots:
+	void handleIntentImpl();
 
 private:
 	typedef std::tuple<QString, QUuid, quint32> Intent;

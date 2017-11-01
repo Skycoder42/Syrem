@@ -26,7 +26,7 @@ public slots:
 
 	void addReminder();
 	void removeReminder(const QUuid &id);
-	void snoozeReminder(const QUuid &id);
+	void snoozeReminder(const QUuid &id, quint32 versionCode);
 
 private slots:
 	void reminderError(bool isCreate, const QString &error);

@@ -63,7 +63,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_Delete_Reminder_triggered()
 {
-	_control->removeReminder(idFromIndex(_ui->treeView->currentIndex()));
+	_control->removeReminder(idFromIndex(indexFromIndex(_ui->treeView->currentIndex())));
 }
 
 void MainWindow::on_action_Snooze_Reminder_triggered()
@@ -87,8 +87,11 @@ void MainWindow::on_treeView_activated(const QModelIndex &index)
 	auto mIndex = indexFromIndex(index);
 	auto mRole = _control->reminderModel()->roleNames().key("triggerState");
 	auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
-	if(mData == 3)
-		_control->snoozeReminder(idFromIndex(index));
+	if(mData == 3) {
+		auto vRole = _control->reminderModel()->roleNames().key("versionCode");
+		auto vData = _control->reminderModel()->data(mIndex, vRole).toUInt();
+		_control->snoozeReminder(idFromIndex(mIndex), vData);
+	}
 }
 
 void MainWindow::updateCurrent(const QModelIndex &index)
@@ -124,9 +127,8 @@ QModelIndex MainWindow::indexFromIndex(const QModelIndex &sIndex)
 	return index;
 }
 
-QUuid MainWindow::idFromIndex(const QModelIndex &sIndex)
+QUuid MainWindow::idFromIndex(const QModelIndex &index)
 {
-	auto index = indexFromIndex(sIndex);
 	if(!index.isValid())
 		return {};
 	return _control->reminderModel()->data(index).toUuid();
@@ -161,7 +163,9 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 		} else if(role == Qt::DisplayRole) {
 			//fetch the id data, to make shure the models data is loaded!
 			auto sIndex = mapToSource(index);
+			auto vRole = sourceModel()->roleNames().key("versionCode");
 			sourceModel()->data(sIndex, Qt::DisplayRole);
+			sourceModel()->data(sIndex, vRole);
 		}
 		break;
 	case 1:

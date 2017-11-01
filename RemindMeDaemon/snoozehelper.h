@@ -16,7 +16,7 @@ public:
 	explicit SnoozeHelper(QObject *parent = nullptr);
 
 public slots:
-	void loadReminder(const QUuid &id) override;
+	void loadReminder(const QUuid &id, quint32 versionCode) override;
 	void snoozeReminder(const QUuid &id, const QString &expression) override;
 
 private:

@@ -15,6 +15,8 @@ SwipeDelegate {
 	signal reminderDeleted
 	signal reminderActivated
 
+	readonly property int vCodeDummy: versionCode ? versionCode : 0
+
 	CommonStyle {
 		id: style
 
