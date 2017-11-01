@@ -22,7 +22,7 @@ public:
 	QString expression() const;
 
 public slots:
-	void show(const QUuid &id);
+	void show(const QUuid &id);//TODO make use of versionInfo
 	void snooze();
 
 	void setExpression(QString expression);

@@ -17,6 +17,7 @@ public:
 
 public slots:
 	void commandMessage(const QStringList &message);
+	void showMainControl();
 
 protected:
 	void setupParser(QCommandLineParser &parser, bool &allowInvalid) const override;

@@ -41,6 +41,11 @@ void RemindMeApp::commandMessage(const QStringList &message)
 	}
 }
 
+void RemindMeApp::showMainControl()
+{
+	showControl(_mainControl);
+}
+
 void RemindMeApp::setupParser(QCommandLineParser &parser, bool &allowInvalid) const
 {
 	CoreApp::setupParser(parser, allowInvalid);

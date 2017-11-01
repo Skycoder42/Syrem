@@ -71,6 +71,13 @@ void WidgetsNotifier::showErrorMessage(const QString &error)
 						  QSystemTrayIcon::Critical);
 }
 
+void WidgetsNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
+{
+	removeNotification(id);
+	if(!errorMsg.isNull())
+		showErrorMessage(errorMsg);
+}
+
 void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 {
 	Q_UNUSED(reason)
@@ -116,13 +123,13 @@ void WidgetsNotifier::snoozeAction(Reminder reminder, WidgetsSnoozeDialog::Actio
 {
 	switch (action) {
 	case WidgetsSnoozeDialog::CompleteAction:
-		emit messageCompleted(reminder);
+		emit messageCompleted(reminder.id(), reminder.versionCode());
 		break;
 	case WidgetsSnoozeDialog::DefaultSnoozeAction:
-		emit messageDismissed(reminder);
+		emit messageDismissed(reminder.id(), reminder.versionCode());
 		break;
 	case WidgetsSnoozeDialog::SnoozeAction:
-		emit messageDelayed(reminder, snoozeTime);
+		emit messageDelayed(reminder.id(), reminder.versionCode(), snoozeTime);
 		break;
 	default:
 		Q_UNREACHABLE();

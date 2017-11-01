@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <dialogmaster.h>
+#include "remindmeapp.h"
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
@@ -27,8 +28,8 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral("remind-me.desktop"));
 
 	connect(qApp, &QApplication::aboutToQuit, this, [this](){
-		foreach(auto info, _notifications)
-			info.second->close();
+		foreach(auto notification, _notifications)
+			notification->close();
 	});
 
 	_settings->beginGroup(QStringLiteral("gui/notifications"));
@@ -50,7 +51,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 										  KNotification::Persistent | KNotification::SkipGrouping,
 										  this);
 
-	_notifications.insert(reminder.id(), {reminder, notification});
+	_notifications.insert(reminder.id(), notification);
 	updateBar();
 
 	notification->setTitle((important ?
@@ -59,40 +60,29 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 						   .arg(QApplication::applicationDisplayName()));
 	notification->setText(reminder.description());
 	notification->setNotifyIcon(Icon);
+	notification->setDefaultAction(tr("Open GUI"));
 	notification->setActions({
 								 tr("Complete"),
 								 tr("Snooze")
 							 });
-	auto defaultAction = _settings->value(QStringLiteral("action")).toString();
-	auto actIndex = notification->actions().indexOf(defaultAction);
-	if(actIndex != -1)
-		notification->setDefaultAction(notification->actions().value(actIndex));
 	if(important)
 		notification->setFlags(notification->flags() | KNotification::LoopSound);
 
 	auto remId = reminder.id();
-	connect(notification, &KNotification::action1Activated, this, [this, remId](){
-		Reminder rem;
-		if(removeNot(remId, &rem))
-			emit messageCompleted(rem);
+	auto vCode = reminder.versionCode();
+	connect(notification, QOverload<>::of(&KNotification::activated), this, [](){
+		coreApp->showMainControl();
+	});
+	connect(notification, &KNotification::action1Activated, this, [this, remId, vCode](){
+		if(removeNot(remId))
+			emit messageCompleted(remId, vCode);
 	});
 	connect(notification, &KNotification::action2Activated, this, [this, remId](){
 		snoozed(remId);
 	});
-	if(actIndex != -1) {
-		connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId, actIndex](){
-			if(actIndex == 0) {
-				Reminder rem;
-				if(removeNot(remId, &rem))
-					emit messageCompleted(rem);
-			} else if(actIndex == 1)
-				snoozed(remId);
-		});
-	}
-	connect(notification, &KNotification::closed, this, [this, remId](){
-		Reminder rem;
-		if(removeNot(remId, &rem))
-			emit messageDismissed(rem);
+	connect(notification, &KNotification::closed, this, [this, remId, vCode](){
+		if(removeNot(remId))
+			emit messageDismissed(remId, vCode);
 	});
 
 	notification->sendEvent();
@@ -100,7 +90,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 
 void KdeNotifier::removeNotification(const QUuid &id)
 {
-	removeNot(id, nullptr, true);
+	removeNot(id, true);
 }
 
 void KdeNotifier::showErrorMessage(const QString &error)
@@ -121,10 +111,16 @@ void KdeNotifier::showErrorMessage(const QString &error)
 	notification->sendEvent();
 }
 
+void KdeNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
+{
+	removeNotification(id);
+	if(!errorMsg.isNull())
+		showErrorMessage(errorMsg);
+}
+
 void KdeNotifier::snoozed(const QUuid &id)
 {
-	Reminder rem;
-	if(!removeNot(id, &rem))
+	if(!removeNot(id))
 		return;
 
 	auto snoozeControl = new SnoozeControl(this);
@@ -143,18 +139,14 @@ void KdeNotifier::updateBar()
 	}
 }
 
-bool KdeNotifier::removeNot(const QUuid &id, Reminder *remPtr, bool close)
+bool KdeNotifier::removeNot(const QUuid &id, bool close)
 {
-	auto info = _notifications.take(id);
-	if(info.second) {
+	auto notification = _notifications.take(id);
+	if(notification) {
 		if(close)
-			info.second->close();
-		info.second->deleteLater();
+			notification->close();
+		notification->deleteLater();
 		updateBar();
-
-		if(remPtr)
-			*remPtr = info.first;
-
 		return true;
 	} else
 		return false;

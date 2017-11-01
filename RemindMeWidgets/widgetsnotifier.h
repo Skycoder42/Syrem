@@ -22,11 +22,12 @@ public slots:
 	void showNotification(const Reminder &reminder) override;
 	void removeNotification(const QUuid &id) override;
 	void showErrorMessage(const QString &error) override;
+	void notificationHandled(const QUuid &id, const QString &errorMsg) override;
 
 signals:
-	void messageDismissed(Reminder reminder) final;
-	void messageCompleted(Reminder reminder) final;
-	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger) final;
+	void messageDismissed(const QUuid &id, quint32 versionCode) final;
+	void messageCompleted(const QUuid &id, quint32 versionCode) final;
+	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger) final;
 
 private slots:
 	void activated(QSystemTrayIcon::ActivationReason reason);
