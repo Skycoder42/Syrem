@@ -7,23 +7,32 @@
 bool AndroidNotifier::_canInvoke = false;
 QMutex AndroidNotifier::_invokeMutex;
 QList<AndroidNotifier::Intent> AndroidNotifier::_intentCache;
+QSet<QUuid> AndroidNotifier::_blockList;
 
 AndroidNotifier::AndroidNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
 	_setup(false),
-	_setupIds()
+	_setupIds(),
+	_actionIds()
 {}
 
 void AndroidNotifier::handleIntent(const QString &action, const QUuid &id, quint32 versionCode)
 {
 	QMutexLocker _(&_invokeMutex);
+	auto obj = Registry::acquireObject(INotifier_iid);
+
+	if(action == QStringLiteral("de.skycoder42.remindme.ActionComplete")) {
+		_blockList.insert(id);
+		if(obj) {
+			QMetaObject::invokeMethod(obj, "removeNotification", Qt::QueuedConnection,
+									  Q_ARG(QUuid, id));
+		}
+	}
 
 	_intentCache.append(Intent{action, id, versionCode});
-	if(_canInvoke) {
-		auto obj = Registry::acquireObject(INotifier_iid);
+	if(_canInvoke && obj)
 		QMetaObject::invokeMethod(obj, "handleIntentImpl", Qt::QueuedConnection);
-	}
 }
 
 //TODO how-to-actions:
@@ -73,6 +82,9 @@ void AndroidNotifier::endSetup()
 
 void AndroidNotifier::showNotification(const Reminder &reminder)
 {
+	if(_blockList.contains(reminder.id()))//only show non-blocked notifications
+		return;
+
 	auto service = QtAndroid::androidService();
 	service.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/String;)V",
 							 QAndroidJniObject::fromString(reminder.id().toString()).object(),
@@ -80,7 +92,7 @@ void AndroidNotifier::showNotification(const Reminder &reminder)
 							 (jboolean)reminder.isImportant(),
 							 QAndroidJniObject::fromString(reminder.description()).object());
 	if(_setup)
-		_setupIds.append(reminder.id());
+		_setupIds.insert(reminder.id());
 }
 
 void AndroidNotifier::removeNotification(const QUuid &id)
@@ -89,7 +101,7 @@ void AndroidNotifier::removeNotification(const QUuid &id)
 	service.callMethod<void>("cancelNotify", "(Ljava/lang/String;)V",
 							 QAndroidJniObject::fromString(id.toString()).object());
 	if(_setup)
-		_setupIds.removeOne(id);
+		_setupIds.remove(id);
 }
 
 void AndroidNotifier::showErrorMessage(const QString &error)
@@ -99,11 +111,21 @@ void AndroidNotifier::showErrorMessage(const QString &error)
 							 QAndroidJniObject::fromString(error).object());
 }
 
+void AndroidNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
+{
+	//TODO except for inline snooze
+	removeNotification(id);
+	if(!errorMsg.isNull())
+		showErrorMessage(errorMsg);
+	_actionIds.remove(id);
+	tryQuit();
+}
+
 void AndroidNotifier::handleIntentImpl()
 {
 	QMutexLocker _(&_invokeMutex);
 
-	auto shouldQuit = true;
+	_blockList.clear(); //unblock all
 	foreach(auto entry, _intentCache) {
 		auto action = std::get<0>(entry);
 		auto id = std::get<1>(entry);
@@ -111,10 +133,18 @@ void AndroidNotifier::handleIntentImpl()
 
 		if(action == QStringLiteral("de.skycoder42.remindme.ActionScheduler"))
 			AndroidScheduler::triggerSchedule(id, versionCode);
+		else if(action == QStringLiteral("de.skycoder42.remindme.ActionComplete")) {
+			_actionIds.insert(id);
+			emit messageCompleted(id, versionCode);
+		}
 	}
 	_intentCache.clear();
+	tryQuit();
+}
 
-	if(shouldQuit) {
+void AndroidNotifier::tryQuit()
+{
+	if(_actionIds.isEmpty()) {//TODO sync before quit
 		auto service = QtAndroid::androidService();
 		service.callMethod<void>("completeAction");
 	}

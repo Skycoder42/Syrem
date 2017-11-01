@@ -27,7 +27,8 @@ public class RemindmeService extends QtService {
 	public enum Actions {
 		ActionScheduler(20, "de.skycoder42.remindme.ActionScheduler"),
 		ActionComplete(21, "de.skycoder42.remindme.ActionComplete"),
-		ActionDelay(22, "de.skycoder42.remindme.ActionDelay");
+		ActionDelay(22, "de.skycoder42.remindme.ActionDelay"),
+		ActionSnooze(23, "de.skycoder42.remindme.ActionSnooze");
 
 		private int id;
 		private String action;
@@ -150,16 +151,20 @@ public class RemindmeService extends QtService {
 			.setContentIntent(RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionOpen, null, 0))
 			.setDeleteIntent(createPending(Actions.ActionDelay, remId, versionCode))
 			.addAction(R.drawable.ic_notification, "Complete", createPending(Actions.ActionComplete, remId, versionCode))
-			.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze", createPending(Actions.ActionComplete, remId, versionCode))
+			.addAction(R.drawable.ic_notification, "Snooze", RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionSnooze, remId, versionCode));
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
+				.setPriority(important ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT);
+		}
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze for…", createPending(Actions.ActionSnooze, remId, versionCode))
 				.addRemoteInput(new RemoteInput.Builder("snoozeTime")
 					.setLabel("Enter a snooze time")
 					.setAllowFreeFormInput(true)
 					.build())
 				.build());
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
-				.setPriority(important ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT);
 		}
 
 		Notification notification = builder.build();

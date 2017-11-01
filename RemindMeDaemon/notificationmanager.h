@@ -18,9 +18,9 @@ public:
 private slots:
 	void scheduleTriggered(const QUuid &id);
 
-	void messageDismissed(Reminder reminder);
-	void messageCompleted(Reminder reminder);
-	void messageDelayed(Reminder reminder, const QDateTime &nextTrigger);
+	void messageDismissed(const QUuid &id, quint32 versionCode);
+	void messageCompleted(const QUuid &id, quint32 versionCode);
+	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger);
 
 	void dataChanged(int metaTypeId, const QString &key, bool wasDeleted);
 

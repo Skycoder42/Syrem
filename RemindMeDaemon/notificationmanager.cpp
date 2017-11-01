@@ -23,12 +23,12 @@ NotificationManager::NotificationManager(QObject *parent) :
 			this, SLOT(scheduleTriggered(QUuid)),
 			Qt::DirectConnection);
 
-	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDismissed(Reminder)),
-			this, SLOT(messageDismissed(Reminder)));
-	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageCompleted(Reminder)),
-			this, SLOT(messageCompleted(Reminder)));
-	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDelayed(Reminder,QDateTime)),
-			this, SLOT(messageDelayed(Reminder,QDateTime)));
+	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDismissed(QUuid,quint32)),
+			this, SLOT(messageDismissed(QUuid,quint32)));
+	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageCompleted(QUuid,quint32)),
+			this, SLOT(messageCompleted(QUuid,quint32)));
+	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDelayed(QUuid,quint32,QDateTime)),
+			this, SLOT(messageDelayed(QUuid,quint32,QDateTime)));
 
 	//TODO crashes -> FIX
 //	_controller->triggerSyncWithResult([this](SyncController::SyncState) {
@@ -65,7 +65,7 @@ void NotificationManager::scheduleTriggered(const QUuid &id)
 	});
 }
 
-void NotificationManager::messageDismissed(Reminder reminder)
+void NotificationManager::messageDismissed(const QUuid &id, quint32 versionCode)
 {
 	using namespace std::chrono;
 
@@ -73,28 +73,59 @@ void NotificationManager::messageDismissed(Reminder reminder)
 	if(defaultSnooze < 1)
 		defaultSnooze = 20;//default is 20 minutes
 	auto snoozeTime = QDateTime::currentDateTime().addSecs(duration_cast<seconds>(minutes(defaultSnooze)).count());
-	reminder.performSnooze(_store, snoozeTime).onResult(this, [](){}, [this](const QException &e) {
-		qCritical() << "Failed to save snooze time with error:" << e.what();
-		_notifier->showErrorMessage(tr("Failed save snooze time!"));
+
+	_store->load<Reminder>(id).onResult(this, [this, id, versionCode, snoozeTime](Reminder rem) {
+		if(rem.versionCode() == versionCode) {
+			rem.performSnooze(_store, snoozeTime).onResult(this, [this, id](){
+				_notifier->notificationHandled(id);
+			}, [this, id](const QException &e) {
+				qCritical() << "Failed to save snooze time with error:" << e.what();
+				_notifier->notificationHandled(id, tr("Failed save snooze time!"));
+			});
+		} else
+			_notifier->notificationHandled(id);
+	}, [this, id](const QException &e) {
+		qCritical() << "Failed to load snoozed reminder with error:" << e.what();
+		_notifier->notificationHandled(id, tr("Failed load snoozed reminder!"));
 	});
 }
 
-void NotificationManager::messageCompleted(Reminder reminder)
+void NotificationManager::messageCompleted(const QUuid &id, quint32 versionCode)
 {
-	reminder.nextSchedule(_store, QDateTime::currentDateTime()).onResult(this, [](){}, [this](const QException &e) {
-		qCritical() << "Failed to complete reminder with error:" << e.what();
-		_notifier->showErrorMessage(tr("Failed to complete reminder!"));
+	_store->load<Reminder>(id).onResult(this, [this, id, versionCode](Reminder rem) {
+		if(rem.versionCode() == versionCode) {
+			rem.nextSchedule(_store, QDateTime::currentDateTime()).onResult(this, [this, id](){
+				_notifier->notificationHandled(id);
+			}, [this, id](const QException &e) {
+				qCritical() << "Failed to complete reminder with error:" << e.what();
+				_notifier->notificationHandled(id, tr("Failed to complete reminder!"));
+			});
+		} else
+			_notifier->notificationHandled(id);
+	}, [this, id](const QException &e) {
+		qCritical() << "Failed to load completed reminder with error:" << e.what();
+		_notifier->notificationHandled(id, tr("Failed load completed reminder!"));
 	});
 }
 
-void NotificationManager::messageDelayed(Reminder reminder, const QDateTime &nextTrigger)
+void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger)
 {
 	if(!nextTrigger.isValid() || QDateTime::currentDateTime().secsTo(nextTrigger) < 60) //1 minute -> simply use the default stuff
-		messageDismissed(reminder);
+		messageDismissed(id, versionCode);
 	else {
-		reminder.performSnooze(_store, nextTrigger).onResult(this, [](){}, [this](const QException &e) {
-			qCritical() << "Failed to save snooze time with error:" << e.what();
-			_notifier->showErrorMessage(tr("Failed save snooze time!"));
+		_store->load<Reminder>(id).onResult(this, [this, id, versionCode, nextTrigger](Reminder rem) {
+			if(rem.versionCode() == versionCode) {
+				rem.performSnooze(_store, nextTrigger).onResult(this, [this, id](){
+					_notifier->notificationHandled(id);
+				}, [this, id](const QException &e) {
+					qCritical() << "Failed to save snooze time with error:" << e.what();
+					_notifier->notificationHandled(id, tr("Failed save snooze time!"));
+				});
+			} else
+				_notifier->notificationHandled(id);
+		}, [this, id](const QException &e) {
+			qCritical() << "Failed to load snoozed reminder with error:" << e.what();
+			_notifier->notificationHandled(id, tr("Failed load snoozed reminder!"));
 		});
 	}
 }
