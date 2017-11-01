@@ -67,10 +67,6 @@ public class RemindmeService extends QtService {
 		handleIntent(intent.getAction(), remId, versionCode);
 	}
 
-	public static void startService(Context context) {
-		context.startService(new Intent(context, RemindmeService.class));
-	}
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -150,6 +146,7 @@ public class RemindmeService extends QtService {
 			.setAutoCancel(true)
 			.setShowWhen(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)
+			.setGroup(important ? "important" : "normal")
 			.setContentIntent(RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionOpen, null, 0))
 			.setDeleteIntent(createPending(Actions.ActionDelay, remId, versionCode))
 			.addAction(R.drawable.ic_notification, "Complete", createPending(Actions.ActionComplete, remId, versionCode))
@@ -157,7 +154,6 @@ public class RemindmeService extends QtService {
 				.addRemoteInput(new RemoteInput.Builder("snoozeTime")
 					.setLabel("Enter a snooze time")
 					.setAllowFreeFormInput(true)
-					.setChoices(new String[] { "Choice 1", "Choice 2", "Choice 3" })
 					.build())
 				.build());
 
