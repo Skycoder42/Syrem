@@ -3,6 +3,7 @@
         <file>App.qml</file>
         <file>ReminderDelegate.qml</file>
         <file>AboutDialog.qml</file>
+        <file>SnoozeEdit.qml</file>
     </qresource>
     <qresource prefix="/qml/views">
         <file>MainView.qml</file>

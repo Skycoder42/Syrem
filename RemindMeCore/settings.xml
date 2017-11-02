@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SettingsConfig allowSearch="true" allowRestore="true">
-	<Section title="General">
+	<Section title="General"
+			 tooltip="General application settings">
 		<Group>
 			<Entry key="gui/dateformat"
 				   type="list"
@@ -50,7 +51,8 @@
 			</Entry>
 		</Group>
 	</Section>
-	<Section title="Reminders">
+	<Section title="Reminders"
+			 tooltip="Settings regarding the creation and snoozing of reminders">
 		<Group>
 			<Entry key="daemon/defaultTime"
 				   type="QTime"

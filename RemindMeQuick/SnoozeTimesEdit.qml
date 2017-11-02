@@ -2,6 +2,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import de.skycoder42.quickextras 2.0
+import ".."
 
 Item {
 	id: snoozeView
@@ -12,10 +13,14 @@ Item {
 			elementList.model = times;
 	}
 
-	property var inputValue
+	property var inputValue //BUG not successfully returned to c++
 	onInputValueChanged:  {
-		if(inputValue)
-			elementList.model = inputValue.toList();
+		if(inputValue) {
+			if(typeof inputValue.toList !== "undefined")
+				elementList.model = inputValue.toList();
+			else
+				elementList.model = inputValue;
+		}
 	}
 
 	implicitHeight: layout.implicitHeight
@@ -38,7 +43,31 @@ Item {
 
 			delegate: ItemDelegate {
 				width: parent.width
-				text: modelData
+				text: editInput.visible ? "" : modelData
+
+				onClicked: editInput.visible = true
+
+				SnoozeEdit {
+					id: editInput
+					anchors.centerIn: parent
+					width: parent.width
+					visible: false
+
+					text: modelData
+					edit: true
+
+					onFocusChanged: {
+						if(!focus)
+							visible = false;
+					}
+
+					onEditDone: {
+						visible = false;
+						var nList = elementList.model;
+						nList[index] = editInput.text;
+						inputValue = nList;
+					}
+				}
 			}
 
 			ItemDelegate {
@@ -48,26 +77,17 @@ Item {
 			}
 		}
 
-		TextField {
-			id: editInput
+		SnoozeEdit {
+			id: addInput
 			Layout.minimumHeight: implicitHeight
 			Layout.maximumHeight: implicitHeight
 			Layout.fillWidth: true
 
-			AppBarButton {
-				anchors.right: parent.right
-				anchors.verticalCenter: parent.verticalCenter
-				visible: editInput.text != ""
-
-				imageSource: "image://svg/icons/ic_add"
-				text: qsTr("Add snooze time")
-
-				onClicked: {
-					var nList = elementList.model;
-					nList.push(editInput.text);
-					elementList.model = nList;
-					editInput.text = "";
-				}
+			onEditDone: {
+				var nList = elementList.model;
+				nList.push(text);
+				inputValue = nList;
+				addInput.text = "";
 			}
 		}
 	}
