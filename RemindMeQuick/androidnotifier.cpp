@@ -132,10 +132,10 @@ void AndroidNotifier::showNotification(const Reminder &reminder)
 
 	auto service = QtAndroid::androidService();
 	service.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/String;)V",
-							 QAndroidJniObject::fromString(reminder.id().toString()).object(),
+							 QAndroidJniObject::fromString(reminder.id().toString()).object<jstring>(),
 							 (jint)reminder.versionCode(),
 							 (jboolean)reminder.isImportant(),
-							 QAndroidJniObject::fromString(reminder.description()).object());
+							 QAndroidJniObject::fromString(reminder.description()).object<jstring>());
 	if(_setup)
 		_setupIds.insert(reminder.id());
 }
@@ -144,7 +144,7 @@ void AndroidNotifier::removeNotification(const QUuid &id)
 {
 	auto service = QtAndroid::androidService();
 	service.callMethod<void>("cancelNotify", "(Ljava/lang/String;)V",
-							 QAndroidJniObject::fromString(id.toString()).object());
+							 QAndroidJniObject::fromString(id.toString()).object<jstring>());
 	if(_setup)
 		_setupIds.remove(id);
 }
@@ -153,7 +153,7 @@ void AndroidNotifier::showErrorMessage(const QString &error)
 {
 	auto service = QtAndroid::androidService();
 	service.callMethod<void>("notifyError", "(Ljava/lang/String;)V",
-							 QAndroidJniObject::fromString(error).object());
+							 QAndroidJniObject::fromString(error).object<jstring>());
 }
 
 void AndroidNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
@@ -190,10 +190,12 @@ void AndroidNotifier::handleIntentImpl()
 			try {
 				auto res = parseExpression(result);
 				emit messageDelayed(id, versionCode, res);
-				//TODO update notification
 			} catch (QString &s) {
-				removeNotification(id);
-				showErrorMessage(s);
+				auto service = QtAndroid::androidService();
+				service.callMethod<void>("notifyReminderError", "(Ljava/lang/String;ILjava/lang/String;)V",
+										 QAndroidJniObject::fromString(id.toString()).object<jstring>(),
+										 (jint)versionCode,
+										 QAndroidJniObject::fromString(s).object<jstring>());
 			}
 		}
 	}

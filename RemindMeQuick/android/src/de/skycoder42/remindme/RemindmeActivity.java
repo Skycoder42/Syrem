@@ -50,7 +50,7 @@ public class RemindmeActivity extends QtActivity {
 	};
 
 	public static native void handleIntent(String action, String remId, int versionCode);
-	public static void handleIntent(Intent intent) {
+	public void handleIntent(Intent intent) {
 		String remId = intent.getStringExtra(ExtraId);
 		int versionCode = intent.getIntExtra(ExtraVersion, 0);
 		handleIntent(intent.getAction(), remId, versionCode);

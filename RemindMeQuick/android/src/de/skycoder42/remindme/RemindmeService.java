@@ -1,5 +1,8 @@
 package de.skycoder42.remindme;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -60,13 +63,17 @@ public class RemindmeService extends QtService {
 	private static final String ExtraId = "id";
 	private static final String ExtraVersion = "versionCode";
 	private static final String ExtraSnoozeTime = "snoozeTime";
+	private static final String ExtraImportant = "important";
 
 	private final IBinder _binder = new Binder();
+	private final Map<String, Boolean> _impMap = new HashMap<>();
 
 	public static native void handleIntent(String action, String remId, int versionCode, String resultExtra);
-	public static void handleIntent(Intent intent) {
+	public void handleIntent(Intent intent) {
 		String remId = intent.getStringExtra(ExtraId);
 		int versionCode = intent.getIntExtra(ExtraVersion, 0);
+		if(remId != null)
+			_impMap.put(remId, intent.getBooleanExtra(ExtraImportant, false));
 
 		String resultExtra = null;
 		if(intent.getAction() == Actions.ActionSnooze.getAction()) {
@@ -186,7 +193,7 @@ public class RemindmeService extends QtService {
 		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze for…", createPending(Actions.ActionSnooze, remId, versionCode))
+			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze for…", createPending(Actions.ActionSnooze, remId, versionCode, important))
 				.addRemoteInput(new RemoteInput.Builder(ExtraSnoozeTime)
 					.setLabel("Enter a snooze time")
 					.setAllowFreeFormInput(true)
@@ -224,7 +231,7 @@ public class RemindmeService extends QtService {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL);
 
-		manager.notify(ErrorNotifyId,  builder.build());
+		manager.notify(ErrorNotifyId, builder.build());
 	}
 
 	public void cancelNotify(String id) {
@@ -232,7 +239,17 @@ public class RemindmeService extends QtService {
 		manager.cancel(id, NotifyId);
 	}
 
+	public void notifyReminderError(String remId, int versionCode, String errorText) {
+		Boolean important = _impMap.remove(remId);
+		if(important == null)
+			important = false;
+		notify(remId, versionCode, important, errorText);
+	}
+
 	private PendingIntent createPending(Actions action, String remId, int versionCode) {
+		return createPending(action, remId, versionCode, false);
+	}
+	private PendingIntent createPending(Actions action, String remId, int versionCode, boolean important) {
 		Uri uri = null;
 		if(remId != null) {
 			uri = new Uri.Builder()
@@ -245,6 +262,7 @@ public class RemindmeService extends QtService {
 		if (remId != null) {
 			intent.putExtra(ExtraId, remId);
 			intent.putExtra(ExtraVersion, versionCode);
+			intent.putExtra(ExtraImportant, important);
 		}
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
