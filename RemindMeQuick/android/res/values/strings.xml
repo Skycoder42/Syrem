@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Remind-Me</string>
+
+	<string name="svc_name">Remind-Me Service</string>
+	<string name="svc_desc">Synchronizing Reminders…</string>
+
+	<string name="not_nrm_name">Reminder</string>
+	<string name="not_imp_name">Important Reminder</string>
+	<string name="not_err_name">Reminder Error</string>
+	<string name="not_complete">Complete</string>
+	<string name="not_snooze">Snooze</string>
+	<string name="not_snooze_inline">Snooze until…</string>
+	<string name="not_snooze_label">Enter a snooze time</string>
+
+	<string name="channel_nrm_name">Normal Reminders</string>
+	<string name="channel_nrm_desc">Notifications of normal reminders</string>
+	<string name="channel_imp_name">Important Reminders</string>
+	<string name="channel_imp_desc">Notifications of important reminders</string>
+	<string name="channel_err_name">Error Messages</string>
+	<string name="channel_err_desc">Notifications for possible internal errors</string>
+	<string name="channel_svc_name">Service Status</string>
+	<string name="channel_svc_desc">Status notifications that Remind-Me is synchronizing reminders</string>
+</resources>

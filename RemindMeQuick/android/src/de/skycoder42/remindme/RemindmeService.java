@@ -101,8 +101,9 @@ public class RemindmeService extends QtService {
 		int result = super.onStartCommand(intent, flags, startId);
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ForegroundChannelId)
-			.setContentTitle("Remind-Me Service")
-			.setContentText("Synchronizing Reminders…")
+			.setContentTitle(getString(R.string.svc_name))
+			.setContentText(getString(R.string.svc_desc))
+			.setContentInfo(getString(R.string.app_name))
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setLocalOnly(true)
@@ -171,21 +172,22 @@ public class RemindmeService extends QtService {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, important ? ImportantChannelId : NormalChannelId)
-			.setContentTitle(important ? "Important Reminder" : "Reminder")
+			.setContentTitle(getString(important ? R.string.not_imp_name : R.string.not_nrm_name))
 			.setContentText(text)
+			.setContentInfo(getString(R.string.app_name))
 			.setStyle(new NotificationCompat.BigTextStyle()
 				.bigText(text))
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setOnlyAlertOnce(true)
-			.setAutoCancel(true) //TODO auto-reappearing because of sync...
+			.setAutoCancel(false)
 			.setShowWhen(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)
 			.setGroup(important ? "important" : "normal")
 			.setContentIntent(RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionOpen, null, 0))
 			.setDeleteIntent(createPending(Actions.ActionDismiss, remId, versionCode))
-			.addAction(R.drawable.ic_notification, "Complete", createPending(Actions.ActionComplete, remId, versionCode))
-			.addAction(R.drawable.ic_notification, "Snooze", RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionSnooze, remId, versionCode));
+			.addAction(R.drawable.ic_notification, getString(R.string.not_complete), createPending(Actions.ActionComplete, remId, versionCode))
+			.addAction(R.drawable.ic_notification, getString(R.string.not_snooze), RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionSnooze, remId, versionCode));
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -193,9 +195,9 @@ public class RemindmeService extends QtService {
 		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, "Snooze for…", createPending(Actions.ActionSnooze, remId, versionCode, important))
+			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, getString(R.string.not_snooze_inline), createPending(Actions.ActionSnooze, remId, versionCode, important))
 				.addRemoteInput(new RemoteInput.Builder(ExtraSnoozeTime)
-					.setLabel("Enter a snooze time")
+					.setLabel(getString(R.string.not_snooze_label))
 					.setAllowFreeFormInput(true)
 					.build())
 				.build());
@@ -218,8 +220,9 @@ public class RemindmeService extends QtService {
 			PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ErrorChannelId)
-			.setContentTitle("Reminder Error")
+			.setContentTitle(getString(R.string.not_err_name))
 			.setContentText(text)
+			.setContentInfo(getString(R.string.app_name))
 			.setStyle(new NotificationCompat.BigTextStyle()
 				.bigText(text))
 			.setContentIntent(pending)
@@ -279,10 +282,9 @@ public class RemindmeService extends QtService {
 
 		//create normal channel
 		NotificationChannel normal = new NotificationChannel(NormalChannelId,
-			"Normal Reminders",
+			getString(R.string.channel_nrm_name),
 			NotificationManager.IMPORTANCE_DEFAULT);
-		// Configure the notification channel.
-		normal.setDescription("Notifications of normal reminders");
+		normal.setDescription(getString(R.string.channel_nrm_desc));
 		normal.enableLights(true);
 		normal.setLightColor(Color.GREEN);
 		normal.enableVibration(true);
@@ -291,10 +293,9 @@ public class RemindmeService extends QtService {
 
 		//create important channel
 		NotificationChannel important = new NotificationChannel(ImportantChannelId,
-			"Important Reminders",
-			NotificationManager.IMPORTANCE_MIN);
-		// Configure the notification channel.
-		important.setDescription("Notifications of important reminders");
+			getString(R.string.channel_imp_name),
+			NotificationManager.IMPORTANCE_HIGH);
+		important.setDescription(getString(R.string.channel_imp_desc));
 		important.enableLights(true);
 		important.setLightColor(Color.RED);
 		important.enableVibration(true);
@@ -304,10 +305,9 @@ public class RemindmeService extends QtService {
 
 		//create error channel
 		NotificationChannel error = new NotificationChannel(ErrorChannelId,
-			"Error Messages",
+			getString(R.string.channel_err_name),
 			NotificationManager.IMPORTANCE_DEFAULT);
-		// Configure the notification channel.
-		error.setDescription("Notifications for possible internal errors");
+		error.setDescription(getString(R.string.channel_err_desc));
 		error.enableLights(true);
 		error.setLightColor(Color.RED);
 		error.enableVibration(true);
@@ -316,10 +316,9 @@ public class RemindmeService extends QtService {
 
 		//create foreground channel
 		NotificationChannel foreground = new NotificationChannel(ForegroundChannelId,
-			"Service Status",
-			NotificationManager.IMPORTANCE_DEFAULT);
-		// Configure the notification channel.
-		foreground.setDescription("Status notifications that Remind-Me is synchronizing reminders");
+			getString(R.string.channel_svc_name),
+			NotificationManager.IMPORTANCE_MIN);
+		foreground.setDescription(getString(R.string.channel_svc_desc));
 		foreground.enableLights(false);
 		foreground.enableVibration(false);
 		foreground.setShowBadge(false);
