@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.2
 import QtQuick.Controls.Universal 2.2
 import QtQuick.Layouts 1.3
 import de.skycoder42.quickextras 2.0
+import Qt.labs.settings 1.0
 
 SwipeDelegate {
 	id: delegate
@@ -91,7 +92,28 @@ SwipeDelegate {
 			horizontalAlignment: Qt.AlignRight
 			verticalAlignment: Qt.AlignVCenter
 			color: style.highlight(delegate.highlighted)
-			text: current ? new parseDateISOString(current).toLocaleString(Qt.locale(), Locale.ShortFormat) : "" //TODO settings format
+			text: current ? parseDateISOString(current).toLocaleString(Qt.locale(), labelSettings.getFormat()) : ""
+
+			Settings {
+				id: labelSettings
+				category: "gui"
+				property int dateformat: 1
+
+				function getFormat() {
+					switch(dateformat) {
+					case 0:
+						return Locale.LongFormat;
+					case 1:
+						return Locale.ShortFormat;
+					case 2:
+						return Locale.NarrowFormat;
+					default:
+						return Locale.ShortFormat;
+					}
+				}
+
+				//TODO on settings changed
+			}
 
 			function parseDateISOString(s) {
 				var b = s.split(/\D/);

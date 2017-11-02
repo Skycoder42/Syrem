@@ -13,17 +13,17 @@ HEADERS += \
 	maincontrol.h \
 	createremindercontrol.h \
 	snoozetimes.h \
-    snoozecontrol.h
+	snoozecontrol.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp \
 	createremindercontrol.cpp \
-    snoozecontrol.cpp
+	snoozecontrol.cpp
 
 REPC_REPLICA += $$fromfile(../RemindMeDaemon/rep.pri, REPC_FILES)
 
-QTMVVM_SETTINGS_FILES += settings_core.xml
+QTMVVM_SETTINGS_FILES += settings.xml
 never_true_lupdate_only: SOURCES += .qtmvvm_settings_xml_ts.cppdummy
 CONFIG += no_settings_ts_warn
 

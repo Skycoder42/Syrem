@@ -19,7 +19,5 @@
         <file alias="inverse.ico">icons/remindme_inverse.ico</file>
         <file alias="error.ico">icons/remindme_error.ico</file>
     </qresource>
-    <qresource prefix="/etc">
-        <file>settings.xml</file>
-    </qresource>
+    <qresource prefix="/etc"/>
 </RCC>

@@ -29,14 +29,14 @@ HEADERS += mainwindow.h \
 	createreminderdialog.h \
 	widgetsscheduler.h \
 	snoozetimesedit.h \
-    snoozedialog.h
+	snoozedialog.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
 	createreminderdialog.cpp \
 	widgetsscheduler.cpp \
 	snoozetimesedit.cpp \
-    snoozedialog.cpp
+	snoozedialog.cpp
 
 kde_notifier {
 	HEADERS += kdenotifier.h
@@ -61,10 +61,6 @@ TRANSLATIONS += remindme_widgets_de.ts \
 
 DISTFILES += \
 	remind-me.desktop
-
-QTMVVM_SETTINGS_FILES += settings.xml
-never_true_lupdate_only: SOURCES += .qtmvvm_settings_xml_ts.cppdummy
-CONFIG += no_settings_ts_warn
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
