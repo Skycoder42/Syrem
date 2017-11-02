@@ -38,15 +38,23 @@ void AndroidNotifier::guiStarted()
 	_canInvoke = true;
 }
 
+void AndroidNotifier::serviceStarted()
+{
+	auto service = QtAndroid::androidService();
+	service.callMethod<void>("scheduleAutoCheck");
+}
+
 void AndroidNotifier::handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode, const QString &result)
 {
 	QMutexLocker _(&_invokeMutex);
 	auto obj = Registry::acquireObject(INotifier_iid);
 
 	//block notifications from beeing re-shown while starting up
-	if(action != ActionScheduler)
+	if(action != ActionScheduler) {
+		if(id.isNull())
+			return;
 		_blockList.insert(id);
-	if(action == ActionComplete) {
+	} if(action == ActionComplete) {
 		if(obj) {
 			QMetaObject::invokeMethod(obj, "removeNotification", Qt::QueuedConnection,
 									  Q_ARG(QUuid, id));
@@ -169,9 +177,10 @@ void AndroidNotifier::handleIntentImpl()
 		auto versionCode = std::get<2>(entry);
 		auto result = std::get<3>(entry);
 
-		if(action == ActionScheduler)
-			AndroidScheduler::triggerSchedule(id, versionCode);
-		else if(action == ActionComplete) {
+		if(action == ActionScheduler) {
+			if(!id.isNull())
+				AndroidScheduler::triggerSchedule(id, versionCode);
+		} else if(action == ActionComplete) {
 			_actionIds.insert(id);
 			emit messageCompleted(id, versionCode);
 		} else if(action == ActionDismiss) {
@@ -230,8 +239,6 @@ JNIEXPORT void JNICALL Java_de_skycoder42_remindme_RemindmeService_handleIntent(
 	auto jId = QAndroidJniObject(id).toString();
 	auto jResult = QAndroidJniObject(resultExtra).toString();
 	QUuid uId(jId);
-	if(uId.isNull())
-		return;
 
 	AndroidNotifier::handleServiceIntent(jAction, uId, (quint32)versionCode, jResult);
 }
@@ -241,8 +248,6 @@ JNIEXPORT void JNICALL Java_de_skycoder42_remindme_RemindmeActivity_handleIntent
 	auto jAction = QAndroidJniObject(action).toString();
 	auto jId = QAndroidJniObject(id).toString();
 	QUuid uId(jId);
-	if(uId.isNull())
-		return;
 
 	AndroidNotifier::handleActivityIntent(jAction, uId, (quint32)versionCode);
 }

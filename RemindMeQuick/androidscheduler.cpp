@@ -9,7 +9,6 @@ AndroidScheduler::AndroidScheduler(QObject *parent) :
 	_settings(new QSettings(this)),
 	_autoSync(true)
 {
-	//TODO add boot receiver
 	_settings->beginGroup(QStringLiteral("scheduler"));
 }
 

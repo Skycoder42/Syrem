@@ -51,6 +51,7 @@ static void setupApp()
 	QuickPresenter::createAppEngine(QUrl(QLatin1String("qrc:/qml/App.qml")));
 
 	QMetaObject::invokeMethod(coreApp, "bootApp", Qt::QueuedConnection);
+
 #ifdef Q_OS_ANDROID
 	AndroidNotifier::guiStarted();
 #endif
@@ -65,4 +66,8 @@ static void setupDaemon()
 
 	auto daemon = new RemindMeDaemon(qApp);
 	daemon->startDaemon();
+
+#ifdef Q_OS_ANDROID
+	AndroidNotifier::serviceStarted();
+#endif
 }

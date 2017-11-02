@@ -24,10 +24,10 @@ import org.qtproject.qt5.android.bindings.QtService;
 
 public class RemindmeService extends QtService {
 	public enum Actions {
-		ActionScheduler(20, "de.skycoder42.remindme.ActionScheduler"),
-		ActionComplete(21, "de.skycoder42.remindme.ActionComplete"),
-		ActionDismiss(22, "de.skycoder42.remindme.ActionDismiss"),
-		ActionSnooze(23, "de.skycoder42.remindme.ActionSnooze");
+		ActionScheduler(21, "de.skycoder42.remindme.ActionScheduler"),
+		ActionComplete(22, "de.skycoder42.remindme.ActionComplete"),
+		ActionDismiss(23, "de.skycoder42.remindme.ActionDismiss"),
+		ActionSnooze(24, "de.skycoder42.remindme.ActionSnooze");
 
 		private int id;
 		private String action;
@@ -45,6 +45,8 @@ public class RemindmeService extends QtService {
 			return action;
 		}
 	}
+
+	private static final int AutoSyncId = 20;
 
 	private static final String ForegroundChannelId = "foreground_channel";
 	private static final String NormalChannelId = "normal_channel";
@@ -112,6 +114,23 @@ public class RemindmeService extends QtService {
 	public void completeAction() {
 		stopForeground(STOP_FOREGROUND_REMOVE);
 		stopService(new Intent(this, RemindmeService.class));//Stop myself
+	}
+
+	public void scheduleAutoCheck() {
+		Intent intent = new Intent(Actions.ActionScheduler.getAction(), null, this, RemindmeService.class);
+		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+
+		PendingIntent pending = null;
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+			pending = PendingIntent.getService(this, AutoSyncId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		else
+			pending = PendingIntent.getForegroundService(this, AutoSyncId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+		alarm.setRepeating(AlarmManager.RTC_WAKEUP,
+			System.currentTimeMillis() + AlarmManager.INTERVAL_HOUR,
+			AlarmManager.INTERVAL_HOUR,
+			pending);
 	}
 
 	public void createSchedule(String remId, int versionCode, boolean important, long triggerAt) {
@@ -213,7 +232,7 @@ public class RemindmeService extends QtService {
 		manager.cancel(id, NotifyId);
 	}
 
-	private PendingIntent createPending(Actions action, String remId, int versionCode) 	{
+	private PendingIntent createPending(Actions action, String remId, int versionCode) {
 		Uri uri = null;
 		if(remId != null) {
 			uri = new Uri.Builder()

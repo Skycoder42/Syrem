@@ -19,6 +19,7 @@ public:
 	explicit AndroidNotifier(QObject *parent = nullptr);
 
 	static void guiStarted();
+	static void serviceStarted();
 
 	static void handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode, const QString &result);
 	static void handleActivityIntent(const QString &action, const QUuid &id, quint32 versionCode);

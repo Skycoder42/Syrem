@@ -56,6 +56,12 @@
 			<!-- extract android style -->
 		</activity>
 
+		<receiver android:name=".BootReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
+
 		<service android:process=":qt" android:name=".RemindmeService">
 			<!-- Application arguments -->
 			<meta-data android:name="android.app.arguments" android:value="--daemon"/>

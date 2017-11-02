@@ -35,6 +35,16 @@ RESOURCES += \
 TRANSLATIONS += remindme_quick_de.ts \
 	remindme_quick_template.ts
 
+DISTFILES += \
+	android/AndroidManifest.xml \
+	android/res/values/libs.xml \
+	android/build.gradle \
+	android/src/de/skycoder42/remindme/RemindmeService.java \
+	android/src/de/skycoder42/remindme/RemindmeActivity.java \
+    android/src/de/skycoder42/remindme/BootReceiver.java
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/debug/ -lRemindMeCore
@@ -65,12 +75,3 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)
-
-DISTFILES += \
-	android/AndroidManifest.xml \
-	android/res/values/libs.xml \
-	android/build.gradle \
-	android/src/de/skycoder42/remindme/RemindmeService.java \
-    android/src/de/skycoder42/remindme/RemindmeActivity.java
-
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
