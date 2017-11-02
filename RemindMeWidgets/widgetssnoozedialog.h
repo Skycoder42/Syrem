@@ -46,8 +46,6 @@ private:
 	void setupUi();
 	void resizeUi();
 	void addReminder(const Reminder reminder);
-
-	QDateTime tryParse(const QString &text);
 };
 
 #endif // WIDGETSSNOOZEDIALOG_H

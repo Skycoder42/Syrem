@@ -319,7 +319,6 @@ void CoreReminderTest::testTimePointReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-		expr->deleteLater();
 	} else
 		QVERIFY(!expr);
 }
@@ -547,7 +546,6 @@ void CoreReminderTest::testTimeSpanReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-		expr->deleteLater();
 	} else
 		QVERIFY(!expr);
 }
@@ -1404,7 +1402,6 @@ void CoreReminderTest::testLoopReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-		expr->deleteLater();
 	} else
 		QVERIFY(!expr);
 }
@@ -1518,7 +1515,6 @@ void CoreReminderTest::testConjunctionReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-		expr->deleteLater();
 	} else
 		QVERIFY(!expr);
 }

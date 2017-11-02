@@ -2,6 +2,7 @@
 
 #include <QLocale>
 #include <QRegularExpression>
+#include <QSettings>
 #include <chrono>
 using namespace ParserTypes;
 
@@ -368,19 +369,43 @@ DateParser::DateParser(QObject *parent) :
 	_lastError()
 {}
 
-Expression *DateParser::parse(const QString &data)
+QSharedPointer<Expression> DateParser::parse(const QString &data)
 {
 	auto dummyParent = new QObject();
 	try {
 		auto expr = parseExpression(data, dummyParent);
 		expr->setParent(nullptr);
 		dummyParent->deleteLater();
-		return expr;
+		return QSharedPointer<Expression>(expr);
 	} catch(QString &s) {
 		_lastError = s;
 		dummyParent->deleteLater();
-		return nullptr;
+		return {};
 	}
+}
+
+QDateTime DateParser::snoozeParse(const QString &expression)
+{
+	auto expre = parse(expression);
+	if(!expre)
+		throw tr("The entered text is not a valid expression. Error message:\n%1").arg(lastError());
+
+	auto schedule = expre->createSchedule(QDateTime::currentDateTime(),
+										  QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime(),
+										  this);
+	if(!schedule)
+		throw tr("Given expression is valid, but evaluates to a timepoint in the past!");
+
+	if(schedule->isRepeating()) {
+		schedule->deleteLater();
+		throw tr("Given expression evaluates to more the 1 timepoint!");
+	}
+
+	auto nextTime = schedule->nextSchedule();
+	schedule->deleteLater();
+	if(!nextTime.isValid())
+		throw tr("Given expression is valid, but evaluates to a timepoint in the past!");
+	return nextTime;
 }
 
 QString DateParser::lastError() const

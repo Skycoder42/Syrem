@@ -22,7 +22,6 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 		return;
 }
 	auto sched = expr->createSchedule(QDateTime::currentDateTime(), _settings->value(QStringLiteral("defaultTime"), QTime(9,0)).toTime());
-	expr->deleteLater();
 	if(!sched) {
 		emit reminderError(true, tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));
 		return;

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDateTime>
+#include <QSharedPointer>
 #include "schedule.h"
 
 namespace ParserTypes {
@@ -204,7 +205,9 @@ public:
 
 	explicit DateParser(QObject *parent = nullptr);
 
-	ParserTypes::Expression *parse(const QString &data);
+	QSharedPointer<ParserTypes::Expression> parse(const QString &data);
+
+	QDateTime snoozeParse(const QString &expression);
 
 	QString lastError() const;
 

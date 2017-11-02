@@ -28,34 +28,12 @@ void SnoozeHelper::loadReminder(const QUuid &id, quint32 versionCode)
 
 void SnoozeHelper::snoozeReminder(const QUuid &id, const QString &expression)
 {
-	auto expre = _parser->parse(expression);
-	if(!expre) {
-		emit reminderError(id,
-						   tr("The entered text is not a valid expression. Error message:\n%1").arg(_parser->lastError()),
-						   false);
-		return;
+	try {
+		auto nextTime = _parser->snoozeParse(expression);
+		auto rem = _remCache.take(id);
+		rem.performSnooze(_store, nextTime);
+		emit reminderSnoozed(id);
+	} catch (QString &s) {
+		emit reminderError(id, s, false);
 	}
-
-	auto schedule = expre->createSchedule(QDateTime::currentDateTime(),
-										  _settings->value(QStringLiteral("defaultTime"), QTime(9,0)).toTime(),
-										  this);
-	if(!schedule) {
-		emit reminderError(id, tr("Given expression is valid, but evaluates to a timepoint in the past!"), false);
-		return;
-	}
-
-	if(schedule->isRepeating()) {
-		emit reminderError(id, tr("Given expression evaluates to more the 1 timepoint!"), false);
-		return;
-	}
-
-	auto nextTime = schedule->nextSchedule();
-	if(!nextTime.isValid()) {
-		emit reminderError(id, tr("Given expression is valid, but evaluates to a timepoint in the past!"), false);
-		return;
-	}
-
-	auto rem = _remCache.take(id);
-	rem.performSnooze(_store, nextTime);
-	emit reminderSnoozed(id);
 }

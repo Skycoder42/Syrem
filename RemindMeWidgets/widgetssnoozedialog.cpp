@@ -65,16 +65,18 @@ void WidgetsSnoozeDialog::performSnooze()
 		if(!cBox)
 			return;
 
-		auto when = tryParse(cBox->currentText());
-		if(!when.isValid())
-			return;
+		try {
+			auto when = _parser->snoozeParse(cBox->currentText());
 
-		_toolBox->removeItem(_toolBox->currentIndex());
-		auto reminder = _reminders.take(remWidget);
+			_toolBox->removeItem(_toolBox->currentIndex());
+			auto reminder = _reminders.take(remWidget);
 
-		emit reacted(reminder, SnoozeAction, when);
-		remWidget->deleteLater();
-		resizeUi();
+			emit reacted(reminder, SnoozeAction, when);
+			remWidget->deleteLater();
+			resizeUi();
+		} catch (QString &s) {
+			DialogMaster::critical(this, s, tr("Invalid Snooze"));
+		}
 	}
 }
 
@@ -180,43 +182,4 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 					  reminder.description());
 
 	_reminders.insert(remWidet, reminder);
-}
-
-QDateTime WidgetsSnoozeDialog::tryParse(const QString &text)
-{
-	auto expression = _parser->parse(text);
-	if(!expression) {
-		DialogMaster::critical(this,
-							   tr("The entered text is not a valid expression. Error message:\n%1").arg(_parser->lastError()),
-							   tr("Invalid Snooze"));
-		return {};
-	}
-
-	auto schedule = expression->createSchedule(QDateTime::currentDateTime(), _settings->value(QStringLiteral("defaultTime"), QTime(9,0)).toTime(), this);
-	if(!schedule) {
-		DialogMaster::critical(this,
-							   tr("Given expression is valid, but evaluates to a timepoint in the past!"),
-							   tr("Invalid Snooze"));
-		return {};
-	}
-
-	if(schedule->isRepeating()) {
-		if(DialogMaster::warning(this,
-								 tr("Given expression evaluates to more the 1 timepoint. Only the closest is used, all other will be discarded"),
-								 tr("Invalid Snooze"),
-								 QString(),
-								 QMessageBox::Ok | QMessageBox::Cancel)
-		   == QMessageBox::Cancel)
-			return {};
-	}
-
-	auto when = schedule->nextSchedule();
-	if(!when.isValid()) {
-		DialogMaster::critical(this,
-							   tr("Given expression is valid, but evaluates to a timepoint in the past!"),
-							   tr("Invalid Snooze"));
-		return {};
-	}
-
-	return when;
 }

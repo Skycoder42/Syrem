@@ -181,7 +181,8 @@ void AndroidNotifier::handleIntentImpl()
 			emit messageDismissed(id, versionCode);
 		} else if(action == ActionSnooze) {
 			try {
-				auto res = parseExpression(result);
+				DateParser parser;
+				auto res = parser.snoozeParse(result);
 				_shouldSync = true;
 				emit messageDelayed(id, versionCode, res);
 			} catch (QString &s) {
@@ -195,28 +196,6 @@ void AndroidNotifier::handleIntentImpl()
 	}
 	_intentCache.clear();
 	tryQuit();
-}
-
-QDateTime AndroidNotifier::parseExpression(const QString &expression)
-{
-	DateParser parser;//TODO make this all a "meta-method" on DateParser
-	auto expre = parser.parse(expression);
-	if(!expre)
-		throw tr("The entered text is not a valid expression. Error message:\n%1").arg(parser.lastError());
-
-	auto schedule = expre->createSchedule(QDateTime::currentDateTime(),
-										  QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime(),
-										  this);
-	if(!schedule)
-		throw tr("Given expression is valid, but evaluates to a timepoint in the past!");
-
-	if(schedule->isRepeating())
-		throw tr("Given expression evaluates to more the 1 timepoint!");
-
-	auto nextTime = schedule->nextSchedule();
-	if(!nextTime.isValid())
-		throw tr("Given expression is valid, but evaluates to a timepoint in the past!");
-	return nextTime;
 }
 
 void AndroidNotifier::tryQuit()
