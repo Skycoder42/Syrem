@@ -26,11 +26,13 @@
 		</Group>
 		<Group title="Desktop">
 			<Entry key="gui/hotkey"
+				   platform="widgets"
 				   type="QKeySequence"
 				   title="Create Reminder &amp;Hotkey"
 				   tooltip="Enter a key sequence to be used as hotkey to create a reminder"
 				   default="CTRL+META+R"/>
 			<Entry key="gui/notifications/blinkinterval"
+				   platform="widgets"
 				   type="int"
 				   title="Tray Blink &amp;interval"
 				   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)"

@@ -23,5 +23,6 @@
     </qresource>
     <qresource prefix="/qml/inputs">
         <file>TimeEdit.qml</file>
+        <file>SnoozeTimesEdit.qml</file>
     </qresource>
 </RCC>

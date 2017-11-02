@@ -8,6 +8,7 @@
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
 #include <snoozecontrol.h>
+#include <snoozetimes.h>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -50,6 +51,7 @@ static void setupApp()
 
 	QuickPresenter::createAppEngine(QStringLiteral("qrc:/qml/App.qml"));
 	QuickPresenter::inputViewFactory()->addSimpleView<QTime>(QStringLiteral("qrc:/qml/inputs/TimeEdit.qml"));
+	QuickPresenter::inputViewFactory()->addSimpleView<SnoozeTimes>(QStringLiteral("qrc:/qml/inputs/SnoozeTimesEdit.qml"));
 
 	QMetaObject::invokeMethod(coreApp, "bootApp", Qt::QueuedConnection);
 

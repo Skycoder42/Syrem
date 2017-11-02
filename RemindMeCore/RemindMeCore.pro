@@ -19,7 +19,8 @@ SOURCES += \
 	remindmeapp.cpp \
 	maincontrol.cpp \
 	createremindercontrol.cpp \
-	snoozecontrol.cpp
+	snoozecontrol.cpp \
+    snoozetimes.cpp
 
 REPC_REPLICA += $$fromfile(../RemindMeDaemon/rep.pri, REPC_FILES)
 
