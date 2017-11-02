@@ -34,6 +34,9 @@ private:
 
 	bool _settingUp;
 	quint32 _loadingNotCnt;
+
+	//DEBUG needed until fix
+	bool _isReady;
 };
 
 #endif // NOTIFICATIONMANAGER_H

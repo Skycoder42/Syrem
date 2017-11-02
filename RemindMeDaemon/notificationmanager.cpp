@@ -12,7 +12,8 @@ NotificationManager::NotificationManager(QObject *parent) :
 	_controller(new SyncController(this)),
 	_store(new AsyncDataStore(this)),
 	_settingUp(false),
-	_loadingNotCnt(0)
+	_loadingNotCnt(0),
+	_isReady(false)
 {
 	Q_ASSERT(_scheduler);
 	Q_ASSERT(_notifier);
@@ -30,24 +31,37 @@ NotificationManager::NotificationManager(QObject *parent) :
 	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageDelayed(QUuid,quint32,QDateTime)),
 			this, SLOT(messageDelayed(QUuid,quint32,QDateTime)));
 
-	//TODO crashes -> FIX
-//	_controller->triggerSyncWithResult([this](SyncController::SyncState) {
-		_store->loadAll<Reminder>().onResult([this](QList<Reminder> reminders) {
-			_notifier->beginSetup();
-			_settingUp = true;
-			_scheduler->initialize(reminders);
-			if(_loadingNotCnt == 0) {
-				_settingUp = false;
-				_notifier->endSetup();
-			}
+	//DEBUG until fixed in datasync (crash + timeout!)
+	_store->count<Reminder>().onResult(this, [this](int) {
+		auto readyFn = [this]() {
+			if(_isReady)
+				return;
+			else
+				_isReady = true;
 
-			connect(_store, &AsyncDataStore::dataChanged,
-					this, &NotificationManager::dataChanged);
-		}, [this](const QException &e) {
-			qCritical() << "Failed to load stored reminders with error:" << e.what();
-			_notifier->showErrorMessage(tr("Failed to load any reminders!"));
+			_store->loadAll<Reminder>().onResult([this](QList<Reminder> reminders) {
+				_notifier->beginSetup();
+				_settingUp = true;
+				_scheduler->initialize(reminders);
+				if(_loadingNotCnt == 0) {
+					_settingUp = false;
+					_notifier->endSetup();
+				}
+
+				connect(_store, &AsyncDataStore::dataChanged,
+						this, &NotificationManager::dataChanged);
+			}, [this](const QException &e) {
+				qCritical() << "Failed to load stored reminders with error:" << e.what();
+				_notifier->showErrorMessage(tr("Failed to load any reminders!"));
+			});
+		};
+
+		_controller->triggerSyncWithResult([readyFn](SyncController::SyncState) {
+			readyFn();
 		});
-//	});
+
+		QTimer::singleShot(5000, this, readyFn);
+	});
 }
 
 void NotificationManager::scheduleTriggered(const QUuid &id)
