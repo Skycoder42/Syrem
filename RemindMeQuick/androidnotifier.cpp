@@ -5,6 +5,7 @@
 #include <registry.h>
 #include <remindmeapp.h>
 #include <dateparser.h>
+#include <QtDataSync/SyncController>
 
 const QString AndroidNotifier::ActionScheduler(QStringLiteral("de.skycoder42.remindme.ActionScheduler"));
 const QString AndroidNotifier::ActionComplete(QStringLiteral("de.skycoder42.remindme.ActionComplete"));
@@ -21,7 +22,8 @@ AndroidNotifier::AndroidNotifier(QObject *parent) :
 	INotifier(),
 	_setup(false),
 	_setupIds(),
-	_actionIds()
+	_actionIds(),
+	_shouldSync(false)
 {}
 
 void AndroidNotifier::guiStarted()
@@ -181,14 +183,17 @@ void AndroidNotifier::handleIntentImpl()
 			if(!id.isNull())
 				AndroidScheduler::triggerSchedule(id, versionCode);
 		} else if(action == ActionComplete) {
+			_shouldSync = true;
 			_actionIds.insert(id);
 			emit messageCompleted(id, versionCode);
 		} else if(action == ActionDismiss) {
+			_shouldSync = true;
 			_actionIds.insert(id);
 			emit messageDismissed(id, versionCode);
 		} else if(action == ActionSnooze) {
 			try {
 				auto res = parseExpression(result);
+				_shouldSync = true;
 				emit messageDelayed(id, versionCode, res);
 			} catch (QString &s) {
 				auto service = QtAndroid::androidService();
@@ -227,9 +232,18 @@ QDateTime AndroidNotifier::parseExpression(const QString &expression)
 
 void AndroidNotifier::tryQuit()
 {
-	if(_actionIds.isEmpty()) {//TODO sync before quit
-		auto service = QtAndroid::androidService();
-		service.callMethod<void>("completeAction");
+	if(_actionIds.isEmpty()) {
+		if(_shouldSync) {
+			_shouldSync = false;
+			auto controller = new QtDataSync::SyncController(this);
+			controller->triggerSyncWithResult([controller](QtDataSync::SyncController::SyncState) {
+				auto service = QtAndroid::androidService();
+				service.callMethod<void>("completeAction");
+			});
+		} else {
+			auto service = QtAndroid::androidService();
+			service.callMethod<void>("completeAction");
+		}
 	}
 }
 

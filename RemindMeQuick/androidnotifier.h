@@ -51,6 +51,7 @@ private:
 	bool _setup;
 	QSet<QUuid> _setupIds;
 	QSet<QUuid> _actionIds;
+	bool _shouldSync;
 
 	QDateTime parseExpression(const QString &expression);
 	void tryQuit();
