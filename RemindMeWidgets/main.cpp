@@ -8,6 +8,7 @@
 #include <registry.h>
 #include <qhotkey.h>
 #include <QTimeEdit>
+#include <QtDataSync/UserDataNetworkExchange>
 
 #include "createreminderdialog.h"
 #include "mainwindow.h"
@@ -75,6 +76,24 @@ int main(int argc, char *argv[])
 			control->show();
 		});
 		hk->setShortcut(QKeySequence(QSettings().value(QStringLiteral("gui/hotkey"), QStringLiteral("CTRL+META+R")).toString()), true);
+
+		//DEBUG ID EXCHANGE until fixed upstream
+		auto settings = new QSettings(qApp);
+		if(!settings->value(QStringLiteral("hasId")).toBool()) {
+			auto exchange = new QtDataSync::UserDataNetworkExchange(qApp);
+			exchange->setDeviceName(QStringLiteral("remindme.widgets"));
+			QObject::connect(exchange, &QtDataSync::UserDataNetworkExchange::usersChanged, [exchange, settings](QList<QtDataSync::UserInfo> infos) {
+				foreach(auto info, infos) {
+					if(info.name() == QStringLiteral("remindme.quick")) {
+						exchange->exportTo(info, QStringLiteral("baum42"));
+						exchange->deleteLater();
+						settings->setValue(QStringLiteral("hasId"), true);
+						settings->deleteLater();
+					}
+				}
+			});
+		} else
+			settings->deleteLater();
 
 		return EXIT_SUCCESS;
 	});

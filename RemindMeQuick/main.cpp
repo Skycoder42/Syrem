@@ -60,6 +60,7 @@ static void setupApp()
 #endif
 }
 
+#include <QtDataSync/UserDataNetworkExchange>
 static void setupDaemon()
 {
 #ifdef Q_OS_ANDROID
@@ -72,5 +73,24 @@ static void setupDaemon()
 
 #ifdef Q_OS_ANDROID
 	AndroidNotifier::serviceStarted();
+
+	//DEBUG ID EXCHANGE until fixed upstream
+	auto settings = new QSettings(qApp);
+	if(!settings->value(QStringLiteral("hasId")).toBool()) {
+		auto exchange = new QtDataSync::UserDataNetworkExchange(qApp);
+		exchange->setDeviceName(QStringLiteral("remindme.quick"));
+		QObject::connect(exchange, &QtDataSync::UserDataNetworkExchange::userDataReceived, [exchange, settings](QtDataSync::UserInfo info) {
+			exchange->importFrom(info, QStringLiteral("baum42")).onResult(qApp, [exchange, settings](){
+				exchange->deleteLater();
+				settings->setValue(QStringLiteral("hasId"), true);
+				settings->deleteLater();
+			}, [exchange, settings](const QException &e){
+				qCritical() << e.what();
+				exchange->deleteLater();
+				settings->deleteLater();
+			});
+		});
+	} else
+		settings->deleteLater();
 #endif
 }
