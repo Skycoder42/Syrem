@@ -41,10 +41,15 @@ DISTFILES += \
 	android/build.gradle \
 	android/src/de/skycoder42/remindme/RemindmeService.java \
 	android/src/de/skycoder42/remindme/RemindmeActivity.java \
-    android/src/de/skycoder42/remindme/BootReceiver.java \
-    android/res/values/strings.xml
+	android/src/de/skycoder42/remindme/BootReceiver.java \
+	android/res/values/strings.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+android {
+	LIBS += -lcrypto -lssl
+	ANDROID_EXTRA_LIBS += $$[QT_INSTALL_PREFIX]/lib/libcrypto.so $$[QT_INSTALL_PREFIX]/lib/libssl.so
+}
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
