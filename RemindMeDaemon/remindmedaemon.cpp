@@ -12,6 +12,7 @@
 #include "reminder.h"
 #include "notificationmanager.h"
 
+#include "../../__private/remindme-datasync-secret.h"
 #ifndef DATASYNC_SERVER_SECRET
 #define DATASYNC_SERVER_SECRET "debug-secret"
 #endif
