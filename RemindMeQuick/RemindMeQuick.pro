@@ -37,12 +37,33 @@ TRANSLATIONS += remindme_quick_de.ts \
 
 DISTFILES += \
 	android/AndroidManifest.xml \
-	android/res/values/libs.xml \
 	android/build.gradle \
 	android/src/de/skycoder42/remindme/RemindmeService.java \
 	android/src/de/skycoder42/remindme/RemindmeActivity.java \
 	android/src/de/skycoder42/remindme/BootReceiver.java \
-	android/res/values/strings.xml
+	android/res/values/libs.xml \
+	android/res/values/strings.xml \
+	android/res/values/styles.xml \
+	android/res/drawable-hdpi/ic_check_black_24dp.png \
+	android/res/drawable-hdpi/ic_launcher.png \
+	android/res/drawable-hdpi/ic_notification.png \
+	android/res/drawable-hdpi/ic_snooze_black_24dp.png \
+	android/res/drawable-mdpi/ic_check_black_24dp.png \
+	android/res/drawable-mdpi/ic_launcher.png \
+	android/res/drawable-mdpi/ic_notification.png \
+	android/res/drawable-mdpi/ic_snooze_black_24dp.png \
+	android/res/drawable-xhdpi/ic_check_black_24dp.png \
+	android/res/drawable-xhdpi/ic_launcher.png \
+	android/res/drawable-xhdpi/ic_notification.png \
+	android/res/drawable-xhdpi/ic_snooze_black_24dp.png \
+	android/res/drawable-xxhdpi/ic_check_black_24dp.png \
+	android/res/drawable-xxhdpi/ic_launcher.png \
+	android/res/drawable-xxhdpi/ic_notification.png \
+	android/res/drawable-xxhdpi/ic_snooze_black_24dp.png \
+	android/res/drawable-xxxhdpi/ic_check_black_24dp.png \
+	android/res/drawable-xxxhdpi/ic_launcher.png \
+	android/res/drawable-xxxhdpi/ic_notification.png \
+	android/res/drawable-xxxhdpi/ic_snooze_black_24dp.png
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

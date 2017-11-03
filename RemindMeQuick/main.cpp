@@ -20,11 +20,13 @@ REGISTER_CORE_APP(RemindMeApp)
 
 static void setupApp();
 static void setupDaemon();
+static void setStatusBarColor(QColor color);
 
 int main(int argc, char *argv[])
 {
 	CoreApp::disableBoot();
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	setStatusBarColor(QColor(0x51, 0x2D, 0xA8));//see qtquickcontrols2.conf
 
 	QGuiApplication app(argc, argv);
 	QGuiApplication::setApplicationName(QStringLiteral(TARGET));
@@ -92,5 +94,35 @@ static void setupDaemon()
 		});
 	} else
 		settings->deleteLater();
+#endif
+}
+
+static void setStatusBarColor(QColor color)
+{
+#ifdef Q_OS_ANDROID
+	if(QtAndroid::androidSdkVersion() >= 21) {
+		QtAndroid::runOnAndroidThreadSync([=](){
+			auto activity = QtAndroid::androidActivity();
+			if(activity.isValid()) {
+				const auto FLAG_TRANSLUCENT_STATUS = QAndroidJniObject::getStaticField<jint>("android/view/WindowManager$LayoutParams",
+																							 "FLAG_TRANSLUCENT_STATUS");
+				const auto FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS = QAndroidJniObject::getStaticField<jint>("android/view/WindowManager$LayoutParams",
+																									   "FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS");
+				const auto jColor = QAndroidJniObject::callStaticMethod<jint>("android/graphics/Color",
+																			  "parseColor",
+																			  "(Ljava/lang/String;)I",
+																			  QAndroidJniObject::fromString(color.name()).object());
+
+				QAndroidJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+				if(window.isValid()) {
+					window.callMethod<void>("clearFlags", "(I)V", FLAG_TRANSLUCENT_STATUS);
+					window.callMethod<void>("addFlags", "(I)V", FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+					window.callMethod<void>("setStatusBarColor", "(I)V", jColor);
+				}
+			}
+		});
+	}
+#else
+	Q_UNUSED(color);
 #endif
 }

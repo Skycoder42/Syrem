@@ -186,8 +186,8 @@ public class RemindmeService extends QtService {
 			.setGroup(important ? "important" : "normal")
 			.setContentIntent(RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionOpen, null, 0))
 			.setDeleteIntent(createPending(Actions.ActionDismiss, remId, versionCode))
-			.addAction(R.drawable.ic_notification, getString(R.string.not_complete), createPending(Actions.ActionComplete, remId, versionCode))
-			.addAction(R.drawable.ic_notification, getString(R.string.not_snooze), RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionSnooze, remId, versionCode));
+			.addAction(R.drawable.ic_check_black_24dp, getString(R.string.not_complete), createPending(Actions.ActionComplete, remId, versionCode))
+			.addAction(R.drawable.ic_snooze_black_24dp, getString(R.string.not_snooze), RemindmeActivity.createPending(this, RemindmeActivity.Actions.ActionSnooze, remId, versionCode));
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -195,7 +195,7 @@ public class RemindmeService extends QtService {
 		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_notification, getString(R.string.not_snooze_inline), createPending(Actions.ActionSnooze, remId, versionCode, important))
+			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze_black_24dp, getString(R.string.not_snooze_inline), createPending(Actions.ActionSnooze, remId, versionCode, important))
 				.addRemoteInput(new RemoteInput.Builder(ExtraSnoozeTime)
 					.setLabel(getString(R.string.not_snooze_label))
 					.setAllowFreeFormInput(true)
