@@ -27,11 +27,11 @@ Page {
 				onClicked: control.showSettings()
 			}
 
-			MenuItem {
-				id: sync
-				text: qsTr("Synchronization")
-				onClicked: control.showSync()
-			}
+//			MenuItem {
+//				id: sync
+//				text: qsTr("Synchronization")
+//				onClicked: control.showSync()
+//			}
 
 			MenuSeparator {}
 

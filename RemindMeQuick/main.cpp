@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QTimer>
 #include <createremindercontrol.h>
 #include <quickpresenter.h>
@@ -51,9 +52,10 @@ static void setupApp()
 	qmlRegisterUncreatableType<CreateReminderControl>("de.skycoder42.remindme", 1, 0, "CreateReminderControl", QStringLiteral("Controls cannot be created!"));
 	qmlRegisterUncreatableType<SnoozeControl>("de.skycoder42.remindme", 1, 0, "SnoozeControl", QStringLiteral("Controls cannot be created!"));
 
-	QuickPresenter::createAppEngine(QStringLiteral("qrc:/qml/App.qml"));
+	auto engine = QuickPresenter::createAppEngine(QStringLiteral("qrc:/qml/App.qml"));
 	QuickPresenter::inputViewFactory()->addSimpleView<QTime>(QStringLiteral("qrc:/qml/inputs/TimeEdit.qml"));
 	QuickPresenter::inputViewFactory()->addSimpleView<SnoozeTimes>(QStringLiteral("qrc:/qml/inputs/SnoozeTimesEdit.qml"));
+	engine->rootContext()->setContextProperty(QStringLiteral("qtVersion"), QStringLiteral(QT_VERSION_STR));
 
 	QMetaObject::invokeMethod(coreApp, "bootApp", Qt::QueuedConnection);
 

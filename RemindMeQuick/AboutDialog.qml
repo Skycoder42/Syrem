@@ -32,7 +32,7 @@ AlertDialog {
 					if(extraVersionInfo !== "")
 						aboutText += extraVersionInfo + "<br/>";
 					if(addQtInfo)
-						aboutText += qsTr("Qt-Version: <a href=\"https://www.qt.io/\">%1</a>").arg("TODO");
+						aboutText += qsTr("Qt-Version: <a href=\"https://www.qt.io/\">%1</a>").arg(qtVersion);
 					aboutText += "</p><br/>";
 				}
 				aboutText += "<p>" + qsTr("Developed by: %1").arg(companyName);
