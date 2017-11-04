@@ -19,6 +19,7 @@ import android.service.notification.StatusBarNotification;
 import android.graphics.Color;
 import android.graphics.BitmapFactory;
 
+import android.support.v4.app.AlarmManagerCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 import android.support.v4.app.RemoteInput;
@@ -145,9 +146,9 @@ public class RemindmeService extends QtService {
 	public void createSchedule(String remId, int versionCode, boolean important, long triggerAt) {
 		PendingIntent pending = createPending(Actions.ActionScheduler, remId, versionCode);
 		AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if(important)
-			manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending);
-		else
+		if(important) {
+			AlarmManagerCompat.setExactAndAllowWhileIdle(manager, AlarmManager.RTC_WAKEUP, triggerAt, pending);
+		} else
 			manager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, 5 * 60 * 1000, pending);//max 5 min window
 	}
 

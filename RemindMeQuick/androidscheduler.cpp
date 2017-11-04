@@ -54,10 +54,13 @@ bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 		return true;
 	}
 	auto trigger = reminder.current();
+	int delay = 0;
 	if(reminder.isImportant())
-		trigger = trigger.addSecs(duration_cast<seconds>(minutes(2)).count());
+		delay = _settings->value(QStringLiteral("delay/important"), 2).toInt();
 	else
-		trigger = trigger.addSecs(duration_cast<seconds>(minutes(5)).count());
+		delay = _settings->value(QStringLiteral("delay/normal"), 5).toInt();
+	if(delay > 0)
+		trigger = trigger.addSecs(duration_cast<seconds>(minutes(delay)).count());
 
 	//save the used versionCode
 	_settings->setValue(remKey, reminder.versionCode());
