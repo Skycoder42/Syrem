@@ -48,8 +48,10 @@ void AndroidNotifier::serviceStarted()
 
 void AndroidNotifier::handleServiceIntent(const QString &action, const QUuid &id, quint32 versionCode, const QString &result)
 {
+	qDebug() << Q_FUNC_INFO << action << id << versionCode << result;
 	QMutexLocker _(&_invokeMutex);
 	auto obj = Registry::acquireObject(INotifier_iid);
+	qDebug() << Q_FUNC_INFO << obj;
 
 	//block notifications from beeing re-shown while starting up
 	if(action != ActionScheduler) {
@@ -85,6 +87,10 @@ void AndroidNotifier::handleActivityIntent(const QString &action, const QUuid &i
 void AndroidNotifier::beginSetup()
 {
 	_setupIds.clear();
+
+	auto service = QtAndroid::androidService();
+	service.callMethod<void>("ensureCanActive");
+
 	_setup = true;
 }
 
@@ -92,26 +98,20 @@ void AndroidNotifier::endSetup()
 {
 	_setup = false;
 
-	QList<QUuid> cancelList;
-
 	QAndroidJniEnvironment env;
 	auto service = QtAndroid::androidService();
 	auto keys = service.callObjectMethod("activeNotifications", "()[Ljava/lang/String;");
-	if(!keys.isValid() || keys.object() == nullptr)
-		return;
-
-	auto cnt = env->GetArrayLength(keys.object<jobjectArray>());
-	for(auto i = 0; i < cnt; i++) {
-		QAndroidJniObject obj(env->GetObjectArrayElement(keys.object<jobjectArray>(), i));
-		QUuid keyId(obj.toString());
-		if(!keyId.isNull() && !_setupIds.contains(keyId))
-			cancelList.append(keyId);
+	if(keys.isValid() && keys.object() == nullptr) {
+		auto cnt = env->GetArrayLength(keys.object<jobjectArray>());
+		for(auto i = 0; i < cnt; i++) {
+			QAndroidJniObject obj(env->GetObjectArrayElement(keys.object<jobjectArray>(), i));
+			QUuid keyId(obj.toString());
+			if(!keyId.isNull() && !_setupIds.contains(keyId))
+				removeNotification(keyId);
+		}
 	}
 
 	_setupIds.clear();
-	foreach(auto key, cancelList)
-		removeNotification(key);
-
 	_canInvoke = true;
 	if(!_intentCache.isEmpty())
 		QMetaObject::invokeMethod(this, "handleIntentImpl", Qt::QueuedConnection);
@@ -159,6 +159,7 @@ void AndroidNotifier::notificationHandled(const QUuid &id, const QString &errorM
 
 void AndroidNotifier::handleIntentImpl()
 {
+	qDebug() << Q_FUNC_INFO << _blockList;
 	QMutexLocker _(&_invokeMutex);
 
 	_blockList.clear(); //unblock all
@@ -167,6 +168,7 @@ void AndroidNotifier::handleIntentImpl()
 		auto id = std::get<1>(entry);
 		auto versionCode = std::get<2>(entry);
 		auto result = std::get<3>(entry);
+		qDebug() << Q_FUNC_INFO << action << id << versionCode << result;
 
 		if(action == ActionScheduler) {
 			if(!id.isNull())
@@ -200,15 +202,19 @@ void AndroidNotifier::handleIntentImpl()
 
 void AndroidNotifier::tryQuit()
 {
+	qDebug() << Q_FUNC_INFO << _actionIds << _shouldSync;
 	if(_actionIds.isEmpty()) {
 		if(_shouldSync) {
+			qDebug() << Q_FUNC_INFO << "sync";
 			_shouldSync = false;
 			auto controller = new QtDataSync::SyncController(this);
-			controller->triggerSyncWithResult([controller](QtDataSync::SyncController::SyncState) {
+			controller->triggerSyncWithResult([controller](QtDataSync::SyncController::SyncState state) {
+				qDebug() << Q_FUNC_INFO << state;
 				auto service = QtAndroid::androidService();
 				service.callMethod<void>("completeAction");
 			});
 		} else {
+			qDebug() << Q_FUNC_INFO << "no sync";
 			auto service = QtAndroid::androidService();
 			service.callMethod<void>("completeAction");
 		}

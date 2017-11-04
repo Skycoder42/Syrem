@@ -114,13 +114,14 @@ public class RemindmeService extends QtService {
 			builder.setPriority(NotificationCompat.PRIORITY_MIN);
 
 		startForeground(ForegroundId, builder.build());
-		handleIntent(intent);
+		if(intent != null)
+			handleIntent(intent);
 
 		return result;
 	}
 
 	public void completeAction() {
-		stopForeground(STOP_FOREGROUND_REMOVE);
+		stopForeground(true);
 		stopService(new Intent(this, RemindmeService.class));//Stop myself
 	}
 
@@ -155,10 +156,19 @@ public class RemindmeService extends QtService {
 		manager.cancel(createPending(Actions.ActionScheduler, remId, 0));
 	}
 
+	public void ensureCanActive() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			manager.cancelAll();
+		}
+	}
+
 	public String[] activeNotifications() {
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-		StatusBarNotification[] allNots = manager.getActiveNotifications();
+		StatusBarNotification[] allNots = null;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+			allNots = manager.getActiveNotifications();
 		if(allNots == null)
 			return null;
 
