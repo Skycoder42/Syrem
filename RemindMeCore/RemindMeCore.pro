@@ -20,7 +20,7 @@ SOURCES += \
 	maincontrol.cpp \
 	createremindercontrol.cpp \
 	snoozecontrol.cpp \
-    snoozetimes.cpp
+	snoozetimes.cpp
 
 REPC_REPLICA += $$fromfile(../RemindMeDaemon/rep.pri, REPC_FILES)
 
@@ -30,6 +30,9 @@ CONFIG += no_settings_ts_warn
 
 TRANSLATIONS += remindme_core_de.ts \
 	remindme_core_template.ts
+
+qpmx_ts_target.path = $$TS_INSTALL_DIR
+INSTALLS += qpmx_ts_target
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)

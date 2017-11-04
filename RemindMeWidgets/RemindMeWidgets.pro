@@ -62,8 +62,25 @@ RESOURCES += \
 TRANSLATIONS += remindme_widgets_de.ts \
 	remindme_widgets_template.ts
 
+EXTRA_TRANSLATIONS +=  \
+	remindme_de.ts \
+	remindme_template.ts
+
 DISTFILES += \
-	remind-me.desktop
+	remind-me.desktop \
+	$$EXTRA_TRANSLATIONS
+
+include(../ts-compiler.pri)
+
+target.path = $$[QT_INSTALL_BINS]
+qpmx_ts_target.path = $$TS_INSTALL_DIR
+INSTALLS += target qpmx_ts_target extra_ts_target
+
+kde_notifier {
+	notify_install.path = /usr/share/knotifications5/ #TODO proper path
+	notify_install.files = remind-me.notifyrc
+	INSTALLS += notify_install
+}
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore

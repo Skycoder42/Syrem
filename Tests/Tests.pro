@@ -1,4 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    CoreReminder
+	CoreReminder
+
+qpmxlrelease.target = lrelease
+QMAKE_EXTRA_TARGETS += qpmxlrelease

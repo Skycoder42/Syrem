@@ -3,6 +3,9 @@
 #include "snoozecontrol.h"
 #include "snoozetimes.h"
 
+#include <QLibraryInfo>
+#include <QTranslator>
+
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
 	_roNode(nullptr),
@@ -11,6 +14,19 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	SnoozeTimes::setup();
 
 	Q_INIT_RESOURCE(remindmecore);
+
+	//load translations
+	auto translator = new QTranslator(this);
+	if(translator->load(QLocale(),
+						QStringLiteral("remindme"),
+						QStringLiteral("_"),
+						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+		qApp->installTranslator(translator);
+	else {
+		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
+		delete translator;
+		QLocale::setDefault(QLocale::c());
+	}
 }
 
 QRemoteObjectNode *RemindMeApp::node() const

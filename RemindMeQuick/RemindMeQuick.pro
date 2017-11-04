@@ -20,13 +20,16 @@ HEADERS +=
 SOURCES += main.cpp
 
 android {
-HEADERS += \
-	androidscheduler.h \
-	androidnotifier.h
+	HEADERS += \
+		androidscheduler.h \
+		androidnotifier.h
 
-SOURCES += \
-	androidscheduler.cpp \
-	androidnotifier.cpp
+	SOURCES += \
+		androidscheduler.cpp \
+		androidnotifier.cpp
+
+	RESOURCES += \
+		remindme_android.qrc
 }
 
 RESOURCES += \
@@ -35,7 +38,11 @@ RESOURCES += \
 TRANSLATIONS += remindme_quick_de.ts \
 	remindme_quick_template.ts
 
-DISTFILES += \
+EXTRA_TRANSLATIONS +=  \
+	remindme_de.ts \
+	remindme_template.ts
+
+ANDROID_FILES += \
 	android/AndroidManifest.xml \
 	android/build.gradle \
 	android/src/de/skycoder42/remindme/RemindmeService.java \
@@ -67,10 +74,27 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
+DISTFILES += \
+	$$ANDROID_FILES \
+	$$EXTRA_TRANSLATIONS
+
 android {
 	LIBS += -lcrypto -lssl
 	ANDROID_EXTRA_LIBS += $$[QT_INSTALL_PREFIX]/lib/libcrypto.so $$[QT_INSTALL_PREFIX]/lib/libssl.so
 }
+
+include(../ts-compiler.pri)
+
+qpmx_ts_target.path = $$TS_INSTALL_DIR
+tsqtInstall.path = $$TS_INSTALL_DIR
+INSTALLS += qpmx_ts_target extra_ts_target
+
+tsqtInstall.files = \
+	$$[QT_INSTALL_TRANSLATIONS]/qtbase_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtdeclarative_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtquickcontrols_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtwebsockets_*.qm
+android: INSTALLS += tsqtInstall
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
@@ -102,3 +126,9 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)
+
+# custom tr (after qpmx to make use of lrelease
+lrelease_extra.target = lrelease-extra
+lrelease_extra.commands = $$LRELEASE $$shell_quote($$shell_path($$PWD/remindme_de.ts)) -qm $$shell_quote($$shell_path($$OUT_PWD/remindme_de.qm))
+lrelease.depends += lrelease_extra
+QMAKE_EXTRA_TARGETS += lrelease lrelease_extra
