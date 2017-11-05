@@ -54,7 +54,7 @@ void RemindMeDaemon::startDaemon()
 
 	Setup setup;
 	setup.serializer()->addJsonTypeConverter(new DateTimeJsonConverter());
-	setup.dataMerger()->setSyncPolicy(DataMerger::PreferDeleted);
+	setup.dataMerger()->setSyncPolicy(DataMerger::PreferDeleted);//TODO merge policy
 	setup.create();
 	auto auth = Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(this);
 	if(!auth->remoteUrl().isValid()) {
