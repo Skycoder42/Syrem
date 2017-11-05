@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
-	//DEBUG QApplication::setQuitOnLastWindowClosed(false);
+	QApplication::setQuitOnLastWindowClosed(false);
 
 	//NOTE: for widgets, both daemon and app are run as "one"
 

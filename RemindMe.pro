@@ -18,6 +18,7 @@ DISTFILES += .qmake.conf \
 	README.md
 
 android: SUBDIRS -= RemindMeWidgets Tests
+else:widgets_only: SUBDIRS -= RemindMeQuick Tests
 
 qpmxlrelease.target = lrelease
 qpmxlrelease.CONFIG += recursive
