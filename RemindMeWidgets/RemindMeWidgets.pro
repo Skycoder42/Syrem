@@ -1,7 +1,6 @@
 TEMPLATE = app
 
 QT += core gui widgets remoteobjects datasync
-CONFIG += c++11
 
 !no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
 

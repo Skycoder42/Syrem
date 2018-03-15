@@ -2,7 +2,6 @@ TEMPLATE = app
 
 QT += core gui qml quick remoteobjects datasync
 android: QT += androidextras
-CONFIG += c++11
 
 TARGET = remind-me
 VERSION = $$RM_VERSION

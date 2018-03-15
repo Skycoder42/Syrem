@@ -51,13 +51,11 @@ void RemindMeDaemon::startDaemon()
 		return;
 	}
 
-	Setup setup;
-	setup.setRemoteObjectHost(QStringLiteral("local:remindme-datasync")) //TODO make SSL with pw
+	Setup().setRemoteObjectHost(QStringLiteral("local:remindme-datasync")) //TODO make SSL with pw
 			.setSyncPolicy(Setup::PreferDeleted)
-			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/remind-me/")})
+			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")})
 			//TODO custom conflict resolver
 			.create();
-	setup.create();
 
 	//exposed classes
 	_storeModel = new DataStoreModel(this);

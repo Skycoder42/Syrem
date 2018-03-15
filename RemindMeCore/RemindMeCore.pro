@@ -1,7 +1,7 @@
 TEMPLATE = lib
 
 QT += core gui remoteobjects
-CONFIG += c++11 staticlib #important because dlls are problematic
+CONFIG += staticlib #important because dlls are problematic
 
 TARGET = RemindMeCore
 VERSION = $$RM_VERSION
