@@ -1,5 +1,5 @@
-#include "registry.h"
 #include "remindermanager.h"
+#include <QtMvvmCore/ServiceRegistry>
 
 using namespace QtDataSync;
 
@@ -8,7 +8,7 @@ ReminderManager::ReminderManager(QObject *parent) :
 	_store(new DataTypeStore<Reminder, QUuid>(this)),
 	_settings(new QSettings(this)),
 	_parser(new DateParser(this)),
-	_scheduler(Registry::acquire<IScheduler>())
+	_scheduler(QtMvvm::ServiceRegistry::instance()->service<IScheduler>())
 {
 	Q_ASSERT(_scheduler);
 	_settings->beginGroup(QStringLiteral("daemon"));

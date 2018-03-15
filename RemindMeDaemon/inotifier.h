@@ -29,5 +29,6 @@ signals:
 
 #define INotifier_iid "de.skycoder42.remindme.daemon.INotifier"
 Q_DECLARE_INTERFACE(INotifier, INotifier_iid)
+Q_DECLARE_METATYPE(INotifier*)
 
 #endif // INOTIFIER_H

@@ -6,19 +6,9 @@
             "version": "1.3.2"
         },
         {
-            "package": "de.skycoder42.qtmvvm.widgets",
-            "provider": "qpm",
-            "version": "1.1.2"
-        },
-        {
             "package": "de.skycoder42.qsingleinstance",
             "provider": "qpm",
             "version": "1.2.2"
-        },
-        {
-            "package": "de.skycoder42.qtmvvm.settings.widgets",
-            "provider": "qpm",
-            "version": "1.1.3"
         },
         {
             "package": "de.skycoder42.qtaskbarcontrol",
@@ -27,6 +17,11 @@
         },
         {
             "package": "de.skycoder42.qhotkey",
+            "provider": "qpm",
+            "version": "1.2.1"
+        },
+        {
+            "package": "de.skycoder42.qobjectlistmodel",
             "provider": "qpm",
             "version": "1.2.1"
         }

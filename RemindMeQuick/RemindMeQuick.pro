@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += core gui qml quick remoteobjects datasync
+QT += core gui qml quick remoteobjects datasync mvvmquick
 android: QT += androidextras
 
 TARGET = remind-me

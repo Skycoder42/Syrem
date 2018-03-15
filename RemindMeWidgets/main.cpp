@@ -1,13 +1,13 @@
 #include <QApplication>
 #include <QKeySequenceEdit>
-#include <widgetpresenter.h>
+#include <QTimeEdit>
+#include <QtMvvmCore/ServiceRegistry>
+#include <QtMvvmWidgets/WidgetsPresenter>
+#include <QtMvvmWidgets/SettingsDialog>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
 #include <qsingleinstance.h>
-#include <settingsdialog.h>
-#include <registry.h>
 #include <qhotkey.h>
-#include <QTimeEdit>
 
 #include "createreminderdialog.h"
 #include "mainwindow.h"
@@ -22,11 +22,11 @@
 #endif
 
 //register the core app to be used
-REGISTER_CORE_APP(RemindMeApp)
+QTMVVM_REGISTER_CORE_APP(RemindMeApp)
 
 int main(int argc, char *argv[])
 {
-	CoreApp::disableBoot();
+	QtMvvm::CoreApp::disableAutoBoot();
 	QApplication a(argc, argv);
 	QApplication::setApplicationName(QStringLiteral(TARGET));
 	QApplication::setApplicationVersion(QStringLiteral(VERSION));
@@ -41,11 +41,11 @@ int main(int argc, char *argv[])
 	QSingleInstance instance;
 	instance.setStartupFunction([&](){
 		//setup interfaces
-		Registry::registerClass<IScheduler, WidgetsScheduler>();
+		QtMvvm::ServiceRegistry::instance()->registerInterface<IScheduler, WidgetsScheduler>();
 #ifdef USE_KDE_NOTIFIER
-		Registry::registerClass<INotifier, KdeNotifier>();
+		QtMvvm::ServiceRegistry::instance()->registerInterface<INotifier, KdeNotifier>();
 #else
-		Registry::registerClass<INotifier, WidgetsNotifier>();
+		QtMvvm::ServiceRegistry::instance()->registerInterface<INotifier, WidgetsNotifier>();
 #endif
 
 		//daemon
@@ -55,13 +55,11 @@ int main(int argc, char *argv[])
 						 daemon, &RemindMeDaemon::commandMessage);
 
 		//app
-		WidgetPresenter::registerWidget<MainWindow>();
-		WidgetPresenter::registerWidget<CreateReminderDialog>();
-		WidgetPresenter::registerWidget<SnoozeDialog>();
-		WidgetPresenter::registerWidget<SettingsDialog>();
-		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QKeySequence, QKeySequenceEdit>();
-		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<QTime, QTimeEdit>();
-		WidgetPresenter::inputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
+		QtMvvm::WidgetsPresenter::registerView<MainWindow>();
+		QtMvvm::WidgetsPresenter::registerView<CreateReminderDialog>();
+		QtMvvm::WidgetsPresenter::registerView<SnoozeDialog>();
+		auto wPres = dynamic_cast<QtMvvm::WidgetsPresenter*>(QtMvvm::ServiceRegistry::instance()->service<QtMvvm::IPresenter>());
+		wPres->inputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
 
 		coreApp->bootApp();
 		QObject::connect(&instance, &QSingleInstance::instanceMessage,
@@ -70,9 +68,7 @@ int main(int argc, char *argv[])
 		//hotkey
 		auto hk = new QHotkey(qApp);
 		QObject::connect(hk, &QHotkey::activated, coreApp, [](){
-			auto control = new CreateReminderControl();
-			control->setDeleteOnClose(true);
-			control->show();
+			coreApp->show<CreateReminderViewModel>();
 		});
 		hk->setShortcut(QKeySequence(QSettings().value(QStringLiteral("gui/hotkey"), QStringLiteral("CTRL+META+R")).toString()), true);
 

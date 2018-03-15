@@ -1,37 +1,37 @@
-#include "createremindercontrol.h"
+#include "createreminderviewmodel.h"
 #include "remindmeapp.h"
 #include <rep_remindermanager_replica.h>
-#include <coremessage.h>
+#include <QtMvvmCore/Messages>
 
-CreateReminderControl::CreateReminderControl(QObject *parent) :
-	Control(parent),
+CreateReminderViewModel::CreateReminderViewModel(QObject *parent) :
+	ViewModel(parent),
 	_reminderManager(coreApp->node()->acquire<ReminderManagerReplica>()),
 	_text(),
 	_important(false),
 	_expression()
 {
 	connect(_reminderManager, &ReminderManagerReplica::reminderCreated,
-			this, &CreateReminderControl::remCreated);
+			this, &CreateReminderViewModel::remCreated);
 	connect(_reminderManager, &ReminderManagerReplica::reminderError,
-			this, &CreateReminderControl::remError);
+			this, &CreateReminderViewModel::remError);
 }
 
-QString CreateReminderControl::text() const
+QString CreateReminderViewModel::text() const
 {
 	return _text;
 }
 
-bool CreateReminderControl::important() const
+bool CreateReminderViewModel::important() const
 {
 	return _important;
 }
 
-QString CreateReminderControl::expression() const
+QString CreateReminderViewModel::expression() const
 {
 	return _expression;
 }
 
-void CreateReminderControl::setText(QString text)
+void CreateReminderViewModel::setText(const QString &text)
 {
 	if (_text == text)
 		return;
@@ -40,7 +40,7 @@ void CreateReminderControl::setText(QString text)
 	emit textChanged(_text);
 }
 
-void CreateReminderControl::setImportant(bool important)
+void CreateReminderViewModel::setImportant(bool important)
 {
 	if (_important == important)
 		return;
@@ -49,7 +49,7 @@ void CreateReminderControl::setImportant(bool important)
 	emit importantChanged(_important);
 }
 
-void CreateReminderControl::setExpression(QString expression)
+void CreateReminderViewModel::setExpression(const QString &expression)
 {
 	if (_expression == expression)
 		return;
@@ -58,7 +58,7 @@ void CreateReminderControl::setExpression(QString expression)
 	emit expressionChanged(_expression);
 }
 
-void CreateReminderControl::create()
+void CreateReminderViewModel::create()
 {
 	auto createFn = [this](){
 		_reminderManager->createReminder(_text, _important, _expression);
@@ -72,15 +72,15 @@ void CreateReminderControl::create()
 	}
 }
 
-void CreateReminderControl::remCreated()
+void CreateReminderViewModel::remCreated()
 {
 	emit createCompleted(true);
 }
 
-void CreateReminderControl::remError(bool isCreate, const QString &error)
+void CreateReminderViewModel::remError(bool isCreate, const QString &error)
 {
 	if(isCreate) {
-		CoreMessage::critical(tr("Failed to create reminder"), error);
+		QtMvvm::critical(tr("Failed to create reminder"), error);
 		emit createCompleted(false);
 	}
 }

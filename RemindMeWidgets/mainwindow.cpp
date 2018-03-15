@@ -3,9 +3,9 @@
 #include <QDateTime>
 #include <dialogmaster.h>
 
-MainWindow::MainWindow(Control *mControl, QWidget *parent) :
+MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QMainWindow(parent),
-	_control(static_cast<MainControl*>(mControl)),
+	_viewModel(static_cast<MainViewModel*>(viewModel)),
 	_ui(new Ui::MainWindow),
 	_proxyModel(new ReminderProxyModel(this)),
 	_sortModel(new QSortFilterProxyModel(this))
@@ -22,9 +22,9 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 	connect(_ui->action_Quit, &QAction::triggered,
 			qApp, &QApplication::quit);
 	connect(_ui->action_Settings, &QAction::triggered,
-			_control, &MainControl::showSettings);
+			_viewModel, &MainViewModel::showSettings);
 	connect(_ui->action_Add_Reminder, &QAction::triggered,
-			_control, &MainControl::addReminder);
+			_viewModel, &MainViewModel::addReminder);
 
 	auto sep = new QAction(this);
 	sep->setSeparator(true);
@@ -36,9 +36,9 @@ MainWindow::MainWindow(Control *mControl, QWidget *parent) :
 								  _ui->action_Snooze_Reminder
 							  });
 
-	auto remModel = _control->reminderModel();
+	auto remModel = _viewModel->reminderModel();
 	auto initFn = [this](){
-		_proxyModel->setSourceModel(_control->reminderModel());
+		_proxyModel->setSourceModel(_viewModel->reminderModel());
 
 		_sortModel->setSourceModel(_proxyModel);
 		_ui->treeView->setModel(_sortModel);
@@ -63,7 +63,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_Delete_Reminder_triggered()
 {
-	_control->removeReminder(idFromIndex(indexFromIndex(_ui->treeView->currentIndex())));
+	_viewModel->removeReminder(idFromIndex(indexFromIndex(_ui->treeView->currentIndex())));
 }
 
 void MainWindow::on_action_Snooze_Reminder_triggered()
@@ -73,6 +73,7 @@ void MainWindow::on_action_Snooze_Reminder_triggered()
 
 void MainWindow::on_action_About_triggered()
 {
+	//TODO move to core
 	DialogMaster::about(this,
 						tr("A simple reminder application for desktop and mobile, with synchronized reminder."),
 						QStringLiteral("https://github.com/Skycoder42/RemindMe"),
@@ -85,12 +86,12 @@ void MainWindow::on_treeView_activated(const QModelIndex &index)
 	if(!index.isValid())
 		return;
 	auto mIndex = indexFromIndex(index);
-	auto mRole = _control->reminderModel()->roleNames().key("triggerState");
-	auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
+	auto mRole = _viewModel->reminderModel()->roleNames().key("triggerState");
+	auto mData = _viewModel->reminderModel()->data(mIndex, mRole).toInt();
 	if(mData == 3) {
-		auto vRole = _control->reminderModel()->roleNames().key("versionCode");
-		auto vData = _control->reminderModel()->data(mIndex, vRole).toUInt();
-		_control->snoozeReminder(idFromIndex(mIndex), vData);
+		auto vRole = _viewModel->reminderModel()->roleNames().key("versionCode");
+		auto vData = _viewModel->reminderModel()->data(mIndex, vRole).toUInt();
+		_viewModel->snoozeReminder(idFromIndex(mIndex), vData);
 	}
 }
 
@@ -98,8 +99,8 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 {
 	auto mIndex = indexFromIndex(index);
 	if(mIndex.isValid()) {
-		auto mRole = _control->reminderModel()->roleNames().key("triggerState");
-		auto mData = _control->reminderModel()->data(mIndex, mRole).toInt();
+		auto mRole = _viewModel->reminderModel()->roleNames().key("triggerState");
+		auto mData = _viewModel->reminderModel()->data(mIndex, mRole).toInt();
 		auto canSnooze = (mData == 3);
 		auto isReady = (canSnooze || mData == 2);
 		_ui->action_Delete_Reminder->setVisible(!isReady);
@@ -131,7 +132,7 @@ QUuid MainWindow::idFromIndex(const QModelIndex &index)
 {
 	if(!index.isValid())
 		return {};
-	return _control->reminderModel()->data(index).toUuid();
+	return _viewModel->reminderModel()->data(index).toUuid();
 }
 
 

@@ -1,12 +1,12 @@
 #ifndef REMINDMEAPP_H
 #define REMINDMEAPP_H
 
-#include <coreapp.h>
+#include <QtMvvmCore/CoreApp>
 #include <QRemoteObjectNode>
 
-#include "maincontrol.h"
+#include "mainviewmodel.h"
 
-class RemindMeApp : public CoreApp
+class RemindMeApp : public QtMvvm::CoreApp
 {
 	Q_OBJECT
 
@@ -15,27 +15,26 @@ public:
 
 	QRemoteObjectNode *node() const;
 
+	void setupParser(QCommandLineParser &parser) const;
+
 public slots:
 	void commandMessage(const QStringList &message);
 	void showMainControl();
 	void showSnoozeControl(const QUuid &id, quint32 versionCode);
 
 protected:
-	void setupParser(QCommandLineParser &parser, bool &allowInvalid) const override;
-	bool startApp(const QCommandLineParser &parser) override;
-
-protected slots:
-	void aboutToQuit() override;
+	void performRegistrations();
+	int startApp(const QStringList &arguments) override;
 
 private:
 	QRemoteObjectNode *_roNode;
 
-	MainControl *_mainControl;
+	MainViewModel *_mainControl;
 
 	void createFromCli(const QString &text, const QString &when, bool important);
 };
 
 #undef coreApp
-#define coreApp static_cast<RemindMeApp*>(CoreApp::instance())
+#define coreApp static_cast<RemindMeApp*>(QtMvvm::CoreApp::instance())
 
 #endif // REMINDMEAPP_H

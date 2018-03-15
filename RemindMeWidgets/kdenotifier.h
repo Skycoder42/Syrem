@@ -13,7 +13,7 @@ class KdeNotifier : public QObject, public INotifier
 	Q_INTERFACES(INotifier)
 
 public:
-	explicit KdeNotifier(QObject *parent = nullptr);
+	Q_INVOKABLE explicit KdeNotifier(QObject *parent = nullptr);
 
 public slots:
 	void beginSetup() override;

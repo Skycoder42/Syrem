@@ -23,5 +23,6 @@ signals:
 
 #define IScheduler_iid "de.skycoder42.remindme.daemon.IScheduler"
 Q_DECLARE_INTERFACE(IScheduler, IScheduler_iid)
+Q_DECLARE_METATYPE(IScheduler*)
 
 #endif // ISCHEDULER_H

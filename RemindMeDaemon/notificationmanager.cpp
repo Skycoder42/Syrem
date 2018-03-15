@@ -1,5 +1,5 @@
 #include "notificationmanager.h"
-#include "registry.h"
+#include <QtMvvmCore/ServiceRegistry>
 #include <QTimer>
 #include <QDebug>
 #include <chrono>
@@ -7,8 +7,8 @@ using namespace QtDataSync;
 
 NotificationManager::NotificationManager(QObject *parent) :
 	QObject(parent),
-	_scheduler(Registry::acquire<IScheduler>()),
-	_notifier(Registry::acquire<INotifier>()),
+	_scheduler(QtMvvm::ServiceRegistry::instance()->service<IScheduler>()),
+	_notifier(QtMvvm::ServiceRegistry::instance()->service<INotifier>()),
 	_settings(new QSettings(this)),
 	_manager(new SyncManager(this)),
 	_store(new DataTypeStore<Reminder, QUuid>(this))

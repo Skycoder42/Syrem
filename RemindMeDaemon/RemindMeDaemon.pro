@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += core gui remoteobjects datasync
+QT += core gui remoteobjects datasync mvvmcore
 CONFIG += c++14 staticlib #important because dlls are problematic
 
 TARGET = RemindMeDaemon
@@ -14,7 +14,6 @@ HEADERS += \
 	reminder.h \
 	dateparser.h \
 	schedule.h \
-	registry.h \
 	ischeduler.h \
 	inotifier.h \
 	notificationmanager.h \
@@ -26,7 +25,6 @@ SOURCES += \
 	reminder.cpp \
 	dateparser.cpp \
 	schedule.cpp \
-	registry.cpp \
 	notificationmanager.cpp \
 	snoozehelper.cpp
 

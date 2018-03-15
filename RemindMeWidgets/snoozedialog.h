@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <QInputDialog>
 #include <QSettings>
-#include <snoozecontrol.h>
+#include <snoozeviewmodel.h>
 
 class SnoozeDialog : public QInputDialog
 {
@@ -15,12 +15,12 @@ class SnoozeDialog : public QInputDialog
 	Q_PROPERTY(QString textValue READ textValue WRITE setTextValue)
 
 public:
-	Q_INVOKABLE SnoozeDialog(Control *control, QWidget *parent = nullptr);
+	Q_INVOKABLE SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent = nullptr);
 
 	void accept() override;
 
 private:
-	SnoozeControl *_control;
+	SnoozeViewModel *_viewModel;
 	QString _title;
 };
 

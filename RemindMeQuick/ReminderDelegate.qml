@@ -1,11 +1,11 @@
 import QtQml 2.2
-import QtQuick 2.9
-import QtQuick.Controls 2.2
-import QtQuick.Controls.Material 2.2
-import QtQuick.Controls.Universal 2.2
+import QtQuick 2.10
+import QtQuick.Controls 2.3
+import QtQuick.Controls.Material 2.3
+import QtQuick.Controls.Universal 2.3
 import QtQuick.Layouts 1.3
-import de.skycoder42.quickextras 2.0
 import Qt.labs.settings 1.0
+import de.skycoder42.QtMvvm.Quick 1.0
 
 SwipeDelegate {
 	id: delegate
@@ -18,33 +18,29 @@ SwipeDelegate {
 
 	readonly property int vCodeDummy: versionCode ? versionCode : 0
 
-	CommonStyle {
-		id: style
+	function highlight(high) {
+		if(style.isMaterial)
+			return high ? style.accent : style.foreground;
+		else
+			return style.foreground;
+	}
 
-		function highlight(high) {
-			if(style.isMaterial)
-				return high ? style.accent : style.foreground;
-			else
-				return style.foreground;
-		}
+	function redColor() {
+		if(style.isMaterial)
+			return Material.color(Material.Red);
+		else if(style.isUniversal)
+			return Universal.color(Universal.Red);
+		else
+			return "#FF0000";
+	}
 
-		function redColor() {
-			if(style.isMaterial)
-				return Material.color(Material.Red);
-			else if(style.isUniversal)
-				return Universal.color(Universal.Red);
-			else
-				return "#FF0000";
-		}
-
-		function accentColor() {
-			if(style.isMaterial)
-				return style.accent;
-			else if(style.isUniversal)
-				return style.accent;
-			else
-				return "#00FFFF";
-		}
+	function accentColor() {
+		if(style.isMaterial)
+			return style.accent;
+		else if(style.isUniversal)
+			return style.accent;
+		else
+			return "#00FFFF";
 	}
 
 	contentItem: RowLayout {
@@ -60,7 +56,7 @@ SwipeDelegate {
 			text: delegate.text
 		}
 
-		TintIcon {
+		TintedIcon { //TODO use normal tint icon
 			id: stateImage
 
 			Layout.minimumWidth: 42
@@ -75,11 +71,11 @@ SwipeDelegate {
 				case 0:
 					return "";
 				case 1:
-					return "image://svg/icons/ic_repeat";
+					return "qrc:/icons/ic_repeat.svg";
 				case 2:
-					return "image://svg/icons/ic_snooze";
+					return "qrc:/icons/ic_snooze.svg";
 				case 3:
-					return "image://svg/icons/ic_assignment_late";
+					return "qrc:/icons/ic_assignment_late.svg";
 				default:
 					return "";
 				}
@@ -134,14 +130,16 @@ SwipeDelegate {
 		height: parent.height
 		anchors.right: parent.right
 		color: isTriggered ? style.accentColor() : style.redColor()
-		AppBarButton {
-			anchors.fill: parent
-			imageSource: isTriggered ? "image://svg/icons/ic_check" : "image://svg/icons/ic_delete_forever"
+
+		ActionButton {
+			anchors.centerIn: parent
+			icon.name: isTriggered ? "gtk-apply" : "user-trash"
+			icon.source: isTriggered ? "qrc:/icons/ic_check.svg" : "qrc:/icons/ic_delete_forever.svg"
 			text: isTriggered ? qsTr("Complete Reminder") : qsTr("Delete Reminder")
 
 			Material.foreground: "white"
 
-			onClicked: reminderDeleted()
+			onClicked: reminderDeleted() //TODO delete or complete!!!
 		}
 	}
 }

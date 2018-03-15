@@ -1,12 +1,12 @@
 #include "snoozedialog.h"
 #include <QSettings>
+#include <QtMvvmCore/Binding>
 #include <dialogmaster.h>
 #include <snoozetimes.h>
-#include <qtmvvmbinding.h>
 
-SnoozeDialog::SnoozeDialog(Control *control, QWidget *parent) :
+SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QInputDialog(parent),
-	_control(static_cast<SnoozeControl*>(control))
+	_viewModel(static_cast<SnoozeViewModel*>(viewModel))
 {
 	setWindowTitle(tr("Snooze Reminder"));
 	setInputMode(QInputDialog::TextInput);
@@ -15,13 +15,19 @@ SnoozeDialog::SnoozeDialog(Control *control, QWidget *parent) :
 
 	DialogMaster::masterDialog(this);
 
-	QtMvvmBinding::bind(_control, "loaded", this, "enabled", QtMvvmBinding::OneWayFromControl);
-	QtMvvmBinding::bind(_control, "description", this, "labelText", QtMvvmBinding::OneWayFromControl);
-	QtMvvmBinding::bind(_control, "snoozeTimes", this, "comboBoxItems", QtMvvmBinding::OneWayFromControl);
+	QtMvvm::bind(_viewModel, "loaded",
+				 this, "enabled",
+				 QtMvvm::Binding::OneWayToView);
+	QtMvvm::bind(_viewModel, "description",
+				 this, "labelText",
+				 QtMvvm::Binding::OneWayToView);
+	QtMvvm::bind(_viewModel, "snoozeTimes",
+				 this, "comboBoxItems",
+				 QtMvvm::Binding::OneWayToView);
 }
 
 void SnoozeDialog::accept()
 {
-	_control->setExpression(textValue());
-	_control->snooze();
+	_viewModel->setExpression(textValue());
+	_viewModel->snooze();
 }

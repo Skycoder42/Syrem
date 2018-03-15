@@ -1,34 +1,34 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.10
+import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
+import de.skycoder42.QtMvvm.Core 1.0
+import de.skycoder42.QtMvvm.Quick 1.0
 import de.skycoder42.remindme 1.0
-import de.skycoder42.qtmvvm.quick 1.0
-import de.skycoder42.quickextras 2.0
 
 AlertDialog {
 	id: snoozeDialog
 	title: qsTr("Snooze Reminder")
-	property SnoozeControl control: null
+	property SnoozeControl viewModel: null
 
 	ColumnLayout {
 		width: parent.width
 
 		Label {
 			Layout.fillWidth: true
-			text: control ? control.description : ""
+			text: viewModel.description
 		}
 
 		ComboBox {
 			id: snoozeBox
 			Layout.fillWidth: true
 			editable: true
-			enabled: control && control.loaded
+			enabled: viewModel.loaded
 
-			model: control ? control.snoozeTimes : null
+			model: viewModel.snoozeTimes
 
-			QtMvvmBinding {
-				control: snoozeDialog.control
-				controlProperty: "expression"
+			MvvmBinding {
+				viewModel: snoozeDialog.viewModel
+				viewModelProperty: "expression"
 				view: snoozeBox
 				viewProperty: "editText"
 				type: QtMvvmBinding.OneWayToControl
@@ -36,10 +36,10 @@ AlertDialog {
 		}
 	}
 
-	standardButtons: control && control.loaded ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
+	standardButtons: viewModel.loaded ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
 
 	onAccepted: {
 		snoozeDialog.visible = true;
-		control.snooze();
+		viewModel.snooze();
 	}
 }

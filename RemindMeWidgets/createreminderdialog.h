@@ -2,7 +2,7 @@
 #define CREATEREMINDERDIALOG_H
 
 #include <QDialog>
-#include <createremindercontrol.h>
+#include <createreminderviewmodel.h>
 
 namespace Ui {
 class CreateReminderDialog;
@@ -13,7 +13,7 @@ class CreateReminderDialog : public QDialog
 	Q_OBJECT
 
 public:
-	Q_INVOKABLE CreateReminderDialog(Control *mControl, QWidget *parent = nullptr);
+	Q_INVOKABLE CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget *parent = nullptr);
 	~CreateReminderDialog();
 
 public slots:
@@ -25,7 +25,7 @@ private slots:
 	void on_actionExpression_Syntax_triggered();
 
 private:
-	CreateReminderControl *_control;
+	CreateReminderViewModel *_viewModel;
 	Ui::CreateReminderDialog *_ui;
 };
 

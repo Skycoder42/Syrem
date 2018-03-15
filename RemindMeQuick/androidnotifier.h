@@ -16,7 +16,7 @@ public:
 	static const QString ActionDismiss;
 	static const QString ActionSnooze;
 
-	explicit AndroidNotifier(QObject *parent = nullptr);
+	Q_INVOKABLE explicit AndroidNotifier(QObject *parent = nullptr);
 
 	static void guiStarted();
 	static void serviceStarted();

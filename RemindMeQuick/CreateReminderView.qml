@@ -1,20 +1,20 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.10
+import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
+import de.skycoder42.QtMvvm.Core 1.0
+import de.skycoder42.QtMvvm.Quick 1.0
 import de.skycoder42.remindme 1.0
-import de.skycoder42.qtmvvm.quick 1.0
-import de.skycoder42.quickextras 2.0
 
 AlertDialog {
 	id: createDialog
 	title: qsTr("Create Reminder")
-	property CreateReminderControl control: null
+	property CreateReminderControl viewModel: null
 
 	Connections {
-		target: control
+		target: viewModel
 		onCreateCompleted: {
 			if(success)
-				close();
+				close(); //TODO not like that...
 		}
 	}
 
@@ -33,9 +33,9 @@ AlertDialog {
 			focus: true
 			selectByMouse: true
 
-			QtMvvmBinding {
-				control: createDialog.control
-				controlProperty: "text"
+			MvvmBinding {
+				viewModel: createDialog.viewModel
+				viewModelProperty: "text"
 				view: textField
 				viewProperty: "text"
 			}
@@ -51,9 +51,9 @@ AlertDialog {
 			placeholderText: qsTr("When expression")
 			selectByMouse: true
 
-			QtMvvmBinding {
-				control: createDialog.control
-				controlProperty: "expression"
+			MvvmBinding {
+				viewModel: createDialog.viewModel
+				viewModelProperty: "expression"
 				view: whenField
 				viewProperty: "text"
 			}
@@ -66,9 +66,9 @@ AlertDialog {
 		Switch {
 			id: impSwitch
 
-			QtMvvmBinding {
-				control: createDialog.control
-				controlProperty: "important"
+			MvvmBinding {
+				viewModel: createDialog.viewModel
+				viewModelProperty: "important"
 				view: impSwitch
 				viewProperty: "checked"
 			}
@@ -79,6 +79,6 @@ AlertDialog {
 
 	onAccepted: {
 		createDialog.visible = true;
-		control.create();
+		viewModel.create();
 	}
 }

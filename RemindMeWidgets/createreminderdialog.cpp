@@ -1,13 +1,13 @@
 #include "createreminderdialog.h"
 #include "ui_createreminderdialog.h"
+#include <QtMvvmCore/Binding>
 #include <QSettings>
 #include <QWhatsThis>
 #include <dialogmaster.h>
-#include <qtmvvmbinding.h>
 
-CreateReminderDialog::CreateReminderDialog(Control *mControl, QWidget *parent) :
+CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QDialog(parent),
-	_control(static_cast<CreateReminderControl*>(mControl)),
+	_viewModel(static_cast<CreateReminderViewModel*>(viewModel)),
 	_ui(new Ui::CreateReminderDialog)
 {
 	_ui->setupUi(this);
@@ -15,16 +15,22 @@ CreateReminderDialog::CreateReminderDialog(Control *mControl, QWidget *parent) :
 
 	_ui->whenLineEdit->addAction(_ui->actionExpression_Syntax, QLineEdit::TrailingPosition);
 
-	QtMvvmBinding::bind(_control, "text", _ui->textLineEdit, "text", QtMvvmBinding::OneWayToControl);
-	QtMvvmBinding::bind(_control, "expression", _ui->whenLineEdit, "text", QtMvvmBinding::OneWayToControl);
-	QtMvvmBinding::bind(_control, "important", _ui->importantCheckBox, "checked", QtMvvmBinding::OneWayToControl);
+	QtMvvm::bind(_viewModel, "text",
+				 _ui->textLineEdit, "text",
+				 QtMvvm::Binding::OneWayToViewModel);
+	QtMvvm::bind(_viewModel, "expression",
+				 _ui->whenLineEdit, "text",
+				 QtMvvm::Binding::OneWayToViewModel);
+	QtMvvm::bind(_viewModel, "important",
+				 _ui->importantCheckBox, "checked",
+				 QtMvvm::Binding::OneWayToViewModel);
 
-	connect(_control, &CreateReminderControl::createCompleted,
+	connect(_viewModel, &CreateReminderViewModel::createCompleted,
 			this, &CreateReminderDialog::created);
 
 	QSettings settings;
 	settings.beginGroup(QStringLiteral("gui/createreminder"));
-	if(_control->parentControl()){
+	if(parentWidget()){
 		auto s = settings.value(QStringLiteral("size")).toSize();
 		if(s.isValid())
 			resize(s);
@@ -37,7 +43,7 @@ CreateReminderDialog::~CreateReminderDialog()
 {
 	QSettings settings;
 	settings.beginGroup(QStringLiteral("gui/createreminder"));
-	if(_control->parentControl())
+	if(parentWidget())
 		settings.setValue(QStringLiteral("size"), size());
 	else
 		settings.setValue(QStringLiteral("geom"), saveGeometry());
@@ -49,7 +55,7 @@ CreateReminderDialog::~CreateReminderDialog()
 void CreateReminderDialog::accept()
 {
 	_ui->buttonBox->setEnabled(false);
-	_control->create();
+	_viewModel->create();
 }
 
 void CreateReminderDialog::created(bool success)

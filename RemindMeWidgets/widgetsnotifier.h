@@ -14,7 +14,7 @@ class WidgetsNotifier : public QObject, public INotifier
 	Q_INTERFACES(INotifier)
 
 public:
-	explicit WidgetsNotifier(QObject *parent = nullptr);
+	Q_INVOKABLE explicit WidgetsNotifier(QObject *parent = nullptr);
 
 public slots:
 	void beginSetup() override;

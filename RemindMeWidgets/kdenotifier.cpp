@@ -6,7 +6,7 @@
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
-#include <snoozecontrol.h>
+#include <snoozeviewmodel.h>
 #define Icon QIcon(QStringLiteral(":/icons/tray/main.ico")).pixmap(64, 64)
 #define ErrorIcon QIcon(QStringLiteral(":/icons/tray/error.ico")).pixmap(64, 64)
 #define setNotifyIcon setPixmap

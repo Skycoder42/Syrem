@@ -5,6 +5,7 @@
 #include <QtDataSync/Setup>
 #include <QtDataSync/DataStoreModel>
 #include <QtDataSync/ConflictResolver>
+#include <QtMvvmCore/Injection>
 
 #include "remindermanager.h"
 #include "snoozehelper.h"
@@ -39,6 +40,9 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 	QJsonSerializer::registerPointerConverters<Schedule>();
 	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
 	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
+
+	QtMvvm::registerInterfaceConverter<IScheduler>();
+	QtMvvm::registerInterfaceConverter<INotifier>();
 }
 
 void RemindMeDaemon::startDaemon()

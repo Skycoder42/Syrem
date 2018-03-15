@@ -1,14 +1,15 @@
 #include <QGuiApplication>
 #include <QIcon>
+#include <QCommandLineParser>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QTimer>
-#include <createremindercontrol.h>
-#include <quickpresenter.h>
-#include <registry.h>
+#include <QtMvvmCore/ServiceRegistry>
+#include <QtMvvmQuick/QuickPresenter>
+#include <createreminderviewmodel.h>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
-#include <snoozecontrol.h>
+#include <snoozeviewmodel.h>
 #include <snoozetimes.h>
 
 #ifdef Q_OS_ANDROID
@@ -17,7 +18,7 @@
 #include "androidnotifier.h"
 #endif
 
-REGISTER_CORE_APP(RemindMeApp)
+QTMVVM_REGISTER_CORE_APP(RemindMeApp)
 
 static void setupApp();
 static void setupDaemon();
@@ -25,7 +26,7 @@ static void setStatusBarColor(QColor color);
 
 int main(int argc, char *argv[])
 {
-	CoreApp::disableBoot();
+	QtMvvm::CoreApp::disableAutoBoot();
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	setStatusBarColor(QColor(0x51, 0x2D, 0xA8));//see qtquickcontrols2.conf
 
@@ -37,8 +38,9 @@ int main(int argc, char *argv[])
 	QGuiApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 
-	auto parser = coreApp->getParser();
-	if(parser->isSet(QStringLiteral("daemon")))
+	QCommandLineParser parser;
+	coreApp->setupParser(parser);
+	if(parser.isSet(QStringLiteral("daemon")))
 		setupDaemon();
 	else
 		setupApp();
@@ -48,14 +50,15 @@ int main(int argc, char *argv[])
 
 static void setupApp()
 {
-	qmlRegisterUncreatableType<MainControl>("de.skycoder42.remindme", 1, 0, "MainControl", QStringLiteral("Controls cannot be created!"));
-	qmlRegisterUncreatableType<CreateReminderControl>("de.skycoder42.remindme", 1, 0, "CreateReminderControl", QStringLiteral("Controls cannot be created!"));
-	qmlRegisterUncreatableType<SnoozeControl>("de.skycoder42.remindme", 1, 0, "SnoozeControl", QStringLiteral("Controls cannot be created!"));
+	qmlRegisterUncreatableType<MainViewModel>("de.skycoder42.remindme", 1, 0, "MainViewModel", QStringLiteral("ViewModels cannot be created!"));
+	qmlRegisterUncreatableType<CreateReminderViewModel>("de.skycoder42.remindme", 1, 0, "CreateReminderViewModel", QStringLiteral("ViewModels cannot be created!"));
+	qmlRegisterUncreatableType<SnoozeViewModel>("de.skycoder42.remindme", 1, 0, "SnoozeViewModel", QStringLiteral("ViewModels cannot be created!"));
 
-	auto engine = QuickPresenter::createAppEngine(QStringLiteral("qrc:/qml/App.qml"));
-	QuickPresenter::inputViewFactory()->addSimpleView<QTime>(QStringLiteral("qrc:/qml/inputs/TimeEdit.qml"));
-	QuickPresenter::inputViewFactory()->addSimpleView<SnoozeTimes>(QStringLiteral("qrc:/qml/inputs/SnoozeTimesEdit.qml"));
-	engine->rootContext()->setContextProperty(QStringLiteral("qtVersion"), QStringLiteral(QT_VERSION_STR));
+	auto engine = new QQmlApplicationEngine(qApp);
+	engine->load(QUrl(QStringLiteral("qrc:/qml/App.qml")));
+	auto qPres = dynamic_cast<QtMvvm::QuickPresenter*>(QtMvvm::ServiceRegistry::instance()->service<QtMvvm::IPresenter>());
+	qPres->inputViewFactory()->addSimpleInput<QTime>(QStringLiteral("qrc:/qml/inputs/TimeEdit.qml"));
+	qPres->inputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qml/inputs/SnoozeTimesEdit.qml"));
 
 	QMetaObject::invokeMethod(coreApp, "bootApp", Qt::QueuedConnection);
 
@@ -67,8 +70,8 @@ static void setupApp()
 static void setupDaemon()
 {
 #ifdef Q_OS_ANDROID
-	Registry::registerClass<IScheduler, AndroidScheduler>();
-	Registry::registerClass<INotifier, AndroidNotifier>();
+	QtMvvm::ServiceRegistry::instance()->registerInterface<IScheduler, AndroidScheduler>();
+	QtMvvm::ServiceRegistry::instance()->registerInterface<INotifier, AndroidNotifier>();
 #endif
 
 	auto daemon = new RemindMeDaemon(qApp);

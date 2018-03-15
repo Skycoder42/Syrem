@@ -3,10 +3,10 @@
 
 #include <QObject>
 #include <QUuid>
-#include <control.h>
+#include <QtMvvmCore/ViewModel>
 class SnoozeHelperReplica;
 
-class SnoozeControl : public Control
+class SnoozeViewModel : public QtMvvm::ViewModel
 {
 	Q_OBJECT
 
@@ -16,7 +16,9 @@ class SnoozeControl : public Control
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
 public:
-	explicit SnoozeControl(QObject *parent = nullptr);
+	Q_INVOKABLE explicit SnoozeViewModel(QObject *parent = nullptr);
+
+	static QVariantHash showParams(const QUuid &id, quint32 versionCode);
 
 	bool isLoaded() const;
 	QString description() const;
@@ -24,16 +26,20 @@ public:
 	QString expression() const;
 
 public slots:
-	void show(const QUuid &id, quint32 versionCode);
 	void snooze();
 
 	void setExpression(QString expression);
 
 signals:
+	void close(); //TODO use in GUIs
+
 	void loadedChanged(bool loaded);
 	void descriptionChanged(QString description);
 	void snoozeTimesChanged(QStringList snoozeTimes);
 	void expressionChanged(QString expression);
+
+protected:
+	void onInit(const QVariantHash &params) override;
 
 private slots:
 	void reminderLoaded(const QUuid &id, const QString &description);

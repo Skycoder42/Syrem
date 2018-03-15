@@ -11,7 +11,7 @@ class AndroidScheduler : public QObject, public IScheduler
 	Q_INTERFACES(IScheduler)
 
 public:
-	explicit AndroidScheduler(QObject *parent = nullptr);
+	Q_INVOKABLE explicit AndroidScheduler(QObject *parent = nullptr);
 
 	static void triggerSchedule(const QUuid &id, quint32 versionCode);
 

@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
 #include <qobjectproxymodel.h>
-#include <maincontrol.h>
+#include <mainviewmodel.h>
 #include <QSettings>
 
 namespace Ui {
@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	Q_INVOKABLE MainWindow(Control *mControl, QWidget *parent = nullptr);
+	Q_INVOKABLE MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent = nullptr);
 	~MainWindow();
 
 private slots:
@@ -43,7 +43,7 @@ private slots:
 
 
 private:
-	MainControl *_control;
+	MainViewModel *_viewModel;
 	Ui::MainWindow *_ui;
 
 	ReminderProxyModel *_proxyModel;

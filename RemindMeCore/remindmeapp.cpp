@@ -1,82 +1,28 @@
 #include "remindmeapp.h"
 #include "rep_remindermanager_replica.h"
-#include "snoozecontrol.h"
+#include "snoozeviewmodel.h"
 #include "snoozetimes.h"
 
 #include <QLibraryInfo>
 #include <QTranslator>
+#include <QCommandLineParser>
 
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
 	_roNode(nullptr),
 	_mainControl(nullptr)
-{
-	SnoozeTimes::setup();
-
-	Q_INIT_RESOURCE(remindmecore);
-
-	//load translations
-	auto translator = new QTranslator(this);
-	if(translator->load(QLocale(),
-						QStringLiteral("remindme"),
-						QStringLiteral("_"),
-						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
-		qApp->installTranslator(translator);
-	else {
-		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
-		delete translator;
-		QLocale::setDefault(QLocale::c());
-	}
-}
+{}
 
 QRemoteObjectNode *RemindMeApp::node() const
 {
 	return _roNode;
 }
 
-void RemindMeApp::commandMessage(const QStringList &message)
+void RemindMeApp::setupParser(QCommandLineParser &parser) const
 {
-	auto parser = getParser();
-	if(!parser->parse(message))
-		qWarning() << "Invalid arguments received!";
-	else {
-		if(parser->isSet(QStringLiteral("daemon")))
-			return;
-
-		if(parser->isSet(QStringLiteral("create"))) {
-			if(parser->positionalArguments().size() < 2) {
-				qWarning() << "Invalid create arguments! Must be:" << QCoreApplication::applicationName() << "--create [--important] <text> <when>";
-				return;
-			}
-
-			auto text = parser->positionalArguments().value(0);
-			auto when = parser->positionalArguments().value(1);
-			auto important = parser->isSet(QStringLiteral("important"));
-			createFromCli(text, when, important);
-		} else
-			showControl(_mainControl);
-	}
-}
-
-void RemindMeApp::showMainControl()
-{
-	showControl(_mainControl);
-}
-
-void RemindMeApp::showSnoozeControl(const QUuid &id, quint32 versionCode)
-{
-	if(id.isNull())
-		return;
-	auto snoozeControl = new SnoozeControl(_mainControl);
-	snoozeControl->setDeleteOnClose(true);
-	snoozeControl->show(id, versionCode);
-}
-
-void RemindMeApp::setupParser(QCommandLineParser &parser, bool &allowInvalid) const
-{
-	CoreApp::setupParser(parser, allowInvalid);
-
 	parser.setApplicationDescription(tr("A simple reminder application for desktop and mobile, with synchronized reminders."));
+	parser.addHelpOption();
+	parser.addVersionOption();
 	parser.addOption({
 						 {QStringLiteral("d"), QStringLiteral("daemon")},
 						 tr("Start the Remind-Me daemon instead of the standard GUI.")
@@ -96,11 +42,71 @@ void RemindMeApp::setupParser(QCommandLineParser &parser, bool &allowInvalid) co
 					 });
 }
 
-bool RemindMeApp::startApp(const QCommandLineParser &parser)
+void RemindMeApp::commandMessage(const QStringList &message)
 {
+	QCommandLineParser parser;
+	setupParser(parser);
+	if(!parser.parse(message))
+		qWarning() << "Invalid arguments received!";
+	else {
+		if(parser.isSet(QStringLiteral("daemon")))
+			return;
+
+		if(parser.isSet(QStringLiteral("create"))) {
+			if(parser.positionalArguments().size() < 2) {
+				qWarning() << "Invalid create arguments! Must be:" << QCoreApplication::applicationName() << "--create [--important] <text> <when>";
+				return;
+			}
+
+			auto text = parser.positionalArguments().value(0);
+			auto when = parser.positionalArguments().value(1);
+			auto important = parser.isSet(QStringLiteral("important"));
+			createFromCli(text, when, important);
+		} else
+			showMainControl();
+	}
+}
+
+void RemindMeApp::showMainControl()
+{
+	show<MainViewModel>(); //TODO or activate existing
+}
+
+void RemindMeApp::showSnoozeControl(const QUuid &id, quint32 versionCode)
+{
+	if(id.isNull())
+		return;
+	show<SnoozeViewModel>(SnoozeViewModel::showParams(id, versionCode));
+}
+
+void RemindMeApp::performRegistrations()
+{
+	SnoozeTimes::setup();
+
+	Q_INIT_RESOURCE(remindmecore);
+
+	//load translations
+	auto translator = new QTranslator(this);
+	if(translator->load(QLocale(),
+						QStringLiteral("remindme"),
+						QStringLiteral("_"),
+						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+		qApp->installTranslator(translator);
+	else {
+		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
+		delete translator;
+		QLocale::setDefault(QLocale::c());
+	}
+}
+
+int RemindMeApp::startApp(const QStringList &arguments)
+{
+	QCommandLineParser parser;
+	setupParser(parser);
+
 	//shows help or version automatically
-	if(autoShowHelpOrVersion(parser))
-		return true;
+	if(!autoParse(parser, arguments))
+		return EXIT_SUCCESS;
 
 	_roNode = new QRemoteObjectNode(this);
 	_roNode->setName(QStringLiteral("widgets-main"));
@@ -112,17 +118,9 @@ bool RemindMeApp::startApp(const QCommandLineParser &parser)
 		qCritical() << "RO_ERROR:" << errorCode;
 	});
 
-
-	_mainControl = new MainControl(this);
-
 	if(!parser.isSet(QStringLiteral("daemon")))
-		showControl(_mainControl);
+		showMainControl();
 	return true;
-}
-
-void RemindMeApp::aboutToQuit()
-{
-	//if you need to perform any cleanups, do it here
 }
 
 void RemindMeApp::createFromCli(const QString &text, const QString &when, bool important)

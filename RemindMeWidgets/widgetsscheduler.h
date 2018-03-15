@@ -11,7 +11,7 @@ class WidgetsScheduler : public QObject, public IScheduler
 	Q_INTERFACES(IScheduler)
 
 public:
-	explicit WidgetsScheduler(QObject *parent = nullptr);
+	Q_INVOKABLE explicit WidgetsScheduler(QObject *parent = nullptr);
 
 public slots:
 	void initialize(const QList<Reminder> &allReminders) override;

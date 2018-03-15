@@ -1,10 +1,10 @@
 #ifndef CREATEREMINDERCONTROL_H
 #define CREATEREMINDERCONTROL_H
 
-#include <control.h>
+#include <QtMvvmCore/ViewModel>
 class ReminderManagerReplica;
 
-class CreateReminderControl : public Control
+class CreateReminderViewModel : public QtMvvm::ViewModel
 {
 	Q_OBJECT
 
@@ -13,23 +13,23 @@ class CreateReminderControl : public Control
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
 public:
-	explicit CreateReminderControl(QObject *parent = nullptr);
+	Q_INVOKABLE explicit CreateReminderViewModel(QObject *parent = nullptr);
 
 	QString text() const;
 	bool important() const;
 	QString expression() const;
 
 public slots:
-	void setText(QString text);
+	void setText(const QString &text);
 	void setImportant(bool important);
-	void setExpression(QString expression);
+	void setExpression(const QString &expression);
 
 	void create();
 
 signals:
-	void textChanged(QString text);
+	void textChanged(const QString &text);
 	void importantChanged(bool important);
-	void expressionChanged(QString expression);
+	void expressionChanged(const QString &expression);
 
 	void createCompleted(bool success);
 
