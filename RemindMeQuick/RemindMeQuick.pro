@@ -83,10 +83,9 @@ android {
 	ANDROID_EXTRA_LIBS += $$[QT_INSTALL_PREFIX]/lib/libcrypto.so $$[QT_INSTALL_PREFIX]/lib/libssl.so
 }
 
-include(../ts-compiler.pri)
-
 qpmx_ts_target.path = $$TS_INSTALL_DIR
 tsqtInstall.path = $$TS_INSTALL_DIR
+extra_ts_target.path = $$TS_INSTALL_DIR
 INSTALLS += qpmx_ts_target extra_ts_target
 
 tsqtInstall.files = \
@@ -126,9 +125,3 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)
-
-# custom tr (after qpmx to make use of lrelease
-lrelease_extra.target = lrelease-extra
-lrelease_extra.commands = $$LRELEASE $$shell_quote($$shell_path($$PWD/remindme_de.ts)) -qm $$shell_quote($$shell_path($$OUT_PWD/remindme_de.qm))
-lrelease.depends += lrelease_extra
-QMAKE_EXTRA_TARGETS += lrelease lrelease_extra

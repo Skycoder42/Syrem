@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QSettings>
-#include <QtDataSync/AsyncDataStore>
+#include <QtDataSync/DataTypeStore>
 #include "dateparser.h"
 #include "reminder.h"
 #include "rep_remindermanager_source.h"
@@ -21,7 +21,7 @@ public slots:
 	void removeReminder(const QUuid &id) override;
 
 private:
-	QtDataSync::AsyncDataStore *_store;
+	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
 	QSettings *_settings;
 	DateParser *_parser;
 	IScheduler *_scheduler;

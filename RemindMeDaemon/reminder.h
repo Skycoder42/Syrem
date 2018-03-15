@@ -6,7 +6,7 @@
 #include <QSharedDataPointer>
 #include <QSharedPointer>
 #include <QUuid>
-#include <QtDataSync/AsyncDataStore>
+#include <QtDataSync/DataTypeStore>
 
 #include "schedule.h"
 
@@ -53,8 +53,8 @@ public:
 	QSharedPointer<const Schedule> schedule() const;
 	QDateTime snooze() const;
 
-	QtDataSync::GenericTask<void> nextSchedule(QtDataSync::AsyncDataStore *store, const QDateTime &current);
-	QtDataSync::GenericTask<void> performSnooze(QtDataSync::AsyncDataStore *store, const QDateTime &snooze);
+	void nextSchedule(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &current);
+	void performSnooze(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &snooze);
 
 public slots:
 	void setId(QUuid id);

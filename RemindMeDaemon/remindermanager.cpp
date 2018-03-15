@@ -5,7 +5,7 @@ using namespace QtDataSync;
 
 ReminderManager::ReminderManager(QObject *parent) :
 	ReminderManagerSimpleSource(parent),
-	_store(new AsyncDataStore(this)),
+	_store(new DataTypeStore<Reminder, QUuid>(this)),
 	_settings(new QSettings(this)),
 	_parser(new DateParser(this)),
 	_scheduler(Registry::acquire<IScheduler>())
@@ -20,7 +20,7 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 	if(!expr) {
 		emit reminderError(true, tr("<p>Invalid \"when\" expression! Error message:</p><p><i>%1</i></p>").arg(_parser->lastError()));
 		return;
-}
+	}
 	auto sched = expr->createSchedule(QDateTime::currentDateTime(), _settings->value(QStringLiteral("defaultTime"), QTime(9,0)).toTime());
 	if(!sched) {
 		emit reminderError(true, tr("Given \"when\" expression is valid, but evaluates to a timepoint in the past!"));
@@ -38,22 +38,23 @@ void ReminderManager::createReminder(const QString &text, bool important, const 
 	rem.setImportant(important);
 	rem.setSchedule(sched);
 
-	_store->save(rem).onResult(this, [this](){
+	try {
+		_store->save(rem);
 		emit reminderCreated();
-	}, [this](const QException &e) {
+	} catch(QException &e) {
 		qCritical() << "Failed to create reminder with error:" << e.what();
 		emit reminderError(true, tr("Failed to save reminder!"));
-	});
+	}
 }
 
 void ReminderManager::removeReminder(const QUuid &id)
 {
 	_scheduler->cancleReminder(id);
-	_store->remove<Reminder>(id).onResult(this, [id](bool removed) {
-		if(!removed)
+	try {
+		if(!_store->remove(id))
 			qWarning() << "Reminder with id" << id << "has already been removed";
-	}, [this](const QException &e) {
+	} catch(QException &e) {
 		qCritical() << "Failed to remove reminder with error:" << e.what();
 		emit reminderError(false, tr("Failed to delete reminder!"));
-	});
+	}
 }

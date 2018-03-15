@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QSettings>
-#include <QtDataSync/AsyncDataStore>
+#include <QtDataSync/DataTypeStore>
 #include "reminder.h"
 #include "rep_snoozehelper_source.h"
 #include "dateparser.h"
@@ -20,7 +20,7 @@ public slots:
 	void snoozeReminder(const QUuid &id, const QString &expression) override;
 
 private:
-	QtDataSync::AsyncDataStore *_store;
+	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
 	DateParser *_parser;
 	QSettings *_settings;
 

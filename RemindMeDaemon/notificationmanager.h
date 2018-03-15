@@ -2,8 +2,8 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <QObject>
-#include <QtDataSync/SyncController>
-#include <QtDataSync/AsyncDataStore>
+#include <QtDataSync/SyncManager>
+#include <QtDataSync/DataTypeStore>
 #include <ischeduler.h>
 #include <inotifier.h>
 #include <QSettings>
@@ -20,23 +20,17 @@ private slots:
 
 	void messageDismissed(const QUuid &id, quint32 versionCode);
 	void messageCompleted(const QUuid &id, quint32 versionCode);
-	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger);
+	void messageDelayed(const QUuid &id, quint32 versionCode, QDateTime nextTrigger);
 
-	void dataChanged(int metaTypeId, const QString &key, bool wasDeleted);
+	void dataChanged(const QString &key, const QVariant &value);
 
 private:
 	IScheduler *_scheduler;
 	INotifier *_notifier;
 
 	QSettings *_settings;
-	QtDataSync::SyncController *_controller;
-	QtDataSync::AsyncDataStore *_store;
-
-	bool _settingUp;
-	quint32 _loadingNotCnt;
-
-	//DEBUG needed until fix
-	bool _isReady;
+	QtDataSync::SyncManager *_manager;
+	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
 };
 
 #endif // NOTIFICATIONMANAGER_H

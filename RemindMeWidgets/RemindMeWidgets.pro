@@ -70,10 +70,9 @@ DISTFILES += \
 	remind-me.desktop \
 	$$EXTRA_TRANSLATIONS
 
-include(../ts-compiler.pri)
-
 target.path = $$[QT_INSTALL_BINS]
 qpmx_ts_target.path = $$TS_INSTALL_DIR
+extra_ts_target.path = $$TS_INSTALL_DIR
 INSTALLS += target qpmx_ts_target extra_ts_target
 
 kde_notifier {
@@ -110,5 +109,6 @@ else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PW
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/debug/RemindMeDaemon.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeDaemon/libRemindMeDaemon.a
 
+# qpmx
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)

@@ -11,9 +11,6 @@ RemindMeWidgets.depends += RemindMeCore RemindMeDaemon
 RemindMeQuick.depends += RemindMeCore RemindMeDaemon
 Tests.depends += RemindMeDaemon
 
-#DEBUG qpmx bug
-RemindMeCore.depends += RemindMeDaemon
-
 DISTFILES += .qmake.conf \
 	README.md
 

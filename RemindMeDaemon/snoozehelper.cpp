@@ -4,7 +4,7 @@ using namespace QtDataSync;
 
 SnoozeHelper::SnoozeHelper(QObject *parent) :
 	SnoozeHelperSimpleSource(parent),
-	_store(new AsyncDataStore(this)),
+	_store(new DataTypeStore<Reminder, QUuid>(this)),
 	_parser(new DateParser(this)),
 	_settings(new QSettings(this)),
 	_remCache()
@@ -14,16 +14,17 @@ SnoozeHelper::SnoozeHelper(QObject *parent) :
 
 void SnoozeHelper::loadReminder(const QUuid &id, quint32 versionCode)
 {
-	_store->load<Reminder>(id).onResult(this, [this, versionCode](Reminder reminder) {
+	try {
+		auto reminder = _store->load(id);
 		if(reminder.versionCode() == versionCode) {
 			_remCache.insert(reminder.id(), reminder);
 			emit reminderLoaded(reminder.id(), reminder.description());
 		} else
 			emit reminderError(reminder.id(), tr("Reminder has already been snoozed!"), true);
-	}, [this, id](const QException &e) {
+	} catch(QException &e) {
 		qCritical() << "Failed to load reminder with error:" << e.what();
 		emit reminderError(id, tr("Failed to load reminder!"), true);
-	});
+	}
 }
 
 void SnoozeHelper::snoozeReminder(const QUuid &id, const QString &expression)
@@ -35,5 +36,8 @@ void SnoozeHelper::snoozeReminder(const QUuid &id, const QString &expression)
 		emit reminderSnoozed(id);
 	} catch (QString &s) {
 		emit reminderError(id, s, false);
+	} catch (QException &e) {
+		qCritical() << "Failed to snooze reminder with error:" << e.what();
+		emit reminderError(id, tr("Failed to snooze reminder!"), false);
 	}
 }

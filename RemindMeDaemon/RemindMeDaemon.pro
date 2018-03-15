@@ -1,7 +1,7 @@
 TEMPLATE = lib
 
 QT += core gui remoteobjects datasync
-CONFIG += c++11 staticlib #important because dlls are problematic
+CONFIG += c++14 staticlib #important because dlls are problematic
 
 TARGET = RemindMeDaemon
 VERSION = $$RM_VERSION
