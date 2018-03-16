@@ -10,6 +10,11 @@ AlertDialog {
 	title: qsTr("Snooze Reminder")
 	property SnoozeViewModel viewModel: null
 
+	Connections {
+		target: viewModel
+		onClose: QuickPresenter.popView()
+	}
+
 	ColumnLayout {
 		width: parent.width
 

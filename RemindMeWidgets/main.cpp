@@ -1,9 +1,11 @@
 #include <QApplication>
 #include <QKeySequenceEdit>
 #include <QTimeEdit>
+#include <QtDataSync/MigrationHelper>
 #include <QtMvvmCore/ServiceRegistry>
 #include <QtMvvmWidgets/WidgetsPresenter>
 #include <QtMvvmWidgets/SettingsDialog>
+#include <QtMvvmDataSyncWidgets/qtmvvmdatasyncwidgets_global.h>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
 #include <qsingleinstance.h>
@@ -55,6 +57,7 @@ int main(int argc, char *argv[])
 						 daemon, &RemindMeDaemon::commandMessage);
 
 		//app
+		QtMvvm::registerDataSyncWidgets();
 		QtMvvm::WidgetsPresenter::registerView<MainWindow>();
 		QtMvvm::WidgetsPresenter::registerView<CreateReminderDialog>();
 		QtMvvm::WidgetsPresenter::registerView<SnoozeDialog>();
@@ -71,6 +74,10 @@ int main(int argc, char *argv[])
 			coreApp->show<CreateReminderViewModel>();
 		});
 		hk->setShortcut(QKeySequence(QSettings().value(QStringLiteral("gui/hotkey"), QStringLiteral("CTRL+META+R")).toString()), true);
+
+//		//migration helper
+//		QtDataSync::MigrationHelper helper;
+//		helper.startMigration(QtDataSync::MigrationHelper::DefaultOldStorageDir, QtDataSync::MigrationHelper::MigrateData);
 
 		return EXIT_SUCCESS;
 	});

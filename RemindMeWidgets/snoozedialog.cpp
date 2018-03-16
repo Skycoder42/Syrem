@@ -24,6 +24,8 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QtMvvm::bind(_viewModel, "snoozeTimes",
 				 this, "comboBoxItems",
 				 QtMvvm::Binding::OneWayToView);
+	connect(_viewModel, &SnoozeViewModel::close,
+			this, &SnoozeDialog::close);
 }
 
 void SnoozeDialog::accept()

@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += core gui qml quick remoteobjects datasync mvvmquick
+QT += core gui qml quick remoteobjects datasync mvvmquick mvvmdatasyncquick
 android: QT += androidextras
 android: CONFIG += c++14
 

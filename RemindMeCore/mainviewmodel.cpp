@@ -3,6 +3,7 @@
 #include "snoozeviewmodel.h"
 #include <QtMvvmCore/SettingsViewModel>
 #include <QtMvvmCore/Messages>
+#include <QtMvvmDataSyncCore/DataSyncViewModel>
 #include <QUuid>
 #include <rep_remindermanager_replica.h>
 #include <remindmeapp.h>
@@ -37,6 +38,19 @@ QAbstractItemModelReplica *MainViewModel::reminderModel() const
 void MainViewModel::showSettings()
 {
 	show<QtMvvm::SettingsViewModel>();
+}
+
+void MainViewModel::showSync()
+{
+	show<QtMvvm::DataSyncViewModel>();
+}
+
+void MainViewModel::showAbout()
+{
+	QtMvvm::about(tr("A simple reminder application for desktop and mobile, with synchronized reminder."),
+				  QStringLiteral("https://github.com/Skycoder42/RemindMe"),
+				  tr("BSD 3 Clause"),
+				  QStringLiteral("https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"));
 }
 
 void MainViewModel::addReminder()

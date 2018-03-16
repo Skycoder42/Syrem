@@ -80,6 +80,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Settings"/>
+    <addaction name="actionS_ynchronization"/>
     <addaction name="separator"/>
     <addaction name="action_Close"/>
     <addaction name="action_Quit"/>
@@ -236,6 +237,14 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionS_ynchronization">
+   <property name="icon">
+    <iconset theme="view-refresh"/>
+   </property>
+   <property name="text">
+    <string>S&amp;ynchronization</string>
    </property>
   </action>
  </widget>

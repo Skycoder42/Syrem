@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += core gui remoteobjects mvvmcore
+QT += core gui remoteobjects mvvmcore mvvmdatasynccore
 CONFIG += staticlib #important because dlls are problematic
 android: CONFIG += c++14
 

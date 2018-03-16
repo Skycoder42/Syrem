@@ -14,7 +14,7 @@ AlertDialog {
 		target: viewModel
 		onCreateCompleted: {
 			if(success)
-				close(); //TODO not like that...
+				close();
 		}
 	}
 

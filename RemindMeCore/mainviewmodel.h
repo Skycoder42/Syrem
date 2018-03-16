@@ -20,6 +20,8 @@ public:
 
 public slots:
 	void showSettings();
+	void showSync();
+	void showAbout();
 
 	void addReminder();
 	void removeReminder(const QUuid &id);

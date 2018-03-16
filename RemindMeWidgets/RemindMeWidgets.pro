@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += core gui widgets remoteobjects datasync mvvmwidgets
+QT += core gui widgets remoteobjects datasync mvvmwidgets mvvmdatasyncwidgets
 
 !no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
 

@@ -31,7 +31,7 @@ public slots:
 	void setExpression(QString expression);
 
 signals:
-	void close(); //TODO use in GUIs
+	void close();
 
 	void loadedChanged(bool loaded);
 	void descriptionChanged(QString description);

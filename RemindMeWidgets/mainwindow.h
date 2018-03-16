@@ -36,7 +36,6 @@ public:
 private slots:
 	void on_action_Delete_Reminder_triggered();
 	void on_action_Snooze_Reminder_triggered();
-	void on_action_About_triggered();
 
 	void on_treeView_activated(const QModelIndex &index);
 	void updateCurrent(const QModelIndex &index);

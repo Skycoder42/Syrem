@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QtMvvmCore/ServiceRegistry>
 #include <QtMvvmQuick/QuickPresenter>
+#include <QtMvvmDataSyncQuick/qtmvvmdatasyncquick_global.h>
 #include <createreminderviewmodel.h>
 #include <remindmeapp.h>
 #include <remindmedaemon.h>
@@ -26,28 +27,37 @@ static void setStatusBarColor(QColor color);
 
 int main(int argc, char *argv[])
 {
-	QtMvvm::CoreApp::disableAutoBoot();
-	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-	setStatusBarColor(QColor(0x51, 0x2D, 0xA8));//see qtquickcontrols2.conf
-
-	QGuiApplication app(argc, argv);
-	QGuiApplication::setApplicationName(QStringLiteral(TARGET));
-	QGuiApplication::setApplicationVersion(QStringLiteral(VERSION));
-	QGuiApplication::setOrganizationName(QStringLiteral(COMPANY));
-	QGuiApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
-	QGuiApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
-	QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
-
-	QCommandLineParser parser;
-	coreApp->setupParser(parser);
-	if(!parser.parse(QCoreApplication::arguments()))
-		return EXIT_FAILURE;
-	if(parser.isSet(QStringLiteral("daemon")))
+	if(qstrcmp(argv[1], "--daemon") == 0) {
+		qCritical("PUSSY: in service part");
+		QCoreApplication app(argc, argv);
+		qCritical("PUSSY: core app created");
 		setupDaemon();
-	else
-		setupApp();
+		qCritical("PUSSY: daemon part created");
+		return app.exec();
+	} else {
+		QtMvvm::CoreApp::disableAutoBoot();
+		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+		setStatusBarColor(QColor(0x51, 0x2D, 0xA8));//see qtquickcontrols2.conf
 
-	return app.exec();
+		QGuiApplication app(argc, argv);
+		QGuiApplication::setApplicationName(QStringLiteral(TARGET));
+		QGuiApplication::setApplicationVersion(QStringLiteral(VERSION));
+		QGuiApplication::setOrganizationName(QStringLiteral(COMPANY));
+		QGuiApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
+		QGuiApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
+		QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
+
+		QCommandLineParser parser;
+		coreApp->setupParser(parser);
+		if(!parser.parse(QCoreApplication::arguments()))
+			return EXIT_FAILURE;
+		if(parser.isSet(QStringLiteral("daemon")))
+			setupDaemon();
+		else
+			setupApp();
+
+		return app.exec();
+	}
 }
 
 static void setupApp()
@@ -55,6 +65,8 @@ static void setupApp()
 	qmlRegisterUncreatableType<MainViewModel>("de.skycoder42.remindme", 1, 0, "MainViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderViewModel>("de.skycoder42.remindme", 1, 0, "CreateReminderViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<SnoozeViewModel>("de.skycoder42.remindme", 1, 0, "SnoozeViewModel", QStringLiteral("ViewModels cannot be created!"));
+
+	QtMvvm::registerDataSyncQuick();
 
 	auto engine = new QQmlApplicationEngine(qApp);
 	engine->load(QUrl(QStringLiteral("qrc:/qml/App.qml")));

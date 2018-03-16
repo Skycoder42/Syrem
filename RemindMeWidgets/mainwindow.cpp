@@ -23,6 +23,10 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 			qApp, &QApplication::quit);
 	connect(_ui->action_Settings, &QAction::triggered,
 			_viewModel, &MainViewModel::showSettings);
+	connect(_ui->actionS_ynchronization, &QAction::triggered,
+			_viewModel, &MainViewModel::showSync);
+	connect(_ui->action_About, &QAction::triggered,
+			_viewModel, &MainViewModel::showAbout);
 	connect(_ui->action_Add_Reminder, &QAction::triggered,
 			_viewModel, &MainViewModel::addReminder);
 
@@ -69,16 +73,6 @@ void MainWindow::on_action_Delete_Reminder_triggered()
 void MainWindow::on_action_Snooze_Reminder_triggered()
 {
 	on_treeView_activated(_ui->treeView->currentIndex());
-}
-
-void MainWindow::on_action_About_triggered()
-{
-	//TODO move to core
-	DialogMaster::about(this,
-						tr("A simple reminder application for desktop and mobile, with synchronized reminder."),
-						QStringLiteral("https://github.com/Skycoder42/RemindMe"),
-						tr("BSD 3 Clause"),
-						QStringLiteral("https://github.com/Skycoder42/RemindMe/blob/master/LICENSE"));
 }
 
 void MainWindow::on_treeView_activated(const QModelIndex &index)

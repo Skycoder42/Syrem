@@ -32,19 +32,18 @@ Page {
 					onClicked: viewModel.showSettings()
 				}
 
-	//			MenuItem {
-	//				id: sync
-	//				text: qsTr("Synchronization")
-	//				onClicked: viewModel.showSync()
-	//			}
+				MenuItem {
+					id: sync
+					text: qsTr("Synchronization")
+					onClicked: viewModel.showSync()
+				}
 
 				MenuSeparator {}
 
 				MenuItem {
 					id: about
 					text: qsTr("About")
-
-					onClicked: aboutDialog.open()
+					onClicked: viewModel.showAbout()
 				}
 			}
 		}
