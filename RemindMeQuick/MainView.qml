@@ -5,11 +5,11 @@ import QtQuick.Layouts 1.3
 import de.skycoder42.QtMvvm.Core 1.0
 import de.skycoder42.QtMvvm.Quick 1.0
 import de.skycoder42.remindme 1.0
-import ".."
+import "../../qml"
 
 Page {
 	id: mainView
-	property MainControl viewModel: null
+	property MainViewModel viewModel: null
 
 	header: ContrastToolBar {
 		id: toolbar
@@ -75,7 +75,7 @@ Page {
 		anchors.margins: 16
 
 		icon.name: "gtk-add"
-		icon.source: "image://svg/icons/ic_add"
+		icon.source: "qrc:/icons/ic_add.svg"
 		text: qsTr("Add Reminder")
 
 		onClicked: viewModel.addReminder()

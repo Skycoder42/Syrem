@@ -8,7 +8,7 @@ import de.skycoder42.remindme 1.0
 AlertDialog {
 	id: createDialog
 	title: qsTr("Create Reminder")
-	property CreateReminderControl viewModel: null
+	property CreateReminderViewModel viewModel: null
 
 	Connections {
 		target: viewModel

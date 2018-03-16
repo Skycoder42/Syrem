@@ -112,7 +112,7 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	_roNode->setName(QStringLiteral("widgets-main"));
 	if(!_roNode->connectToNode(QUrl(QStringLiteral("local:remindme-daemon")))) {
 		qCritical() << _roNode->lastError();
-		return false;
+		return EXIT_FAILURE;
 	}
 	connect(_roNode, &QRemoteObjectNode::error, this, [this](QRemoteObjectNode::ErrorCode errorCode){
 		qCritical() << "RO_ERROR:" << errorCode;
@@ -120,7 +120,7 @@ int RemindMeApp::startApp(const QStringList &arguments)
 
 	if(!parser.isSet(QStringLiteral("daemon")))
 		showMainControl();
-	return true;
+	return EXIT_SUCCESS;
 }
 
 void RemindMeApp::createFromCli(const QString &text, const QString &when, bool important)

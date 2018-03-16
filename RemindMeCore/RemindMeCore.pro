@@ -2,6 +2,7 @@ TEMPLATE = lib
 
 QT += core gui remoteobjects mvvmcore
 CONFIG += staticlib #important because dlls are problematic
+android: CONFIG += c++14
 
 TARGET = RemindMeCore
 VERSION = $$RM_VERSION

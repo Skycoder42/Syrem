@@ -2,6 +2,9 @@
 #define ANDROIDNOTIFIER_H
 
 #include <QObject>
+#include <QMutex>
+#include <QUuid>
+#include <QSet>
 #include <inotifier.h>
 #include <tuple>
 

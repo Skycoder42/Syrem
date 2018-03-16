@@ -2,10 +2,10 @@
 #include "androidscheduler.h"
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
-#include <registry.h>
+#include <QtMvvmCore/ServiceRegistry>
 #include <remindmeapp.h>
 #include <dateparser.h>
-#include <QtDataSync/SyncController>
+#include <QtDataSync/SyncManager>
 
 const QString AndroidNotifier::ActionScheduler(QStringLiteral("de.skycoder42.remindme.ActionScheduler"));
 const QString AndroidNotifier::ActionComplete(QStringLiteral("de.skycoder42.remindme.ActionComplete"));
@@ -50,7 +50,7 @@ void AndroidNotifier::handleServiceIntent(const QString &action, const QUuid &id
 {
 	qDebug() << Q_FUNC_INFO << action << id << versionCode << result;
 	QMutexLocker _(&_invokeMutex);
-	auto obj = Registry::acquireObject(INotifier_iid);
+	auto obj = QtMvvm::ServiceRegistry::instance()->serviceObj(INotifier_iid);
 	qDebug() << Q_FUNC_INFO << obj;
 
 	//block notifications from beeing re-shown while starting up
@@ -207,8 +207,8 @@ void AndroidNotifier::tryQuit()
 		if(_shouldSync) {
 			qDebug() << Q_FUNC_INFO << "sync";
 			_shouldSync = false;
-			auto controller = new QtDataSync::SyncController(this);
-			controller->triggerSyncWithResult([controller](QtDataSync::SyncController::SyncState state) {
+			auto manager = new QtDataSync::SyncManager(this);
+			manager->runOnSynchronized([](QtDataSync::SyncManager::SyncState state) {
 				qDebug() << Q_FUNC_INFO << state;
 				auto service = QtAndroid::androidService();
 				service.callMethod<void>("completeAction");

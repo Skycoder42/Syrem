@@ -2,6 +2,7 @@ TEMPLATE = app
 
 QT += core gui qml quick remoteobjects datasync mvvmquick
 android: QT += androidextras
+android: CONFIG += c++14
 
 TARGET = remind-me
 VERSION = $$RM_VERSION
@@ -78,8 +79,10 @@ DISTFILES += \
 	$$EXTRA_TRANSLATIONS
 
 android {
-	LIBS += -lcrypto -lssl
-	ANDROID_EXTRA_LIBS += $$[QT_INSTALL_PREFIX]/lib/libcrypto.so $$[QT_INSTALL_PREFIX]/lib/libssl.so
+	LIBS += -L$$PWD/openssl/openssl -lcrypto -lssl
+	ANDROID_EXTRA_LIBS += \
+		$$PWD/openssl/openssl/libcrypto.so \
+		$$PWD/openssl/openssl/libssl.so
 }
 
 qpmx_ts_target.path = $$TS_INSTALL_DIR

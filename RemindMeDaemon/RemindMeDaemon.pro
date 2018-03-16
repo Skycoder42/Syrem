@@ -1,7 +1,8 @@
 TEMPLATE = lib
 
 QT += core gui remoteobjects datasync mvvmcore
-CONFIG += c++14 staticlib #important because dlls are problematic
+CONFIG += staticlib #important because dlls are problematic
+android: CONFIG += c++14
 
 TARGET = RemindMeDaemon
 VERSION = $$RM_VERSION

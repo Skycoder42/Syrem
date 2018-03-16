@@ -5,7 +5,7 @@
         <file>SnoozeEdit.qml</file>
         <file>TintedIcon.qml</file>
     </qresource>
-    <qresource prefix="/qml/views">
+    <qresource prefix="/qtmvvm/views">
         <file>MainView.qml</file>
         <file>CreateReminderView.qml</file>
         <file>SnoozeView.qml</file>

@@ -8,7 +8,7 @@ import de.skycoder42.remindme 1.0
 AlertDialog {
 	id: snoozeDialog
 	title: qsTr("Snooze Reminder")
-	property SnoozeControl viewModel: null
+	property SnoozeViewModel viewModel: null
 
 	ColumnLayout {
 		width: parent.width

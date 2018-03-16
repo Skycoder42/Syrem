@@ -1,7 +1,7 @@
 #include "androidscheduler.h"
 #include <QtAndroid>
+#include <QtMvvmCore/ServiceRegistry>
 #include <chrono>
-#include <registry.h>
 
 AndroidScheduler::AndroidScheduler(QObject *parent) :
 	QObject(parent),
@@ -16,7 +16,7 @@ void AndroidScheduler::triggerSchedule(const QUuid &id, quint32 versionCode)
 {
 	if(id.isNull())
 		return;
-	auto self = qobject_cast<AndroidScheduler*>(Registry::acquireObject(IScheduler_iid));
+	auto self = dynamic_cast<AndroidScheduler*>(QtMvvm::ServiceRegistry::instance()->service<IScheduler>());
 	if(self)
 		self->performTrigger(id, versionCode);
 }

@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
 
 	QCommandLineParser parser;
 	coreApp->setupParser(parser);
+	if(!parser.parse(QCoreApplication::arguments()))
+		return EXIT_FAILURE;
 	if(parser.isSet(QStringLiteral("daemon")))
 		setupDaemon();
 	else
@@ -86,9 +88,9 @@ static void setStatusBarColor(QColor color)
 {
 #ifdef Q_OS_ANDROID
 	if(QtAndroid::androidSdkVersion() >= 21) {
-		QtAndroid::runOnAndroidThreadSync([=](){
-			auto activity = QtAndroid::androidActivity();
-			if(activity.isValid()) {
+		auto activity = QtAndroid::androidActivity();
+		if(activity.isValid()) {
+			QtAndroid::runOnAndroidThreadSync([=](){
 				const auto FLAG_TRANSLUCENT_STATUS = QAndroidJniObject::getStaticField<jint>("android/view/WindowManager$LayoutParams",
 																							 "FLAG_TRANSLUCENT_STATUS");
 				const auto FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS = QAndroidJniObject::getStaticField<jint>("android/view/WindowManager$LayoutParams",
@@ -104,8 +106,8 @@ static void setStatusBarColor(QColor color)
 					window.callMethod<void>("addFlags", "(I)V", FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 					window.callMethod<void>("setStatusBarColor", "(I)V", jColor);
 				}
-			}
-		});
+			});
+		}
 	}
 #else
 	Q_UNUSED(color);
