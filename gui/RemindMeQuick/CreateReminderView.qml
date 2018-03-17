@@ -10,14 +10,6 @@ AlertDialog {
 	title: qsTr("Create Reminder")
 	property CreateReminderViewModel viewModel: null
 
-	Connections {
-		target: viewModel
-		onCreateCompleted: {
-			if(success)
-				close();
-		}
-	}
-
 	GridLayout {
 		columns: 2
 		width: parent.width
@@ -78,7 +70,7 @@ AlertDialog {
 	standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
 
 	onAccepted: {
-		createDialog.visible = true;
-		viewModel.create();
+		if(!viewModel.create())
+			createDialog.visible = true;
 	}
 }

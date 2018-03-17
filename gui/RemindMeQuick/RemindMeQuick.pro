@@ -11,7 +11,7 @@ DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 SOURCES += main.cpp
 
 RESOURCES += \
-	remindmequick.qrc
+    remindmequick.qrc
 
 TRANSLATIONS += remindme_quick_de.ts \
 	remindme_quick_template.ts

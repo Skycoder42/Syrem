@@ -68,5 +68,6 @@ void MainViewModel::deleteReminder(const QUuid &id)
 
 void MainViewModel::snoozeReminder(const QUuid &id)
 {
+	//TODO check if actually snoozable
 	show<SnoozeViewModel>(SnoozeViewModel::showParams(id));
 }

@@ -22,12 +22,12 @@ public:
 	bool important() const;
 	QString expression() const;
 
+	Q_INVOKABLE bool create();
+
 public slots:
 	void setText(const QString &text);
 	void setImportant(bool important);
 	void setExpression(const QString &expression);
-
-	bool create();
 
 signals:
 	void textChanged(const QString &text);

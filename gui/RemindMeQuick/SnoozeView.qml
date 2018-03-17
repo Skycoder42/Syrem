@@ -10,11 +10,6 @@ AlertDialog {
 	title: qsTr("Snooze Reminder")
 	property SnoozeViewModel viewModel: null
 
-	Connections {
-		target: viewModel
-		onClose: QuickPresenter.popView()
-	}
-
 	ColumnLayout {
 		width: parent.width
 
@@ -27,7 +22,7 @@ AlertDialog {
 			id: snoozeBox
 			Layout.fillWidth: true
 			editable: true
-			enabled: viewModel.loaded
+			enabled: viewModel.valid
 
 			model: viewModel.snoozeTimes
 
@@ -36,15 +31,15 @@ AlertDialog {
 				viewModelProperty: "expression"
 				view: snoozeBox
 				viewProperty: "editText"
-				type: QtMvvmBinding.OneWayToControl
+				type: MvvmBinding.OneWayToViewModel
 			}
 		}
 	}
 
-	standardButtons: viewModel.loaded ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
+	standardButtons: viewModel.valid ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
 
 	onAccepted: {
-		snoozeDialog.visible = true;
-		viewModel.snooze();
+		if(!viewModel.snooze())
+			snoozeDialog.visible = true;
 	}
 }

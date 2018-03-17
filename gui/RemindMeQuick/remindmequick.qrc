@@ -1,8 +1,23 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/qml">
         <file>App.qml</file>
+        <file>ReminderDelegate.qml</file>
+        <file>TintedIcon.qml</file>
     </qresource>
-	<qresource prefix="/qtmvvm/views">
+    <qresource prefix="/qtmvvm/views">
         <file>MainView.qml</file>
+        <file>CreateReminderView.qml</file>
+        <file>SnoozeView.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="ic_add.svg">icons/ic_add_white_24px.svg</file>
+        <file alias="ic_delete_forever.svg">icons/ic_delete_forever_white_24px.svg</file>
+        <file alias="ic_repeat.svg">icons/ic_repeat_white_24px.svg</file>
+        <file alias="ic_snooze.svg">icons/ic_snooze_white_24px.svg</file>
+        <file alias="ic_check.svg">icons/ic_check_white_24px.svg</file>
+        <file alias="ic_assignment_late.svg">icons/ic_assignment_late_white_24px.svg</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
     </qresource>
 </RCC>

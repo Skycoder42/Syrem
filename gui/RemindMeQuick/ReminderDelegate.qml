@@ -6,44 +6,39 @@ import QtQuick.Controls.Universal 2.3
 import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0
 import de.skycoder42.QtMvvm.Quick 1.0
+import de.skycoder42.remindme 1.0
 
 SwipeDelegate {
 	id: delegate
 	width: parent.width
-	text: description ? description : ""
+	text: description
 	highlighted: important ? important == "true" : false
 
+	signal reminderCompleted
 	signal reminderDeleted
 	signal reminderActivated
 
-	readonly property int vCodeDummy: versionCode ? versionCode : 0
-
-	function highlight(high) {
-		if(style.isMaterial)
-			return high ? style.accent : style.foreground;
-		else
-			return style.foreground;
-	}
-
 	function redColor() {
-		if(style.isMaterial)
+		if(QuickPresenter.currentStyle === "Material")
 			return Material.color(Material.Red);
-		else if(style.isUniversal)
+		else if(QuickPresenter.currentStyle === "Universal")
 			return Universal.color(Universal.Red);
 		else
 			return "#FF0000";
 	}
 
 	function accentColor() {
-		if(style.isMaterial)
-			return style.accent;
-		else if(style.isUniversal)
-			return style.accent;
+		if(QuickPresenter.currentStyle === "Material")
+			return Material.accent;
+		else if(QuickPresenter.currentStyle === "Universal")
+			return Universal.accent;
 		else
 			return "#00FFFF";
 	}
 
 	contentItem: RowLayout {
+		Material.foreground: delegate.highlighted ? Material.accent : Material.foreground
+
 		Label {
 			id: titleLabel
 			elide: Label.ElideRight
@@ -52,19 +47,16 @@ SwipeDelegate {
 			Layout.fillWidth: true
 			Layout.fillHeight: true
 			font.bold: delegate.highlighted
-			color: style.highlight(delegate.highlighted)
 			text: delegate.text
 		}
 
 		TintedIcon { //TODO use normal tint icon
 			id: stateImage
 
-			Layout.minimumWidth: 42
+			Layout.minimumWidth: 42 //TODO use real size...
 			Layout.maximumWidth: 42
 			Layout.minimumHeight: 42
 			Layout.maximumHeight: 42
-
-			tintColor: highlighted ? style.accent : style.foreground
 
 			source: {
 				switch(Number(triggerState)) {
@@ -87,7 +79,6 @@ SwipeDelegate {
 			Layout.fillHeight: true
 			horizontalAlignment: Qt.AlignRight
 			verticalAlignment: Qt.AlignVCenter
-			color: style.highlight(delegate.highlighted)
 			text: current ? parseDateISOString(current).toLocaleString(Qt.locale(), labelSettings.getFormat()) : ""
 
 			Settings {
@@ -118,28 +109,30 @@ SwipeDelegate {
 		}
 	}
 
-	onClicked: {
-		if(triggerState == 3)
-			reminderActivated()
-	}
+	onClicked: reminderActivated()
 
 	swipe.right: Rectangle {
-		readonly property bool isTriggered: triggerState == 3 || triggerState == 2
+		readonly property bool isTriggered: triggerState == Reminder.Triggered || triggerState == Reminder.Snoozed
+		anchors.fill: parent
+		color: isTriggered ? accentColor() : redColor()
 
-		width: parent.width
-		height: parent.height
-		anchors.right: parent.right
-		color: isTriggered ? style.accentColor() : style.redColor()
+		MouseArea {
+			anchors.fill: parent
 
-		ActionButton {
-			anchors.centerIn: parent
-			icon.name: isTriggered ? "gtk-apply" : "user-trash"
-			icon.source: isTriggered ? "qrc:/icons/ic_check.svg" : "qrc:/icons/ic_delete_forever.svg"
-			text: isTriggered ? qsTr("Complete Reminder") : qsTr("Delete Reminder")
+			ActionButton {
+				anchors.centerIn: parent
+				icon.name: isTriggered ? "gtk-apply" : "user-trash"
+				icon.source: isTriggered ? "qrc:/icons/ic_check.svg" : "qrc:/icons/ic_delete_forever.svg"
+				text: isTriggered ? qsTr("Complete Reminder") : qsTr("Delete Reminder")
 
-			Material.foreground: "white"
+				Material.foreground: "white"
+				Universal.foreground: "white"
 
-			onClicked: reminderDeleted() //TODO delete or complete!!!
+				onClicked: {
+					delegate.swipe.close();
+					isTriggered ? reminderCompleted() : reminderDeleted()
+				}
+			}
 		}
 	}
 }
