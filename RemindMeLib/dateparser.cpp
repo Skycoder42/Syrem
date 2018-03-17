@@ -328,12 +328,15 @@ Schedule *Loop::createSchedule(const QDateTime &since, QTime defaultTime, QObjec
 	if(time.isValid())
 		sched->time = time;
 	else if(defaultTime.isValid()) {
+		auto noTime = false;
 		foreach(auto span, type->sequence) {
 			if(span.second == Expression::MinuteSpan || span.second == Expression::HourSpan) {
-				sched->time = defaultTime;
+				noTime = true;
 				break;
 			}
 		}
+		if(!noTime)
+			sched->time = defaultTime;
 	}
 
 	if(from || fromTime.isValid())
@@ -377,7 +380,7 @@ QSharedPointer<Expression> DateParser::parse(const QString &expression)
 		dummyParent->deleteLater();
 		return QSharedPointer<Expression>(expr);
 	} catch(QString &s) {
-		throw DateParserException(tr("The entered text is not a valid expression. Error message:\n<i>%1</i>").arg(s));
+		throw DateParserException(tr("<p>The entered text is not a valid expression. Error message:</p><p><i>%1</i></p>").arg(s));
 	}
 }
 
@@ -385,7 +388,7 @@ QSharedPointer<Schedule> DateParser::parseSchedule(const QString &expression)
 {
 	auto expr = parse(expression);
 	QSharedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime()));
+														   QSettings().value(QStringLiteral("scheduler/defaultTime"), QTime(9,0)).toTime()));
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(!schedule->nextSchedule().isValid())
@@ -397,7 +400,7 @@ QDateTime DateParser::snoozeParse(const QString &expression)
 {
 	auto expr = parse(expression);
 	QScopedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime()));
+														   QSettings().value(QStringLiteral("scheduler/defaultTime"), QTime(9,0)).toTime())); //TODO create and use settings access class generator!
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(schedule->isRepeating())

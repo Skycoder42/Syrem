@@ -1,9 +1,7 @@
 #ifndef SNOOZEDIALOG_H
 #define SNOOZEDIALOG_H
 
-#include <QDateTime>
 #include <QInputDialog>
-#include <QSettings>
 #include <snoozeviewmodel.h>
 
 class SnoozeDialog : public QInputDialog

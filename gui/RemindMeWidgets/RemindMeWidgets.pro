@@ -8,20 +8,29 @@ QMAKE_TARGET_PRODUCT = "Remind-Me"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
 HEADERS += mainwindow.h \
-	createreminderdialog.h
+	createreminderdialog.h \
+	snoozedialog.h \
+    snoozetimesedit.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
-	createreminderdialog.cpp
+	createreminderdialog.cpp \
+	snoozedialog.cpp \
+    snoozetimesedit.cpp
 
 FORMS += mainwindow.ui \
-	createreminderdialog.ui
+	createreminderdialog.ui \
+    snoozetimesedit.ui
 
 RESOURCES += \
 	remindmewidgets.qrc
 
 TRANSLATIONS += remindme_widgets_de.ts \
 	remindme_widgets_template.ts
+
+DISTFILES += \
+	$$TRANSLATIONS \
+	remind-me.desktop
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore

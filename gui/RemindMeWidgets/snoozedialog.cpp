@@ -1,5 +1,4 @@
 #include "snoozedialog.h"
-#include <QSettings>
 #include <QtMvvmCore/Binding>
 #include <dialogmaster.h>
 #include <snoozetimes.h>
@@ -14,8 +13,9 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	setEnabled(false);
 
 	DialogMaster::masterDialog(this);
+	//TODO save and restore geom
 
-	QtMvvm::bind(_viewModel, "loaded",
+	QtMvvm::bind(_viewModel, "valid",
 				 this, "enabled",
 				 QtMvvm::Binding::OneWayToView);
 	QtMvvm::bind(_viewModel, "description",
@@ -24,12 +24,11 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QtMvvm::bind(_viewModel, "snoozeTimes",
 				 this, "comboBoxItems",
 				 QtMvvm::Binding::OneWayToView);
-	connect(_viewModel, &SnoozeViewModel::close,
-			this, &SnoozeDialog::close);
 }
 
 void SnoozeDialog::accept()
 {
 	_viewModel->setExpression(textValue());
-	_viewModel->snooze();
+	if(_viewModel->snooze())
+		QDialog::accept();
 }

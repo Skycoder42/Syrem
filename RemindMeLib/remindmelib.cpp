@@ -6,6 +6,7 @@
 #include "dateparser.h"
 #include "reminder.h"
 #include "conflictresolver.h"
+#include "snoozetimes.h"
 
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
@@ -27,11 +28,23 @@ void setupRemindMeLib()
 	qRegisterMetaType<OneTimeSchedule*>();
 	qRegisterMetaType<LoopSchedule*>();
 	qRegisterMetaType<MultiSchedule*>();
+	qRegisterMetaType<SnoozeTimes>();
+	qRegisterMetaTypeStreamOperators<SnoozeTimes>();
 
 	QJsonSerializer::registerAllConverters<Reminder>();
 	QJsonSerializer::registerPointerConverters<Schedule>();
 	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
 	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
+
+	QMetaType::registerConverter<SnoozeTimes, QVariantList>([](const SnoozeTimes &list) -> QVariantList {
+		return list.toList();
+	});
+	QMetaType::registerConverter<QVariantList, SnoozeTimes>([](const QVariantList &list) -> SnoozeTimes {
+		SnoozeTimes l;
+		foreach(auto v, list)
+			l.append(v.toString());
+		return l;
+	});
 }
 
 }

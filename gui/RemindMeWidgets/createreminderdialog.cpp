@@ -1,7 +1,6 @@
 #include "createreminderdialog.h"
 #include "ui_createreminderdialog.h"
 #include <QtMvvmCore/Binding>
-#include <QSettings>
 #include <QWhatsThis>
 #include <dialogmaster.h>
 
@@ -25,28 +24,10 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	QtMvvm::bind(_viewModel, "important",
 				 _ui->importantCheckBox, "checked",
 				 QtMvvm::Binding::OneWayToViewModel);
-
-	QSettings settings;
-	settings.beginGroup(QStringLiteral("gui/createreminder"));
-	if(parentWidget()){
-		auto s = settings.value(QStringLiteral("size")).toSize();
-		if(s.isValid())
-			resize(s);
-	} else
-		restoreGeometry(settings.value(QStringLiteral("geom")).toByteArray());
-	settings.endGroup();
 }
 
-CreateReminderDialog::~CreateReminderDialog()
+CreateReminderDialog::~CreateReminderDialog() //TODO save and restore geom
 {
-	QSettings settings;
-	settings.beginGroup(QStringLiteral("gui/createreminder"));
-	if(parentWidget())
-		settings.setValue(QStringLiteral("size"), size());
-	else
-		settings.setValue(QStringLiteral("geom"), saveGeometry());
-	settings.endGroup();
-
 	delete _ui;
 }
 

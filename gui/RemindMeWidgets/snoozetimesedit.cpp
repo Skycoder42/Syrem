@@ -36,7 +36,7 @@ SnoozeTimes SnoozeTimesEdit::times() const
 	return times;
 }
 
-void SnoozeTimesEdit::setTimes(SnoozeTimes times)
+void SnoozeTimesEdit::setTimes(const SnoozeTimes &times)
 {
 	_ui->listWidget->clear();
 	foreach(auto time, times) {

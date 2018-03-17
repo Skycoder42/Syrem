@@ -114,13 +114,13 @@
   <action name="actionMove_Down">
    <property name="icon">
     <iconset theme="go-down" resource="remindmewidgets.qrc">
-     <normaloff>:/icons/up.ico</normaloff>:/icons/up.ico</iconset>
+     <normaloff>:/icons/down.ico</normaloff>:/icons/down.ico</iconset>
    </property>
    <property name="text">
     <string>Move &amp;Down</string>
    </property>
    <property name="shortcut">
-    <string notr="true">PgDown</string>
+    <string>PgDown</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::WidgetWithChildrenShortcut</enum>

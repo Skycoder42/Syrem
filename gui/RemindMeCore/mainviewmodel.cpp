@@ -5,6 +5,7 @@
 #include <QtMvvmDataSyncCore/DataSyncViewModel>
 
 #include "createreminderviewmodel.h"
+#include "snoozeviewmodel.h"
 
 MainViewModel::MainViewModel(QObject *parent) :
 	ViewModel(parent),
@@ -67,5 +68,5 @@ void MainViewModel::deleteReminder(const QUuid &id)
 
 void MainViewModel::snoozeReminder(const QUuid &id)
 {
-	Q_UNIMPLEMENTED();
+	show<SnoozeViewModel>(SnoozeViewModel::showParams(id));
 }

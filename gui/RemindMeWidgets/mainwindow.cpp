@@ -43,9 +43,13 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 
 	connect(_ui->treeView->selectionModel(), &QItemSelectionModel::currentChanged,
 			this, &MainWindow::updateCurrent);
+	connect(_viewModel->reminderModel(), &QtDataSync::DataStoreModel::dataChanged,
+			this, [this](){
+		updateCurrent(_ui->treeView->currentIndex());
+	});
 }
 
-MainWindow::~MainWindow()
+MainWindow::~MainWindow() //TODO save and restore geom
 {
 	delete _ui;
 }

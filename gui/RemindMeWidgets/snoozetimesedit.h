@@ -22,7 +22,7 @@ public:
 	SnoozeTimes times() const;
 
 public slots:
-	void setTimes(SnoozeTimes times);
+	void setTimes(const SnoozeTimes &times);
 
 private slots:
 	void on_action_Add_Time_triggered();

@@ -1,8 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<SettingsConfig>
-	<Entry key="property"
-		   type="bool"
-		   title="&amp;Check me"
-		   tooltip="I am a checkbox!"
-		   default="false" />
+<SettingsConfig allowSearch="true" allowRestore="true">
+	<Section title="General"
+			 tooltip="General application settings">
+		<Group>
+			<Entry key="gui/dateformat"
+				   type="list"
+				   title="&amp;Date Format"
+				   tooltip="Select the format to display dates as"
+				   default="1">
+				<Property key="listElements" type="list">
+				   <Element type="object">
+					   <Property key="name" type="string" ts="true">Long</Property>
+					   <Property key="value" type="int">0</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" ts="true">Short</Property>
+					   <Property key="value" type="int">1</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" ts="true">Narrow</Property>
+					   <Property key="value" type="int">2</Property>
+				   </Element>
+				</Property>
+			</Entry>
+		</Group>
+		<Group title="Desktop">
+			<Entry key="gui/hotkey"
+				   frontend="widgets"
+				   type="QKeySequence"
+				   title="Create Reminder &amp;Hotkey"
+				   tooltip="Enter a key sequence to be used as hotkey to create a reminder"
+				   default="CTRL+META+R"/>
+			<Entry key="gui/notifications/blinkinterval"
+				   frontend="widgets"
+				   type="int"
+				   title="Tray Blink &amp;interval"
+				   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)"
+				   default="750">
+				<Property key="minimum" type="int">100</Property>
+				<Property key="maximum" type="int">10000</Property>
+				<Property key="singleStep" type="int">10</Property>
+				<Property key="suffix" type="string" ts="true"> ms</Property>
+				<Property key="accelerated" type="bool">true</Property>
+				<Property key="showGroupSeparator" type="bool">true</Property>
+				<!-- QML special values -->
+				<Property key="from" type="int">100</Property>
+				<Property key="to" type="int">10000</Property>
+				<Property key="stepSize" type="int">10</Property>
+			</Entry>
+		</Group>
+	</Section>
+	<Section title="Reminders"
+			 tooltip="Settings regarding the creation and snoozing of reminders">
+		<Group>
+			<Entry key="scheduler/defaultTime"
+				   type="QTime"
+				   title="Default &amp;Time"
+				   tooltip="The time to be used as default for new reminders/snoozing, in case the reminder is date-oriented and no time has been set. Set to &lt;b&gt;00:00&lt;/b&gt; to not set the time"
+				   default="09:00">
+				<Property key="specialValueText" type="string" ts="true">Not set</Property>
+			</Entry>
+		</Group>
+		<Group title="Scheduling delays"
+			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled">
+			<Entry key="scheduler/delay/normal"
+				   frontend="quick"
+				   type="int"
+				   title="&amp;Normal Reminders"
+				   tooltip="Enter a delay (in minutes) to use as delay for normal Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
+				   default="5">
+			   <Property key="minimum" type="int">0</Property>
+			   <Property key="maximum" type="int">60</Property><!--max 1 hour-->
+			   <Property key="suffix" type="string" ts="true"> minutes</Property>
+			   <!-- QML special values -->
+			   <Property key="from" type="int">0</Property>
+			   <Property key="to" type="int">60</Property>
+			</Entry>
+			<Entry key="scheduler/delay/important"
+				   frontend="quick"
+				   type="int"
+				   title="&amp;Important Reminders"
+				   tooltip="Enter a delay (in minutes) to use as delay for important Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
+				   default="2">
+			   <Property key="minimum" type="int">0</Property>
+			   <Property key="maximum" type="int">60</Property><!--max 1 hour-->
+			   <Property key="suffix" type="string" ts="true"> minutes</Property>
+			   <!-- QML special values -->
+			   <Property key="from" type="int">0</Property>
+			   <Property key="to" type="int">60</Property>
+			</Entry>
+		</Group>
+		<Group title="Snoozing">
+			<Entry key="scheduler/snooze/default"
+				   type="int"
+				   title="&amp;Default snooze time"
+				   tooltip="Enter a time (in minutes) as the default snooze time"
+				   default="20">
+			   <Property key="minimum" type="int">1</Property>
+			   <Property key="maximum" type="int">14400</Property><!--max 10 days-->
+			   <Property key="suffix" type="string" ts="true"> minutes</Property>
+			   <!-- QML special values -->
+			   <Property key="from" type="int">1</Property>
+			   <Property key="to" type="int">14400</Property>
+			</Entry>
+			<Entry key="scheduler/snooze/times"
+				   type="SnoozeTimes"
+				   title="&amp;Predefined snooze times"
+				   tooltip="Create custom standard snooze times for fast selection from the combo box">
+				<Property key="times" type="list">
+					<Element type="string" ts="true">in 20 minutes</Element>
+					<Element type="string" ts="true">in 1 hour</Element>
+					<Element type="string" ts="true">in 3 hours</Element>
+					<Element type="string" ts="true">tomorrow</Element>
+					<Element type="string" ts="true">in 1 week on Monday</Element>
+				</Property>
+			</Entry>
+		</Group>
+	</Section>
 </SettingsConfig>
