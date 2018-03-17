@@ -377,7 +377,7 @@ QSharedPointer<Expression> DateParser::parse(const QString &expression)
 		dummyParent->deleteLater();
 		return QSharedPointer<Expression>(expr);
 	} catch(QString &s) {
-		throw DateParserException(tr("The entered text is not a valid expression. Error message:\n%1").arg(s));
+		throw DateParserException(tr("The entered text is not a valid expression. Error message:\n<i>%1</i>").arg(s));
 	}
 }
 

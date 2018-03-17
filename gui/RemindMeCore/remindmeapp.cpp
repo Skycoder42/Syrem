@@ -3,6 +3,8 @@
 #include <QCommandLineParser>
 #include <QGuiApplication>
 #include <QIcon>
+#include <QLibraryInfo>
+#include <QTranslator>
 
 #include <remindmelib.h>
 
@@ -24,6 +26,19 @@ void RemindMeApp::performRegistrations()
 {
 	//if you are using a qt resource (e.g. "remindmecore.qrc"), initialize it here
 	Q_INIT_RESOURCE(remindmecore);
+
+	//load translations
+	auto translator = new QTranslator(this);
+	if(translator->load(QLocale(),
+						QStringLiteral("remindme"),
+						QStringLiteral("_"),
+						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+		qApp->installTranslator(translator);
+	else {
+		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
+		delete translator;
+		QLocale::setDefault(QLocale::c());
+	}
 }
 
 int RemindMeApp::startApp(const QStringList &arguments)

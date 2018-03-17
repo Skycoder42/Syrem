@@ -96,7 +96,7 @@ QDateTime Reminder::snooze() const
 	return _data->snooze;
 }
 
-void Reminder::nextSchedule(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &current)
+void Reminder::nextSchedule(DataStore *store, const QDateTime &current)
 {
 	Q_ASSERT_X(_data->schedule, Q_FUNC_INFO, "cannot call next schedule without an assigned schedule");
 
@@ -110,10 +110,10 @@ void Reminder::nextSchedule(QtDataSync::DataTypeStore<Reminder, QUuid> *store, c
 	if(res.isValid())
 		store->save(*this);
 	else
-		store->remove(_data->id);
+		store->remove<Reminder>(_data->id);
 }
 
-void Reminder::performSnooze(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &snooze)
+void Reminder::performSnooze(DataStore *store, const QDateTime &snooze)
 {
 	_data->snooze = snooze;
 	_data->versionCode++;

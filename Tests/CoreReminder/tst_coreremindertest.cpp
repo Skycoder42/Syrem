@@ -308,9 +308,10 @@ void CoreReminderTest::testTimePointReminder()
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
 
-	auto expr = parser->parse(query);
-	if(since.isValid()) {
+	try {
+		auto expr = parser->parse(query);
 		QVERIFY(expr);
+		QVERIFY2(since.isValid(), "Invalid query produced valid expression!");
 		auto sched = expr->createSchedule(since, QTime(), this);
 		if(result.isValid()) {
 			QVERIFY(sched);
@@ -319,8 +320,9 @@ void CoreReminderTest::testTimePointReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-	} else
-		QVERIFY(!expr);
+	} catch (QException &e) {
+		QVERIFY2(!since.isValid(), e.what());
+	}
 }
 
 void CoreReminderTest::testTimeSpanReminder_data()
@@ -535,9 +537,10 @@ void CoreReminderTest::testTimeSpanReminder()
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
 
-	auto expr = parser->parse(query);
-	if(since.isValid()) {
+	try {
+		auto expr = parser->parse(query);
 		QVERIFY(expr);
+		QVERIFY2(since.isValid(), "Invalid query produced valid expression!");
 		auto sched = expr->createSchedule(since, QTime(), this);
 		if(result.isValid()) {
 			QVERIFY(sched);
@@ -546,8 +549,9 @@ void CoreReminderTest::testTimeSpanReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-	} else
-		QVERIFY(!expr);
+	} catch (QException &e) {
+		QVERIFY2(!since.isValid(), e.what());
+	}
 }
 
 void CoreReminderTest::testLoopReminder_data()
@@ -1387,9 +1391,10 @@ void CoreReminderTest::testLoopReminder()
 	QFETCH(QDateTime, since);
 	QFETCH(QList<QDateTime>, results);
 
-	auto expr = parser->parse(query);
-	if(since.isValid()) {
+	try {
+		auto expr = parser->parse(query);
 		QVERIFY(expr);
+		QVERIFY2(since.isValid(), "Invalid query produced valid expression!");
 		auto sched = expr->createSchedule(since, QTime(), this);
 		if(!results.isEmpty()) {
 			QVERIFY(sched);
@@ -1402,8 +1407,9 @@ void CoreReminderTest::testLoopReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-	} else
-		QVERIFY(!expr);
+	} catch (QException &e) {
+		QVERIFY2(!since.isValid(), e.what());
+	}
 }
 
 void CoreReminderTest::testConjunctionReminder_data()
@@ -1500,9 +1506,10 @@ void CoreReminderTest::testConjunctionReminder()
 	QFETCH(QDateTime, since);
 	QFETCH(QList<QDateTime>, results);
 
-	auto expr = parser->parse(query);
-	if(since.isValid()) {
+	try {
+		auto expr = parser->parse(query);
 		QVERIFY(expr);
+		QVERIFY2(since.isValid(), "Invalid query produced valid expression!");
 		auto sched = expr->createSchedule(since, QTime(), this);
 		if(!results.isEmpty()) {
 			QVERIFY(sched);
@@ -1515,8 +1522,9 @@ void CoreReminderTest::testConjunctionReminder()
 			sched->deleteLater();
 		} else
 			QVERIFY(!sched);
-	} else
-		QVERIFY(!expr);
+	} catch (QException &e) {
+		QVERIFY2(!since.isValid(), e.what());
+	}
 }
 
 QTEST_MAIN(CoreReminderTest)

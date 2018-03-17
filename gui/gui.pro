@@ -7,3 +7,6 @@ SUBDIRS += \
 
 RemindMeWidgets.depends += RemindMeCore
 RemindMeQuick.depends += RemindMeCore
+
+prepareRecursiveTarget(lrelease)
+QMAKE_EXTRA_TARGETS += lrelease

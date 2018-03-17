@@ -54,8 +54,8 @@ public:
 	QSharedPointer<const Schedule> schedule() const;
 	QDateTime snooze() const;
 
-	void nextSchedule(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &current);
-	void performSnooze(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &snooze);
+	void nextSchedule(QtDataSync::DataStore *store, const QDateTime &current);
+	void performSnooze(QtDataSync::DataStore *store, const QDateTime &snooze);
 
 public slots:
 	void setId(const QUuid &id);

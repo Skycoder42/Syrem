@@ -43,7 +43,14 @@ void MainViewModel::addReminder()
 
 void MainViewModel::completeReminder(const QUuid &id)
 {
-	Q_UNIMPLEMENTED();
+	try {
+		auto rem = _reminderModel->store()->load<Reminder>(id);
+		rem.nextSchedule(_reminderModel->store(), QDateTime::currentDateTime());
+	} catch(QException &e) {
+		qCritical() << "Failed to complete reminder with error:" << e.what();
+		QtMvvm::critical(tr("Failed to complete reminder"),
+						 tr("Reminder could not be move to the next state. It has most likely become corrupted."));
+	}
 }
 
 void MainViewModel::deleteReminder(const QUuid &id)
