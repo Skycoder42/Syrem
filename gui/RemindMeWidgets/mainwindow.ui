@@ -4,78 +4,235 @@
  <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
+	<x>0</x>
+	<y>0</y>
+	<width>624</width>
+	<height>364</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Reminders</string>
+   <string>Manager Reminders</string>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonFollowStyle</enum>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QLineEdit" name="lineEdit"/>
-    </item>
-    <item>
-     <widget class="QLabel" name="label"/>
-    </item>
-    <item>
-     <spacer name="verticalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>77</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
+	<property name="leftMargin">
+	 <number>0</number>
+	</property>
+	<property name="topMargin">
+	 <number>0</number>
+	</property>
+	<property name="rightMargin">
+	 <number>0</number>
+	</property>
+	<property name="bottomMargin">
+	 <number>0</number>
+	</property>
+	<item>
+	 <widget class="QTreeView" name="treeView">
+	  <property name="contextMenuPolicy">
+	   <enum>Qt::ActionsContextMenu</enum>
+	  </property>
+	  <property name="editTriggers">
+	   <set>QAbstractItemView::NoEditTriggers</set>
+	  </property>
+	  <property name="tabKeyNavigation">
+	   <bool>true</bool>
+	  </property>
+	  <property name="alternatingRowColors">
+	   <bool>true</bool>
+	  </property>
+	  <property name="rootIsDecorated">
+	   <bool>false</bool>
+	  </property>
+	  <property name="itemsExpandable">
+	   <bool>false</bool>
+	  </property>
+	  <property name="sortingEnabled">
+	   <bool>true</bool>
+	  </property>
+	  <property name="expandsOnDoubleClick">
+	   <bool>false</bool>
+	  </property>
+	  <attribute name="headerStretchLastSection">
+	   <bool>false</bool>
+	  </attribute>
+	 </widget>
+	</item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>400</width>
-     <height>23</height>
-    </rect>
+	<rect>
+	 <x>0</x>
+	 <y>0</y>
+	 <width>624</width>
+	 <height>23</height>
+	</rect>
    </property>
    <widget class="QMenu" name="menu_File">
-    <property name="title">
-     <string>&amp;File</string>
-    </property>
-    <addaction name="actionSettings"/>
+	<property name="title">
+	 <string>&amp;File</string>
+	</property>
+	<addaction name="action_Settings"/>
+	<addaction name="actionS_ynchronization"/>
+	<addaction name="separator"/>
+	<addaction name="action_Close"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edit">
+	<property name="title">
+	 <string>&amp;Edit</string>
+	</property>
+	<addaction name="action_Add_Reminder"/>
+	<addaction name="action_Delete_Reminder"/>
+	<addaction name="separator"/>
+	<addaction name="action_Complete_Reminder"/>
+	<addaction name="action_Snooze_Reminder"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+	<property name="title">
+	 <string>&amp;Help</string>
+	</property>
+	<addaction name="action_About"/>
    </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Edit"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+	<enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+	<bool>false</bool>
    </attribute>
-   <addaction name="actionSettings"/>
+   <addaction name="action_Add_Reminder"/>
+   <addaction name="action_Delete_Reminder"/>
+   <addaction name="separator"/>
+   <addaction name="action_Complete_Reminder"/>
+   <addaction name="action_Snooze_Reminder"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionSettings">
+  <action name="action_Add_Reminder">
    <property name="icon">
-    <iconset theme="configure">
-     <normaloff>:/de/skycoder42/qtmvvm/icons/settings.ico</normaloff>:/de/skycoder42/qtmvvm/icons/settings.ico</iconset>
+	<iconset theme="list-add">
+	 <normaloff>:/icons/add.ico</normaloff>:/icons/add.ico</iconset>
    </property>
    <property name="text">
-    <string>Settings</string>
+	<string>&amp;Add Reminder</string>
+   </property>
+   <property name="toolTip">
+	<string>Create a new reminder</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+S</string>
+	<string notr="true">Ctrl+Ins</string>
    </property>
-   <property name="menuRole">
-    <enum>QAction::PreferencesRole</enum>
+  </action>
+  <action name="action_Delete_Reminder">
+   <property name="icon">
+	<iconset theme="list-remove">
+	 <normaloff>:/icons/delete.ico</normaloff>:/icons/delete.ico</iconset>
+   </property>
+   <property name="text">
+	<string>&amp;Delete Reminder</string>
+   </property>
+   <property name="toolTip">
+	<string>Deletes the selected reminder</string>
+   </property>
+   <property name="shortcut">
+	<string notr="true">Del</string>
+   </property>
+  </action>
+  <action name="action_Settings">
+   <property name="icon">
+	<iconset theme="settings-configure">
+	 <normaloff>:/de/skycoder42/qtmvvm/icons/settings.ico</normaloff>:/de/skycoder42/qtmvvm/icons/settings.ico</iconset>
+   </property>
+   <property name="text">
+	<string>&amp;Settings</string>
+   </property>
+   <property name="toolTip">
+	<string>Settings</string>
+   </property>
+   <property name="shortcut">
+	<string notr="true">Ctrl+Alt+S</string>
+   </property>
+  </action>
+  <action name="action_Close">
+   <property name="icon">
+	<iconset theme="window-close">
+	 <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+	<string>&amp;Close</string>
+   </property>
+   <property name="toolTip">
+	<string>Close</string>
+   </property>
+   <property name="shortcut">
+	<string notr="true">Alt+F4</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="icon">
+	<iconset theme="help-about">
+	 <normaloff>:/icons/about.ico</normaloff>:/icons/about.ico</iconset>
+   </property>
+   <property name="text">
+	<string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Complete_Reminder">
+   <property name="icon">
+	<iconset theme="dialog-ok-apply">
+	 <normaloff>:/icons/complete.ico</normaloff>:/icons/complete.ico</iconset>
+   </property>
+   <property name="text">
+	<string>&amp;Complete Reminder</string>
+   </property>
+   <property name="toolTip">
+	<string>Completes and deletes the selected reminder</string>
+   </property>
+   <property name="shortcut">
+	<string notr="true">Del</string>
+   </property>
+   <property name="visible">
+	<bool>false</bool>
+   </property>
+  </action>
+  <action name="action_Snooze_Reminder">
+   <property name="icon">
+	<iconset theme="alarm-symbolic">
+	 <normaloff>:/icons/snooze.ico</normaloff>:/icons/snooze.ico</iconset>
+   </property>
+   <property name="text">
+	<string>&amp;Snooze Reminder</string>
+   </property>
+   <property name="toolTip">
+	<string>Snooze the selected reminder until a later timepoint</string>
+   </property>
+   <property name="shortcut">
+	<string notr="true">Return</string>
+   </property>
+   <property name="shortcutContext">
+	<enum>Qt::WidgetShortcut</enum>
+   </property>
+   <property name="visible">
+	<bool>false</bool>
+   </property>
+  </action>
+  <action name="actionS_ynchronization">
+   <property name="icon">
+	<iconset theme="view-refresh">
+	 <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+	<string>S&amp;ynchronization</string>
    </property>
   </action>
  </widget>

@@ -2,28 +2,35 @@
 #define MAINVIEWMODEL_H
 
 #include <QtMvvmCore/ViewModel>
+#include <QtDataSync/DataStoreModel>
+#include <reminder.h>
 
 class MainViewModel : public QtMvvm::ViewModel
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
+	Q_PROPERTY(QtDataSync::DataStoreModel* reminderModel READ reminderModel CONSTANT)
 
 public:
 	Q_INVOKABLE explicit MainViewModel(QObject *parent = nullptr);
 
-	QString text() const;
+	QtDataSync::DataStoreModel* reminderModel() const;
 
-public Q_SLOTS:
+public slots:
 	void showSettings();
+	void showSync();
+	void showAbout();
 
-	void setText(const QString &text);
+	void addReminder();
+	void completeReminder(const QUuid &id);
+	void deleteReminder(const QUuid &id);
+	void snoozeReminder(const QUuid &id);
 
-Q_SIGNALS:
-	void textChanged(const QString &text);
+protected:
+	void onInit(const QVariantHash &params) override;
 
 private:
-	QString _text;
+	QtDataSync::DataStoreModel *_reminderModel;
 };
 
 #endif // MAINVIEWMODEL_H

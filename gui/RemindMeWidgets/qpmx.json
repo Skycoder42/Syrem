@@ -1,0 +1,20 @@
+{
+    "dependencies": [
+        {
+            "package": "de.skycoder42.qobjectlistmodel",
+            "provider": "qpm",
+            "version": "1.2.1"
+        }
+    ],
+    "license": {
+        "file": "",
+        "name": ""
+    },
+    "prcFile": "",
+    "priFile": "",
+    "priIncludes": [
+    ],
+    "publishers": {
+    },
+    "source": false
+}

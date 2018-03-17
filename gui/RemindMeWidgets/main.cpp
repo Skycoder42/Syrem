@@ -1,5 +1,6 @@
-#include <QtWidgets/QApplication>
+#include <QApplication>
 #include <QtMvvmWidgets/WidgetsPresenter>
+#include <QtMvvmDataSyncWidgets/qtmvvmdatasyncwidgets_global.h>
 #include <remindmeapp.h>
 
 #include "mainwindow.h"
@@ -11,8 +12,7 @@ int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 
-	// Automatically sets "WidgetPresenter" as presenter and registers the %{WindowName} class as a widget
-	// The viewmodel this widget belongs to is detected automatically via naming conventions
+	QtMvvm::registerDataSyncWidgets();
 	QtMvvm::WidgetsPresenter::registerView<MainWindow>();
 
 	return a.exec();
