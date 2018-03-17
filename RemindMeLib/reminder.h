@@ -8,11 +8,12 @@
 #include <QUuid>
 #include <QtDataSync/DataTypeStore>
 
+#include "remindmelib_global.h"
 #include "schedule.h"
 
 class ReminderData;
 
-class Reminder
+class REMINDMELIBSHARED_EXPORT Reminder
 {
 	Q_GADGET
 
@@ -57,10 +58,10 @@ public:
 	void performSnooze(QtDataSync::DataTypeStore<Reminder, QUuid> *store, const QDateTime &snooze);
 
 public slots:
-	void setId(QUuid id);
-	void setDescription(QString description);
+	void setId(const QUuid &id);
+	void setDescription(const QString &description);
 	void setImportant(bool important);
-	void setSchedule(QSharedPointer<Schedule> schedule);
+	void setSchedule(const QSharedPointer<Schedule> &schedule);
 	void setSchedule(Schedule *schedule);
 
 private:

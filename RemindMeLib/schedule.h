@@ -4,13 +4,15 @@
 #include <QDateTime>
 #include <QObject>
 
+#include "remindmelib_global.h"
+
 namespace ParserTypes {
 class Loop;
 class Type;
 class Datum;
 }
 
-class Schedule : public QObject
+class REMINDMELIBSHARED_EXPORT Schedule : public QObject
 {
 	Q_OBJECT
 	Q_CLASSINFO("polymorphic", "true")
@@ -38,7 +40,7 @@ private:
 	QDateTime _current;
 };
 
-class OneTimeSchedule : public Schedule
+class REMINDMELIBSHARED_EXPORT OneTimeSchedule : public Schedule
 {
 	Q_OBJECT
 
@@ -57,7 +59,7 @@ private:
 	QDateTime timepoint;
 };
 
-class LoopSchedule : public Schedule
+class REMINDMELIBSHARED_EXPORT LoopSchedule : public Schedule
 {
 	Q_OBJECT
 	friend class ParserTypes::Loop;
@@ -105,7 +107,7 @@ private:
 	QDateTime until;
 };
 
-class MultiSchedule : public Schedule
+class REMINDMELIBSHARED_EXPORT MultiSchedule : public Schedule
 {
 	Q_OBJECT
 

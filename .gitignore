@@ -72,5 +72,5 @@ Thumbs.db
 *.exe
 
 # qpmx
-.qpmx-dev-cache
-*.cppdummy
+.qpmx-dev-cache 
+*.tsdummy.cpp

@@ -120,12 +120,12 @@ void Reminder::performSnooze(QtDataSync::DataTypeStore<Reminder, QUuid> *store, 
 	store->save(*this);
 }
 
-void Reminder::setId(QUuid id)
+void Reminder::setId(const QUuid &id)
 {
 	_data->id = id;
 }
 
-void Reminder::setDescription(QString text)
+void Reminder::setDescription(const QString &text)
 {
 	_data->text = text;
 }
@@ -135,7 +135,7 @@ void Reminder::setImportant(bool important)
 	_data->important = important;
 }
 
-void Reminder::setSchedule(QSharedPointer<Schedule> schedule)
+void Reminder::setSchedule(const QSharedPointer<Schedule> &schedule)
 {
 	_data->schedule = schedule;
 }

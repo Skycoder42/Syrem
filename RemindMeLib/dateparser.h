@@ -4,13 +4,15 @@
 #include <QObject>
 #include <QDateTime>
 #include <QSharedPointer>
+
+#include "remindmelib_global.h"
 #include "schedule.h"
 
 namespace ParserTypes {
 
 class TimePoint;
 
-class Expression : public QObject
+class REMINDMELIBSHARED_EXPORT Expression : public QObject
 {
 	Q_OBJECT
 
@@ -37,7 +39,7 @@ protected:
 
 // ------------- Basic Types -------------
 
-class Datum : public QObject
+class REMINDMELIBSHARED_EXPORT Datum : public QObject
 {
 	Q_OBJECT
 
@@ -66,9 +68,9 @@ public:
 };
 
 typedef QList<QPair<int, Expression::Span>> Sequence;
-QDateTime nextSequenceDate(const Sequence &sequence, const QDateTime &since, bool *timeChange = nullptr);
+REMINDMELIBSHARED_EXPORT QDateTime nextSequenceDate(const Sequence &sequence, const QDateTime &since, bool *timeChange = nullptr);
 
-class Type : public QObject
+class REMINDMELIBSHARED_EXPORT Type : public QObject
 {
 	Q_OBJECT
 
@@ -86,7 +88,7 @@ public:
 	Sequence sequence;
 };
 
-class TimePoint : public QObject
+class REMINDMELIBSHARED_EXPORT TimePoint : public QObject
 {
 	Q_OBJECT
 
@@ -115,7 +117,7 @@ public:
 
 // ------------- Expressions -------------
 
-class Conjunction : public Expression
+class REMINDMELIBSHARED_EXPORT Conjunction : public Expression
 {
 	Q_OBJECT
 
@@ -126,7 +128,7 @@ public:
 	QList<Expression*> expressions;
 };
 
-class TimeSpan : public Expression
+class REMINDMELIBSHARED_EXPORT TimeSpan : public Expression
 {
 	Q_OBJECT
 
@@ -139,7 +141,7 @@ public:
 	QTime time;
 };
 
-class Loop : public Expression
+class REMINDMELIBSHARED_EXPORT Loop : public Expression
 {
 	Q_OBJECT
 
@@ -156,7 +158,7 @@ public:
 	QTime untilTime;
 };
 
-class Point : public Expression
+class REMINDMELIBSHARED_EXPORT Point : public Expression
 {
 	Q_OBJECT
 
@@ -168,9 +170,9 @@ public:
 	QTime time;
 };
 
-}
+} //ParserTypes
 
-class DateParser : public QObject
+class REMINDMELIBSHARED_EXPORT DateParser : public QObject
 {
 	Q_OBJECT
 
