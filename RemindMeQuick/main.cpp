@@ -30,6 +30,11 @@ int main(int argc, char *argv[])
 	if(qstrcmp(argv[1], "--daemon") == 0) {
 		qCritical("PUSSY: in service part");
 		QCoreApplication app(argc, argv);
+		//workarond
+#ifdef Q_OS_ANDROID
+		qputenv("PLUGIN_KEYSTORES_PATH", QCoreApplication::applicationDirPath().toUtf8());
+		qCritical() << qgetenv("PLUGIN_KEYSTORES_PATH");
+#endif
 		qCritical("PUSSY: core app created");
 		setupDaemon();
 		qCritical("PUSSY: daemon part created");

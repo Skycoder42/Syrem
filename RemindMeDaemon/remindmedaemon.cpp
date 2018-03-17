@@ -47,6 +47,8 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 
 void RemindMeDaemon::startDaemon()
 {
+	qCritical() << Setup::availableKeystores();
+
 	//basic setup
 	_hostNode = new QRemoteObjectHost(this);
 	_hostNode->setName(QStringLiteral("daemon"));
