@@ -2,7 +2,10 @@
 #define CREATEREMINDERCONTROL_H
 
 #include <QtMvvmCore/ViewModel>
-class ReminderManagerReplica;
+#include <QtDataSync/DataTypeStore>
+
+#include <dateparser.h>
+#include <remindmelib.h>
 
 class CreateReminderViewModel : public QtMvvm::ViewModel
 {
@@ -24,21 +27,16 @@ public slots:
 	void setImportant(bool important);
 	void setExpression(const QString &expression);
 
-	void create();
+	bool create();
 
 signals:
 	void textChanged(const QString &text);
 	void importantChanged(bool important);
 	void expressionChanged(const QString &expression);
 
-	void createCompleted(bool success);
-
-private slots:
-	void remCreated();
-	void remError(bool isCreate, const QString &error);
-
 private:
-	ReminderManagerReplica *_reminderManager;
+	DateParser *_parser;
+	ReminderStore *_store;
 
 	QString _text;
 	bool _important;

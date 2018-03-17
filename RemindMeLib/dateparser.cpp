@@ -365,52 +365,47 @@ Schedule *Point::createSchedule(const QDateTime &since, QTime defaultTime, QObje
 
 
 DateParser::DateParser(QObject *parent) :
-	QObject(parent),
-	_lastError()
+	QObject(parent)
 {}
 
-QSharedPointer<Expression> DateParser::parse(const QString &data)
+QSharedPointer<Expression> DateParser::parse(const QString &expression)
 {
 	auto dummyParent = new QObject();
 	try {
-		auto expr = parseExpression(data, dummyParent);
+		auto expr = parseExpression(expression, dummyParent);
 		expr->setParent(nullptr);
 		dummyParent->deleteLater();
 		return QSharedPointer<Expression>(expr);
 	} catch(QString &s) {
-		_lastError = s;
-		dummyParent->deleteLater();
-		return {};
+		throw DateParserException(tr("The entered text is not a valid expression. Error message:\n%1").arg(s));
 	}
+}
+
+QSharedPointer<Schedule> DateParser::parseSchedule(const QString &expression)
+{
+	auto expr = parse(expression);
+	QSharedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
+														   QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime()));
+	if(!schedule)
+		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
+	if(!schedule->nextSchedule().isValid())
+		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
+	return schedule;
 }
 
 QDateTime DateParser::snoozeParse(const QString &expression)
 {
-	auto expre = parse(expression);
-	if(!expre)
-		throw tr("The entered text is not a valid expression. Error message:\n%1").arg(lastError());
-
-	auto schedule = expre->createSchedule(QDateTime::currentDateTime(),
-										  QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime(),
-										  this);
+	auto expr = parse(expression);
+	QScopedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
+														   QSettings().value(QStringLiteral("daemon/defaultTime"), QTime(9,0)).toTime()));
 	if(!schedule)
-		throw tr("Given expression is valid, but evaluates to a timepoint in the past!");
-
-	if(schedule->isRepeating()) {
-		schedule->deleteLater();
-		throw tr("Given expression evaluates to more the 1 timepoint!");
-	}
-
-	auto nextTime = schedule->nextSchedule();
-	schedule->deleteLater();
-	if(!nextTime.isValid())
-		throw tr("Given expression is valid, but evaluates to a timepoint in the past!");
-	return nextTime;
-}
-
-QString DateParser::lastError() const
-{
-	return _lastError;
+		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
+	if(schedule->isRepeating())
+		throw DateParserException(tr("Given expression evaluates to more the 1 timepoint"));
+	auto next = schedule->nextSchedule();
+	if(!next.isValid())
+		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
+	return next;
 }
 
 QString DateParser::word(DateParser::WordKey key)
@@ -960,4 +955,34 @@ QMap<QString, int> DateParser::readMonths()
 		monthList.insert(locale.standaloneMonthName(i, QLocale::ShortFormat).toLower().trimmed(), i);
 	}
 	return monthList;
+}
+
+
+
+DateParserException::DateParserException(const QString &error) :
+	_what(error.toUtf8())
+{}
+
+DateParserException::DateParserException(const DateParserException * const other) :
+	_what(other->_what)
+{}
+
+QString DateParserException::qWhat() const noexcept
+{
+	return QString::fromUtf8(_what);
+}
+
+const char *DateParserException::what() const noexcept
+{
+	return _what.constData();
+}
+
+void DateParserException::raise() const
+{
+	throw *this;
+}
+
+QException *DateParserException::clone() const
+{
+	return new DateParserException(this);
 }

@@ -11,12 +11,14 @@ DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 HEADERS += \
 	remindmeapp.h \
 	mainviewmodel.h \
-    daemoncontroller.h
+    daemoncontroller.h \
+    createreminderviewmodel.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	mainviewmodel.cpp \
-    daemoncontroller.cpp
+    daemoncontroller.cpp \
+    createreminderviewmodel.cpp
 
 RESOURCES += \
 	remindmecore.qrc

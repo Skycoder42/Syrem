@@ -4,10 +4,14 @@
 #include <QtMvvmCore/SettingsViewModel>
 #include <QtMvvmDataSyncCore/DataSyncViewModel>
 
+#include "createreminderviewmodel.h"
+
 MainViewModel::MainViewModel(QObject *parent) :
 	ViewModel(parent),
-	_reminderModel(nullptr)
-{}
+	_reminderModel(new QtDataSync::DataStoreModel(this))
+{
+	_reminderModel->setTypeId<Reminder>();
+}
 
 QtDataSync::DataStoreModel *MainViewModel::reminderModel() const
 {
@@ -34,8 +38,7 @@ void MainViewModel::showAbout()
 
 void MainViewModel::addReminder()
 {
-	Q_UNIMPLEMENTED();
-	//show<CreateReminderViewModel>();
+	show<CreateReminderViewModel>();
 }
 
 void MainViewModel::completeReminder(const QUuid &id)
@@ -45,18 +48,17 @@ void MainViewModel::completeReminder(const QUuid &id)
 
 void MainViewModel::deleteReminder(const QUuid &id)
 {
-	Q_UNIMPLEMENTED();
+	try {
+		if(!_reminderModel->store()->remove<Reminder>(id))
+			qWarning() << "Reminder with id" << id << "has already been removed";
+	} catch(QException &e) {
+		qCritical() << "Failed to remove reminder with error:" << e.what();
+		QtMvvm::critical(tr("Failed to remove reminder"),
+						 tr("Reminder could not be deleted from datastore!"));
+	}
 }
 
 void MainViewModel::snoozeReminder(const QUuid &id)
 {
 	Q_UNIMPLEMENTED();
-}
-
-void MainViewModel::onInit(const QVariantHash &params)
-{
-	Q_UNUSED(params);
-
-	_reminderModel = new QtDataSync::DataStoreModel(this);
-	_reminderModel->setTypeId<Reminder>();
 }

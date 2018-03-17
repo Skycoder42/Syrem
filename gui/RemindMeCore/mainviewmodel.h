@@ -26,9 +26,6 @@ public slots:
 	void deleteReminder(const QUuid &id);
 	void snoozeReminder(const QUuid &id);
 
-protected:
-	void onInit(const QVariantHash &params) override;
-
 private:
 	QtDataSync::DataStoreModel *_reminderModel;
 };

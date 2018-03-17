@@ -2,12 +2,29 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSortFilterProxyModel>
+#include <QSettings>
 
+#include <qobjectproxymodel.h>
 #include <mainviewmodel.h>
 
 namespace Ui {
 class MainWindow;
 }
+
+class ReminderProxyModel : public QObjectProxyModel
+{
+	Q_OBJECT
+
+public:
+	ReminderProxyModel(QObject *parent = nullptr);
+
+	QVariant data(const QModelIndex &index, int role) const override;
+	void setSourceModel(QAbstractItemModel *sourceModel) override;
+
+private:
+	QSettings *_settings;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -29,7 +46,10 @@ private:
 	MainViewModel *_viewModel;
 	Ui::MainWindow *_ui;
 
-	QUuid idFromIndex(const QModelIndex &index);
+	ReminderProxyModel *_proxyModel;
+	QSortFilterProxyModel *_sortModel;
+
+	Reminder reminderAt(const QModelIndex &sIndex);
 };
 
 #endif // MAINWINDOW_H

@@ -11,6 +11,7 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	_ui(new Ui::CreateReminderDialog)
 {
 	_ui->setupUi(this);
+	_ui->whenLineEdit->setWhatsThis(RemindMe::whenExpressionHelp());
 	DialogMaster::masterDialog(this);
 
 	_ui->whenLineEdit->addAction(_ui->actionExpression_Syntax, QLineEdit::TrailingPosition);
@@ -24,9 +25,6 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	QtMvvm::bind(_viewModel, "important",
 				 _ui->importantCheckBox, "checked",
 				 QtMvvm::Binding::OneWayToViewModel);
-
-	connect(_viewModel, &CreateReminderViewModel::createCompleted,
-			this, &CreateReminderDialog::created);
 
 	QSettings settings;
 	settings.beginGroup(QStringLiteral("gui/createreminder"));
@@ -55,12 +53,7 @@ CreateReminderDialog::~CreateReminderDialog()
 void CreateReminderDialog::accept()
 {
 	_ui->buttonBox->setEnabled(false);
-	_viewModel->create();
-}
-
-void CreateReminderDialog::created(bool success)
-{
-	if(success)
+	if(_viewModel->create())
 		QDialog::accept();
 	else
 		_ui->buttonBox->setEnabled(true);
@@ -68,5 +61,5 @@ void CreateReminderDialog::created(bool success)
 
 void CreateReminderDialog::on_actionExpression_Syntax_triggered()
 {
-	QWhatsThis::showText(QPoint(0, 0), _ui->whenLineEdit->whatsThis(), _ui->whenLineEdit);
+	QWhatsThis::showText(QPoint(0, 0), RemindMe::whenExpressionHelp(), _ui->whenLineEdit);
 }

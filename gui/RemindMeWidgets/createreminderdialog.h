@@ -20,8 +20,6 @@ public slots:
 	void accept() override;
 
 private slots:
-	void created(bool success);
-
 	void on_actionExpression_Syntax_triggered();
 
 private:

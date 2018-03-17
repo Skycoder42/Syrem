@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDateTime>
 #include <QSharedPointer>
+#include <QException>
 
 #include "remindmelib_global.h"
 #include "schedule.h"
@@ -172,6 +173,22 @@ public:
 
 } //ParserTypes
 
+class REMINDMELIBSHARED_EXPORT DateParserException : public QException
+{
+public:
+	DateParserException(const QString &error);
+
+	QString qWhat() const noexcept;
+	const char *what() const noexcept override;
+	void raise() const override;
+	QException *clone() const override;
+
+protected:
+	DateParserException(const DateParserException * const other);
+
+	const QByteArray _what;
+};
+
 class REMINDMELIBSHARED_EXPORT DateParser : public QObject
 {
 	Q_OBJECT
@@ -207,15 +224,12 @@ public:
 
 	explicit DateParser(QObject *parent = nullptr);
 
-	QSharedPointer<ParserTypes::Expression> parse(const QString &data);
+	QSharedPointer<ParserTypes::Expression> parse(const QString &expression);
 
+	QSharedPointer<Schedule> parseSchedule(const QString &expression);
 	QDateTime snoozeParse(const QString &expression);
 
-	QString lastError() const;
-
 private:
-	QString _lastError;
-
 	static QString word(WordKey key);
 	static QString timeRegex();
 	static QString sequenceRegex();
