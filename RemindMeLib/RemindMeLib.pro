@@ -12,11 +12,12 @@ HEADERS += \
 	dateparser.h \
 	reminder.h \
 	schedule.h \
-	conflictresolver.h
+	conflictresolver.h \
+    remindmelib.h
 
 SOURCES += \
 	dateparser.cpp \
 	reminder.cpp \
 	schedule.cpp \
-	remindmelib_global.cpp \
-	conflictresolver.cpp
+	conflictresolver.cpp \
+    remindmelib.cpp

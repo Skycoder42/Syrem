@@ -1,12 +1,16 @@
 #include "remindmeapp.h"
-#include "mainviewmodel.h"
 
 #include <QCommandLineParser>
 #include <QGuiApplication>
 #include <QIcon>
 
+#include <remindmelib.h>
+
+#include "mainviewmodel.h"
+
 RemindMeApp::RemindMeApp(QObject *parent) :
-	CoreApp(parent)
+	CoreApp(parent),
+	_daemon(nullptr)
 {
 	QCoreApplication::setApplicationName(QStringLiteral("Remind-Me"));
 	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
@@ -34,7 +38,25 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	if(!autoParse(parser, arguments))
 		return EXIT_SUCCESS;
 
+	// start the daemon
+	_daemon = new DaemonController(this);
+	_daemon->ensureStarted();
+	//DEBUG
+	connect(qApp, &QGuiApplication::aboutToQuit,
+			_daemon, &DaemonController::stop);
+
+	// create datasync etc
+	QtDataSync::Setup setup;
+	RemindMe::setup(setup);
+	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 3000);
+
 	//show a viewmodel to complete the startup
 	show<MainViewModel>();
+	if(warn) {
+		QtMvvm::warning(tr("Service unavailable"),
+						tr("Failed to connect to service. The application will still work, "
+						   "but neither synchronize nor schedule new reminders!"));
+	}
+
 	return EXIT_SUCCESS;
 }

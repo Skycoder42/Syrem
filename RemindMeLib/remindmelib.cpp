@@ -1,10 +1,19 @@
-#include "remindmelib_global.h"
+#include "remindmelib.h"
 #include <QJsonSerializer>
 #include <QCoreApplication>
 
 #include "schedule.h"
 #include "dateparser.h"
 #include "reminder.h"
+#include "conflictresolver.h"
+
+void RemindMe::setup(QtDataSync::Setup &setup)
+{
+	setup.setRemoteObjectHost(QStringLiteral("local:remindme-datasync")) //TODO make SSL with pw
+			.setSyncPolicy(QtDataSync::Setup::PreferDeleted)
+			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")})
+			.setConflictResolver(new ConflictResolver());
+}
 
 namespace {
 

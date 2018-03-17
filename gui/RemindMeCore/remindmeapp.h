@@ -3,6 +3,8 @@
 
 #include <QtMvvmCore/CoreApp>
 
+#include "daemoncontroller.h"
+
 class RemindMeApp : public QtMvvm::CoreApp
 {
 	Q_OBJECT
@@ -13,9 +15,12 @@ public:
 protected:
 	void performRegistrations() override;
 	int startApp(const QStringList &arguments) override;
+
+private:
+	DaemonController *_daemon;
 };
 
 #undef coreApp
-#define coreApp static_cast<RemindMeApp*>(CoreApp::instance())
+#define coreApp static_cast<RemindMeApp*>(QtMvvm::CoreApp::instance())
 
 #endif // REMINDMEAPP_H
