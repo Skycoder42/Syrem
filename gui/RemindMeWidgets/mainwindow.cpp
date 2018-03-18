@@ -37,6 +37,7 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	_proxyModel->setSourceModel(_viewModel->reminderModel());
 	_sortModel->setSourceModel(_proxyModel);
 	_ui->treeView->setModel(_sortModel);
+	_ui->treeView->sortByColumn(1, Qt::AscendingOrder);
 
 	_ui->treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 	_ui->treeView->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);

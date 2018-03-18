@@ -1,5 +1,6 @@
 #include "snoozedialog.h"
 #include <QtMvvmCore/Binding>
+#include <QSettings>
 #include <dialogmaster.h>
 #include <snoozetimes.h>
 
@@ -13,7 +14,6 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	setEnabled(false);
 
 	DialogMaster::masterDialog(this);
-	//TODO save and restore geom
 
 	QtMvvm::bind(_viewModel, "valid",
 				 this, "enabled",

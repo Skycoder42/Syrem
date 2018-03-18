@@ -9,14 +9,24 @@
 
 MainViewModel::MainViewModel(QObject *parent) :
 	ViewModel(parent),
-	_reminderModel(new QtDataSync::DataStoreModel(this))
+	_reminderModel(new QtDataSync::DataStoreModel(this)),
+	_sortedModel(new QSortFilterProxyModel(this))
 {
 	_reminderModel->setTypeId<Reminder>();
+	_sortedModel->setSortLocaleAware(true);
+	_sortedModel->setSourceModel(_reminderModel);
+	_sortedModel->setSortRole(_reminderModel->roleNames().key("current")); //NOTE make settable
+	_sortedModel->sort(0);
 }
 
 QtDataSync::DataStoreModel *MainViewModel::reminderModel() const
 {
 	return _reminderModel;
+}
+
+QSortFilterProxyModel *MainViewModel::sortedModel() const
+{
+	return _sortedModel;
 }
 
 void MainViewModel::showSettings()

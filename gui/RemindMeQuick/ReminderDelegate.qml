@@ -50,10 +50,10 @@ SwipeDelegate {
 			text: delegate.text
 		}
 
-		TintedIcon { //TODO use normal tint icon
+		TintedIcon { //NOTE use normal tint icon
 			id: stateImage
 
-			Layout.minimumWidth: 42 //TODO use real size...
+			Layout.minimumWidth: 42
 			Layout.maximumWidth: 42
 			Layout.minimumHeight: 42
 			Layout.maximumHeight: 42

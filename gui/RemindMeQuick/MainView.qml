@@ -50,7 +50,7 @@ Page {
 	ListView {
 		anchors.fill: parent
 
-		model: viewModel.reminderModel //TODO sort in viewmodel
+		model: viewModel.sortedModel
 
 		ScrollBar.vertical: ScrollBar {}
 
