@@ -90,7 +90,7 @@
 			</Entry>
 		</Group>
 		<Group title="Snoozing">
-			<Entry key="scheduler/snooze/default"
+			<Entry key="scheduler/snooze/standard"
 				   type="int"
 				   title="&amp;Default snooze time"
 				   tooltip="Enter a time (in minutes) as the default snooze time"

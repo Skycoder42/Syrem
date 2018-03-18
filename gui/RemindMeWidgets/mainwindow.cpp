@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <settings.h>
 
 #include <QtMvvmCore/Binding>
 
@@ -109,8 +110,7 @@ Reminder MainWindow::reminderAt(const QModelIndex &sIndex)
 
 
 ReminderProxyModel::ReminderProxyModel(QObject *parent) :
-	QObjectProxyModel({tr("Reminder"), tr("Due on")}, parent),
-	_settings(new QSettings(this))
+	QObjectProxyModel({tr("Reminder"), tr("Due on")}, parent)
 {}
 
 QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
@@ -119,7 +119,7 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 	if(!data.isValid())
 		return {};
 
-	auto format = (QLocale::FormatType)_settings->value(QStringLiteral("gui/dateformat"), QLocale::ShortFormat).toInt();
+	auto format = static_cast<QLocale::FormatType>(Settings::instance()->gui.dateformat.get());
 	switch (index.column()) {
 	case 0:
 		if(role == Qt::DecorationRole) {

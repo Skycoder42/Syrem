@@ -1,6 +1,5 @@
 #include "snoozedialog.h"
 #include <QtMvvmCore/Binding>
-#include <QSettings>
 #include <dialogmaster.h>
 #include <snoozetimes.h>
 

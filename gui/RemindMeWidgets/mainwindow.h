@@ -3,8 +3,6 @@
 
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
-#include <QSettings>
-
 #include <qobjectproxymodel.h>
 #include <mainviewmodel.h>
 
@@ -21,9 +19,6 @@ public:
 
 	QVariant data(const QModelIndex &index, int role) const override;
 	void setSourceModel(QAbstractItemModel *sourceModel) override;
-
-private:
-	QSettings *_settings;
 };
 
 class MainWindow : public QMainWindow

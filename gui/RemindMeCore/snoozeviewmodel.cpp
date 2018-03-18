@@ -1,7 +1,7 @@
 #include "snoozeviewmodel.h"
-#include <QSettings>
 #include <QtMvvmCore/Messages>
 #include <snoozetimes.h>
+#include <settings.h>
 
 const QString SnoozeViewModel::paramId = QStringLiteral("id");
 const QString SnoozeViewModel::paramVersionCode = QStringLiteral("versionCode");
@@ -13,17 +13,7 @@ SnoozeViewModel::SnoozeViewModel(QObject *parent) :
 	_reminder(),
 	_snoozeTimes(),
 	_expression()
-{
-	QSettings settings;
-	_snoozeTimes = settings.value(QStringLiteral("daemon/snooze/times"),
-								  QVariant::fromValue<SnoozeTimes>({
-																	   tr("in 20 minutes"),
-																	   tr("in 1 hour"),
-																	   tr("in 3 hours"),
-																	   tr("tomorrow"),
-																	   tr("in 1 week on Monday")
-																   })).value<SnoozeTimes>();
-}
+{}
 
 QVariantHash SnoozeViewModel::showParams(const QUuid &id)
 {
@@ -94,6 +84,8 @@ void SnoozeViewModel::setExpression(const QString &expression)
 void SnoozeViewModel::onInit(const QVariantHash &params)
 {
 	Q_ASSERT_X(params.contains(paramId), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
+
+	_snoozeTimes = Settings::instance()->scheduler.snooze.times;
 
 	try {
 		_reminder = _store->load(params.value(paramId).toUuid());
