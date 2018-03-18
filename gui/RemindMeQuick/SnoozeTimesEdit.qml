@@ -1,7 +1,7 @@
 import QtQuick 2.10
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
-import ".."
+import de.skycoder42.remindme 1.0
 
 Item {
 	id: snoozeView
@@ -64,7 +64,14 @@ Item {
 						visible = false;
 						var nList = elementList.model;
 						nList[index] = editInput.text;
-						inputValue = nList;
+						inputValue = SnoozeTimes.generate(nList);
+					}
+
+					onRemoved: {
+						visible = false;
+						var nList = elementList.model;
+						nList.splice(index, 1);
+						inputValue = SnoozeTimes.generate(nList);
 					}
 				}
 			}
@@ -85,7 +92,7 @@ Item {
 			onEditDone: {
 				var nList = elementList.model;
 				nList.push(text);
-				inputValue = nList;
+				inputValue = SnoozeTimes.generate(nList);
 				addInput.text = "";
 			}
 		}

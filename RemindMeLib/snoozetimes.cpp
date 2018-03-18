@@ -24,3 +24,14 @@ QDataStream &operator>>(QDataStream &stream, SnoozeTimes &times)
 	stream >> static_cast<QStringList&>(times);
 	return stream;
 }
+
+
+
+SnoozeTimesGenerator::SnoozeTimesGenerator(QObject *parent) :
+	QObject(parent)
+{}
+
+SnoozeTimes SnoozeTimesGenerator::generate(const QVariant &value) const
+{
+	return SnoozeTimes(value.toStringList());
+}

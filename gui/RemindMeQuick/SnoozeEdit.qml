@@ -9,6 +9,7 @@ TextField {
 	property bool edit: false
 
 	signal editDone()
+	signal removed()
 
 	placeholderText: edit ? qsTr("Edit snooze time…") : qsTr("Add new snooze time…")
 
@@ -21,6 +22,6 @@ TextField {
 		icon.source: edit ? "qrc:/icons/ic_check.svg" : "qrc:/icons/ic_add.svg"
 		text: edit ? qsTr("Update snooze time…") : qsTr("Add snooze time")
 
-		onClicked: editDone()
+		onClicked: editInput.text == "" ? removed() : editDone()
 	}
 }

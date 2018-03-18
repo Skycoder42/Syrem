@@ -57,6 +57,10 @@ SpinBox {
 	}
 
 	function dateToInt(date) {
+		if (typeof date === "string") {
+			var splitStr = date.split(":")
+			date = new Date(0, 0, 0, splitStr[0], splitStr[1])
+		}
 		return date.getHours() * 60 + date.getMinutes();
 	}
 }

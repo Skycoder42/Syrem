@@ -23,6 +23,16 @@ public:
 	Q_INVOKABLE QVariantList toList() const;
 };
 
+class REMINDMELIBSHARED_EXPORT SnoozeTimesGenerator : public QObject
+{
+	Q_OBJECT
+
+public:
+	explicit SnoozeTimesGenerator(QObject *parent);
+
+	Q_INVOKABLE SnoozeTimes generate(const QVariant &value) const;
+};
+
 REMINDMELIBSHARED_EXPORT QDataStream &operator<<(QDataStream &stream, const SnoozeTimes &times);
 REMINDMELIBSHARED_EXPORT QDataStream &operator>>(QDataStream &stream, SnoozeTimes &times);
 
