@@ -1,7 +1,7 @@
 TEMPLATE = lib
 
 QT -= gui
-QT += datasync mvvmcore
+QT += datasync mvvmcore remoteobjects
 
 TARGET = remind-me
 
@@ -14,7 +14,9 @@ HEADERS += \
 	schedule.h \
 	conflictresolver.h \
 	remindmelib.h \
-	snoozetimes.h
+	snoozetimes.h \
+	rotlsclientio.h \
+    rotlsserverio.h
 
 SOURCES += \
 	dateparser.cpp \
@@ -22,7 +24,9 @@ SOURCES += \
 	schedule.cpp \
 	conflictresolver.cpp \
 	remindmelib.cpp \
-	snoozetimes.cpp
+	snoozetimes.cpp \
+	rotlsclientio.cpp \
+    rotlsserverio.cpp
 
 SETTINGS_GENERATORS += \
 	localsettings.xml \
