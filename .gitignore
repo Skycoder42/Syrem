@@ -74,3 +74,4 @@ Thumbs.db
 # qpmx
 .qpmx-dev-cache 
 *.tsdummy.cpp
+*.json.user
