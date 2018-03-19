@@ -21,6 +21,7 @@ void RemindMe::setup(QtDataSync::Setup &setup)
 
 void RemindMe::setupSyncedSettings()
 {
+	//TODO give generator a "backend" parameter instead
 	auto syncSettings = SyncedSettings::instance();
 	syncSettings->setAccessor(new DataSyncSettingsGenerator(syncSettings));
 }

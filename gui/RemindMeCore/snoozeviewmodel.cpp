@@ -3,11 +3,11 @@
 #include <snoozetimes.h>
 #include <syncedsettings.h>
 
-const QString SnoozeViewModel::paramId = QStringLiteral("id");
-const QString SnoozeViewModel::paramVersionCode = QStringLiteral("versionCode");
+const QString SnoozeViewModel::paramReminder = QStringLiteral("reminder");
 
 SnoozeViewModel::SnoozeViewModel(QObject *parent) :
 	ViewModel(parent),
+	_settings(nullptr), //injected
 	_store(new ReminderStore(this)),
 	_parser(new DateParser(this)),
 	_reminder(),
@@ -15,18 +15,10 @@ SnoozeViewModel::SnoozeViewModel(QObject *parent) :
 	_expression()
 {}
 
-QVariantHash SnoozeViewModel::showParams(const QUuid &id)
+QVariantHash SnoozeViewModel::showParams(const Reminder &reminder)
 {
 	return {
-		{paramId, id}
-	};
-}
-
-QVariantHash SnoozeViewModel::showParams(const QUuid &id, quint32 versionCode)
-{
-	return {
-		{paramId, id},
-		{paramVersionCode, versionCode}
+		{paramReminder, QVariant::fromValue<Reminder>(reminder)}
 	};
 }
 
@@ -83,22 +75,9 @@ void SnoozeViewModel::setExpression(const QString &expression)
 
 void SnoozeViewModel::onInit(const QVariantHash &params)
 {
-	Q_ASSERT_X(params.contains(paramId), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
+	Q_ASSERT_X(params.contains(paramReminder), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
 
-	_snoozeTimes = SyncedSettings::instance()->scheduler.snooze.times; //TODO fix default value
-
-	try {
-		_reminder = _store->load(params.value(paramId).toUuid());
-		if(params.contains(paramVersionCode) &&
-		   _reminder.versionCode() != params.value(paramVersionCode).toUInt()) {
-			_reminder = Reminder();
-			QtMvvm::critical(tr("Snoozing failed!"),
-							 tr("Reminder has already been updated - cannot be snoozed anymore."));
-		} else
-			emit reminderLoaded();
-	} catch (QException &e) {
-		qCritical() << "Failed to load reminder with error:" << e.what();
-		QtMvvm::critical(tr("Snoozing failed!"),
-						 tr("Unable to load the reminder that should be snoozed!"));
-	}
+	_snoozeTimes = _settings->scheduler.snooze.times;
+	_reminder = params.value(paramReminder).value<Reminder>();
+	emit reminderLoaded();
 }

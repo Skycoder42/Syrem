@@ -7,6 +7,7 @@
 #include <createreminderviewmodel.h>
 #include <snoozeviewmodel.h>
 #include <snoozetimes.h>
+#include "settingsqmlwrapper.h"
 
 QTMVVM_REGISTER_CORE_APP(RemindMeApp)
 
@@ -18,6 +19,12 @@ QObject *create_snooze_times_generator(QQmlEngine *qmlEngine, QJSEngine *jsEngin
 	return new SnoozeTimesGenerator(qmlEngine);
 }
 
+QObject *create_settings_wrapper(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+{
+	Q_UNUSED(jsEngine)
+	return new SettingsQmlWrapper(qmlEngine);
+}
+
 }
 
 int main(int argc, char *argv[])
@@ -26,6 +33,7 @@ int main(int argc, char *argv[])
 	QGuiApplication app(argc, argv);
 
 	qmlRegisterSingletonType<SnoozeTimesGenerator>("de.skycoder42.remindme", 1, 0, "SnoozeTimes", create_snooze_times_generator);
+	qmlRegisterSingletonType<SnoozeTimesGenerator>("de.skycoder42.remindme", 1, 0, "Settings", create_settings_wrapper);
 	qmlRegisterUncreatableType<Reminder>("de.skycoder42.remindme", 1, 0, "Reminder", QStringLiteral("Q_GADGETs cannot be created!"));
 	qmlRegisterUncreatableType<MainViewModel>("de.skycoder42.remindme", 1, 0, "MainViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderViewModel>("de.skycoder42.remindme", 1, 0, "CreateReminderViewModel", QStringLiteral("ViewModels cannot be created!"));

@@ -78,6 +78,16 @@ void MainViewModel::deleteReminder(const QUuid &id)
 
 void MainViewModel::snoozeReminder(const QUuid &id)
 {
-	//TODO check if actually snoozable
-	show<SnoozeViewModel>(SnoozeViewModel::showParams(id));
+	if(id.isNull())
+		return;
+
+	try {
+		auto rem = _reminderModel->store()->load<Reminder>(id);
+		if(rem.triggerState() == Reminder::Triggered)
+			show<SnoozeViewModel>(SnoozeViewModel::showParams(rem));
+	} catch (QException &e) {
+		qCritical() << "Failed to load reminder with error:" << e.what();
+		QtMvvm::critical(tr("Snoozing failed!"),
+						 tr("Unable to load the reminder that should be snoozed!"));
+	}
 }

@@ -4,8 +4,10 @@
 #include <QObject>
 #include <QUuid>
 #include <QtMvvmCore/ViewModel>
+#include <QtMvvmCore/Injection>
 #include <remindmelib.h>
 #include <dateparser.h>
+#include <syncedsettings.h>
 
 class SnoozeViewModel : public QtMvvm::ViewModel
 {
@@ -16,12 +18,12 @@ class SnoozeViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(QStringList snoozeTimes READ snoozeTimes NOTIFY reminderLoaded)
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
-public:
-	const static QString paramId;
-	const static QString paramVersionCode;
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings,_settings)
 
-	static QVariantHash showParams(const QUuid &id);
-	static QVariantHash showParams(const QUuid &id, quint32 versionCode);
+public:
+	const static QString paramReminder;
+
+	static QVariantHash showParams(const Reminder &reminder);
 
 	Q_INVOKABLE explicit SnoozeViewModel(QObject *parent = nullptr);
 
@@ -43,6 +45,7 @@ protected:
 	void onInit(const QVariantHash &params) override;
 
 private:
+	SyncedSettings *_settings;
 	ReminderStore *_store;
 	DateParser *_parser;
 

@@ -400,7 +400,7 @@ QDateTime DateParser::snoozeParse(const QString &expression)
 {
 	auto expr = parse(expression);
 	QScopedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   SyncedSettings::instance()->scheduler.defaultTime)); //TODO create and use settings access class generator!
+														   SyncedSettings::instance()->scheduler.defaultTime));
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(schedule->isRepeating())

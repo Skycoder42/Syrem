@@ -8,7 +8,8 @@ else: TARGET = remind-me
 QMAKE_TARGET_PRODUCT = "Remind-Me"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    settingsqmlwrapper.cpp
 
 RESOURCES += \
     remindmequick.qrc
@@ -38,3 +39,6 @@ QML_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
+
+HEADERS += \
+    settingsqmlwrapper.h
