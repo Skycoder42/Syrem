@@ -3,6 +3,7 @@
 #include <QtMvvmCore/Binding>
 #include <QWhatsThis>
 #include <dialogmaster.h>
+#include <localsettings.h>
 
 CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QDialog(parent),
@@ -24,10 +25,15 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	QtMvvm::bind(_viewModel, "important",
 				 _ui->importantCheckBox, "checked",
 				 QtMvvm::Binding::OneWayToViewModel);
+
+	if(LocalSettings::instance()->gui.createreminderdialog.size.isSet())
+		resize(LocalSettings::instance()->gui.createreminderdialog.size);
 }
 
-CreateReminderDialog::~CreateReminderDialog() //TODO save and restore geom
+CreateReminderDialog::~CreateReminderDialog()
 {
+	LocalSettings::instance()->gui.createreminderdialog.size = size();
+
 	delete _ui;
 }
 

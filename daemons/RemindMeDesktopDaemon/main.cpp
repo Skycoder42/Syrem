@@ -18,8 +18,11 @@ int main(int argc, char *argv[])
 		QtDataSync::Setup setup;
 		RemindMe::setup(setup);
 		setup.create();
-		qInfo() << "daemon started";
 
+		//setup the synced settings
+		RemindMe::setupSyncedSettings();
+
+		qInfo() << "daemon started";
 		return a.exec();
 	} catch(QException &e) {
 		qCritical() << e.what();

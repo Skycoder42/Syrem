@@ -56,7 +56,8 @@
 				   type="QTime"
 				   title="Default &amp;Time"
 				   tooltip="The time to be used as default for new reminders/snoozing, in case the reminder is date-oriented and no time has been set. Set to &lt;b&gt;00:00&lt;/b&gt; to not set the time"
-				   default="09:00">
+				   default="09:00"
+				   tsdefault="true">
 				<Property key="specialValueText" type="string" ts="true">Not set</Property>
 			</Entry>
 		</Group>

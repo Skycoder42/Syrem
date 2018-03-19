@@ -65,6 +65,9 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	RemindMe::setup(setup);
 	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 3000);
 
+	//setup the synced settings
+	RemindMe::setupSyncedSettings();
+
 	//show a viewmodel to complete the startup
 	show<MainViewModel>();
 	if(warn) {

@@ -2,6 +2,7 @@
 #include <QtMvvmCore/Binding>
 #include <dialogmaster.h>
 #include <snoozetimes.h>
+#include <localsettings.h>
 
 SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QInputDialog(parent),
@@ -23,6 +24,14 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QtMvvm::bind(_viewModel, "snoozeTimes",
 				 this, "comboBoxItems",
 				 QtMvvm::Binding::OneWayToView);
+
+	if(LocalSettings::instance()->gui.snoozedialog.size.isSet())
+		resize(LocalSettings::instance()->gui.snoozedialog.size);
+}
+
+SnoozeDialog::~SnoozeDialog()
+{
+	LocalSettings::instance()->gui.snoozedialog.size = size();
 }
 
 void SnoozeDialog::accept()

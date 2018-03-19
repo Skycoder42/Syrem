@@ -8,6 +8,9 @@
 #include "conflictresolver.h"
 #include "snoozetimes.h"
 
+#include <syncedsettings.h>
+#include <datasyncsettingsgenerator.h>
+
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
 	setup.setRemoteObjectHost(QStringLiteral("local:remindme-datasync")) //TODO make SSL with pw
@@ -16,39 +19,11 @@ void RemindMe::setup(QtDataSync::Setup &setup)
 			.setConflictResolver(new ConflictResolver());
 }
 
-namespace {
-
-void setupRemindMeLib()
+void RemindMe::setupSyncedSettings()
 {
-	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
-	qRegisterMetaType<ParserTypes::Datum*>();
-	qRegisterMetaType<ParserTypes::Type*>();
-	qRegisterMetaType<ParserTypes::TimePoint*>();
-	qRegisterMetaType<Schedule*>();
-	qRegisterMetaType<OneTimeSchedule*>();
-	qRegisterMetaType<LoopSchedule*>();
-	qRegisterMetaType<MultiSchedule*>();
-	qRegisterMetaType<SnoozeTimes>();
-	qRegisterMetaTypeStreamOperators<SnoozeTimes>();
-
-	QJsonSerializer::registerAllConverters<Reminder>();
-	QJsonSerializer::registerPointerConverters<Schedule>();
-	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
-	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
-
-	QMetaType::registerConverter<SnoozeTimes, QVariantList>([](const SnoozeTimes &list) -> QVariantList {
-		return list.toList();
-	});
-	QMetaType::registerConverter<QVariantList, SnoozeTimes>([](const QVariantList &list) -> SnoozeTimes {
-		SnoozeTimes l;
-		foreach(auto v, list)
-			l.append(v.toString());
-		return l;
-	});
+	auto syncSettings = SyncedSettings::instance();
+	syncSettings->setAccessor(new DataSyncSettingsGenerator(syncSettings));
 }
-
-}
-
 
 QString RemindMe::whenExpressionHelp()
 {
@@ -122,4 +97,36 @@ QString RemindMe::whenExpressionHelp()
 									   "you can even define custom formats to be accepted. Check the settings for details on those formats.</p>");
 }
 
+namespace {
+
+void setupRemindMeLib()
+{
+	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
+	qRegisterMetaType<ParserTypes::Datum*>();
+	qRegisterMetaType<ParserTypes::Type*>();
+	qRegisterMetaType<ParserTypes::TimePoint*>();
+	qRegisterMetaType<Schedule*>();
+	qRegisterMetaType<OneTimeSchedule*>();
+	qRegisterMetaType<LoopSchedule*>();
+	qRegisterMetaType<MultiSchedule*>();
+	qRegisterMetaType<SnoozeTimes>();
+	qRegisterMetaTypeStreamOperators<SnoozeTimes>();
+
+	QJsonSerializer::registerAllConverters<Reminder>();
+	QJsonSerializer::registerPointerConverters<Schedule>();
+	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
+	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
+
+	QMetaType::registerConverter<SnoozeTimes, QVariantList>([](const SnoozeTimes &list) -> QVariantList {
+		return list.toList();
+	});
+	QMetaType::registerConverter<QVariantList, SnoozeTimes>([](const QVariantList &list) -> SnoozeTimes {
+		SnoozeTimes l;
+		foreach(auto v, list)
+			l.append(v.toString());
+		return l;
+	});
+}
+
+}
 Q_COREAPP_STARTUP_FUNCTION(setupRemindMeLib)

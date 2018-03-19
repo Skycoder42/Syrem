@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Settings name="Settings" prefix="REMINDMELIBSHARED_EXPORT">
+<Settings name="LocalSettings" prefix="REMINDMELIBSHARED_EXPORT">
 	<Include>remindmelib_global.h</Include>
 	<Include>QSize</Include>
 	<Include>QKeySequence</Include>
 	<Include>QTime</Include>
 	<Include>snoozetimes.h</Include>
+
 	<Node key="gui">
 		<Node key="mainwindow">
-			<Entry key="size" type="QSize"/>
+			<Entry key="geom" type="QByteArray"/>
+			<Entry key="state" type="QByteArray"/>
 			<Entry key="header" type="QByteArray"/>
 		</Node>
-		<Entry key="modal" type="bool" default="true"/>
-		<Entry key="createreminderdialog" type="int" default="42">
+		<Node key="createreminderdialog">
 			<Entry key="size" type="QSize"/>
-		</Entry>
-		<Entry key="dateformat" type="int" default="1"/>
+		</Node>
+		<Node key="snoozedialog">
+			<Entry key="size" type="QSize"/>
+		</Node>
 	</Node>
-	<Entry key="trigger" type="action"/>
 </Settings>

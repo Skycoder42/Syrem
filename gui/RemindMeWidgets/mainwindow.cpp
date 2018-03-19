@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <settings.h>
+#include <localsettings.h>
+#include <syncedsettings.h>
 
 #include <QtMvvmCore/Binding>
 
@@ -49,10 +50,22 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 			this, [this](){
 		updateCurrent(_ui->treeView->currentIndex());
 	});
+
+	//restore window geom
+	if(LocalSettings::instance()->gui.mainwindow.geom.isSet())
+		restoreGeometry(LocalSettings::instance()->gui.mainwindow.geom);
+	if(LocalSettings::instance()->gui.mainwindow.state.isSet())
+		restoreState(LocalSettings::instance()->gui.mainwindow.state);
+	if(LocalSettings::instance()->gui.mainwindow.header.isSet())
+		_ui->treeView->header()->restoreState(LocalSettings::instance()->gui.mainwindow.header);
 }
 
-MainWindow::~MainWindow() //TODO save and restore geom
+MainWindow::~MainWindow()
 {
+	LocalSettings::instance()->gui.mainwindow.geom = saveGeometry();
+	LocalSettings::instance()->gui.mainwindow.state = saveState();
+	LocalSettings::instance()->gui.mainwindow.header = _ui->treeView->header()->saveState();
+
 	delete _ui;
 }
 
@@ -119,7 +132,7 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 	if(!data.isValid())
 		return {};
 
-	auto format = static_cast<QLocale::FormatType>(Settings::instance()->gui.dateformat.get());
+	auto format = static_cast<QLocale::FormatType>(SyncedSettings::instance()->gui.dateformat.get());
 	switch (index.column()) {
 	case 0:
 		if(role == Qt::DecorationRole) {

@@ -3,7 +3,7 @@
 #include <QLocale>
 #include <QRegularExpression>
 #include <chrono>
-#include "settings.h"
+#include "syncedsettings.h"
 using namespace ParserTypes;
 
 Expression::Expression(QObject *parent) :
@@ -388,7 +388,7 @@ QSharedPointer<Schedule> DateParser::parseSchedule(const QString &expression)
 {
 	auto expr = parse(expression);
 	QSharedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   Settings::instance()->scheduler.defaultTime));
+														   SyncedSettings::instance()->scheduler.defaultTime));
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(!schedule->nextSchedule().isValid())
@@ -400,7 +400,7 @@ QDateTime DateParser::snoozeParse(const QString &expression)
 {
 	auto expr = parse(expression);
 	QScopedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   Settings::instance()->scheduler.defaultTime)); //TODO create and use settings access class generator!
+														   SyncedSettings::instance()->scheduler.defaultTime)); //TODO create and use settings access class generator!
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(schedule->isRepeating())

@@ -13,14 +13,16 @@ HEADERS += \
 	mainviewmodel.h \
 	daemoncontroller.h \
 	createreminderviewmodel.h \
-	snoozeviewmodel.h
+	snoozeviewmodel.h \
+    datasyncsettingsviewmodel.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	mainviewmodel.cpp \
 	daemoncontroller.cpp \
 	createreminderviewmodel.cpp \
-	snoozeviewmodel.cpp
+	snoozeviewmodel.cpp \
+    datasyncsettingsviewmodel.cpp
 
 RESOURCES += \
 	remindmecore.qrc

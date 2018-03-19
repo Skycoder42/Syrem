@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Settings name="SyncedSettings" prefix="REMINDMELIBSHARED_EXPORT">
+	<Include>remindmelib_global.h</Include>
+	<Include>QKeySequence</Include>
+	<Include>QTime</Include>
+	<Include>snoozetimes.h</Include>
+
+	<Node key="gui">
+		<Entry key="dateformat" type="int" default="1"/>
+	</Node>
+	<Node key="scheduler">
+		<Node key="snooze">
+			<Entry key="times" type="SnoozeTimes">
+				<Code>
+					QStringList {
+						QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
+						QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
+						QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
+						QCoreApplication::translate("qtmvvm_settings_xml", "tomorrow"),
+						QCoreApplication::translate("qtmvvm_settings_xml", "in 1 week on Monday")
+					}
+				</Code>
+			</Entry>
+		</Node>
+	</Node>
+</Settings>

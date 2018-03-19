@@ -24,7 +24,10 @@ SOURCES += \
 	remindmelib.cpp \
 	snoozetimes.cpp
 
-SETTINGS_GENERATORS += settings.xml
+SETTINGS_GENERATORS += \
+	localsettings.xml \
+	syncedsettings.xml
+
 MVVM_SETTINGS_FILES += $$PWD/../gui/RemindMeCore/settings.xml
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)

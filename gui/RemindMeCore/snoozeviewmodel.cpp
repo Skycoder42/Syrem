@@ -1,7 +1,7 @@
 #include "snoozeviewmodel.h"
 #include <QtMvvmCore/Messages>
 #include <snoozetimes.h>
-#include <settings.h>
+#include <syncedsettings.h>
 
 const QString SnoozeViewModel::paramId = QStringLiteral("id");
 const QString SnoozeViewModel::paramVersionCode = QStringLiteral("versionCode");
@@ -85,7 +85,7 @@ void SnoozeViewModel::onInit(const QVariantHash &params)
 {
 	Q_ASSERT_X(params.contains(paramId), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
 
-	_snoozeTimes = Settings::instance()->scheduler.snooze.times;
+	_snoozeTimes = SyncedSettings::instance()->scheduler.snooze.times; //TODO fix default value
 
 	try {
 		_reminder = _store->load(params.value(paramId).toUuid());

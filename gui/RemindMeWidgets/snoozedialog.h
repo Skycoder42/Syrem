@@ -14,6 +14,7 @@ class SnoozeDialog : public QInputDialog
 
 public:
 	Q_INVOKABLE SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent = nullptr);
+	~SnoozeDialog();
 
 	void accept() override;
 

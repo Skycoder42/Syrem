@@ -1,11 +1,11 @@
 #include "mainviewmodel.h"
 
 #include <QtMvvmCore/Messages>
-#include <QtMvvmCore/SettingsViewModel>
 #include <QtMvvmDataSyncCore/DataSyncViewModel>
 
 #include "createreminderviewmodel.h"
 #include "snoozeviewmodel.h"
+#include "datasyncsettingsviewmodel.h"
 
 MainViewModel::MainViewModel(QObject *parent) :
 	ViewModel(parent),
@@ -31,7 +31,7 @@ QSortFilterProxyModel *MainViewModel::sortedModel() const
 
 void MainViewModel::showSettings()
 {
-	show<QtMvvm::SettingsViewModel>();
+	show<DataSyncSettingsViewModel>();
 }
 
 void MainViewModel::showSync()
