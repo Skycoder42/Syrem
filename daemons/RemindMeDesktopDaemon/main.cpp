@@ -19,9 +19,6 @@ int main(int argc, char *argv[])
 		RemindMe::setup(setup);
 		setup.create();
 
-		//setup the synced settings
-		RemindMe::setupSyncedSettings();
-
 		qInfo() << "daemon started";
 		return a.exec();
 	} catch(QException &e) {

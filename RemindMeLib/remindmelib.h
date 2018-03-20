@@ -12,7 +12,6 @@ typedef QtDataSync::DataTypeStore<Reminder, QUuid> ReminderStore;
 namespace RemindMe {
 
 REMINDMELIBSHARED_EXPORT void setup(QtDataSync::Setup &setup);
-REMINDMELIBSHARED_EXPORT void setupSyncedSettings();
 REMINDMELIBSHARED_EXPORT QString whenExpressionHelp();
 
 }

@@ -9,7 +9,6 @@
 #include "snoozetimes.h"
 
 #include <syncedsettings.h>
-#include <datasyncsettingsgenerator.h>
 
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
@@ -17,13 +16,6 @@ void RemindMe::setup(QtDataSync::Setup &setup)
 			.setSyncPolicy(QtDataSync::Setup::PreferDeleted)
 			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")})
 			.setConflictResolver(new ConflictResolver());
-}
-
-void RemindMe::setupSyncedSettings()
-{
-	//TODO give generator a "backend" parameter instead
-	auto syncSettings = SyncedSettings::instance();
-	syncSettings->setAccessor(new DataSyncSettingsGenerator(syncSettings));
 }
 
 QString RemindMe::whenExpressionHelp()
