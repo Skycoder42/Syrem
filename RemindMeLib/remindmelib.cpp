@@ -9,10 +9,13 @@
 #include "snoozetimes.h"
 
 #include <syncedsettings.h>
+#include "tlsremoteobjects.h"
 
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
-	setup.setRemoteObjectHost(QStringLiteral("local:remindme-datasync")) //TODO make SSL with pw
+	setup.setRemoteObjectHost(TlsRemoteObjects::generateP12Url(QStringLiteral("127.0.0.1"), 25334,
+															   QStringLiteral(":/etc/rocert.p12"),
+															   QStringLiteral("baum42")))
 			.setSyncPolicy(QtDataSync::Setup::PreferDeleted)
 			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")})
 			.setConflictResolver(new ConflictResolver());

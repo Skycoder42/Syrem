@@ -1,4 +1,5 @@
 #include "rotlsclientio.h"
+#include "tlsremoteobjects.h"
 
 #include <QHostAddress>
 #include <QHostInfo>
@@ -41,6 +42,11 @@ void RoTlsClientIo::connectToServer()
 		address = addresses.first();
 	}
 
+	auto conf = TlsRemoteObjects::prepareFromUrl(url());
+	if(conf.isNull())
+		return;
+
+	_socket->setSslConfiguration(conf);
 	_socket->connectToHost(address, url().port());
 }
 
@@ -52,7 +58,7 @@ bool RoTlsClientIo::isOpen()
 
 void RoTlsClientIo::onError(QAbstractSocket::SocketError error)
 {
-	qDebug() << Q_FUNC_INFO << error;
+	qWarning() << Q_FUNC_INFO << _socket->errorString();
 
 	switch (error) {
 	case QAbstractSocket::HostNotFoundError:     //Host not there, wait and try again
@@ -67,7 +73,7 @@ void RoTlsClientIo::onError(QAbstractSocket::SocketError error)
 void RoTlsClientIo::onSslErrors(const QList<QSslError> &errors)
 {
 	for(auto error : errors)
-		qDebug() << Q_FUNC_INFO << error.errorString();
+		qWarning() << Q_FUNC_INFO << error.errorString();
 }
 
 void RoTlsClientIo::onStateChanged(QAbstractSocket::SocketState state)

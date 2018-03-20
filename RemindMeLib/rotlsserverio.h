@@ -37,6 +37,11 @@ public:
 	QAbstractSocket::SocketError serverError() const override;
 	void close() override;
 
+private Q_SLOTS:
+	void onAcceptError(QAbstractSocket::SocketError socketError);
+	void onError(QAbstractSocket::SocketError error);
+	void onSslErrors(const QList<QSslError> &errors);
+
 private:
 	QSslServer *_server;
 	QUrl _originalUrl;

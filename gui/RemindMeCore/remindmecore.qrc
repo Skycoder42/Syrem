@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/etc">
         <file>settings.xml</file>
+        <file alias="rocert.p12">roclient.p12</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="main.svg">remindme.svg</file>

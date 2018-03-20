@@ -16,7 +16,8 @@ HEADERS += \
 	remindmelib.h \
 	snoozetimes.h \
 	rotlsclientio.h \
-    rotlsserverio.h
+    rotlsserverio.h \
+    tlsremoteobjects.h
 
 SOURCES += \
 	dateparser.cpp \
@@ -26,7 +27,8 @@ SOURCES += \
 	remindmelib.cpp \
 	snoozetimes.cpp \
 	rotlsclientio.cpp \
-    rotlsserverio.cpp
+    rotlsserverio.cpp \
+    tlsremoteobjects.cpp
 
 SETTINGS_GENERATORS += \
 	localsettings.xml \
@@ -47,3 +49,5 @@ for(header, SETTINGSGENERATOR_BUILD_HEADERS) {
 header_install.files = $$HEADERS $$SETTINGSGENERATOR_BUILD_HEADERS $$SETTINGSGENERATOR_DIR/settings.h
 header_install.path = $$[QT_INSTALL_HEADERS]/remind-me # TODO install more, use prefix
 INSTALLS += header_install
+
+RESOURCES +=

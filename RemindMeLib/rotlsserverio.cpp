@@ -1,4 +1,5 @@
 #include "rotlsserverio.h"
+#include "tlsremoteobjects.h"
 
 #include <QHostInfo>
 
@@ -30,8 +31,14 @@ RoTlsServer::RoTlsServer(QObject *parent) :
 	_server(new QSslServer(this)),
 	_originalUrl()
 {
-	connect(_server, &QSslServer::newConnection,
+	connect(_server, &QSslServer::newSslConnection,
 			this, &RoTlsServer::newConnection);
+	connect(_server, QOverload<QAbstractSocket::SocketError>::of(&QSslServer::acceptError),
+			this, &RoTlsServer::onAcceptError);
+	connect(_server, QOverload<QAbstractSocket::SocketError>::of(&QSslServer::clientError),
+			this, &RoTlsServer::onError);
+	connect(_server, QOverload<const QList<QSslError> &>::of(&QSslServer::clientSslErrors),
+			this, &RoTlsServer::onSslErrors);
 }
 
 RoTlsServer::~RoTlsServer()
@@ -73,6 +80,11 @@ bool RoTlsServer::listen(const QUrl &address)
 		}
 	}
 
+	auto conf = TlsRemoteObjects::prepareFromUrl(address);
+	if(conf.isNull())
+		return false;
+
+	_server->setSslConfiguration(conf);
 	if(_server->listen(host, address.port())) {
 		_originalUrl = address;
 		return true;
@@ -89,4 +101,25 @@ QAbstractSocket::SocketError RoTlsServer::serverError() const
 void RoTlsServer::close()
 {
 	_server->close();
+}
+
+void RoTlsServer::onAcceptError(QAbstractSocket::SocketError socketError)
+{
+	Q_UNUSED(socketError)
+	qWarning() << Q_FUNC_INFO << _server->errorString();
+}
+
+void RoTlsServer::onError(QAbstractSocket::SocketError error)
+{
+	auto socket = qobject_cast<QSslSocket*>(sender());
+	if(socket)
+		qWarning() << Q_FUNC_INFO << socket->errorString();
+	else
+		qWarning() << Q_FUNC_INFO << error;
+}
+
+void RoTlsServer::onSslErrors(const QList<QSslError> &errors)
+{
+	for(auto error : errors)
+		qWarning() << Q_FUNC_INFO << error.errorString();
 }
