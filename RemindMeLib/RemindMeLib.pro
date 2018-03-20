@@ -14,10 +14,7 @@ HEADERS += \
 	schedule.h \
 	conflictresolver.h \
 	remindmelib.h \
-	snoozetimes.h \
-	rotlsclientio.h \
-    rotlsserverio.h \
-    tlsremoteobjects.h
+	snoozetimes.h
 
 SOURCES += \
 	dateparser.cpp \
@@ -25,10 +22,7 @@ SOURCES += \
 	schedule.cpp \
 	conflictresolver.cpp \
 	remindmelib.cpp \
-	snoozetimes.cpp \
-	rotlsclientio.cpp \
-    rotlsserverio.cpp \
-    tlsremoteobjects.cpp
+	snoozetimes.cpp
 
 SETTINGS_GENERATORS += \
 	localsettings.xml \
