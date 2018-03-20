@@ -12,11 +12,27 @@ RoTlsServerIo::RoTlsServerIo(QSslSocket *socket, QObject *parent) :
 			this, &RoTlsServerIo::readyRead);
 	connect(_socket, &QSslSocket::disconnected,
 			this, &RoTlsServerIo::disconnected);
+	connect(_socket, QOverload<QAbstractSocket::SocketError>::of(&QSslSocket::error),
+			this, &RoTlsServerIo::onError);
+	connect(_socket, QOverload<const QList<QSslError> &>::of(&QSslSocket::sslErrors),
+			this, &RoTlsServerIo::onSslErrors);
 }
 
 QIODevice *RoTlsServerIo::connection() const
 {
 	return _socket;
+}
+
+void RoTlsServerIo::onError(QAbstractSocket::SocketError error)
+{
+	Q_UNUSED(error)
+	qWarning() << Q_FUNC_INFO << _socket->errorString();
+}
+
+void RoTlsServerIo::onSslErrors(const QList<QSslError> &errors)
+{
+	for(auto error : errors)
+		qWarning() << Q_FUNC_INFO << error.errorString();
 }
 
 void RoTlsServerIo::doClose()
@@ -31,14 +47,10 @@ RoTlsServer::RoTlsServer(QObject *parent) :
 	_server(new QSslServer(this)),
 	_originalUrl()
 {
-	connect(_server, &QSslServer::newSslConnection,
+	connect(_server, &QSslServer::newConnection,
 			this, &RoTlsServer::newConnection);
 	connect(_server, QOverload<QAbstractSocket::SocketError>::of(&QSslServer::acceptError),
 			this, &RoTlsServer::onAcceptError);
-	connect(_server, QOverload<QAbstractSocket::SocketError>::of(&QSslServer::clientError),
-			this, &RoTlsServer::onError);
-	connect(_server, QOverload<const QList<QSslError> &>::of(&QSslServer::clientSslErrors),
-			this, &RoTlsServer::onSslErrors);
 }
 
 RoTlsServer::~RoTlsServer()
@@ -107,19 +119,4 @@ void RoTlsServer::onAcceptError(QAbstractSocket::SocketError socketError)
 {
 	Q_UNUSED(socketError)
 	qWarning() << Q_FUNC_INFO << _server->errorString();
-}
-
-void RoTlsServer::onError(QAbstractSocket::SocketError error)
-{
-	auto socket = qobject_cast<QSslSocket*>(sender());
-	if(socket)
-		qWarning() << Q_FUNC_INFO << socket->errorString();
-	else
-		qWarning() << Q_FUNC_INFO << error;
-}
-
-void RoTlsServer::onSslErrors(const QList<QSslError> &errors)
-{
-	for(auto error : errors)
-		qWarning() << Q_FUNC_INFO << error.errorString();
 }

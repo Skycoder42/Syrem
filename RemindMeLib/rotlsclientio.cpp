@@ -47,7 +47,7 @@ void RoTlsClientIo::connectToServer()
 		return;
 
 	_socket->setSslConfiguration(conf);
-	_socket->connectToHost(address, url().port());
+	_socket->connectToHostEncrypted(address.toString(), url().port());
 }
 
 bool RoTlsClientIo::isOpen()

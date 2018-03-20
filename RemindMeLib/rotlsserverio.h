@@ -14,6 +14,10 @@ public:
 
 	QIODevice *connection() const override;
 
+public Q_SLOTS:
+	void onError(QAbstractSocket::SocketError error);
+	void onSslErrors(const QList<QSslError> &errors);
+
 protected:
 	void doClose() override;
 
@@ -39,8 +43,6 @@ public:
 
 private Q_SLOTS:
 	void onAcceptError(QAbstractSocket::SocketError socketError);
-	void onError(QAbstractSocket::SocketError error);
-	void onSslErrors(const QList<QSslError> &errors);
 
 private:
 	QSslServer *_server;
