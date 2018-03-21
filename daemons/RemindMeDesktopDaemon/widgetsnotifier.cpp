@@ -11,36 +11,12 @@ WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 	_normalIcon(QStringLiteral(":/icons/tray/main.ico")),
 	_inverseIcon(QStringLiteral(":/icons/tray/inverse.ico")),
 	_errorIcon(QStringLiteral(":/icons/tray/error.ico")),
+	_settings(nullptr),
 	_trayIco(new QSystemTrayIcon(_normalIcon, this)),
-	_taskbar(new QTaskbarControl(new QWidget())), //create with a dummy widget parent
 	_blinkTimer(new QTimer(this)),
 	_inverted(false),//true as default
 	_notifications()
-{
-	connect(this, &WidgetsNotifier::destroyed,
-			_taskbar->parent(), &QObject::deleteLater);
-	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral("remind-me.desktop"));
-
-	_trayIco->setToolTip(QApplication::applicationDisplayName());
-	connect(_trayIco, &QSystemTrayIcon::activated,
-			this, &WidgetsNotifier::activated);
-	connect(_trayIco, &QSystemTrayIcon::messageClicked,
-			this, [this]() {
-		activated(QSystemTrayIcon::Trigger);
-	});
-
-	QSettings settings;
-	_blinkTimer->setInterval(settings.value(QStringLiteral("gui/notifications/blinkinterval"), 750).toInt());
-	connect(_blinkTimer, &QTimer::timeout,
-			this, &WidgetsNotifier::invert);
-}
-
-void WidgetsNotifier::beginSetup() {}
-
-void WidgetsNotifier::endSetup()
-{
-	updateIcon();
-}
+{}
 
 void WidgetsNotifier::showNotification(const Reminder &reminder)
 {
@@ -71,11 +47,19 @@ void WidgetsNotifier::showErrorMessage(const QString &error)
 						  QSystemTrayIcon::Critical);
 }
 
-void WidgetsNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
+void WidgetsNotifier::qtmvvm_init()
 {
-	removeNotification(id);
-	if(!errorMsg.isNull())
-		showErrorMessage(errorMsg);
+	_trayIco->setToolTip(QApplication::applicationDisplayName());
+	connect(_trayIco, &QSystemTrayIcon::activated,
+			this, &WidgetsNotifier::activated);
+	connect(_trayIco, &QSystemTrayIcon::messageClicked,
+			this, [this]() {
+		activated(QSystemTrayIcon::Trigger);
+	});
+
+	_blinkTimer->setInterval(_settings->gui.notifications.blinkinterval);
+	connect(_blinkTimer, &QTimer::timeout,
+			this, &WidgetsNotifier::invert);
 }
 
 void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
@@ -89,18 +73,18 @@ void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 
 		DialogMaster::critical(nullptr, error, tr("An error occured!"));
 	} else if(!_notifications.isEmpty()) {
-		auto dialog = new WidgetsSnoozeDialog(true);
+		auto dialog = new WidgetsSnoozeDialog(_settings);
 		dialog->setAttribute(Qt::WA_DeleteOnClose);
 
 		connect(dialog, &WidgetsSnoozeDialog::reacted,
 				this, &WidgetsNotifier::snoozeAction);
-		connect(dialog, &WidgetsSnoozeDialog::aborted,
-				this, &WidgetsNotifier::snoozeAborted);
+		connect(dialog, &WidgetsSnoozeDialog::completed,
+				this, &WidgetsNotifier::snoozeDone);
 
 		dialog->addReminders(_notifications.values());
-		dialog->open();
-
 		_notifications.clear();
+
+		dialog->open();
 		updateIcon();
 	}
 }
@@ -119,27 +103,17 @@ void WidgetsNotifier::invert()
 	}
 }
 
-void WidgetsNotifier::snoozeAction(Reminder reminder, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime)
+void WidgetsNotifier::snoozeAction(Reminder reminder, bool completed, const QDateTime &snoozeTime)
 {
-	switch (action) {
-	case WidgetsSnoozeDialog::CompleteAction:
+	if(completed)
 		emit messageCompleted(reminder.id(), reminder.versionCode());
-		break;
-	case WidgetsSnoozeDialog::DefaultSnoozeAction:
-		emit messageDismissed(reminder.id(), reminder.versionCode());
-		break;
-	case WidgetsSnoozeDialog::SnoozeAction:
+	else
 		emit messageDelayed(reminder.id(), reminder.versionCode(), snoozeTime);
-		break;
-	default:
-		Q_UNREACHABLE();
-		break;
-	}
 }
 
-void WidgetsNotifier::snoozeAborted(const QList<Reminder> &reminders)
+void WidgetsNotifier::snoozeDone(const QList<Reminder> &remainingReminders)
 {
-	foreach(auto rem, reminders)
+	foreach(auto rem, remainingReminders)
 		_notifications.insert(rem.id(), rem);
 	updateIcon();
 }
@@ -149,16 +123,9 @@ void WidgetsNotifier::updateIcon()
 	if(_notifications.isEmpty() && _lastError.isNull()) {
 		_blinkTimer->stop();
 		_inverted = false;
-		_taskbar->setCounter(0);
-		_taskbar->setCounterVisible(false);
 		_trayIco->setVisible(false);
 		_trayIco->setIcon(_normalIcon);
 	} else {
-		_taskbar->setCounter(_notifications.size());
-		auto showCtr = !_notifications.isEmpty();
-		if(_taskbar->counterVisible() != showCtr)
-			_taskbar->setCounterVisible(showCtr);
-
 		auto important = false;
 		if(_lastError.isNull())
 			_trayIco->setToolTip(tr("%1 — %n active reminder(s)", "", _notifications.size())

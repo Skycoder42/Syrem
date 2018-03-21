@@ -4,31 +4,37 @@
 #include <QObject>
 #include <QtDataSync/SyncManager>
 #include <QtDataSync/DataTypeStore>
-#include <ischeduler.h>
+#include <QtMvvmCore/Injection>
+#include <timerscheduler.h>
 #include <inotifier.h>
-#include <QSettings>
+#include <syncedsettings.h>
 
 class NotificationManager : public QObject
 {
 	Q_OBJECT
 
+	QTMVVM_INJECT_PROP(INotifier*, notifier, _notifier)
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
+
 public:
-	explicit NotificationManager(QObject *parent = nullptr);
+	Q_INVOKABLE explicit NotificationManager(QObject *parent = nullptr);
 
 private slots:
+	void qtmvvm_init();
+
 	void scheduleTriggered(const QUuid &id);
 
-	void messageDismissed(const QUuid &id, quint32 versionCode);
 	void messageCompleted(const QUuid &id, quint32 versionCode);
 	void messageDelayed(const QUuid &id, quint32 versionCode, QDateTime nextTrigger);
+	void messageActivated(const QUuid &id);
 
 	void dataChanged(const QString &key, const QVariant &value);
 
 private:
-	IScheduler *_scheduler;
+	TimerScheduler *_scheduler;
 	INotifier *_notifier;
+	SyncedSettings *_settings;
 
-	QSettings *_settings;
 	QtDataSync::SyncManager *_manager;
 	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
 };

@@ -4,8 +4,9 @@
 #include <QObject>
 #include <inotifier.h>
 #include <QSystemTrayIcon>
-#include <qtaskbarcontrol.h>
 #include <QTimer>
+#include <QtMvvmCore/Injection>
+#include <syncedsettings.h>
 #include "widgetssnoozedialog.h"
 
 class WidgetsNotifier : public QObject, public INotifier
@@ -13,36 +14,36 @@ class WidgetsNotifier : public QObject, public INotifier
 	Q_OBJECT
 	Q_INTERFACES(INotifier)
 
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
+
 public:
 	Q_INVOKABLE explicit WidgetsNotifier(QObject *parent = nullptr);
 
 public slots:
-	void beginSetup() override;
-	void endSetup() override;
 	void showNotification(const Reminder &reminder) override;
 	void removeNotification(const QUuid &id) override;
 	void showErrorMessage(const QString &error) override;
-	void notificationHandled(const QUuid &id, const QString &errorMsg) override;
 
 signals:
-	void messageDismissed(const QUuid &id, quint32 versionCode) final;
 	void messageCompleted(const QUuid &id, quint32 versionCode) final;
 	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger) final;
+	void messageActivated(const QUuid &id) final;
 
 private slots:
+	void qtmvvm_init();
 	void activated(QSystemTrayIcon::ActivationReason reason);
 	void invert();
 
-	void snoozeAction(Reminder reminder, WidgetsSnoozeDialog::Action action, const QDateTime &snoozeTime);
-	void snoozeAborted(const QList<Reminder> &reminders);
+	void snoozeAction(Reminder reminder, bool completed, const QDateTime &snoozeTime);
+	void snoozeDone(const QList<Reminder> &reminders);
 
 private:
 	const QIcon _normalIcon;
 	const QIcon _inverseIcon;
 	const QIcon _errorIcon;
 
+	SyncedSettings *_settings;
 	QSystemTrayIcon *_trayIco;
-	QTaskbarControl *_taskbar;
 	QTimer *_blinkTimer;
 	bool _inverted;
 

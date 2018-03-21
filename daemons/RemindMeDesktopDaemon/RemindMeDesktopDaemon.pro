@@ -5,9 +5,40 @@ TARGET = remind-med
 QMAKE_TARGET_PRODUCT = "Remind-Me Daemon"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-QT += widgets
+QT += widgets mvvmcore
 
-SOURCES += main.cpp
+!no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
+
+kde_notifier {
+	message(Using KDE notifications)
+	QT += KNotifications
+	DEFINES += USE_KDE_NOTIFIER
+}
+
+HEADERS += \
+	remindmedaemon.h \
+	notificationmanager.h \
+	timerscheduler.h \
+	inotifier.h
+
+SOURCES += main.cpp \
+	remindmedaemon.cpp \
+	notificationmanager.cpp \
+	timerscheduler.cpp
+
+RESOURCES += \
+	remindmedesktopdaemon.qrc
+
+kde_notifier {
+	HEADERS += kdenotifier.h
+	SOURCES += kdenotifier.cpp
+	DISTFILES += remind-me.notifyrc
+} else {
+	HEADERS += widgetsnotifier.h \
+		widgetssnoozedialog.h
+	SOURCES += widgetsnotifier.cpp \
+		widgetssnoozedialog.cpp
+}
 
 DISTFILES += \
 	remind-me.service.in
@@ -28,5 +59,5 @@ linux {
 	INSTALLS += install_service
 }
 
-RESOURCES += \
-    remindmedesktopdaemon.qrc
+!ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
+else: include($$OUT_PWD/qpmx_generated.pri)

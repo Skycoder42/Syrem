@@ -12,7 +12,7 @@ Item {
 			elementList.model = times;
 	}
 
-	property var inputValue //BUG not successfully returned to c++
+	property var inputValue
 	onInputValueChanged:  {
 		if(inputValue) {
 			if(typeof inputValue.toList !== "undefined")

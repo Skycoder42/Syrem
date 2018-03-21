@@ -1,7 +1,14 @@
 #include <QApplication>
 #include <QIcon>
-#include <QDebug>
-#include <remindmelib.h>
+#include <QCommandLineParser>
+#include <QtMvvmCore/ServiceRegistry>
+#ifdef USE_KDE_NOTIFIER
+#include "kdenotifier.h"
+#else
+#include "widgetsnotifier.h"
+#endif
+
+#include "remindmedaemon.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,15 +21,28 @@ int main(int argc, char *argv[])
 	QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 	QGuiApplication::setQuitOnLastWindowClosed(false);
 
-	try {
-		QtDataSync::Setup setup;
-		RemindMe::setup(setup);
-		setup.create();
+	QtMvvm::registerInterfaceConverter<INotifier>();
 
-		qInfo() << "daemon started";
-		return a.exec();
-	} catch(QException &e) {
-		qCritical() << e.what();
+#ifdef USE_KDE_NOTIFIER
+	QtMvvm::ServiceRegistry::instance()->registerInterface<INotifier, KdeNotifier>();
+#else
+	QtMvvm::ServiceRegistry::instance()->registerInterface<INotifier, WidgetsNotifier>();
+#endif
+
+	QCommandLineParser parser;
+	parser.setApplicationDescription(QStringLiteral("The notification scheduler service for the Remind-Me application"));
+
+	parser.addHelpOption();
+	parser.addVersionOption();
+	parser.addOption({
+						 QStringLiteral("systemd-log"),
+						 QStringLiteral("Log in a format that systemd can easily interpret without redundant information")
+					 });
+	parser.process(a);
+
+	RemindMeDaemon daemon;
+	if(!daemon.startDaemon(parser.isSet(QStringLiteral("systemd-log"))))
 		return EXIT_FAILURE;
-	}
+
+	return a.exec();
 }

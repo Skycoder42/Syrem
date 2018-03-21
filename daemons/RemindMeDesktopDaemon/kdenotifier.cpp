@@ -35,13 +35,6 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 	_settings->beginGroup(QStringLiteral("gui/notifications"));
 }
 
-void KdeNotifier::beginSetup() {}
-
-void KdeNotifier::endSetup()
-{
-	updateBar();
-}
-
 void KdeNotifier::showNotification(const Reminder &reminder)
 {
 	auto important = reminder.isImportant();

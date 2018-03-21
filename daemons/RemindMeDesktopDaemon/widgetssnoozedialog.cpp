@@ -6,15 +6,13 @@
 #include <dialogmaster.h>
 #include <snoozetimes.h>
 
-WidgetsSnoozeDialog::WidgetsSnoozeDialog(bool showDefaults, QWidget *parent) :
+WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, QWidget *parent) :
 	QDialog(parent),
-	_showDefaults(showDefaults),
-	_settings(new QSettings(this)),
+	_settings(settings),
 	_toolBox(nullptr),
 	_reminders(),
 	_parser(new DateParser(this))
 {
-	_settings->beginGroup(QStringLiteral("daemon"));
 	setupUi();
 }
 
@@ -27,8 +25,9 @@ void WidgetsSnoozeDialog::addReminders(const QList<Reminder> &reminders)
 
 void WidgetsSnoozeDialog::reject()
 {
-	emit aborted(_reminders.values());
-	QDialog::reject();
+	if(!_reminders.isEmpty())
+		emit completed(_reminders.values());
+	QDialog::accept();
 }
 
 void WidgetsSnoozeDialog::performComplete()
@@ -38,20 +37,7 @@ void WidgetsSnoozeDialog::performComplete()
 		_toolBox->removeItem(_toolBox->currentIndex());
 		auto reminder = _reminders.take(remWidget);
 
-		emit reacted(reminder, CompleteAction);
-		remWidget->deleteLater();
-		resizeUi();
-	}
-}
-
-void WidgetsSnoozeDialog::performDefaultSnooze()
-{
-	auto remWidget = _toolBox->currentWidget();
-	if(remWidget) {
-		_toolBox->removeItem(_toolBox->currentIndex());
-		auto reminder = _reminders.take(remWidget);
-
-		emit reacted(reminder, DefaultSnoozeAction);
+		emit reacted(reminder, true);
 		remWidget->deleteLater();
 		resizeUi();
 	}
@@ -71,11 +57,11 @@ void WidgetsSnoozeDialog::performSnooze()
 			_toolBox->removeItem(_toolBox->currentIndex());
 			auto reminder = _reminders.take(remWidget);
 
-			emit reacted(reminder, SnoozeAction, when);
+			emit reacted(reminder, false, when);
 			remWidget->deleteLater();
 			resizeUi();
-		} catch (QString &s) {
-			DialogMaster::critical(this, s, tr("Invalid Snooze"));
+		} catch (DateParserException &e) {
+			DialogMaster::critical(this, e.qWhat(), tr("Invalid Snooze"));
 		}
 	}
 }
@@ -116,42 +102,13 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	auto remWidet = new QWidget(_toolBox);
 	auto remLayout = new QHBoxLayout(remWidet);
 
-	QPushButton *cButton = nullptr;
-	QPushButton *dButton = nullptr;
-	if(_showDefaults) {
-		cButton = new QPushButton(remWidet);
-		cButton->setText(tr("&Complete"));
-		cButton->setAutoDefault(false);
-		cButton->setDefault(false);
-		connect(cButton, &QPushButton::clicked,
-				this, &WidgetsSnoozeDialog::performComplete);
-
-		connect(_toolBox, &QToolBox::currentChanged, cButton, [this, remWidet, cButton](int index){
-			auto w = _toolBox->widget(index);
-			if(w == remWidet)
-				cButton->setDefault(true);
-			else
-				cButton->setDefault(false);
-		});
-
-		dButton = new QPushButton(remWidet);
-		dButton->setText(tr("&Default Snooze"));
-		dButton->setAutoDefault(false);
-		dButton->setDefault(false);
-		connect(dButton, &QPushButton::clicked,
-				this, &WidgetsSnoozeDialog::performDefaultSnooze);
-	}
-
+	// snooze combobox
 	auto cBox = new QComboBox(remWidet);
 	cBox->setEditable(true);
-	cBox->addItems(_settings->value(QStringLiteral("snooze/times"), QVariant::fromValue<SnoozeTimes>({
-										tr("in 20 minutes"),
-										tr("in 1 hour"),
-										tr("in 3 hours"),
-										tr("tomorrow"),
-										tr("in 1 week on Monday")
-									})).value<SnoozeTimes>());
+	cBox->addItems(_settings->scheduler.snooze.times.get());
+	//TODO remove from settings: _settings->scheduler.snooze.standard
 
+	//snooze button
 	auto sButton = new QPushButton(remWidet);
 	sButton->setText(tr("&Snooze"));
 	sButton->setAutoDefault(false);
@@ -159,21 +116,27 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	connect(sButton, &QPushButton::clicked,
 			this, &WidgetsSnoozeDialog::performSnooze);
 
-	if(_showDefaults) {
-		remLayout->addWidget(cButton);
-		remLayout->addWidget(dButton);
-		remLayout->addWidget(cBox);
-		remLayout->addWidget(sButton);
-		remLayout->setStretch(0, 0);
-		remLayout->setStretch(1, 0);
-		remLayout->setStretch(2, 1);
-		remLayout->setStretch(3, 0);
-	} else {
-		remLayout->addWidget(cBox);
-		remLayout->addWidget(sButton);
-		remLayout->setStretch(0, 1);
-		remLayout->setStretch(1, 0);
-	}
+	// complete button
+	auto cButton = new QPushButton(remWidet);
+	cButton->setText(tr("&Complete"));
+	cButton->setAutoDefault(false);
+	cButton->setDefault(false);
+	connect(cButton, &QPushButton::clicked,
+			this, &WidgetsSnoozeDialog::performComplete);
+	connect(_toolBox, &QToolBox::currentChanged, cButton, [this, remWidet, cButton](int index){
+		auto w = _toolBox->widget(index);
+		if(w == remWidet)
+			cButton->setDefault(true);
+		else
+			cButton->setDefault(false);
+	});
+
+	remLayout->addWidget(cBox);
+	remLayout->addWidget(sButton);
+	remLayout->addWidget(cButton);
+	remLayout->setStretch(0, 1);
+	remLayout->setStretch(1, 0);
+	remLayout->setStretch(2, 0);
 
 	_toolBox->addItem(remWidet,
 					  reminder.isImportant() ?

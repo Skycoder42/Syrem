@@ -2,10 +2,7 @@
 #define REMINDMEDAEMON_H
 
 #include <QObject>
-#include <QJsonTypeConverter>
-class QRemoteObjectHost;
-class ReminderManager;
-class SnoozeHelper;
+#include <sys/syslog.h>
 class NotificationManager;
 
 namespace QtDataSync {
@@ -19,17 +16,9 @@ class RemindMeDaemon : public QObject
 public:
 	RemindMeDaemon(QObject *parent = nullptr);
 
-public slots:
-	void startDaemon();
-
-	void commandMessage(const QStringList &message);
+	bool startDaemon(bool systemdLog);
 
 private:
-	QRemoteObjectHost *_hostNode;
-
-	QtDataSync::DataStoreModel *_storeModel;
-	ReminderManager *_remManager;
-	SnoozeHelper *_snoozeHelper;
 	NotificationManager *_notManager;
 };
 

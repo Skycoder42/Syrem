@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 Type=simple
-ExecStart=%{INSTALL_BINS}/remind-med
+ExecStart=%{INSTALL_BINS}/remind-med --systemd-log
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-abnormal
 
