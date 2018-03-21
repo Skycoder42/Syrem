@@ -28,17 +28,7 @@ void RemindMeApp::performRegistrations()
 	Q_INIT_RESOURCE(remindmecore);
 
 	//load translations
-	auto translator = new QTranslator(this);
-	if(translator->load(QLocale(),
-						QStringLiteral("remindme"),
-						QStringLiteral("_"),
-						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
-		qApp->installTranslator(translator);
-	else {
-		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
-		delete translator;
-		QLocale::setDefault(QLocale::c());
-	}
+	RemindMe::prepareTranslations(QStringLiteral("remind-me"));
 }
 
 int RemindMeApp::startApp(const QStringList &arguments)
@@ -48,6 +38,11 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	parser.addHelpOption();
 
 	//add more options
+	parser.addOption({
+						 {QStringLiteral("s"), QStringLiteral("select")},
+						 tr("Select a <reminder> from the list by its id"),
+						 tr("reminder")
+					 });
 
 	//shows help or version automatically
 	if(!autoParse(parser, arguments))
@@ -66,7 +61,10 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 3000);
 
 	//show a viewmodel to complete the startup
-	show<MainViewModel>();
+	if(parser.isSet(QStringLiteral("select")))
+		show<MainViewModel>(MainViewModel::showParams(QUuid(parser.value(QStringLiteral("select")))));
+	else
+		show<MainViewModel>();
 	if(warn) {
 		QtMvvm::warning(tr("Service unavailable"),
 						tr("Failed to connect to service. The application will still work, "

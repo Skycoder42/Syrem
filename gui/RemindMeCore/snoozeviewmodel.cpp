@@ -8,8 +8,8 @@ const QString SnoozeViewModel::paramReminder = QStringLiteral("reminder");
 SnoozeViewModel::SnoozeViewModel(QObject *parent) :
 	ViewModel(parent),
 	_settings(nullptr), //injected
+	_parser(nullptr), //injected
 	_store(new ReminderStore(this)),
-	_parser(new DateParser(this)),
 	_reminder(),
 	_snoozeTimes(),
 	_expression()
@@ -77,7 +77,7 @@ void SnoozeViewModel::onInit(const QVariantHash &params)
 {
 	Q_ASSERT_X(params.contains(paramReminder), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
 
-	_snoozeTimes = _settings->scheduler.snooze.times;
+	_snoozeTimes = _settings->scheduler.snoozetimes;
 	_reminder = params.value(paramReminder).value<Reminder>();
 	emit reminderLoaded();
 }

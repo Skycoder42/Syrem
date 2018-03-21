@@ -14,7 +14,11 @@ class MainViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(QSortFilterProxyModel* sortedModel READ sortedModel CONSTANT)
 
 public:
+	static const QString paramRemId;
+
 	Q_INVOKABLE explicit MainViewModel(QObject *parent = nullptr);
+
+	static QVariantHash showParams(const QUuid &reminderId);
 
 	QtDataSync::DataStoreModel* reminderModel() const;
 	QSortFilterProxyModel* sortedModel() const;
@@ -28,6 +32,12 @@ public slots:
 	void completeReminder(const QUuid &id);
 	void deleteReminder(const QUuid &id);
 	void snoozeReminder(const QUuid &id);
+
+signals:
+	void select(int row);
+
+protected:
+	void onInit(const QVariantHash &params) override;
 
 private:
 	QtDataSync::DataStoreModel *_reminderModel;

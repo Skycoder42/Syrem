@@ -6,7 +6,8 @@ After=network-online.target
 Type=simple
 ExecStart=%{INSTALL_BINS}/remind-med --systemd-log
 ExecReload=/bin/kill -HUP $MAINPID
-Restart=on-abnormal
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=default.target

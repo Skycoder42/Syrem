@@ -30,6 +30,8 @@ public:
 	~MainWindow();
 
 private slots:
+	void select(int row);
+
 	void on_action_Complete_Reminder_triggered();
 	void on_action_Delete_Reminder_triggered();
 	void on_action_Snooze_Reminder_triggered();

@@ -15,6 +15,8 @@ class CreateReminderViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(bool important READ important WRITE setImportant NOTIFY importantChanged)
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
+	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
+
 public:
 	Q_INVOKABLE explicit CreateReminderViewModel(QObject *parent = nullptr);
 

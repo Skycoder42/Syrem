@@ -18,7 +18,8 @@ class SnoozeViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(QStringList snoozeTimes READ snoozeTimes NOTIFY reminderLoaded)
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
-	QTMVVM_INJECT_PROP(SyncedSettings*, settings,_settings)
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
+	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
 
 public:
 	const static QString paramReminder;
@@ -46,8 +47,8 @@ protected:
 
 private:
 	SyncedSettings *_settings;
-	ReminderStore *_store;
 	DateParser *_parser;
+	ReminderStore *_store;
 
 	Reminder _reminder;
 	QStringList _snoozeTimes;

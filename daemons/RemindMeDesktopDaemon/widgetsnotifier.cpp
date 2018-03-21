@@ -12,11 +12,17 @@ WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 	_inverseIcon(QStringLiteral(":/icons/tray/inverse.ico")),
 	_errorIcon(QStringLiteral(":/icons/tray/error.ico")),
 	_settings(nullptr),
+	_parser(nullptr),
 	_trayIco(new QSystemTrayIcon(_normalIcon, this)),
+	_trayMenu(new QMenu()),
 	_blinkTimer(new QTimer(this)),
 	_inverted(false),//true as default
-	_notifications()
-{}
+	_notifications(),
+	_lastError()
+{
+	connect(_trayIco, &QSystemTrayIcon::destroyed,
+			_trayMenu, &QMenu::deleteLater);
+}
 
 void WidgetsNotifier::showNotification(const Reminder &reminder)
 {
@@ -32,11 +38,14 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 	qCDebug(notifier) << "Showed notification for reminder with id" << reminder.id();
 }
 
-void WidgetsNotifier::removeNotification(const QUuid &id)
+bool WidgetsNotifier::removeNotification(const QUuid &id)
 {
-	if(_notifications.remove(id) > 0)
+	if(_notifications.remove(id) > 0) {
+		qCDebug(notifier) << "Removed notification for reminder with id" << id;
 		updateIcon();
-	qCDebug(notifier) << "Removed notification for reminder with id" << id;
+		return true;
+	} else
+		return false;
 }
 
 void WidgetsNotifier::showErrorMessage(const QString &error)
@@ -52,13 +61,17 @@ void WidgetsNotifier::showErrorMessage(const QString &error)
 
 void WidgetsNotifier::qtmvvm_init()
 {
+	_trayMenu->addAction(tr("Snooze/Complete Reminder"), this, &WidgetsNotifier::trigger);
+	_trayMenu->addAction(tr("Dismiss all"), this, &WidgetsNotifier::dismiss);
+	_trayMenu->addSeparator();
+	_trayMenu->addAction(tr("Open Remind-Me"), this, &WidgetsNotifier::showMainApp);
+
 	_trayIco->setToolTip(QApplication::applicationDisplayName());
+	_trayIco->setContextMenu(_trayMenu);
 	connect(_trayIco, &QSystemTrayIcon::activated,
 			this, &WidgetsNotifier::activated);
 	connect(_trayIco, &QSystemTrayIcon::messageClicked,
-			this, [this]() {
-		activated(QSystemTrayIcon::Trigger);
-	});
+			this, &WidgetsNotifier::trigger);
 
 	_blinkTimer->setInterval(_settings->gui.notifications.blinkinterval);
 	connect(_blinkTimer, &QTimer::timeout,
@@ -67,8 +80,20 @@ void WidgetsNotifier::qtmvvm_init()
 
 void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 {
-	Q_UNUSED(reason)
+	switch (reason) {
+	case QSystemTrayIcon::Trigger:
+		trigger();
+		break;
+	case QSystemTrayIcon::MiddleClick:
+		dismiss();
+		break;
+	default:
+		break;
+	}
+}
 
+void WidgetsNotifier::trigger()
+{
 	if(!_lastError.isNull()) {
 		auto error = _lastError;
 		_lastError.clear();
@@ -76,7 +101,7 @@ void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 
 		DialogMaster::critical(nullptr, error, tr("An error occured!"));
 	} else if(!_notifications.isEmpty()) {
-		auto dialog = new WidgetsSnoozeDialog(_settings);
+		auto dialog = new WidgetsSnoozeDialog(_settings, _parser);
 		dialog->setAttribute(Qt::WA_DeleteOnClose);
 
 		connect(dialog, &WidgetsSnoozeDialog::reacted,
@@ -91,6 +116,18 @@ void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 		updateIcon();
 		qCDebug(notifier) << "Showing snooze dialog";
 	}
+}
+
+void WidgetsNotifier::dismiss()
+{
+	_notifications.clear();
+	updateIcon();
+	qCDebug(notifier) << "Dismissed all active notifications without handling them";
+}
+
+void WidgetsNotifier::showMainApp()
+{
+	emit messageActivated();
 }
 
 void WidgetsNotifier::invert()

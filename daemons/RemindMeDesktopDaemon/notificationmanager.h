@@ -5,9 +5,10 @@
 #include <QtDataSync/SyncManager>
 #include <QtDataSync/DataTypeStore>
 #include <QtMvvmCore/Injection>
-#include <timerscheduler.h>
-#include <inotifier.h>
+#include <qtaskbarcontrol.h>
 #include <syncedsettings.h>
+#include "timerscheduler.h"
+#include "inotifier.h"
 
 class NotificationManager : public QObject
 {
@@ -21,6 +22,7 @@ public:
 
 public slots:
 	void init();
+	void triggerSync();
 
 private slots:
 	void scheduleTriggered(const QUuid &id);
@@ -33,11 +35,14 @@ private slots:
 
 private:
 	TimerScheduler *_scheduler;
+	QTaskbarControl *_taskbar;
 	INotifier *_notifier;
 	SyncedSettings *_settings;
 
 	QtDataSync::SyncManager *_manager;
 	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
+
+	void updateNotificationCount(int increment);
 };
 
 #endif // NOTIFICATIONMANAGER_H

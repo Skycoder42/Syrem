@@ -189,7 +189,7 @@ protected:
 	const QByteArray _what;
 };
 
-class REMINDMELIBSHARED_EXPORT DateParser : public QObject //TODO make an mvvm service
+class REMINDMELIBSHARED_EXPORT DateParser : public QObject
 {
 	Q_OBJECT
 
@@ -222,7 +222,7 @@ public:
 	};
 	Q_ENUM(WordKey)
 
-	explicit DateParser(QObject *parent = nullptr);
+	Q_INVOKABLE explicit DateParser(QObject *parent = nullptr);
 
 	QSharedPointer<ParserTypes::Expression> parse(const QString &expression);
 

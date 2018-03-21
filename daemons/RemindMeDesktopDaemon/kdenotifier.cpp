@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <dialogmaster.h>
+#include "kdesnoozedialog.h"
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
@@ -18,6 +19,7 @@ KdeNotifier::KdeNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
 	_settings(nullptr),
+	_parser(nullptr),
 	_notifications()
 {}
 
@@ -47,6 +49,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 
 	auto remId = reminder.id();
 	auto vCode = reminder.versionCode();
+	auto description = reminder.description();
 	connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId](){
 		if(removeNot(remId))
 			emit messageActivated(remId);
@@ -55,9 +58,14 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 		if(removeNot(remId))
 			emit messageCompleted(remId, vCode);
 	});
-	connect(notification, &KNotification::action2Activated, this, [this, remId, vCode](){
+	connect(notification, &KNotification::action2Activated, this, [this, remId, vCode, description](){
 		if(removeNot(remId)) {
-			//TODO implement
+			auto dialog = new KdeSnoozeDialog(_settings, _parser, description);
+			connect(dialog, &KdeSnoozeDialog::timeSelected,
+					this, [this, remId, vCode](const QDateTime &time){
+				emit messageDelayed(remId, vCode, time);
+			});
+			dialog->open();
 		}
 	});
 	connect(notification, &KNotification::closed, this, [this, remId, vCode](){
@@ -67,9 +75,9 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 	notification->sendEvent();
 }
 
-void KdeNotifier::removeNotification(const QUuid &id)
+bool KdeNotifier::removeNotification(const QUuid &id)
 {
-	removeNot(id, true);
+	return removeNot(id, true);
 }
 
 void KdeNotifier::showErrorMessage(const QString &error)

@@ -18,6 +18,9 @@ public:
 
 	bool startDaemon(bool systemdLog);
 
+private slots:
+	void signalTriggered(int sig);
+
 private:
 	NotificationManager *_notManager;
 };

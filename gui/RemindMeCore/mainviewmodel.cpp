@@ -7,6 +7,8 @@
 #include "snoozeviewmodel.h"
 #include "datasyncsettingsviewmodel.h"
 
+const QString MainViewModel::paramRemId = QStringLiteral("reminder-id");
+
 MainViewModel::MainViewModel(QObject *parent) :
 	ViewModel(parent),
 	_reminderModel(new QtDataSync::DataStoreModel(this)),
@@ -17,6 +19,13 @@ MainViewModel::MainViewModel(QObject *parent) :
 	_sortedModel->setSourceModel(_reminderModel);
 	_sortedModel->setSortRole(_reminderModel->roleNames().key("current")); //NOTE make settable
 	_sortedModel->sort(0);
+}
+
+QVariantHash MainViewModel::showParams(const QUuid &reminderId)
+{
+	return {
+		{paramRemId, reminderId}
+	};
 }
 
 QtDataSync::DataStoreModel *MainViewModel::reminderModel() const
@@ -89,5 +98,15 @@ void MainViewModel::snoozeReminder(const QUuid &id)
 		qCritical() << "Failed to load reminder with error:" << e.what();
 		QtMvvm::critical(tr("Snoozing failed!"),
 						 tr("Unable to load the reminder that should be snoozed!"));
+	}
+}
+
+void MainViewModel::onInit(const QVariantHash &params)
+{
+	if(params.contains(paramRemId)) {
+		auto remId = params.value(paramRemId).toUuid();
+		auto mIndex = _reminderModel->idIndex(remId);
+		if(mIndex.isValid())
+			emit select(mIndex.row());
 	}
 }

@@ -12,7 +12,9 @@ class WidgetsSnoozeDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit WidgetsSnoozeDialog(SyncedSettings *settings, QWidget *parent = nullptr);
+	explicit WidgetsSnoozeDialog(SyncedSettings *settings,
+								 DateParser *parser,
+								 QWidget *parent = nullptr);
 
 	void addReminders(const QList<Reminder> &reminders);
 
@@ -29,10 +31,11 @@ private slots:
 
 private:
 	SyncedSettings *_settings;
+	DateParser *_parser;
+
 	QToolBox *_toolBox;
 
 	QHash<QWidget*, Reminder> _reminders;
-	DateParser *_parser;
 
 	void setupUi();
 	void resizeUi();

@@ -30,8 +30,10 @@ RESOURCES += \
 	remindmedesktopdaemon.qrc
 
 kde_notifier {
-	HEADERS += kdenotifier.h
-	SOURCES += kdenotifier.cpp
+	HEADERS += kdenotifier.h \
+		kdesnoozedialog.h
+	SOURCES += kdenotifier.cpp \
+		kdesnoozedialog.cpp
 	DISTFILES += remind-me.notifyrc
 } else {
 	HEADERS += widgetsnotifier.h \

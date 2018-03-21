@@ -1,6 +1,9 @@
 #include "remindmelib.h"
 #include <QJsonSerializer>
 #include <QCoreApplication>
+#include <QtMvvmCore/ServiceRegistry>
+#include <QTranslator>
+#include <QLibraryInfo>
 #include <sslremoteobjects.h>
 
 #include "schedule.h"
@@ -10,6 +13,22 @@
 #include "snoozetimes.h"
 
 #include <syncedsettings.h>
+
+void RemindMe::prepareTranslations(const QString &tsName)
+{
+	//load translations
+	auto translator = new QTranslator(qApp);
+	if(translator->load(QLocale(),
+						tsName,
+						QStringLiteral("_"),
+						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+		qApp->installTranslator(translator);
+	else {
+		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
+		delete translator;
+		QLocale::setDefault(QLocale::c());
+	}
+}
 
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
@@ -122,7 +141,10 @@ void setupRemindMeLib()
 			l.append(v.toString());
 		return l;
 	});
+
+	QtMvvm::ServiceRegistry::instance()->registerObject<DateParser>();
 }
 
 }
+
 Q_COREAPP_STARTUP_FUNCTION(setupRemindMeLib)

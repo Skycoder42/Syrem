@@ -9,18 +9,16 @@
 		<Entry key="dateformat" type="int" default="1"/>
 	</Node>
 	<Node key="scheduler">
-		<Node key="snooze">
-			<Entry key="times" type="SnoozeTimes">
-				<Code>
-					QStringList {
-						QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
-						QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
-						QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
-						QCoreApplication::translate("qtmvvm_settings_xml", "tomorrow"),
-						QCoreApplication::translate("qtmvvm_settings_xml", "in 1 week on Monday")
-					}
-				</Code>
-			</Entry>
-		</Node>
+		<Entry key="snoozetimes" type="SnoozeTimes">
+			<Code>
+				QStringList {
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "tomorrow"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 week on Monday")
+				}
+			</Code>
+		</Entry>
 	</Node>
 </Settings>

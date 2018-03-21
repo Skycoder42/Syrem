@@ -15,6 +15,8 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	_ui->setupUi(this);
 	setCentralWidget(_ui->treeView);
 
+	connect(_viewModel, &MainViewModel::select,
+			this, &MainWindow::select);
 	connect(_ui->action_Close, &QAction::triggered,
 			this, &MainWindow::close);
 	connect(_ui->action_Settings, &QAction::triggered,
@@ -67,6 +69,14 @@ MainWindow::~MainWindow()
 	LocalSettings::instance()->gui.mainwindow.header = _ui->treeView->header()->saveState();
 
 	delete _ui;
+}
+
+void MainWindow::select(int row)
+{
+	auto index = _viewModel->reminderModel()->index(row);
+	index = _proxyModel->mapFromSource(index);
+	index = _sortModel->mapFromSource(index);
+	_ui->treeView->setCurrentIndex(index);
 }
 
 void MainWindow::on_action_Complete_Reminder_triggered()

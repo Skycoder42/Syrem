@@ -11,6 +11,7 @@ typedef QtDataSync::DataTypeStore<Reminder, QUuid> ReminderStore;
 
 namespace RemindMe {
 
+REMINDMELIBSHARED_EXPORT void prepareTranslations(const QString &tsName);
 REMINDMELIBSHARED_EXPORT void setup(QtDataSync::Setup &setup);
 REMINDMELIBSHARED_EXPORT QString whenExpressionHelp();
 

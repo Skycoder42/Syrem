@@ -3,6 +3,8 @@
 #include <QTimer>
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QProcess>
+#include <QStandardPaths>
 #include <chrono>
 using namespace QtDataSync;
 
@@ -12,14 +14,20 @@ Q_LOGGING_CATEGORY(notifier, "notifier")
 NotificationManager::NotificationManager(QObject *parent) :
 	QObject(parent),
 	_scheduler(new TimerScheduler(this)),
+	_taskbar(new QTaskbarControl(new QWidget())),
 	_notifier(nullptr),
 	_settings(nullptr),
 	_manager(new SyncManager(this)),
 	_store(new DataTypeStore<Reminder, QUuid>(this))
-{}
+{
+	connect(this, &NotificationManager::destroyed,
+			_taskbar->parent(), &QObject::deleteLater);
+}
 
 void NotificationManager::init()
 {
+	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral("remind-me.desktop"));
+
 	connect(_scheduler, &TimerScheduler::scheduleTriggered,
 			this, &NotificationManager::scheduleTriggered);
 
@@ -53,11 +61,18 @@ void NotificationManager::init()
 	}
 }
 
+void NotificationManager::triggerSync()
+{
+	qCInfo(manager) << "Reconnecting to remote server";
+	_manager->reconnect();
+}
+
 void NotificationManager::scheduleTriggered(const QUuid &id)
 {
 	try {
 		auto rem = _store->load(id);
 		_notifier->showNotification(rem);
+		updateNotificationCount(+1);
 	} catch(QException &e) {
 		qCCritical(manager) << "Failed to load reminder with id" << id
 							<< "to display notification with error:" << e.what();
@@ -74,6 +89,7 @@ void NotificationManager::messageCompleted(const QUuid &id, quint32 versionCode)
 			rem.nextSchedule(_store->store(), QDateTime::currentDateTime());
 			qCInfo(manager) << "Completed reminder with id" << id;
 		}
+		updateNotificationCount(-1);
 	} catch(QException &e) {
 		qCCritical(manager) << "Failed to complete reminder with id" << id
 							<< "with error:" << e.what();
@@ -94,6 +110,7 @@ void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, Q
 			rem.performSnooze(_store->store(), nextTrigger);
 			qCInfo(manager) << "Snoozed reminder with id" << id;
 		}
+		updateNotificationCount(-1);
 	} catch(QException &e) {
 		qCCritical(manager) << "Failed to snooze reminder with id" << id
 							<< "with error:" << e.what();
@@ -102,18 +119,46 @@ void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, Q
 
 void NotificationManager::messageActivated(const QUuid &id)
 {
-	//TODO show gui app with id
-	Q_UNIMPLEMENTED();
+	auto program = QStandardPaths::findExecutable(QStringLiteral("remind-me"));
+	if(program.isEmpty()) {
+		qCWarning(manager) << "Failed to find the remind-me executable!";
+		return;
+	}
+	QStringList args {
+		QStringLiteral("--select"),
+		id.toString()
+	};
+	if(QProcess::startDetached(program, args))
+		qCDebug(manager) << "Successfully launched" << program;
+	else
+		qCWarning(manager) << "Failed to launch" << program;
+}
+
+void NotificationManager::updateNotificationCount(int increment)
+{
+	auto nValue = _taskbar->counter() + increment;
+	if(nValue <= 0) {
+		if(_taskbar->counterVisible()) {
+			_taskbar->setCounter(0);
+			_taskbar->setCounterVisible(false);
+		}
+	} else {
+		_taskbar->setCounter(nValue);
+		if(!_taskbar->counterVisible())
+			_taskbar->setCounterVisible(true);
+	}
 }
 
 void NotificationManager::dataChanged(const QString &key, const QVariant &value)
 {
 	if(value.isValid()) {
 		auto reminder = value.value<Reminder>();
-		_notifier->removeNotification(reminder.id());
+		if(_notifier->removeNotification(reminder.id()))
+			updateNotificationCount(-1);
 		_scheduler->scheduleReminder(reminder);
 	} else {
 		_scheduler->cancleReminder(QUuid(key));
-		_notifier->removeNotification(QUuid(key));
+		if(_notifier->removeNotification(QUuid(key)))
+			updateNotificationCount(-1);
 	}
 }

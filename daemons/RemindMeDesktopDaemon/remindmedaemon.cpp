@@ -30,6 +30,12 @@ bool RemindMeDaemon::startDaemon(bool systemdLog)
 	}
 
 	QCtrlSignalHandler::instance()->setAutoQuitActive(true);
+	connect(QCtrlSignalHandler::instance(), &QCtrlSignalHandler::ctrlSignal,
+			this, &RemindMeDaemon::signalTriggered);
+	QCtrlSignalHandler::instance()->registerForSignal(SIGHUP);
+
+	//load translations
+	RemindMe::prepareTranslations(QStringLiteral("remind-med"));
 
 	try {
 		QtDataSync::Setup setup;
@@ -44,5 +50,16 @@ bool RemindMeDaemon::startDaemon(bool systemdLog)
 	} catch(QException &e) {
 		qCritical() << e.what();
 		return false;
+	}
+}
+
+void RemindMeDaemon::signalTriggered(int sig)
+{
+	switch (sig) {
+	case SIGHUP:
+		_notManager->triggerSync();
+		break;
+	default:
+		break;
 	}
 }

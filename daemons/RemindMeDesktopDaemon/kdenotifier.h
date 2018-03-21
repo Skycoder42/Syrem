@@ -4,7 +4,8 @@
 #include <QObject>
 #include <QtMvvmCore/Injection>
 #include <KNotification>
-#include <inotifier.h>
+#include "inotifier.h"
+#include <dateparser.h>
 #include <syncedsettings.h>
 
 class KdeNotifier : public QObject, public INotifier
@@ -13,13 +14,14 @@ class KdeNotifier : public QObject, public INotifier
 	Q_INTERFACES(INotifier)
 
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
+	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
 
 public:
 	Q_INVOKABLE explicit KdeNotifier(QObject *parent = nullptr);
 
 public slots:
 	void showNotification(const Reminder &reminder) override;
-	void removeNotification(const QUuid &id) override;
+	bool removeNotification(const QUuid &id) override;
 	void showErrorMessage(const QString &error) override;
 
 signals:
@@ -32,6 +34,7 @@ private slots:
 
 private:
 	SyncedSettings *_settings;
+	DateParser *_parser;
 	QHash<QUuid, KNotification*> _notifications;
 
 	bool removeNot(const QUuid &id, bool close = false);

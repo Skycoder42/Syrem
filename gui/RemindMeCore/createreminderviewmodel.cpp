@@ -3,7 +3,7 @@
 
 CreateReminderViewModel::CreateReminderViewModel(QObject *parent) :
 	ViewModel(parent),
-	_parser(new DateParser(this)),
+	_parser(nullptr), //injected
 	_store(new ReminderStore(this)),
 	_text(),
 	_important(false),

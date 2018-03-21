@@ -6,12 +6,12 @@
 #include <dialogmaster.h>
 #include <snoozetimes.h>
 
-WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, QWidget *parent) :
+WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, DateParser *parser, QWidget *parent) :
 	QDialog(parent),
 	_settings(settings),
+	_parser(parser),
 	_toolBox(nullptr),
-	_reminders(),
-	_parser(new DateParser(this))
+	_reminders()
 {
 	setupUi();
 }
@@ -60,7 +60,7 @@ void WidgetsSnoozeDialog::performSnooze()
 			remWidget->deleteLater();
 			resizeUi();
 		} catch (DateParserException &e) {
-			DialogMaster::critical(this, e.qWhat(), tr("Invalid Snooze"));
+			DialogMaster::critical(this, e.qWhat(), tr("Snoozing failed!"));
 		}
 	}
 }
@@ -104,7 +104,7 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	// snooze combobox
 	auto cBox = new QComboBox(remWidet);
 	cBox->setEditable(true);
-	cBox->addItems(_settings->scheduler.snooze.times.get());
+	cBox->addItems(_settings->scheduler.snoozetimes);
 
 	//snooze button
 	auto sButton = new QPushButton(remWidet);
