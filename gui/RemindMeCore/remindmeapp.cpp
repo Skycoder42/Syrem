@@ -51,9 +51,10 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	// start the daemon
 	_daemon = new DaemonController(this);
 	_daemon->ensureStarted();
-	//DEBUG
+#ifndef QT_NO_DEBUG
 	connect(qApp, &QGuiApplication::aboutToQuit,
 			_daemon, &DaemonController::stop);
+#endif
 
 	// create datasync etc
 	QtDataSync::Setup setup;
