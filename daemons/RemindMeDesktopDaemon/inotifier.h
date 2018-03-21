@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUuid>
+#include <QLoggingCategory>
 #include <reminder.h>
 
 class INotifier
@@ -25,5 +26,7 @@ signals:
 #define INotifier_iid "de.skycoder42.remindme.daemon.INotifier"
 Q_DECLARE_INTERFACE(INotifier, INotifier_iid)
 Q_DECLARE_METATYPE(INotifier*)
+
+Q_DECLARE_LOGGING_CATEGORY(notifier)
 
 #endif // INOTIFIER_H

@@ -19,9 +19,10 @@ class NotificationManager : public QObject
 public:
 	Q_INVOKABLE explicit NotificationManager(QObject *parent = nullptr);
 
-private slots:
-	void qtmvvm_init();
+public slots:
+	void init();
 
+private slots:
 	void scheduleTriggered(const QUuid &id);
 
 	void messageCompleted(const QUuid &id, quint32 versionCode);

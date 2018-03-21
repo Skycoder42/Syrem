@@ -60,6 +60,18 @@
 				   tsdefault="true">
 				<Property key="specialValueText" type="string" ts="true">Not set</Property>
 			</Entry>
+			<Entry key="scheduler/snoozetimes"
+				   type="SnoozeTimes"
+				   title="&amp;Predefined snooze times"
+				   tooltip="Create custom standard snooze times for fast selection from the combo box">
+				<Property key="times" type="list">
+					<Element type="string" ts="true">in 20 minutes</Element>
+					<Element type="string" ts="true">in 1 hour</Element>
+					<Element type="string" ts="true">in 3 hours</Element>
+					<Element type="string" ts="true">tomorrow</Element>
+					<Element type="string" ts="true">in 1 week on Monday</Element>
+				</Property>
+			</Entry>
 		</Group>
 		<Group title="Scheduling delays"
 			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled">
@@ -88,32 +100,6 @@
 			   <!-- QML special values -->
 			   <Property key="from" type="int">0</Property>
 			   <Property key="to" type="int">60</Property>
-			</Entry>
-		</Group>
-		<Group title="Snoozing">
-			<Entry key="scheduler/snooze/standard"
-				   type="int"
-				   title="&amp;Default snooze time"
-				   tooltip="Enter a time (in minutes) as the default snooze time"
-				   default="20">
-			   <Property key="minimum" type="int">1</Property>
-			   <Property key="maximum" type="int">14400</Property><!--max 10 days-->
-			   <Property key="suffix" type="string" ts="true"> minutes</Property>
-			   <!-- QML special values -->
-			   <Property key="from" type="int">1</Property>
-			   <Property key="to" type="int">14400</Property>
-			</Entry>
-			<Entry key="scheduler/snooze/times"
-				   type="SnoozeTimes"
-				   title="&amp;Predefined snooze times"
-				   tooltip="Create custom standard snooze times for fast selection from the combo box">
-				<Property key="times" type="list">
-					<Element type="string" ts="true">in 20 minutes</Element>
-					<Element type="string" ts="true">in 1 hour</Element>
-					<Element type="string" ts="true">in 3 hours</Element>
-					<Element type="string" ts="true">tomorrow</Element>
-					<Element type="string" ts="true">in 1 week on Monday</Element>
-				</Property>
 			</Entry>
 		</Group>
 	</Section>

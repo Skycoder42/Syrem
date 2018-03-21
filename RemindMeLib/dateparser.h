@@ -189,7 +189,7 @@ protected:
 	const QByteArray _what;
 };
 
-class REMINDMELIBSHARED_EXPORT DateParser : public QObject
+class REMINDMELIBSHARED_EXPORT DateParser : public QObject //TODO make an mvvm service
 {
 	Q_OBJECT
 

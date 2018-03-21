@@ -138,7 +138,7 @@ QDateTime ParserTypes::nextSequenceDate(const Sequence &sequence, const QDateTim
 	if(timeChange)
 		*timeChange = false;
 	auto res = since;
-	foreach(auto span, sequence) {
+	for(auto span : sequence) {
 		switch (span.second) {
 		case Expression::InvalidSpan:
 			return {};
@@ -251,7 +251,7 @@ Schedule *Conjunction::createSchedule(const QDateTime &since, QTime defaultTime,
 		defaultTime = QTime();
 
 	auto schedule = new MultiSchedule(since, parent);
-	foreach(auto expr, expressions)
+	for(auto expr : expressions)
 		schedule->addSubSchedule(expr->createSchedule(since, defaultTime, schedule));
 	return schedule;
 }
@@ -329,7 +329,7 @@ Schedule *Loop::createSchedule(const QDateTime &since, QTime defaultTime, QObjec
 		sched->time = time;
 	else if(defaultTime.isValid()) {
 		auto noTime = false;
-		foreach(auto span, type->sequence) {
+		for(auto span : type->sequence) {
 			if(span.second == Expression::MinuteSpan || span.second == Expression::HourSpan) {
 				noTime = true;
 				break;
@@ -518,12 +518,12 @@ Conjunction *DateParser::tryParseConjunction(const QString &data, QObject *paren
 								   .arg(word(ConjunctionKey)),
 								   QRegularExpression::CaseInsensitiveOption |
 								   QRegularExpression::DontCaptureOption);
-	auto list = data.split(regex);
+	const auto list = data.split(regex);
 	if(list.size() == 1)
 		return nullptr;
 
 	auto con = new Conjunction(parent);
-	foreach (auto expr, list)
+	for(auto expr : list)
 		con->expressions.append(parseExpression(expr, con));
 	return con;
 }
@@ -781,9 +781,9 @@ QPair<TimePoint *, QTime> DateParser::parseExtendedTimePoint(const QString &data
 QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 {
 	QLocale locale;
-	auto dates = word(MonthDayKey).split(QStringLiteral("|"));
-	auto sData = data.simplified();
-	foreach(auto pattern, dates) {
+	const auto dates = word(MonthDayKey).split(QStringLiteral("|"));
+	const auto sData = data.simplified();
+	for(auto pattern : dates) {
 		auto date = locale.toDate(sData, pattern);
 		if(date.isValid())
 			return date;
@@ -798,9 +798,9 @@ QDate DateParser::parseMonthDay(const QString &data, bool noThrow)
 QDate DateParser::parseDate(const QString &data, bool noThrow)
 {
 	QLocale locale;
-	auto dates = word(DateKey).split(QStringLiteral("|"));
-	auto sData = data.simplified();
-	foreach(auto pattern, dates) {
+	const auto dates = word(DateKey).split(QStringLiteral("|"));
+	const auto sData = data.simplified();
+	for(auto pattern : dates) {
 		auto date = locale.toDate(sData, pattern);
 		if(date.isValid())
 			return date;
@@ -815,9 +815,9 @@ QDate DateParser::parseDate(const QString &data, bool noThrow)
 QTime DateParser::parseTime(const QString &data)
 {
 	QLocale locale;
-	auto times = word(TimeKey).split(QStringLiteral("|"));
-	auto sData = data.simplified();
-	foreach(auto pattern, times) {
+	const auto times = word(TimeKey).split(QStringLiteral("|"));
+	const auto sData = data.simplified();
+	for(auto pattern : times) {
 		auto time = locale.toTime(sData, pattern);
 		if(time.isValid())
 			return time;
@@ -857,9 +857,9 @@ Sequence DateParser::parseSequence(const QString &data)
 	const QRegularExpression regex(QStringLiteral(R"__(^(?:(\d+) )?(\w+)$)__"),
 								   QRegularExpression::CaseInsensitiveOption);
 
-	auto dataList = data.simplified().split(word(SequenceKey));//no regex needed, must look like this after simplify
+	const auto dataList = data.simplified().split(word(SequenceKey));//no regex needed, must look like this after simplify
 	Sequence sequence;
-	foreach(auto span, dataList) {
+	for(auto span : dataList) {
 		auto match = regex.match(span);
 		if(!match.hasMatch())
 			throw tr("Invalid time span");
@@ -904,7 +904,7 @@ void DateParser::validateDatumDatum(Datum *datum, const Datum *extraDatum)
 
 void DateParser::validateSequenceDatum(const Sequence &sequence, const Datum *datum, const QTime &time)
 {
-	foreach(auto span, sequence)
+	for(auto span : sequence)
 		validateSpanDatum(span.second, datum, time);
 }
 

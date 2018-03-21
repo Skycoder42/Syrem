@@ -2,11 +2,9 @@
 
 #include <QApplication>
 #include <dialogmaster.h>
-#include "remindmeapp.h"
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
-#include <snoozeviewmodel.h>
 #define Icon QIcon(QStringLiteral(":/icons/tray/main.ico")).pixmap(64, 64)
 #define ErrorIcon QIcon(QStringLiteral(":/icons/tray/error.ico")).pixmap(64, 64)
 #define setNotifyIcon setPixmap
@@ -19,21 +17,9 @@
 KdeNotifier::KdeNotifier(QObject *parent) :
 	QObject(parent),
 	INotifier(),
-	_taskbar(new QTaskbarControl(new QWidget())), //create with a dummy widget parent
-	_settings(new QSettings(this)),
+	_settings(nullptr),
 	_notifications()
-{
-	connect(this, &KdeNotifier::destroyed,
-			_taskbar->parent(), &QObject::deleteLater);
-	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral("remind-me.desktop"));
-
-	connect(qApp, &QApplication::aboutToQuit, this, [this](){
-		foreach(auto notification, _notifications)
-			notification->close();
-	});
-
-	_settings->beginGroup(QStringLiteral("gui/notifications"));
-}
+{}
 
 void KdeNotifier::showNotification(const Reminder &reminder)
 {
@@ -43,9 +29,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 											  QStringLiteral("remindnormal"),
 										  KNotification::Persistent | KNotification::SkipGrouping,
 										  this);
-
 	_notifications.insert(reminder.id(), notification);
-	updateBar();
 
 	notification->setTitle((important ?
 							   tr("%1 — Important Reminder") :
@@ -63,20 +47,21 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 
 	auto remId = reminder.id();
 	auto vCode = reminder.versionCode();
-	connect(notification, QOverload<>::of(&KNotification::activated), this, [](){
-		coreApp->showMainControl();
+	connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId](){
+		if(removeNot(remId))
+			emit messageActivated(remId);
 	});
 	connect(notification, &KNotification::action1Activated, this, [this, remId, vCode](){
 		if(removeNot(remId))
 			emit messageCompleted(remId, vCode);
 	});
 	connect(notification, &KNotification::action2Activated, this, [this, remId, vCode](){
-		if(removeNot(remId))
-			coreApp->showSnoozeControl(remId, vCode);
+		if(removeNot(remId)) {
+			//TODO implement
+		}
 	});
 	connect(notification, &KNotification::closed, this, [this, remId, vCode](){
-		if(removeNot(remId))
-			emit messageDismissed(remId, vCode);
+		removeNot(remId);
 	});
 
 	notification->sendEvent();
@@ -105,22 +90,12 @@ void KdeNotifier::showErrorMessage(const QString &error)
 	notification->sendEvent();
 }
 
-void KdeNotifier::notificationHandled(const QUuid &id, const QString &errorMsg)
+void KdeNotifier::qtmvvm_init()
 {
-	removeNotification(id);
-	if(!errorMsg.isNull())
-		showErrorMessage(errorMsg);
-}
-
-void KdeNotifier::updateBar()
-{
-	_taskbar->setCounter(_notifications.size());
-	if(_notifications.isEmpty())
-		_taskbar->setCounterVisible(false);
-	else {
-		if(!_taskbar->counterVisible())
-			_taskbar->setCounterVisible(true);
-	}
+	connect(qApp, &QApplication::aboutToQuit, this, [this](){
+		for(auto notification : _notifications)
+			notification->close();
+	});
 }
 
 bool KdeNotifier::removeNot(const QUuid &id, bool close)
@@ -130,7 +105,6 @@ bool KdeNotifier::removeNot(const QUuid &id, bool close)
 		if(close)
 			notification->close();
 		notification->deleteLater();
-		updateBar();
 		return true;
 	} else
 		return false;

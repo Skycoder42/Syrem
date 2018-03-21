@@ -46,7 +46,7 @@ void TimerScheduler::cancleReminder(const QUuid &id)
 {
 	auto tInfo = _schedules.take(id);
 	if(tInfo.date.isValid() && tInfo.timerId != 0) {
-		qCInfo(scheduler) << "Canceled timer for reminder with id" << id;
+		qCDebug(scheduler) << "Canceled timer for reminder with id" << id;
 		killTimer(tInfo.timerId);
 	}
 }

@@ -8,7 +8,7 @@ SnoozeTimes::SnoozeTimes(const std::initializer_list<QString> &args) :
 QVariantList SnoozeTimes::toList() const
 {
 	QVariantList l;
-	foreach(auto v, *this)
+	for(auto v : *this)
 		l.append(QVariant::fromValue(v));
 	return l;
 }

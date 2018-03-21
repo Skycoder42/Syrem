@@ -18,15 +18,14 @@ WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, QWidget *pare
 
 void WidgetsSnoozeDialog::addReminders(const QList<Reminder> &reminders)
 {
-	foreach(auto rem, reminders)
+	for(auto rem : reminders)
 		addReminder(rem);
 	resizeUi();
 }
 
 void WidgetsSnoozeDialog::reject()
 {
-	if(!_reminders.isEmpty())
-		emit completed(_reminders.values());
+	emit completed(_reminders.values());
 	QDialog::accept();
 }
 
@@ -106,7 +105,6 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	auto cBox = new QComboBox(remWidet);
 	cBox->setEditable(true);
 	cBox->addItems(_settings->scheduler.snooze.times.get());
-	//TODO remove from settings: _settings->scheduler.snooze.standard
 
 	//snooze button
 	auto sButton = new QPushButton(remWidet);

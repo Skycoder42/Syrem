@@ -37,6 +37,7 @@ bool RemindMeDaemon::startDaemon(bool systemdLog)
 		setup.create();
 
 		_notManager = QtMvvm::ServiceRegistry::instance()->constructInjected<NotificationManager>(this);
+		_notManager->init();
 
 		qInfo() << "daemon successfully started";
 		return true;

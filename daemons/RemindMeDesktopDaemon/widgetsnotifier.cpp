@@ -29,12 +29,14 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 						  .arg(QApplication::applicationDisplayName()),
 						  reminder.description(),
 						  QSystemTrayIcon::Information);
+	qCDebug(notifier) << "Showed notification for reminder with id" << reminder.id();
 }
 
 void WidgetsNotifier::removeNotification(const QUuid &id)
 {
 	if(_notifications.remove(id) > 0)
 		updateIcon();
+	qCDebug(notifier) << "Removed notification for reminder with id" << id;
 }
 
 void WidgetsNotifier::showErrorMessage(const QString &error)
@@ -45,6 +47,7 @@ void WidgetsNotifier::showErrorMessage(const QString &error)
 	_trayIco->showMessage(tr("%1 — Error").arg(QApplication::applicationDisplayName()),
 						  error,
 						  QSystemTrayIcon::Critical);
+	qCDebug(notifier) << "Showed critical error message";
 }
 
 void WidgetsNotifier::qtmvvm_init()
@@ -86,6 +89,7 @@ void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 
 		dialog->open();
 		updateIcon();
+		qCDebug(notifier) << "Showing snooze dialog";
 	}
 }
 
@@ -105,6 +109,8 @@ void WidgetsNotifier::invert()
 
 void WidgetsNotifier::snoozeAction(Reminder reminder, bool completed, const QDateTime &snoozeTime)
 {
+	qCDebug(notifier) << "Completed notification for" << reminder.id()
+					  << "by" << (completed ? "completing" : "snoozing");
 	if(completed)
 		emit messageCompleted(reminder.id(), reminder.versionCode());
 	else
@@ -113,7 +119,8 @@ void WidgetsNotifier::snoozeAction(Reminder reminder, bool completed, const QDat
 
 void WidgetsNotifier::snoozeDone(const QList<Reminder> &remainingReminders)
 {
-	foreach(auto rem, remainingReminders)
+	qCDebug(notifier) << "Snooze dialog done. Remaining reminders:" << remainingReminders.size();
+	for(auto rem : remainingReminders)
 		_notifications.insert(rem.id(), rem);
 	updateIcon();
 }
@@ -137,7 +144,7 @@ void WidgetsNotifier::updateIcon()
 		}
 
 		if(!important) {
-			foreach(auto rem, _notifications) {
+			for(auto rem : _notifications) {
 				if(rem.isImportant()) {
 					important = true;
 					break;

@@ -2,14 +2,17 @@
 #define KDENOTIFIER_H
 
 #include <QObject>
+#include <QtMvvmCore/Injection>
 #include <KNotification>
 #include <inotifier.h>
-#include <QSettings>
+#include <syncedsettings.h>
 
 class KdeNotifier : public QObject, public INotifier
 {
 	Q_OBJECT
 	Q_INTERFACES(INotifier)
+
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 
 public:
 	Q_INVOKABLE explicit KdeNotifier(QObject *parent = nullptr);
@@ -24,11 +27,13 @@ signals:
 	void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger) final;
 	void messageActivated(const QUuid &id) final;
 
+private slots:
+	void qtmvvm_init();
+
 private:
-	QSettings *_settings;
+	SyncedSettings *_settings;
 	QHash<QUuid, KNotification*> _notifications;
 
-	void updateBar();
 	bool removeNot(const QUuid &id, bool close = false);
 };
 

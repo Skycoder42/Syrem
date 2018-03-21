@@ -39,7 +39,7 @@ SnoozeTimes SnoozeTimesEdit::times() const
 void SnoozeTimesEdit::setTimes(const SnoozeTimes &times)
 {
 	_ui->listWidget->clear();
-	foreach(auto time, times) {
+	for(auto time : times) {
 		auto item = new QListWidgetItem(time, _ui->listWidget);
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 	}

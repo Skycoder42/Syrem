@@ -6,16 +6,16 @@ Comment=Remind-Me
 Name=Normal Reminder
 Comment=A reminder has been triggered
 Action=Sound|Popup
-Sound=KDE-Sys-App-Positive.ogg
+Sound=Oxygen-Sys-App-Positive.ogg
 
 [Event/remindimportant]
 Name=Important Reminder
 Comment=An important reminder has been triggered
 Action=Sound|Popup
-Sound=KDE-Sys-App-Positive.ogg
+Sound=Oxygen-Sys-App-Positive.ogg
 
 [Event/error]
 Name=Error Message
 Comment=An error occured
 Action=Sound|Popup
-Sound=KDE-Sys-App-Error.ogg
+Sound=Oxygen-Sys-App-Error.ogg

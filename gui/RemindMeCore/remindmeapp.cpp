@@ -14,7 +14,7 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
 	_daemon(nullptr)
 {
-	QCoreApplication::setApplicationName(QStringLiteral("Remind-Me"));
+	QCoreApplication::setApplicationName(QStringLiteral("remind-me"));
 	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
 	QCoreApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
