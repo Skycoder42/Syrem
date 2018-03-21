@@ -129,6 +129,7 @@ void setupRemindMeLib()
 
 	QJsonSerializer::registerAllConverters<Reminder>();
 	QJsonSerializer::registerPointerConverters<Schedule>();
+	QJsonSerializer::registerAllConverters<Schedule*>();
 	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
 	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
 

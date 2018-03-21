@@ -5,9 +5,11 @@
 #include <QDateTime>
 #include <QSharedPointer>
 #include <QException>
+#include <QtMvvmCore/Injection>
 
 #include "remindmelib_global.h"
 #include "schedule.h"
+#include "syncedsettings.h"
 
 namespace ParserTypes {
 
@@ -193,6 +195,8 @@ class REMINDMELIBSHARED_EXPORT DateParser : public QObject
 {
 	Q_OBJECT
 
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
+
 public:
 	enum WordKey {
 		TimeRegexKey,
@@ -230,6 +234,8 @@ public:
 	QDateTime snoozeParse(const QString &expression);
 
 private:
+	SyncedSettings *_settings;
+
 	static QString word(WordKey key);
 	static QString timeRegex();
 	static QString sequenceRegex();

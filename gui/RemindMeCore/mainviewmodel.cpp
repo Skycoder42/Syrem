@@ -66,6 +66,9 @@ void MainViewModel::completeReminder(const QUuid &id)
 	try {
 		auto rem = _reminderModel->store()->load<Reminder>(id);
 		rem.nextSchedule(_reminderModel->store(), QDateTime::currentDateTime());
+	} catch(QtDataSync::NoDataException &e) {
+		qDebug() << "Skipping completing of deleted reminder" << id
+				 << "with reason" << e.what();
 	} catch(QException &e) {
 		qCritical() << "Failed to complete reminder with error:" << e.what();
 		QtMvvm::critical(tr("Failed to complete reminder"),
@@ -94,6 +97,9 @@ void MainViewModel::snoozeReminder(const QUuid &id)
 		auto rem = _reminderModel->store()->load<Reminder>(id);
 		if(rem.triggerState() == Reminder::Triggered)
 			show<SnoozeViewModel>(SnoozeViewModel::showParams(rem));
+	} catch(QtDataSync::NoDataException &e) {
+		qDebug() << "Skipping completing of deleted reminder" << id
+				 << "with reason" << e.what();
 	} catch (QException &e) {
 		qCritical() << "Failed to load reminder with error:" << e.what();
 		QtMvvm::critical(tr("Snoozing failed!"),

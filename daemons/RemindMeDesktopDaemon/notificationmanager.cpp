@@ -73,6 +73,9 @@ void NotificationManager::scheduleTriggered(const QUuid &id)
 		auto rem = _store->load(id);
 		_notifier->showNotification(rem);
 		updateNotificationCount(+1);
+	} catch(QtDataSync::NoDataException &e) {
+		qCDebug(manager) << "Skipping presentation of deleted reminder" << id
+						<< "with reason" << e.what();
 	} catch(QException &e) {
 		qCCritical(manager) << "Failed to load reminder with id" << id
 							<< "to display notification with error:" << e.what();
@@ -90,6 +93,9 @@ void NotificationManager::messageCompleted(const QUuid &id, quint32 versionCode)
 			qCInfo(manager) << "Completed reminder with id" << id;
 		}
 		updateNotificationCount(-1);
+	} catch(QtDataSync::NoDataException &e) {
+		qCDebug(manager) << "Skipping completing of deleted reminder" << id
+						<< "with reason" << e.what();
 	} catch(QException &e) {
 		qCCritical(manager) << "Failed to complete reminder with id" << id
 							<< "with error:" << e.what();
@@ -111,6 +117,9 @@ void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, Q
 			qCInfo(manager) << "Snoozed reminder with id" << id;
 		}
 		updateNotificationCount(-1);
+	} catch(QtDataSync::NoDataException &e) {
+		qCDebug(manager) << "Skipping snoozing of deleted reminder" << id
+						<< "with reason" << e.what();
 	} catch(QException &e) {
 		qCCritical(manager) << "Failed to snooze reminder with id" << id
 							<< "with error:" << e.what();

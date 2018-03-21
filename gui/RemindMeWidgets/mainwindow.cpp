@@ -106,11 +106,11 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 		auto state = reminder.triggerState();
 		auto canSnooze = state == Reminder::Triggered;
 		auto isReady = (canSnooze || state == Reminder::Snoozed);
-		_ui->action_Complete_Reminder->setVisible(isReady);
-		_ui->action_Snooze_Reminder->setVisible(canSnooze);
+		_ui->action_Complete_Reminder->setEnabled(isReady);
+		_ui->action_Snooze_Reminder->setEnabled(canSnooze);
 	} else {
-		_ui->action_Complete_Reminder->setVisible(false);
-		_ui->action_Snooze_Reminder->setVisible(false);
+		_ui->action_Complete_Reminder->setEnabled(false);
+		_ui->action_Snooze_Reminder->setEnabled(false);
 	}
 }
 

@@ -388,7 +388,7 @@ QSharedPointer<Schedule> DateParser::parseSchedule(const QString &expression)
 {
 	auto expr = parse(expression);
 	QSharedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   SyncedSettings::instance()->scheduler.defaultTime));
+														   _settings->scheduler.defaultTime));
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(!schedule->nextSchedule().isValid())
@@ -400,7 +400,7 @@ QDateTime DateParser::snoozeParse(const QString &expression)
 {
 	auto expr = parse(expression);
 	QScopedPointer<Schedule> schedule(expr->createSchedule(QDateTime::currentDateTime(),
-														   SyncedSettings::instance()->scheduler.defaultTime));
+														   _settings->scheduler.defaultTime));
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(schedule->isRepeating())
