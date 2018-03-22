@@ -12,13 +12,16 @@ env:
     - QPMX_CACHE_DIR=$HOME/.qpmx-cache
     - QT_VER=5.10.1
     - EXTRA_MODULES=".qtremoteobjects .skycoder42.datasync .skycoder42.mvvm"
-#    - DOCKER_IMAGE=full
+    - DOCKER_IMAGE=full
 
 matrix:
   include:
     - os: linux
       env:
         - PLATFORM=gcc_64
+#    - os: osx
+#      env:
+#        - PLATFORM=clang_64
 
 before_install:
   - git clone https://github.com/Skycoder42/QtModules.git ./qtmodules-travis

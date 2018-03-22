@@ -16,6 +16,9 @@ protected:
 	void performRegistrations() override;
 	int startApp(const QStringList &arguments) override;
 
+private Q_SLOTS:
+	void createReminderInline(bool important, const QString &description, const QString &when);
+
 private:
 	DaemonController *_daemon;
 };

@@ -491,7 +491,7 @@ QString DateParser::sequenceRegex()
 
 Expression *DateParser::parseExpression(const QString &data, QObject *parent)
 {
-	Expression *expr = nullptr;
+	Expression *expr;
 
 	expr = tryParseConjunction(data, parent);
 	if(expr)
