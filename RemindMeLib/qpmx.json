@@ -1,14 +1,14 @@
 {
     "dependencies": [
         {
-            "package": "de.skycoder42.qsslserver",
-            "provider": "qpm",
-            "version": "1.0.0"
-        },
-        {
             "package": "de.skycoder42.qsettingsgenerator",
             "provider": "qpm",
-            "version": "1.3.3"
+            "version": "1.3.4"
+        },
+        {
+            "package": "de.skycoder42.qtremoteobjectsbackend.ssl",
+            "provider": "qpm",
+            "version": "1.0.0"
         }
     ],
     "license": {

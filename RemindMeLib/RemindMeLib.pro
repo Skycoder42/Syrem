@@ -30,6 +30,11 @@ SETTINGS_GENERATORS += \
 
 MVVM_SETTINGS_FILES += $$PWD/../gui/RemindMeCore/settings.xml
 
+TRANSLATIONS += remindme_lib_de.ts \
+	remindme_lib_template.ts
+
+DISTFILES += $$TRANSLATIONS
+
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)
 
@@ -40,8 +45,8 @@ for(header, SETTINGSGENERATOR_BUILD_HEADERS) {
 }
 
 # actual install
+target.path = $$INSTALL_BINS
+qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 header_install.files = $$HEADERS $$SETTINGSGENERATOR_BUILD_HEADERS $$SETTINGSGENERATOR_DIR/settings.h
-header_install.path = $$[QT_INSTALL_HEADERS]/remind-me # TODO install more, use prefix
-INSTALLS += header_install
-
-RESOURCES +=
+header_install.path = $$INSTALL_HEADERS/remind-me
+INSTALLS += target qpmx_ts_target header_install

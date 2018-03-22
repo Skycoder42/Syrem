@@ -8,14 +8,31 @@ else: TARGET = remind-me
 QMAKE_TARGET_PRODUCT = "Remind-Me"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
+HEADERS += \
+	settingsqmlwrapper.h
+
 SOURCES += main.cpp \
-    settingsqmlwrapper.cpp
+	settingsqmlwrapper.cpp
 
 RESOURCES += \
-    remindmequick.qrc
+	remindmequick.qrc
 
 TRANSLATIONS += remindme_quick_de.ts \
 	remindme_quick_template.ts
+
+EXTRA_TRANSLATIONS +=  \
+	remindme_de.ts \
+	remindme_template.ts
+
+DISTFILES += \
+	$$TRANSLATIONS \
+	$$EXTRA_TRANSLATIONS
+
+# actual install
+target.path = $$INSTALL_BINS
+qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
+extra_ts_target.path = $$INSTALL_TRANSLATIONS
+INSTALLS += target qpmx_ts_target extra_ts_target
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../RemindMeCore/release/ -lRemindMeCore
@@ -34,11 +51,12 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../RemindMeCore/libRemindMeCore.a
 # link against main lib
 include(../../lib.pri)
 
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+android {
+	LIBS += -L$$PWD/openssl/openssl -lcrypto -lssl
+	ANDROID_EXTRA_LIBS += \
+		$$PWD/openssl/openssl/libcrypto.so \
+		$$PWD/openssl/openssl/libssl.so
+}
 
-# Additional import path used to resolve QML modules just for Qt Quick Designer
-QML_DESIGNER_IMPORT_PATH =
-
-HEADERS += \
-    settingsqmlwrapper.h
+!ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
+else: include($$OUT_PWD/qpmx_generated.pri)

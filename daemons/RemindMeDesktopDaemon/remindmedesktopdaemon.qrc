@@ -1,13 +1,14 @@
 <RCC>
-	<qresource prefix="/icons">
-		<file alias="main.svg">remindme.svg</file>
-	</qresource>
-	<qresource prefix="/icons/tray">
-		<file alias="main.ico">icons/remindme.ico</file>
-		<file alias="inverse.ico">icons/remindme_inverse.ico</file>
-		<file alias="error.ico">icons/remindme_error.ico</file>
-	</qresource>
-	<qresource prefix="/etc">
-		<file alias="rocert.p12">roserver.p12</file>
-	</qresource>
+    <qresource prefix="/icons">
+        <file alias="main.svg">icons/remindme.svg</file>
+        <file alias="important.ico">icons/exclamation.ico</file>
+    </qresource>
+    <qresource prefix="/icons/tray">
+        <file alias="main.ico">icons/remindme.ico</file>
+        <file alias="inverse.ico">icons/remindme_inverse.ico</file>
+        <file alias="error.ico">icons/remindme_error.ico</file>
+    </qresource>
+    <qresource prefix="/etc">
+        <file alias="rocert.p12">roserver.p12</file>
+    </qresource>
 </RCC>

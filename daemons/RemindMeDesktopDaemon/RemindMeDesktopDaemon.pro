@@ -42,16 +42,18 @@ kde_notifier {
 		widgetssnoozedialog.cpp
 }
 
+TRANSLATIONS += remindme_daemon_de.ts \
+	remindme_daemon_template.ts
+
 DISTFILES += \
-	remind-me.service.in
+	remind-me.service.in \
+	$$TRANSLATIONS
 
-# link against main lib
-include(../../lib.pri)
-
+# install
 linux {
 	create_service.target = remind-me.service
 	create_service.depends += $$PWD/remind-me.service.in
-	create_service.commands += sed "s:%{INSTALL_BINS}:$$[QT_INSTALL_BINS]:g" $$PWD/remind-me.service.in > remind-me.service
+	create_service.commands += sed "s:%{INSTALL_BINS}:$$INSTALL_BINS:g" $$PWD/remind-me.service.in > remind-me.service
 
 	QMAKE_EXTRA_TARGETS += create_service
 	PRE_TARGETDEPS += remind-me.service
@@ -60,6 +62,13 @@ linux {
 	install_service.path = /usr/lib/systemd/user/
 	INSTALLS += install_service
 }
+
+target.path = $$INSTALL_BINS
+qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
+INSTALLS += target qpmx_ts_target
+
+# link against main lib
+include(../../lib.pri)
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)
 else: include($$OUT_PWD/qpmx_generated.pri)

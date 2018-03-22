@@ -136,11 +136,10 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	remLayout->setStretch(1, 0);
 	remLayout->setStretch(2, 0);
 
-	_toolBox->addItem(remWidet,
-					  reminder.isImportant() ?
-						  QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico"))) :
-						  QIcon(QStringLiteral(":/icons/empty.ico")),
-					  reminder.description());
+	QIcon icon;
+	if(reminder.isImportant())
+		icon = QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
+	_toolBox->addItem(remWidet, icon, reminder.description());
 
 	_reminders.insert(remWidet, reminder);
 }

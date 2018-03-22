@@ -2,7 +2,6 @@
     <qresource prefix="/qml">
         <file>App.qml</file>
         <file>ReminderDelegate.qml</file>
-        <file>TintedIcon.qml</file>
     </qresource>
     <qresource prefix="/qtmvvm/views">
         <file>MainView.qml</file>

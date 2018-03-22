@@ -4,6 +4,7 @@ import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.3
 import QtQuick.Controls.Universal 2.3
 import QtQuick.Layouts 1.3
+import QtGraphicalEffects 1.0
 import de.skycoder42.QtMvvm.Quick 1.0
 import de.skycoder42.remindme 1.0
 
@@ -49,26 +50,42 @@ SwipeDelegate {
 			text: delegate.text
 		}
 
-		TintedIcon { //NOTE use normal tint icon
-			id: stateImage
+		Displace {
+			source: imgBtn
+			Layout.preferredWidth: imgBtn.width
+			Layout.preferredHeight: imgBtn.height
 
-			Layout.minimumWidth: 42
-			Layout.maximumWidth: 42
-			Layout.minimumHeight: 42
-			Layout.maximumHeight: 42
-
-			source: {
-				switch(Number(triggerState)) {
-				case 0:
-					return "";
-				case 1:
-					return "qrc:/icons/ic_repeat.svg";
-				case 2:
-					return "qrc:/icons/ic_snooze.svg";
-				case 3:
-					return "qrc:/icons/ic_assignment_late.svg";
-				default:
-					return "";
+			ActionButton {
+				id: imgBtn
+				visible: false
+				down: false
+				icon.name: {
+					switch(Number(triggerState)) {
+					case 0:
+						return "";
+					case 1:
+						return "media-playlist-repeat";
+					case 2:
+						return "alarm-symbolic";
+					case 3:
+						return "view-calendar-upcoming-events";
+					default:
+						return "";
+					}
+				}
+				icon.source: {
+					switch(Number(triggerState)) {
+					case 0:
+						return "";
+					case 1:
+						return "qrc:/icons/ic_repeat.svg";
+					case 2:
+						return "qrc:/icons/ic_snooze.svg";
+					case 3:
+						return "qrc:/icons/ic_assignment_late.svg";
+					default:
+						return "";
+					}
 				}
 			}
 		}

@@ -165,8 +165,8 @@
   </action>
   <action name="action_Close">
    <property name="icon">
-    <iconset theme="window-close">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="window-close" resource="remindmewidgets.qrc">
+     <normaloff>:/icons/close.ico</normaloff>:/icons/close.ico</iconset>
    </property>
    <property name="text">
     <string>&amp;Close</string>
@@ -175,7 +175,7 @@
     <string>Close</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Alt+F4</string>
+    <string>Alt+F4</string>
    </property>
   </action>
   <action name="action_About">
@@ -228,8 +228,8 @@
   </action>
   <action name="actionS_ynchronization">
    <property name="icon">
-    <iconset theme="view-refresh">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="view-refresh" resource="remindmewidgets.qrc">
+     <normaloff>:/icons/sync.ico</normaloff>:/icons/sync.ico</iconset>
    </property>
    <property name="text">
     <string>S&amp;ynchronization</string>

@@ -3,7 +3,14 @@
 Type=Application
 Version=1.1
 Name=Remind-Me
+GenericName=Reminder Scheduler
 Comment=A simple reminder application for desktop and mobile, with synchronized reminders
+Categories=Utility;Qt;
 Exec=remind-me
 Icon=remind-me
 Terminal=false
+Actions=CreateReminder;
+
+[Desktop Action CreateReminder]
+Exec=remind-me --create
+Name=Create a Reminder
