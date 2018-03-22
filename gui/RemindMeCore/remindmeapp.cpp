@@ -31,7 +31,7 @@ void RemindMeApp::performRegistrations()
 	Q_INIT_RESOURCE(remindmecore);
 
 	//load translations
-	RemindMe::prepareTranslations(QStringLiteral("remind-me"));
+	RemindMe::prepareTranslations(QStringLiteral("remindme"));
 }
 
 int RemindMeApp::startApp(const QStringList &arguments)

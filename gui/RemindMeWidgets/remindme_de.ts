@@ -4,9 +4,14 @@
 	<dependencies>
 		<dependency catalog="qtbase_de"/>
 		<dependency catalog="qtwebsockets_de"/>
+		<dependency catalog="qtdatasync_de"/>
+		<dependency catalog="qtmvvmcore_de"/>
+		<dependency catalog="qtmvvmdatasynccore_de"/>
+		<dependency catalog="qtmvvmwidgets_de"/>
+		<dependency catalog="qtmvvmdatasyncwidgets_de"/>
 
+		<dependency catalog="remindme_lib_de"/>
 		<dependency catalog="remindme_core_de"/>
-		<dependency catalog="remindme_daemon_de"/>
 		<dependency catalog="remindme_widgets_de"/>
 	</dependencies>
 </TS>

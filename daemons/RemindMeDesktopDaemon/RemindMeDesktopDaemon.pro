@@ -34,7 +34,7 @@ kde_notifier {
 		kdesnoozedialog.h
 	SOURCES += kdenotifier.cpp \
 		kdesnoozedialog.cpp
-	DISTFILES += remind-me.notifyrc
+	DISTFILES +=
 } else {
 	HEADERS += widgetsnotifier.h \
 		widgetssnoozedialog.h
@@ -45,9 +45,14 @@ kde_notifier {
 TRANSLATIONS += remindme_daemon_de.ts \
 	remindme_daemon_template.ts
 
+EXTRA_TRANSLATIONS +=  \
+	remindmed_de.ts \
+	remindmed_template.ts
+
 DISTFILES += \
 	remind-me.service.in \
-	$$TRANSLATIONS
+	$$TRANSLATIONS \
+	remind-me.notifyrc
 
 # install
 linux {
@@ -59,6 +64,7 @@ linux {
 	PRE_TARGETDEPS += remind-me.service
 
 	install_service.files += $$OUT_PWD/remind-me.service
+	install_service.CONFIG += no_check_exist
 	install_service.path = $$INSTALL_LIBS/systemd/user/
 	INSTALLS += install_service
 }
@@ -70,7 +76,8 @@ kde_notifier {
 
 target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-INSTALLS += target qpmx_ts_target
+extra_ts_target.path = $$INSTALL_TRANSLATIONS
+INSTALLS += target qpmx_ts_target extra_ts_target
 
 # link against main lib
 include(../../lib.pri)

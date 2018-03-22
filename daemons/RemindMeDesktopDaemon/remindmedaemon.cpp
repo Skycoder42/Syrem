@@ -35,7 +35,7 @@ bool RemindMeDaemon::startDaemon(bool systemdLog)
 	QCtrlSignalHandler::instance()->registerForSignal(SIGHUP);
 
 	//load translations
-	RemindMe::prepareTranslations(QStringLiteral("remind-med"));
+	RemindMe::prepareTranslations(QStringLiteral("remindmed"));
 
 	try {
 		QtDataSync::Setup setup;
