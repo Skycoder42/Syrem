@@ -102,7 +102,7 @@ void MainViewModel::snoozeReminder(const QUuid &id)
 				 << "with reason" << e.what();
 	} catch (QException &e) {
 		qCritical() << "Failed to load reminder with error:" << e.what();
-		QtMvvm::critical(tr("Snoozing failed!"),
+		QtMvvm::critical(tr("Failed to snooze reminder"),
 						 tr("Unable to load the reminder that should be snoozed!"));
 	}
 }

@@ -45,7 +45,7 @@ for(header, SETTINGSGENERATOR_BUILD_HEADERS) {
 }
 
 # actual install
-target.path = $$INSTALL_BINS
+target.path = $$INSTALL_LIBS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 header_install.files = $$HEADERS $$SETTINGSGENERATOR_BUILD_HEADERS $$SETTINGSGENERATOR_DIR/settings.h
 header_install.path = $$INSTALL_HEADERS/remind-me

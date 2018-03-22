@@ -22,9 +22,5 @@ int main(int argc, char *argv[])
 	auto wPres = dynamic_cast<QtMvvm::WidgetsPresenter*>(QtMvvm::ServiceRegistry::instance()->service<QtMvvm::IPresenter>());
 	wPres->inputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
 
-//		//migration helper
-//		QtDataSync::MigrationHelper helper;
-//		helper.startMigration(QtDataSync::MigrationHelper::DefaultOldStorageDir, QtDataSync::MigrationHelper::MigrateData);
-
 	return a.exec();
 }

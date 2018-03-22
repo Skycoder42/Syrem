@@ -59,8 +59,13 @@ linux {
 	PRE_TARGETDEPS += remind-me.service
 
 	install_service.files += $$OUT_PWD/remind-me.service
-	install_service.path = /usr/lib/systemd/user/
+	install_service.path = $$INSTALL_LIBS/systemd/user/
 	INSTALLS += install_service
+}
+kde_notifier {
+	notify_install.path = $$INSTALL_SHARE/knotifications5/
+	notify_install.files = remind-me.notifyrc
+	INSTALLS += notify_install
 }
 
 target.path = $$INSTALL_BINS

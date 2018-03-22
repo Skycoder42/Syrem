@@ -26,11 +26,6 @@
 		</Group>
 		<Group title="Desktop"
 			   frontend="widgets">
-			<Entry key="gui/hotkey"
-				   type="QKeySequence"
-				   title="Create Reminder &amp;Hotkey"
-				   tooltip="Enter a key sequence to be used as hotkey to create a reminder"
-				   default="CTRL+META+R"/>
 			<Entry key="gui/notifications/blinkinterval"
 				   type="int"
 				   title="Tray Blink &amp;interval"
@@ -73,7 +68,7 @@
 				</Property>
 			</Entry>
 		</Group>
-		<Group title="Scheduling delays"
+		<Group title="Mobile Scheduling delays"
 			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled">
 			<Entry key="scheduler/delay/normal"
 				   frontend="quick"

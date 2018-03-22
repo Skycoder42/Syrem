@@ -404,7 +404,7 @@ QDateTime DateParser::snoozeParse(const QString &expression)
 	if(!schedule)
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));
 	if(schedule->isRepeating())
-		throw DateParserException(tr("Given expression evaluates to more the 1 timepoint"));
+		throw DateParserException(tr("Given expression is valid, but evaluates to more the 1 timepoint!"));
 	auto next = schedule->nextSchedule();
 	if(!next.isValid())
 		throw DateParserException(tr("Given expression is valid, but evaluates to a timepoint in the past!"));

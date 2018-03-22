@@ -175,7 +175,7 @@
     <string>Close</string>
    </property>
    <property name="shortcut">
-    <string>Alt+F4</string>
+    <string notr="true">Alt+F4</string>
    </property>
   </action>
   <action name="action_About">
