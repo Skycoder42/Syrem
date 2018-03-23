@@ -4,7 +4,6 @@
 #include <QtMvvmCore/ServiceRegistry>
 #include <QTranslator>
 #include <QLibraryInfo>
-#include <sslremoteobjects.h>
 
 #include "schedule.h"
 #include "dateparser.h"
@@ -32,9 +31,7 @@ void RemindMe::prepareTranslations(const QString &tsName)
 
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
-	setup.setRemoteObjectHost(SslRemoteObjects::generateP12Url(QStringLiteral("127.0.0.1"), 25334,
-															   QStringLiteral(":/etc/rocert.p12"),
-															   QStringLiteral("baum42")))
+	setup.setRemoteObjectHost(QStringLiteral("local:de.skycoder42.remindme.daemon"))
 			.setSyncPolicy(QtDataSync::Setup::PreferDeleted)
 			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")})
 			.setConflictResolver(new ConflictResolver());
