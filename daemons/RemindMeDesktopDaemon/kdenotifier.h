@@ -21,7 +21,7 @@ public:
 
 public slots:
 	void showNotification(const Reminder &reminder) override;
-	bool removeNotification(const QUuid &id) override;
+	void removeNotification(const QUuid &id) override;
 	void showErrorMessage(const QString &error) override;
 
 signals:

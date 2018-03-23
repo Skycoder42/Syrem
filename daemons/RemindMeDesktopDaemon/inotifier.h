@@ -13,7 +13,7 @@ public:
 
 public slots:
 	virtual void showNotification(const Reminder &reminder) = 0;
-	virtual bool removeNotification(const QUuid &id) = 0;
+	virtual void removeNotification(const QUuid &id) = 0;
 
 	virtual void showErrorMessage(const QString &error) = 0;
 

@@ -75,9 +75,9 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 	notification->sendEvent();
 }
 
-bool KdeNotifier::removeNotification(const QUuid &id)
+void KdeNotifier::removeNotification(const QUuid &id)
 {
-	return removeNot(id, true);
+	removeNot(id, true);
 }
 
 void KdeNotifier::showErrorMessage(const QString &error)

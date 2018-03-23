@@ -38,14 +38,12 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 	qCDebug(notifier) << "Showed notification for reminder with id" << reminder.id();
 }
 
-bool WidgetsNotifier::removeNotification(const QUuid &id)
+void WidgetsNotifier::removeNotification(const QUuid &id)
 {
 	if(_notifications.remove(id) > 0) {
 		qCDebug(notifier) << "Removed notification for reminder with id" << id;
 		updateIcon();
-		return true;
-	} else
-		return false;
+	}
 }
 
 void WidgetsNotifier::showErrorMessage(const QString &error)

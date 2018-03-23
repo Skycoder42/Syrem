@@ -19,7 +19,8 @@ NotificationManager::NotificationManager(QObject *parent) :
 	_notifier(nullptr),
 	_settings(nullptr),
 	_manager(new SyncManager(this)),
-	_store(new DataTypeStore<Reminder, QUuid>(this))
+	_store(new DataTypeStore<Reminder, QUuid>(this)),
+	_activeIds()
 {
 	connect(this, &NotificationManager::destroyed,
 			_taskbar->parent(), &QObject::deleteLater);
@@ -73,7 +74,7 @@ void NotificationManager::scheduleTriggered(const QUuid &id)
 	try {
 		auto rem = _store->load(id);
 		_notifier->showNotification(rem);
-		updateNotificationCount(+1);
+		addNotify(id);
 	} catch(QtDataSync::NoDataException &e) {
 		qCDebug(manager) << "Skipping presentation of deleted reminder" << id
 						<< "with reason" << e.what();
@@ -93,7 +94,7 @@ void NotificationManager::messageCompleted(const QUuid &id, quint32 versionCode)
 			rem.nextSchedule(_store->store(), QDateTime::currentDateTime());
 			qCInfo(manager) << "Completed reminder with id" << id;
 		}
-		updateNotificationCount(-1);
+		removeNotify(id);
 	} catch(QtDataSync::NoDataException &e) {
 		qCDebug(manager) << "Skipping completing of deleted reminder" << id
 						<< "with reason" << e.what();
@@ -117,7 +118,7 @@ void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, Q
 			rem.performSnooze(_store->store(), nextTrigger);
 			qCInfo(manager) << "Snoozed reminder with id" << id;
 		}
-		updateNotificationCount(-1);
+		removeNotify(id);
 	} catch(QtDataSync::NoDataException &e) {
 		qCDebug(manager) << "Skipping snoozing of deleted reminder" << id
 						<< "with reason" << e.what();
@@ -144,9 +145,37 @@ void NotificationManager::messageActivated(const QUuid &id)
 		qCWarning(manager) << "Failed to launch" << program;
 }
 
-void NotificationManager::updateNotificationCount(int increment)
+void NotificationManager::dataChanged(const QString &key, const QVariant &value)
 {
-	auto nValue = _taskbar->counter() + increment;
+	if(value.isValid()) {
+		auto reminder = value.value<Reminder>();
+		_notifier->removeNotification(reminder.id());
+		removeNotify(reminder.id());
+		_scheduler->scheduleReminder(reminder);
+	} else {
+		_scheduler->cancleReminder(QUuid(key));
+		_notifier->removeNotification(QUuid(key));
+		removeNotify(QUuid(key));
+	}
+}
+
+void NotificationManager::addNotify(const QUuid &id)
+{
+	if(!_activeIds.contains(id)) {
+		_activeIds.insert(id);
+		updateNotificationCount();
+	}
+}
+
+void NotificationManager::removeNotify(const QUuid &id)
+{
+	if(_activeIds.remove(id))
+		updateNotificationCount();
+}
+
+void NotificationManager::updateNotificationCount()
+{
+	auto nValue = _activeIds.count();
 	if(nValue <= 0) {
 		if(_taskbar->counterVisible()) {
 			_taskbar->setCounter(0);
@@ -156,19 +185,5 @@ void NotificationManager::updateNotificationCount(int increment)
 		_taskbar->setCounter(nValue);
 		if(!_taskbar->counterVisible())
 			_taskbar->setCounterVisible(true);
-	}
-}
-
-void NotificationManager::dataChanged(const QString &key, const QVariant &value)
-{
-	if(value.isValid()) {
-		auto reminder = value.value<Reminder>();
-		if(_notifier->removeNotification(reminder.id()))
-			updateNotificationCount(-1);
-		_scheduler->scheduleReminder(reminder);
-	} else {
-		_scheduler->cancleReminder(QUuid(key));
-		if(_notifier->removeNotification(QUuid(key)))
-			updateNotificationCount(-1);
 	}
 }

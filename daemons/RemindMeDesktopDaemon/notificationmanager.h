@@ -41,8 +41,11 @@ private:
 
 	QtDataSync::SyncManager *_manager;
 	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
+	QSet<QUuid> _activeIds;
 
-	void updateNotificationCount(int increment);
+	void addNotify(const QUuid &id);
+	void removeNotify(const QUuid &id);
+	void updateNotificationCount();
 };
 
 #endif // NOTIFICATIONMANAGER_H
