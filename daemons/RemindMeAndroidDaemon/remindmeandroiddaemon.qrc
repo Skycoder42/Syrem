@@ -1,0 +1,5 @@
+<RCC>
+	<qresource prefix="/etc">
+		<file alias="rocert.p12">roserver.p12</file>
+	</qresource>
+</RCC>

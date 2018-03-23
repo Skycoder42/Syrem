@@ -37,7 +37,8 @@ DISTFILES += \
 	android/res/drawable-mdpi/* \
 	android/res/drawable-xhdpi/* \
 	android/res/drawable-xxhdpi/* \
-	android/res/drawable-xxxhdpi/*
+	android/res/drawable-xxxhdpi/* \
+	android/src/de/skycoder42/remindme/Globals.java
 
 # actual install
 target.path = $$INSTALL_BINS

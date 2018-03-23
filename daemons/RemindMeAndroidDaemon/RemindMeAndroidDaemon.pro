@@ -8,6 +8,8 @@ QT += androidextras
 
 SOURCES += main.cpp
 
+RESOURCES += remindmeandroiddaemon.qrc
+
 # link against main lib
 include(../../lib.pri)
 
