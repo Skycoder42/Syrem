@@ -17,6 +17,8 @@ SOURCES += main.cpp \
 RESOURCES += \
 	remindmequick.qrc
 
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
 TRANSLATIONS += remindme_quick_de.ts \
 	remindme_quick_template.ts
 
@@ -26,12 +28,31 @@ EXTRA_TRANSLATIONS +=  \
 
 DISTFILES += \
 	$$TRANSLATIONS \
-	$$EXTRA_TRANSLATIONS
+	$$EXTRA_TRANSLATIONS \
+	android/AndroidManifest.xml \
+	android/build.gradle \
+	android/src/de/skycoder42/remindme/* \
+	android/res/values/* \
+	android/res/drawable-hdpi/* \
+	android/res/drawable-mdpi/* \
+	android/res/drawable-xhdpi/* \
+	android/res/drawable-xxhdpi/* \
+	android/res/drawable-xxxhdpi/*
 
 # actual install
 target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 extra_ts_target.path = $$INSTALL_TRANSLATIONS
+android: extra_ts_target.files += \
+	$$[QT_INSTALL_TRANSLATIONS]/qtbase_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtdeclarative_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtquickcontrols_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtwebsockets_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtdatasync_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmcore_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmdatasynccore_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmquick_*.qm \
+	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmdatasyncquick_*.qm
 INSTALLS += target qpmx_ts_target extra_ts_target
 
 # Link with core project
@@ -56,6 +77,7 @@ android {
 	ANDROID_EXTRA_LIBS += \
 		$$PWD/openssl/openssl/libcrypto.so \
 		$$PWD/openssl/openssl/libssl.so
+	RESOURCES += remindme_android.qrc
 }
 
 !ReleaseBuild:!DebugBuild:!system(qpmx -d $$shell_quote($$_PRO_FILE_PWD_) --qmake-run init $$QPMX_EXTRA_OPTIONS $$shell_quote($$QMAKE_QMAKE) $$shell_quote($$OUT_PWD)): error(qpmx initialization failed. Check the compilation log for details.)

@@ -14,3 +14,4 @@ Actions=CreateReminder;
 [Desktop Action CreateReminder]
 Exec=remind-me --create
 Name=Create a Reminder
+Icon=list-add

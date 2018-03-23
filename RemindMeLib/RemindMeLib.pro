@@ -49,4 +49,5 @@ target.path = $$INSTALL_LIBS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 header_install.files = $$HEADERS $$SETTINGSGENERATOR_BUILD_HEADERS $$SETTINGSGENERATOR_DIR/settings.h
 header_install.path = $$INSTALL_HEADERS/remind-me
-INSTALLS += target qpmx_ts_target header_install
+INSTALLS += target qpmx_ts_target
+!android: INSTALLS += header_install
