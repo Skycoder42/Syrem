@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	parser.process(a);
 
 	RemindMeDaemon daemon;
-	if(!daemon.startDaemon(parser.isSet(QStringLiteral("systemd-log"))))
+	if(!daemon.startService(parser.isSet(QStringLiteral("systemd-log"))))
 		return EXIT_FAILURE;
 
 	return a.exec();

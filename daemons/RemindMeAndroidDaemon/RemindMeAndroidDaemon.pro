@@ -3,10 +3,15 @@ TEMPLATE = app
 QMAKE_TARGET_PRODUCT = "Remind-Me Daemon"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-QT -= gui
 QT += androidextras
 
-SOURCES += main.cpp
+HEADERS += \
+	androidscheduler.h \
+	remindmeservice.h
+
+SOURCES += main.cpp \
+	androidscheduler.cpp \
+	remindmeservice.cpp
 
 RESOURCES += remindmeandroiddaemon.qrc
 

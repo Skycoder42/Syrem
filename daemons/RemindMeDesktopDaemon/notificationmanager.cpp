@@ -153,9 +153,10 @@ void NotificationManager::dataChanged(const QString &key, const QVariant &value)
 		removeNotify(reminder.id());
 		_scheduler->scheduleReminder(reminder);
 	} else {
-		_scheduler->cancleReminder(QUuid(key));
-		_notifier->removeNotification(QUuid(key));
-		removeNotify(QUuid(key));
+		QUuid id(key);
+		_scheduler->cancleReminder(id);
+		_notifier->removeNotification(id);
+		removeNotify(id);
 	}
 }
 
