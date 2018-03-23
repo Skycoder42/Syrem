@@ -32,6 +32,8 @@ public slots:
 	void setExpression(const QString &expression);
 
 signals:
+	void close();
+
 	void textChanged(const QString &text);
 	void importantChanged(bool important);
 	void expressionChanged(const QString &expression);

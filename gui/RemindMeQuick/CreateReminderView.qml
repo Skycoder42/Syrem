@@ -10,6 +10,15 @@ AlertDialog {
 	title: qsTr("Create Reminder")
 	property CreateReminderViewModel viewModel: null
 
+	Connections {
+		target: viewModel
+		onClose: {
+			createDialog.close()
+			if(coreApp.isCreateOnly())
+				Qt.quit();
+		}
+	}
+
 	GridLayout {
 		columns: 2
 		width: parent.width
@@ -70,7 +79,13 @@ AlertDialog {
 	standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
 
 	onAccepted: {
-		if(!viewModel.create())
-			createDialog.visible = true;
+		if(viewModel.create())
+			createDialog.enabled = false;
+		createDialog.visible = true;
+	}
+
+	onRejected: {
+		if(coreApp.isCreateOnly())
+			Qt.quit();
 	}
 }

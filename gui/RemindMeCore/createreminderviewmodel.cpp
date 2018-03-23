@@ -1,5 +1,6 @@
 #include "createreminderviewmodel.h"
 #include <QtMvvmCore/Messages>
+#include <QTimer>
 
 CreateReminderViewModel::CreateReminderViewModel(QObject *parent) :
 	ViewModel(parent),
@@ -33,7 +34,14 @@ bool CreateReminderViewModel::create()
 		rem.setImportant(_important);
 		rem.setSchedule(_parser->parseSchedule(_expression));
 
+		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
+				this, [this, rem](const QString &key){
+			if(key == rem.id().toString())
+				emit close();
+		});
+
 		_store->save(rem);
+		QTimer::singleShot(5000, this, &CreateReminderViewModel::close);
 		return true;
 	} catch(DateParserException &e) {
 		QtMvvm::critical(tr("Failed to create reminder"), e.qWhat());

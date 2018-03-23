@@ -39,6 +39,8 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 							  });
 
 	_proxyModel->setSourceModel(_viewModel->reminderModel());
+	_sortModel->setSortLocaleAware(true);
+	_sortModel->setSortRole(Qt::UserRole + 1);
 	_sortModel->setSourceModel(_proxyModel);
 	_ui->treeView->setModel(_sortModel);
 	_ui->treeView->sortByColumn(1, Qt::AscendingOrder);
@@ -201,7 +203,9 @@ void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 	addMapping(0, Qt::DecorationRole, "important");
 	addMapping(0, Qt::DisplayRole, "description");
 	addMapping(0, Qt::ToolTipRole, "description");
+	addMapping(0, Qt::UserRole + 1, "description");
 	addMapping(1, Qt::DisplayRole, "current");
 	addMapping(1, Qt::DecorationRole, "triggerState");
 	addMapping(1, Qt::ToolTipRole, "triggerState");
+	addMapping(1, Qt::UserRole + 1, "current");
 }

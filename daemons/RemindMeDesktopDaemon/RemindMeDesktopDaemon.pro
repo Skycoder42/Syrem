@@ -66,7 +66,10 @@ linux {
 	install_service.files += $$OUT_PWD/remind-me.service
 	install_service.CONFIG += no_check_exist
 	install_service.path = $$INSTALL_LIBS/systemd/user/
-	INSTALLS += install_service
+	install_icons.files += ../../icon/remindme.svg
+	kde_notifier: install_icons.files += ../../icon/remindme-error.svg
+	install_icons.path = $$INSTALL_SHARE/icons/hicolor/scalable/apps
+	INSTALLS += install_service install_icons
 }
 kde_notifier {
 	notify_install.path = $$INSTALL_SHARE/knotifications5/

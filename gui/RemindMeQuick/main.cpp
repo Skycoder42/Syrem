@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QtMvvmQuick/QuickPresenter>
 #include <QtMvvmDataSyncQuick/qtmvvmdatasyncquick_global.h>
 #include <remindmeapp.h>
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
 	qPres->inputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qtmvvm/inputs/SnoozeTimesEdit.qml"));
 
 	QQmlApplicationEngine engine;
+	engine.rootContext()->setContextProperty(QStringLiteral("coreApp"), coreApp);
 	engine.load(QUrl(QStringLiteral("qrc:/qml/App.qml")));
 	if (engine.rootObjects().isEmpty())
 		return -1;

@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <chrono>
+#include <QCoreApplication>
 using namespace QtDataSync;
 
 Q_LOGGING_CATEGORY(manager, "manager")

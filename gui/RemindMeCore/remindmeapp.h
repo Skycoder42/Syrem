@@ -12,6 +12,8 @@ class RemindMeApp : public QtMvvm::CoreApp
 public:
 	explicit RemindMeApp(QObject *parent = nullptr);
 
+	Q_INVOKABLE bool isCreateOnly() const;
+
 protected:
 	void performRegistrations() override;
 	int startApp(const QStringList &arguments) override;
@@ -21,6 +23,7 @@ private Q_SLOTS:
 
 private:
 	DaemonController *_daemon;
+	bool _createOnly;
 };
 
 #undef coreApp

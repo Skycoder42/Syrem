@@ -25,6 +25,10 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	QtMvvm::bind(_viewModel, "important",
 				 _ui->importantCheckBox, "checked",
 				 QtMvvm::Binding::OneWayToViewModel);
+	connect(_viewModel, &CreateReminderViewModel::close,
+			this, [this](){
+		QDialog::accept();
+	});
 
 	if(LocalSettings::instance()->gui.createreminderdialog.size.isSet())
 		resize(LocalSettings::instance()->gui.createreminderdialog.size);
@@ -41,7 +45,7 @@ void CreateReminderDialog::accept()
 {
 	_ui->buttonBox->setEnabled(false);
 	if(_viewModel->create())
-		QDialog::accept();
+		setEnabled(false);
 	else
 		_ui->buttonBox->setEnabled(true);
 }

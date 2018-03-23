@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QtMvvmCore/ServiceRegistry>
 
+#include <QTimer>
 #include <remindmelib.h>
 
 #include "mainviewmodel.h"
@@ -15,7 +16,8 @@
 
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
-	_daemon(nullptr)
+	_daemon(nullptr),
+	_createOnly(false)
 {
 	QCoreApplication::setApplicationName(QStringLiteral("remind-me"));
 	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
@@ -23,6 +25,11 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QGuiApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
+}
+
+bool RemindMeApp::isCreateOnly() const
+{
+	return _createOnly;
 }
 
 void RemindMeApp::performRegistrations()
@@ -95,9 +102,10 @@ int RemindMeApp::startApp(const QStringList &arguments)
 								  Q_ARG(bool, parser.isSet(QStringLiteral("important"))),
 								  Q_ARG(QString, parser.positionalArguments()[0]),
 								  Q_ARG(QString, parser.positionalArguments()[1]));
-	} else if(parser.isSet(QStringLiteral("create")))
+	} else if(parser.isSet(QStringLiteral("create"))) {
+		_createOnly = true;
 		show<CreateReminderViewModel>();
-	else if(parser.isSet(QStringLiteral("select")))
+	} else if(parser.isSet(QStringLiteral("select")))
 		show<MainViewModel>(MainViewModel::showParams(QUuid(parser.value(QStringLiteral("select")))));
 	else
 		show<MainViewModel>();
@@ -115,18 +123,24 @@ void RemindMeApp::createReminderInline(bool important, const QString &descriptio
 {
 	try {
 		DateParser* parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
-		ReminderStore store;
+		auto store = new ReminderStore();
 
 		Reminder reminder;
 		reminder.setImportant(important);
 		reminder.setDescription(description);
 		reminder.setSchedule(parser->parseSchedule(when));
 
-		store.save(reminder);
+		connect(store, &QtDataSync::DataTypeStoreBase::dataChanged,
+				this, [reminder](const QString &id){
+			if(id == reminder.id().toString())
+				qApp->quit();
+		});
+
+		store->save(reminder);
 		qInfo().noquote() << tr("Successfully created reminder. Next trigger at:")
 						  << reminder.current().toString(Qt::DefaultLocaleLongDate);
 
-		QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+		QTimer::singleShot(5000, qApp, &QCoreApplication::quit);
 		return;
 	} catch(DateParserException &e) {
 		qCritical().noquote() << tr("Invalid <when> date:") << e.what();
