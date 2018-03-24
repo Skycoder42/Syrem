@@ -11,7 +11,6 @@ DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 HEADERS += \
 	remindmeapp.h \
 	mainviewmodel.h \
-	daemoncontroller.h \
 	createreminderviewmodel.h \
 	snoozeviewmodel.h \
 	datasyncsettingsviewmodel.h
@@ -19,10 +18,14 @@ HEADERS += \
 SOURCES += \
 	remindmeapp.cpp \
 	mainviewmodel.cpp \
-	daemoncontroller.cpp \
 	createreminderviewmodel.cpp \
 	snoozeviewmodel.cpp \
 	datasyncsettingsviewmodel.cpp
+
+!android {
+	HEADERS += daemoncontroller.h
+	SOURCES += daemoncontroller.cpp
+}
 
 RESOURCES += \
 	remindmecore.qrc

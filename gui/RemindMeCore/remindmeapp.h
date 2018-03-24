@@ -3,7 +3,9 @@
 
 #include <QtMvvmCore/CoreApp>
 
+#ifndef Q_OS_ANDROID
 #include "daemoncontroller.h"
+#endif
 
 class RemindMeApp : public QtMvvm::CoreApp
 {
@@ -22,7 +24,9 @@ private Q_SLOTS:
 	void createReminderInline(bool important, const QString &description, const QString &when);
 
 private:
+#ifndef Q_OS_ANDROID
 	DaemonController *_daemon;
+#endif
 	bool _createOnly;
 };
 

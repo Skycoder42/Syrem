@@ -13,7 +13,7 @@ SOURCES += main.cpp \
 	androidscheduler.cpp \
 	remindmeservice.cpp
 
-RESOURCES += remindmeandroiddaemon.qrc
+RESOURCES +=
 
 # link against main lib
 include(../../lib.pri)

@@ -16,7 +16,9 @@
 
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
+#ifndef Q_OS_ANDROID
 	_daemon(nullptr),
+#endif
 	_createOnly(false)
 {
 	QCoreApplication::setApplicationName(QStringLiteral("remind-me"));
@@ -72,12 +74,14 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	if(!autoParse(parser, arguments))
 		return EXIT_SUCCESS;
 
+#ifndef Q_OS_ANDROID
 	// start the daemon
 	_daemon = new DaemonController(this);
 	_daemon->ensureStarted();
 #ifndef QT_NO_DEBUG
 	connect(qApp, &QGuiApplication::aboutToQuit,
 			_daemon, &DaemonController::stop);
+#endif
 #endif
 
 	// create datasync etc
