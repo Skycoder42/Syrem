@@ -102,10 +102,9 @@ int RemindMeApp::startApp(const QStringList &arguments)
 			warn = false;
 		}
 
-		QMetaObject::invokeMethod(this, "createReminderInline", Qt::QueuedConnection,
-								  Q_ARG(bool, parser.isSet(QStringLiteral("important"))),
-								  Q_ARG(QString, parser.positionalArguments()[0]),
-								  Q_ARG(QString, parser.positionalArguments()[1]));
+		createReminderInline(parser.isSet(QStringLiteral("important")),
+							 parser.positionalArguments()[0],
+							 parser.positionalArguments()[1]);
 	} else if(parser.isSet(QStringLiteral("create"))) {
 		_createOnly = true;
 		show<CreateReminderViewModel>();

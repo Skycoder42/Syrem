@@ -38,9 +38,14 @@ public class Globals {
 	public static final String ErrorChannelId = "de.skycoder42.remindme.channel.error";
 	public static final String ForegroundChannelId = "de.skycoder42.remindme.channel.foreground";
 
-	private static final String ExtraId = "id";
-	private static final String ExtraVersion = "versionCode";
-	private static final String ExtraImportant = "important";
+	public static final String ExtraId = "id";
+	public static final String ExtraVersion = "versionCode";
+	public static final String ExtraImportant = "important";
+	public static final String ExtraSnoozeTime = "snoozeTime";
+
+	public static boolean isOreo() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+	}
 
 	public static PendingIntent createPending(Context context, Actions action, String remId, int versionCode) {
 		return createPending(context, action, remId, versionCode, false);
@@ -62,9 +67,9 @@ public class Globals {
 			intent.putExtra(ExtraImportant, important);
 		}
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-			return PendingIntent.getService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		else
+		if (isOreo())
 			return PendingIntent.getForegroundService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		else
+			return PendingIntent.getService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 	}
 }

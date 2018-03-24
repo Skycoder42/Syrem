@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QProcess>
 
-#if (!defined(QT_NO_DEBUG) || !defined(Q_OS_LINUX)
+#if !defined(QT_NO_DEBUG) || !defined(Q_OS_LINUX)
 #define NEEDS_QPROCESS
 #endif
 

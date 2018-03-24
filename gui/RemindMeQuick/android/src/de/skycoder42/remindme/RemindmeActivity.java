@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.ComponentName;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -51,7 +50,7 @@ public class RemindmeActivity extends QtActivity {
 	}
 
 	private void createChannels() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+		if (!Globals.isOreo())
 			return;
 
 		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

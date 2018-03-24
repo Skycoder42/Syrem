@@ -34,7 +34,6 @@ kde_notifier {
 		kdesnoozedialog.h
 	SOURCES += kdenotifier.cpp \
 		kdesnoozedialog.cpp
-	DISTFILES +=
 } else {
 	HEADERS += widgetsnotifier.h \
 		widgetssnoozedialog.h

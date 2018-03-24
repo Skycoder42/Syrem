@@ -1,4 +1,9 @@
 #include "remindmeservice.h"
+#include <QtAndroid>
+
+QMutex RemindmeService::_runMutex;
+QPointer<RemindmeService> RemindmeService::_runInstance = nullptr;
+QList<RemindmeService::Intent> RemindmeService::_currentIntents;
 
 RemindmeService::RemindmeService(QObject *parent) :
 	QObject(parent),
@@ -24,6 +29,7 @@ bool RemindmeService::startService()
 		_manager = new QtDataSync::SyncManager(this);
 		_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
 			qDebug() << "Synchronization completed in state" << state;
+			handleAllIntents();
 		});
 
 		qInfo() << "service successfully started";
@@ -31,6 +37,16 @@ bool RemindmeService::startService()
 	} catch(QException &e) {
 		qCritical() << e.what();
 		return false;
+	}
+}
+
+void RemindmeService::handleIntent(const Intent &intent)
+{
+	QMutexLocker locker(&_runMutex);
+	_currentIntents.append(intent);
+	if(_runInstance) {
+		QMetaObject::invokeMethod(_runInstance, "handleAllIntents", Qt::QueuedConnection);
+		_runInstance = nullptr;//set to null again, this way only 1 queued invokation is done
 	}
 }
 
@@ -45,4 +61,47 @@ void RemindmeService::dataChanged(const QString &key, const QVariant &value)
 		QUuid id(key);
 		_scheduler->cancleReminder(id);
 	}
+}
+
+void RemindmeService::handleAllIntents()
+{
+	QMutexLocker locker(&_runMutex);
+	//Set self as instance to accept further intents
+	_runInstance = this;
+	if(_currentIntents.isEmpty())
+		return;
+
+	for(auto intent : _currentIntents)
+		qDebug() << intent.action << intent.reminderId << intent.versionCode << intent.result;
+	_currentIntents.clear();
+
+	QMetaObject::invokeMethod(this, "tryQuit", Qt::QueuedConnection);
+}
+
+void RemindmeService::tryQuit()
+{
+	_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
+		//if new intents have been added - postpone the quitting
+		QMutexLocker locker(&_runMutex);
+		if(!_currentIntents.isEmpty())
+			return;
+
+		qDebug() << "Synchronization result right before stopping service:" << state;
+		auto service = QtAndroid::androidService();
+		service.callMethod<void>("completeAction");
+	});
+}
+
+extern "C" {
+
+JNIEXPORT void JNICALL Java_de_skycoder42_remindme_RemindmeService_handleIntent(JNIEnv */*env*/, jobject /*obj*/, jstring action, jstring id, jint versionCode, jstring resultExtra)
+{
+	RemindmeService::handleIntent({
+									  QAndroidJniObject(action).toString(),
+									  QUuid(QAndroidJniObject(id).toString()),
+									  (quint32)versionCode,
+									  QAndroidJniObject(resultExtra).toString()
+								  });
+}
+
 }

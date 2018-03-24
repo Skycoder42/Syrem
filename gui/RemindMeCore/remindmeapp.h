@@ -20,14 +20,13 @@ protected:
 	void performRegistrations() override;
 	int startApp(const QStringList &arguments) override;
 
-private Q_SLOTS:
-	void createReminderInline(bool important, const QString &description, const QString &when);
-
 private:
 #ifndef Q_OS_ANDROID
 	DaemonController *_daemon;
 #endif
 	bool _createOnly;
+
+	void createReminderInline(bool important, const QString &description, const QString &when);
 };
 
 #undef coreApp

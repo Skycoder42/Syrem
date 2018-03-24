@@ -12,6 +12,7 @@
 #include "snoozetimes.h"
 
 #include <syncedsettings.h>
+#include <datasyncsettingsaccessor.h>
 
 void RemindMe::prepareTranslations(const QString &tsName)
 {
@@ -111,6 +112,19 @@ QString RemindMe::whenExpressionHelp()
 
 namespace {
 
+void cleanSettings()
+{
+	try {
+		//WORKAROUND for settings destruction bug
+		auto accessor = dynamic_cast<DataSyncSettingsAccessor*>(SyncedSettings::instance()->accessor());
+		if(accessor)
+			delete accessor;
+		qDebug() << "Cleaned settings";
+	} catch(QException &e) {
+		qCritical() << "Failed to clean settings:" << e.what();
+	}
+}
+
 void setupRemindMeLib()
 {
 	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
@@ -141,6 +155,8 @@ void setupRemindMeLib()
 	});
 
 	QtMvvm::ServiceRegistry::instance()->registerObject<DateParser>();
+
+	qAddPostRoutine(cleanSettings);
 }
 
 }
