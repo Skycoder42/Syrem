@@ -8,6 +8,7 @@ import android.os.Binder;
 import android.os.Bundle;
 
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
@@ -17,8 +18,6 @@ import org.qtproject.qt5.android.bindings.QtService;
 import android.util.Log;
 
 public class RemindmeService extends QtService {
-	private static final int ForegroundId = 40;
-
 	private class ServiceCommand implements Runnable {
 		@Override public void run() {
 			RemindmeService.this.createQt();
@@ -31,12 +30,26 @@ public class RemindmeService extends QtService {
 	@Override
 	public void onCreateHook() {
 		runThread = new Thread(new ServiceCommand());
+		runThread.setDaemon(true);
 		runThread.start();
+		try {
+			runThread.join(2500);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void createQt() {
+		Log.d("RemindmeService", "createQt");
 		super.onCreateHook();
-		Log.i("RemindmeService", "super.onCreateHook() finally returned");
+		Log.d("RemindmeService", "super.onCreateHook() finally returned");
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		// explicitly exit to prevent the process from beeing cached
+		System.exit(0);
 	}
 
 	@Override
@@ -54,6 +67,7 @@ public class RemindmeService extends QtService {
 			.setContentInfo(getString(R.string.app_name))
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
+			.setColor(Color.YELLOW)
 			.setLocalOnly(true)
 			.setOngoing(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER);
@@ -61,7 +75,7 @@ public class RemindmeService extends QtService {
 		if (!Globals.isOreo())
 			builder.setPriority(NotificationCompat.PRIORITY_MIN);
 
-		startForeground(ForegroundId, builder.build());
+		startForeground(Globals.ForegroundId, builder.build());
 		if(intent != null)
 			handleIntent(intent);
 

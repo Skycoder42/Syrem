@@ -11,10 +11,9 @@ import android.app.PendingIntent;
 
 public class Globals {
 	public static enum Actions {
-		ActionScheduler(21, "de.skycoder42.remindme.ActionScheduler")/*,
-		ActionComplete(22, "de.skycoder42.remindme.ActionComplete"),
-		ActionDismiss(23, "de.skycoder42.remindme.ActionDismiss"),
-		ActionSnooze(24, "de.skycoder42.remindme.ActionSnooze")*/;
+		ActionScheduler(21, "de.skycoder42.remindme.Action.Scheduler"),
+		ActionComplete(22, "de.skycoder42.remindme.Action.Complete"),
+		ActionSnooze(23, "de.skycoder42.remindme.Action.Snooze");
 
 		private int id;
 		private String action;
@@ -33,25 +32,30 @@ public class Globals {
 		}
 	}
 
+	// notifications channels
 	public static final String NormalChannelId = "de.skycoder42.remindme.channel.normal";
 	public static final String ImportantChannelId = "de.skycoder42.remindme.channel.important";
 	public static final String ErrorChannelId = "de.skycoder42.remindme.channel.error";
 	public static final String ForegroundChannelId = "de.skycoder42.remindme.channel.foreground";
 
+	// intent extras
 	public static final String ExtraId = "id";
 	public static final String ExtraVersion = "versionCode";
-	public static final String ExtraImportant = "important";
 	public static final String ExtraSnoozeTime = "snoozeTime";
+
+	// intent ids
+	public static final int OpenActivityId = 31;
+
+	// notifications IDs
+	public static final int ForegroundId = 41;
+	public static final int NotifyId = 42;
+	public static final int ErrorNotifyId = 43;
 
 	public static boolean isOreo() {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
 	}
 
 	public static PendingIntent createPending(Context context, Actions action, String remId, int versionCode) {
-		return createPending(context, action, remId, versionCode, false);
-	}
-
-	public static PendingIntent createPending(Context context, Actions action, String remId, int versionCode, boolean important) {
 		Uri uri = null;
 		if(remId != null) {
 			uri = new Uri.Builder()
@@ -64,9 +68,9 @@ public class Globals {
 		if (remId != null) {
 			intent.putExtra(ExtraId, remId);
 			intent.putExtra(ExtraVersion, versionCode);
-			intent.putExtra(ExtraImportant, important);
 		}
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+
 		if (isOreo())
 			return PendingIntent.getForegroundService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		else

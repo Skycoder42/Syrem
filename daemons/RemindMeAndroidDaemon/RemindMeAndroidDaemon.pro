@@ -7,11 +7,13 @@ QT += androidextras
 
 HEADERS += \
 	androidscheduler.h \
-	remindmeservice.h
+	remindmeservice.h \
+    androidnotifier.h
 
 SOURCES += main.cpp \
 	androidscheduler.cpp \
-	remindmeservice.cpp
+	remindmeservice.cpp \
+    androidnotifier.cpp
 
 RESOURCES +=
 

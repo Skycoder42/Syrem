@@ -8,6 +8,7 @@
 #include <remindmelib.h>
 
 #include "androidscheduler.h"
+#include "androidnotifier.h"
 
 class RemindmeService : public QObject
 {
@@ -33,11 +34,16 @@ private slots:
 	void handleAllIntents();
 	void tryQuit();
 
+	void actionSchedule(const QUuid &id, quint32 versionCode);
+
 private:
+	static const QString ActionScheduler;
+
 	ReminderStore *_store;
 	QtDataSync::SyncManager *_manager;
 
 	AndroidScheduler *_scheduler;
+	AndroidNotifier *_notifier;
 
 	static QMutex _runMutex;
 	static QPointer<RemindmeService> _runInstance;

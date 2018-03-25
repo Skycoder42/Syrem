@@ -20,7 +20,7 @@ bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 	auto remKey = reminder.id().toString();
 	if(reminder.current() <= QDateTime::currentDateTime()) {
 		cancleReminder(reminder.id());//better save then sorry -> cancle if already scheduled
-		return false;
+		return false; //only return false here to indicate the reminder is already triggered
 	}
 	auto trigger = reminder.current();
 	int delay = 0;

@@ -10,7 +10,6 @@
 	<string name="not_err_name">Reminder Error</string>
 	<string name="not_complete">Complete</string>
 	<string name="not_snooze">Snooze</string>
-	<string name="not_snooze_inline">Snooze until…</string>
 	<string name="not_snooze_label">Enter a snooze time</string>
 
 	<string name="channel_nrm_name">Normal Reminders</string>
