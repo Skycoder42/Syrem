@@ -14,10 +14,30 @@ import android.support.v4.app.RemoteInput;
 
 import org.qtproject.qt5.android.bindings.QtService;
 
+import android.util.Log;
+
 public class RemindmeService extends QtService {
 	private static final int ForegroundId = 40;
 
+	private class ServiceCommand implements Runnable {
+		@Override public void run() {
+			RemindmeService.this.createQt();
+		}
+	}
+
+	private Thread runThread;
 	private final IBinder _binder = new Binder();
+
+	@Override
+	public void onCreateHook() {
+		runThread = new Thread(new ServiceCommand());
+		runThread.start();
+	}
+
+	public void createQt() {
+		super.onCreateHook();
+		Log.i("RemindmeService", "super.onCreateHook() finally returned");
+	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
