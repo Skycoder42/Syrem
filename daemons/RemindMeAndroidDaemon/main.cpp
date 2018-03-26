@@ -1,5 +1,7 @@
 #include <QCoreApplication>
 #include <QtAndroid>
+#include <QSet>
+#include <QUuid>
 #include "remindmeservice.h"
 
 int main(int argc, char *argv[])
@@ -11,6 +13,8 @@ int main(int argc, char *argv[])
 
 	//unlock the semaphore to complete creation
 	QtAndroid::androidService().callMethod<void>("qtReady");
+
+	qRegisterMetaTypeStreamOperators<QSet<QUuid>>();
 
 	RemindmeService service;
 	if(!service.startService())

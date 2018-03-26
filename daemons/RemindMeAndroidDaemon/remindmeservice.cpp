@@ -121,7 +121,7 @@ void RemindmeService::tryQuit()
 		if(!_currentIntents.isEmpty())
 			return;
 
-		//TODO implement LocalSettings::instance()->accessor()->sync();
+		LocalSettings::instance()->accessor()->sync();
 
 		qDebug() << "Synchronization result right before stopping service:" << state;
 		auto service = QtAndroid::androidService();
@@ -217,6 +217,7 @@ void RemindmeService::doSchedule(const Reminder &reminder)
 void RemindmeService::addNotify(const QUuid &id)
 {
 	QSet<QUuid> active = LocalSettings::instance()->service.badgeActive;
+	qDebug() << active;
 	if(!active.contains(id)) {
 		active.insert(id);
 		LocalSettings::instance()->service.badgeActive = active;
@@ -227,6 +228,7 @@ void RemindmeService::addNotify(const QUuid &id)
 void RemindmeService::removeNotify(const QUuid &id)
 {
 	QSet<QUuid> active = LocalSettings::instance()->service.badgeActive;
+	qDebug() << active;
 	if(active.remove(id)) {
 		LocalSettings::instance()->service.badgeActive = active;
 		updateNotificationCount(active.size());
@@ -235,6 +237,7 @@ void RemindmeService::removeNotify(const QUuid &id)
 
 void RemindmeService::updateNotificationCount(int count)
 {
+	qDebug() << "Updating badge count to" << count;
 	QAndroidJniObject::callStaticMethod<jboolean>("me/leolin/shortcutbadger/ShortcutBadger", "applyCount",
 												  "(Landroid/content/Context;I)Z",
 												  QtAndroid::androidContext().object(),
