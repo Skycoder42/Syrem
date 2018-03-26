@@ -59,6 +59,10 @@ private:
 	static QList<Intent> _currentIntents;
 
 	void doSchedule(const Reminder &reminder);
+
+	void addNotify(const QUuid &id);
+	void removeNotify(const QUuid &id);
+	void updateNotificationCount(int count);
 };
 
 #endif // REMINDMESERVICE_H

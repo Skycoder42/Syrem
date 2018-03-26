@@ -2,6 +2,7 @@
 #include <QtAndroid>
 #include <QRemoteObjectReplica>
 #include <QtMvvmCore/ServiceRegistry>
+#include <localsettings.h>
 
 const QString RemindmeService::ActionScheduler { QStringLiteral("de.skycoder42.remindme.Action.Scheduler") };
 const QString RemindmeService::ActionComplete { QStringLiteral("de.skycoder42.remindme.Action.Complete") };
@@ -80,6 +81,7 @@ void RemindmeService::dataChanged(const QString &key, const QVariant &value)
 		QUuid id(key);
 		_scheduler->cancleReminder(id);
 		_notifier->removeNotification(id);
+		removeNotify(id);
 	}
 }
 
@@ -119,6 +121,8 @@ void RemindmeService::tryQuit()
 		if(!_currentIntents.isEmpty())
 			return;
 
+		//TODO implement LocalSettings::instance()->accessor()->sync();
+
 		qDebug() << "Synchronization result right before stopping service:" << state;
 		auto service = QtAndroid::androidService();
 		service.callMethod<void>("completeAction");
@@ -135,6 +139,7 @@ void RemindmeService::actionSchedule(const QUuid &id, quint32 versionCode)
 		}
 
 		_notifier->showNotification(reminder);
+		addNotify(id);
 	} catch(QtDataSync::NoDataException &e) {
 		Q_UNUSED(e)
 		qInfo() << "Skipping notification of deleted reminder" << id;
@@ -191,6 +196,7 @@ void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const Q
 void RemindmeService::actionSetup()
 {
 	try {
+		LocalSettings::instance()->service.badgeActive.reset();
 		auto reminders = _store->loadAll();
 		for(auto reminder : reminders)
 			doSchedule(reminder);
@@ -202,8 +208,37 @@ void RemindmeService::actionSetup()
 void RemindmeService::doSchedule(const Reminder &reminder)
 {
 	_notifier->removeNotification(reminder.id());
-	if(!_scheduler->scheduleReminder(reminder))
+	if(!_scheduler->scheduleReminder(reminder)) {
 		_notifier->showNotification(reminder);
+		addNotify(reminder.id());
+	}
+}
+
+void RemindmeService::addNotify(const QUuid &id)
+{
+	QSet<QUuid> active = LocalSettings::instance()->service.badgeActive;
+	if(!active.contains(id)) {
+		active.insert(id);
+		LocalSettings::instance()->service.badgeActive = active;
+		updateNotificationCount(active.size());
+	}
+}
+
+void RemindmeService::removeNotify(const QUuid &id)
+{
+	QSet<QUuid> active = LocalSettings::instance()->service.badgeActive;
+	if(active.remove(id)) {
+		LocalSettings::instance()->service.badgeActive = active;
+		updateNotificationCount(active.size());
+	}
+}
+
+void RemindmeService::updateNotificationCount(int count)
+{
+	QAndroidJniObject::callStaticMethod<jboolean>("me/leolin/shortcutbadger/ShortcutBadger", "applyCount",
+												  "(Landroid/content/Context;I)Z",
+												  QtAndroid::androidContext().object(),
+												  (jint)count);
 }
 
 extern "C" {

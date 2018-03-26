@@ -11,3 +11,6 @@ A simple reminder application for desktop and mobile, with synchronized reminder
 - Icons made by <a href="https://www.flaticon.com/authors/roundicons" title="Roundicons">Roundicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
 - http://www.fatcow.com/free-icons
 - https://material.io/icons/
+
+## Android libraries
+- https://github.com/leolin310148/ShortcutBadger
