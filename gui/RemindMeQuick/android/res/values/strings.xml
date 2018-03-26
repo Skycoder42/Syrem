@@ -5,6 +5,9 @@
 	<string name="svc_name">Remind-Me Service</string>
 	<string name="svc_desc">Synchronizing Reminders…</string>
 
+	<string name="shortcut_label_short">Create Reminder</string>
+	<string name="shortcut_label_long">Create a new Reminder</string>
+
 	<string name="not_nrm_name">Reminder</string>
 	<string name="not_imp_name">Important Reminder</string>
 	<string name="not_err_name">Reminder Error</string>

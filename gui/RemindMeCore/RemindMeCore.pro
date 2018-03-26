@@ -1,6 +1,7 @@
 TEMPLATE = lib
 
 QT += mvvmcore mvvmdatasynccore
+android: QT += androidextras
 CONFIG += static
 
 TARGET = RemindMeCore

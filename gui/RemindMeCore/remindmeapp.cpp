@@ -7,8 +7,11 @@
 #include <QTranslator>
 #include <QDebug>
 #include <QtMvvmCore/ServiceRegistry>
-
 #include <QTimer>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
+
 #include <remindmelib.h>
 
 #include "mainviewmodel.h"
@@ -89,6 +92,12 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	RemindMe::setup(setup);
 	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 3000);
 
+#ifdef Q_OS_ANDROID
+	bool forceCreate = QtAndroid::androidActivity().callMethod<jboolean>("isCreateOnly");
+#else
+	auto forceCreate = false;
+#endif
+
 	//show a viewmodel to complete the startup
 	if(parser.isSet(QStringLiteral("add"))) {
 		if(parser.positionalArguments().size() != 2) {
@@ -105,7 +114,7 @@ int RemindMeApp::startApp(const QStringList &arguments)
 		createReminderInline(parser.isSet(QStringLiteral("important")),
 							 parser.positionalArguments()[0],
 							 parser.positionalArguments()[1]);
-	} else if(parser.isSet(QStringLiteral("create"))) {
+	} else if(parser.isSet(QStringLiteral("create")) || forceCreate) {
 		_createOnly = true;
 		show<CreateReminderViewModel>();
 	} else if(parser.isSet(QStringLiteral("select")))

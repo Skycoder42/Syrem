@@ -1,0 +1,11 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut android:shortcutId="create"
+			  android:enabled="true"
+			  android:icon="@drawable/ic_add_alert_black_48dp"
+			  android:shortcutShortLabel="@string/shortcut_label_short"
+			  android:shortcutLongLabel="@string/shortcut_label_long">
+		<intent android:action="de.skycoder42.remindme.Action.Create"
+				android:targetPackage="de.skycoder42.remindme"
+				android:targetClass="de.skycoder42.remindme.RemindmeActivity" />
+	</shortcut>
+</shortcuts>

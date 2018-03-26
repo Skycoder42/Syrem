@@ -17,7 +17,8 @@ public class Globals {
 		ActionComplete(22, "de.skycoder42.remindme.Action.Complete"),
 		ActionSnooze(23, "de.skycoder42.remindme.Action.Snooze"),
 		ActionRefresh(24, "de.skycoder42.remindme.Action.Refresh"),
-		ActionSetup(25, "de.skycoder42.remindme.Action.Setup");
+		ActionSetup(25, "de.skycoder42.remindme.Action.Setup"),
+		ActionCreate(26, "de.skycoder42.remindme.Action.Create");
 
 		private int id;
 		private String action;

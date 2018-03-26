@@ -16,6 +16,7 @@ import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class RemindmeActivity extends QtActivity {
 
+	private boolean _createOnly;
 	private boolean _isBound;
 	private ServiceConnection _connection = new ServiceConnection() {
 		@Override
@@ -39,12 +40,27 @@ public class RemindmeActivity extends QtActivity {
 	}
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+		Intent intent = getIntent();
+		_createOnly = false;
+		if(intent != null) {
+			if(intent.getAction() == Globals.Actions.ActionCreate.getAction())
+				_createOnly = true;
+		}
+	}
+
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		if (_isBound) {
 			unbindService(_connection);
 			_isBound = false;
 		}
+	}
+
+	public boolean isCreateOnly() {
+		return _createOnly;
 	}
 
 	private void createChannels() {
