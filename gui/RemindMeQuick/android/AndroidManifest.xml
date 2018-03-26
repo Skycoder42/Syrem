@@ -84,6 +84,8 @@
 	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27"/>
 	<supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 	<!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
