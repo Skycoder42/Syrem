@@ -1,6 +1,7 @@
 TEMPLATE = app
 
 QT += quick mvvmquick mvvmdatasyncquick
+android: QT += androidextras
 
 android: TARGET = RemindMeQuick
 else: TARGET = remind-me
@@ -39,8 +40,9 @@ DISTFILES += \
 	android/res/drawable-xxhdpi/* \
 	android/res/drawable-xxxhdpi/* \
 	android/src/de/skycoder42/remindme/Globals.java \
-    android/src/de/skycoder42/remindme/Scheduler.java \
-    android/src/de/skycoder42/remindme/Notifier.java
+	android/src/de/skycoder42/remindme/Scheduler.java \
+	android/src/de/skycoder42/remindme/Notifier.java \
+	android/src/de/skycoder42/remindme/BootReceiver.java
 
 # actual install
 target.path = $$INSTALL_BINS

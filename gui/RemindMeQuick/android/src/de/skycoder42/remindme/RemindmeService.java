@@ -41,6 +41,7 @@ public class RemindmeService extends QtService {
 			runThread.setDaemon(true);
 			runThread.start();
 			semaphore.acquire(1);
+			Scheduler.scheduleAutoCheck(this);
 		} catch(Throwable e) {
 			e.printStackTrace();
 		}

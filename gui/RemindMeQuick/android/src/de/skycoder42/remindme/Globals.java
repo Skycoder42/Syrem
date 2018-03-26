@@ -15,7 +15,9 @@ public class Globals {
 	public static enum Actions {
 		ActionScheduler(21, "de.skycoder42.remindme.Action.Scheduler"),
 		ActionComplete(22, "de.skycoder42.remindme.Action.Complete"),
-		ActionSnooze(23, "de.skycoder42.remindme.Action.Snooze");
+		ActionSnooze(23, "de.skycoder42.remindme.Action.Snooze"),
+		ActionRefresh(24, "de.skycoder42.remindme.Action.Refresh"),
+		ActionSetup(25, "de.skycoder42.remindme.Action.Setup");
 
 		private int id;
 		private String action;

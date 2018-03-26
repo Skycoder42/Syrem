@@ -6,6 +6,8 @@
 const QString RemindmeService::ActionScheduler { QStringLiteral("de.skycoder42.remindme.Action.Scheduler") };
 const QString RemindmeService::ActionComplete { QStringLiteral("de.skycoder42.remindme.Action.Complete") };
 const QString RemindmeService::ActionSnooze { QStringLiteral("de.skycoder42.remindme.Action.Snooze") };
+const QString RemindmeService::ActionRefresh { QStringLiteral("de.skycoder42.remindme.Action.Refresh") };
+const QString RemindmeService::ActionSetup { QStringLiteral("de.skycoder42.remindme.Action.Setup") };
 
 QMutex RemindmeService::_runMutex;
 QPointer<RemindmeService> RemindmeService::_runInstance = nullptr;
@@ -73,9 +75,7 @@ void RemindmeService::dataChanged(const QString &key, const QVariant &value)
 {
 	if(value.isValid()) {
 		auto reminder = value.value<Reminder>();
-		_notifier->removeNotification(reminder.id());
-		if(!_scheduler->scheduleReminder(reminder))
-			_notifier->showNotification(reminder);
+		doSchedule(reminder);
 	} else {
 		QUuid id(key);
 		_scheduler->cancleReminder(id);
@@ -99,6 +99,10 @@ void RemindmeService::handleAllIntents()
 			actionComplete(intent.reminderId, intent.versionCode);
 		else if(intent.action == ActionSnooze)
 			actionSnooze(intent.reminderId, intent.versionCode, intent.result);
+		else if(intent.action == ActionRefresh)
+			qDebug() << "Completed datasync synchronization";
+		else if(intent.action == ActionSetup)
+			actionSetup();
 		else
 			qWarning() << "Received unknown intent action:" << intent.action;
 	}
@@ -182,6 +186,24 @@ void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const Q
 		qCritical() << "Failed to load reminder with id" << id
 					<< "to complete it with error:" << e.what();
 	}
+}
+
+void RemindmeService::actionSetup()
+{
+	try {
+		auto reminders = _store->loadAll();
+		for(auto reminder : reminders)
+			doSchedule(reminder);
+	} catch(QException &e) {
+		qCritical() << "Failed to initially load reminders for setup with error:" << e.what();
+	}
+}
+
+void RemindmeService::doSchedule(const Reminder &reminder)
+{
+	_notifier->removeNotification(reminder.id());
+	if(!_scheduler->scheduleReminder(reminder))
+		_notifier->showNotification(reminder);
 }
 
 extern "C" {

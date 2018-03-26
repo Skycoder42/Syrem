@@ -38,11 +38,14 @@ private slots:
 	void actionSchedule(const QUuid &id, quint32 versionCode);
 	void actionComplete(const QUuid &id, quint32 versionCode);
 	void actionSnooze(const QUuid &id, quint32 versionCode, const QString &expression);
+	void actionSetup();
 
 private:
 	static const QString ActionScheduler;
 	static const QString ActionComplete;
 	static const QString ActionSnooze;
+	static const QString ActionRefresh;
+	static const QString ActionSetup;
 
 	ReminderStore *_store;
 	QtDataSync::SyncManager *_manager;
@@ -54,6 +57,8 @@ private:
 	static QMutex _runMutex;
 	static QPointer<RemindmeService> _runInstance;
 	static QList<Intent> _currentIntents;
+
+	void doSchedule(const Reminder &reminder);
 };
 
 #endif // REMINDMESERVICE_H

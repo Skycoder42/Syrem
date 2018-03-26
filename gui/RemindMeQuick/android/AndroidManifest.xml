@@ -70,14 +70,18 @@
 			<meta-data android:name="android.app.background_running" android:value="true"/>
 		</service>
 
+		<receiver android:name=".BootReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
+
 	</application>
 
 	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27"/>
 	<supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 
-	<!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
-		 Remove the comment if you do not require these default permissions. -->
-	<!-- %%INSERT_PERMISSIONS -->
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 	<!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
 		 Remove the comment if you do not require these default features. -->
