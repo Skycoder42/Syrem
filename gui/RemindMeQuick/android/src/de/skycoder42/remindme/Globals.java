@@ -56,7 +56,7 @@ public class Globals {
 	// colors
 	public static final int ForegroundColor = 0xFF673AB7;
 	public static final int NormalColor = 0xFF673AB7;
-	public static final int ImportantColor = Color.RED;
+	public static final int ImportantColor = 0xFFEF6C00;
 	public static final int ErrorColor = Color.RED;
 
 	public static boolean isOreo() {

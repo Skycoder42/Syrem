@@ -1,5 +1,7 @@
 package de.skycoder42.remindme;
 
+import java.util.concurrent.Semaphore;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -18,24 +20,27 @@ import org.qtproject.qt5.android.bindings.QtService;
 import android.util.Log;
 
 public class RemindmeService extends QtService {
-	private class ServiceCommand implements Runnable {
-		@Override public void run() {
-			RemindmeService.this.createQt();
-		}
-	}
-
 	private Thread runThread;
+	private Semaphore semaphore = new Semaphore(0, true);
+
 	private final IBinder _binder = new Binder();
+
+	public void qtReady() {
+		semaphore.release(1);
+	}
 
 	@Override
 	public void onCreateHook() {
-		runThread = new Thread(new ServiceCommand());
-		runThread.setDaemon(true);
-		runThread.start();
 		try {
-			// TODO ugly, slows down (e.g. the complete part)
-			// BUT was needed because otherwise native call fails...
-			runThread.join(2500);
+			runThread = new Thread(new Runnable() {
+				@Override public void run() {
+					createQt();
+				}
+			});
+
+			runThread.setDaemon(true);
+			runThread.start();
+			semaphore.acquire(1);
 		} catch(Throwable e) {
 			e.printStackTrace();
 		}
@@ -50,6 +55,11 @@ public class RemindmeService extends QtService {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		try {
+			runThread.join(2500);
+		} catch(Throwable e) {
+			e.printStackTrace();
+		}
 		// explicitly exit to prevent the process from beeing cached
 		System.exit(0);
 	}
@@ -87,11 +97,6 @@ public class RemindmeService extends QtService {
 	public void completeAction() {
 		stopForeground(true);
 		stopService(new Intent(this, RemindmeService.class));//Stop myself
-		try {
-			runThread.join(2500);
-		} catch(Throwable e) {
-			e.printStackTrace();
-		}
 	}
 
 	private static native void handleIntent(String action, String remId, int versionCode, String resultExtra);
@@ -101,7 +106,6 @@ public class RemindmeService extends QtService {
 		int versionCode = intent.getIntExtra(Globals.ExtraVersion, 0);
 
 		// cancel complete notifications early for a smoother experience
-		// TODO maybe not needed? -> check again after join removed
 		if(intent.getAction() == Globals.Actions.ActionComplete.getAction())
 			Notifier.cancelExplicitly(this, remId);
 

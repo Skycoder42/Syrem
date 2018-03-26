@@ -23,6 +23,9 @@ public class Notifier {
 	}
 
 	public void notify(String remId, int versionCode, boolean important, CharSequence text, String[] choices) {
+		notify(remId, versionCode, important, text, choices, false);
+	}
+	public void notify(String remId, int versionCode, boolean important, CharSequence text, String[] choices, boolean isError) {
 		NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		Intent activityIntent = new Intent(context, RemindmeActivity.class);
@@ -39,7 +42,7 @@ public class Notifier {
 				.bigText(text))
 			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
-			.setColor(important ? Globals.ImportantColor : Globals.NormalColor)
+			.setColor(isError ? Globals.ErrorColor : (important ? Globals.ImportantColor : Globals.NormalColor))
 			.setOnlyAlertOnce(true)
 			.setShowWhen(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)

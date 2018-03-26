@@ -27,23 +27,22 @@ void AndroidNotifier::showParserError(const Reminder &reminder, const QString &e
 	//build the choices
 	QAndroidJniEnvironment env;
 	auto choices = createSnoozeArray(env);
-	auto text = tr("<p>%1</p>"
-				   "<p><b>Error – Invalid expression:</b><br/>"
-				   "<i>%2</i></p>")
+	auto text = tr("<p>%1</p>%2")
 				.arg(reminder.description().toHtmlEscaped())
-				.arg(errorText.toHtmlEscaped());
+				.arg(errorText);
 	auto htmlText = QAndroidJniObject::callStaticObjectMethod("android/text/Html", "fromHtml",
 															  "(Ljava/lang/String;I)Landroid/text/Spanned;",
 															  QAndroidJniObject::fromString(text).object(),
 															  (jint)0);
 
 	//TODO turn notification red as well
-	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;)V",
+	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;Z)V",
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
 								(jint)reminder.versionCode(),
 								(jboolean)reminder.isImportant(),
 								htmlText.object(),
-								choices.object());
+								choices.object(),
+								(jboolean)true);
 }
 
 void AndroidNotifier::removeNotification(const QUuid &id)
