@@ -35,7 +35,6 @@ void AndroidNotifier::showParserError(const Reminder &reminder, const QString &e
 															  QAndroidJniObject::fromString(text).object(),
 															  (jint)0);
 
-	//TODO turn notification red as well
 	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;Z)V",
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
 								(jint)reminder.versionCode(),

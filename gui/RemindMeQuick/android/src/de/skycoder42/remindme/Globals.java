@@ -54,9 +54,9 @@ public class Globals {
 	public static final int ErrorNotifyId = 43;
 
 	// colors
-	public static final int ForegroundColor = 0xFF673AB7;
-	public static final int NormalColor = 0xFF673AB7;
-	public static final int ImportantColor = 0xFFEF6C00;
+	public static final int ForegroundColor = 0xFF673AB7; // violett
+	public static final int NormalColor = 0xFF673AB7; // violett
+	public static final int ImportantColor = 0xFFEF6C00; // orange
 	public static final int ErrorColor = Color.RED;
 
 	public static boolean isOreo() {

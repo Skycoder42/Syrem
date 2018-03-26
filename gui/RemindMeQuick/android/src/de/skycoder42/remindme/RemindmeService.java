@@ -56,7 +56,7 @@ public class RemindmeService extends QtService {
 	public void onDestroy() {
 		super.onDestroy();
 		try {
-			runThread.join(2500);
+			runThread.join(500);
 		} catch(Throwable e) {
 			e.printStackTrace();
 		}
