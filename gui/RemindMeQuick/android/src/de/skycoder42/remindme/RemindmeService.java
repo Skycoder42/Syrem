@@ -33,8 +33,10 @@ public class RemindmeService extends QtService {
 		runThread.setDaemon(true);
 		runThread.start();
 		try {
+			// TODO ugly, slows down (e.g. the complete part)
+			// BUT was needed because otherwise native call fails...
 			runThread.join(2500);
-		} catch(InterruptedException e) {
+		} catch(Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -67,7 +69,7 @@ public class RemindmeService extends QtService {
 			.setContentInfo(getString(R.string.app_name))
 			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
-			.setColor(Color.YELLOW)
+			.setColor(Globals.ForegroundColor)
 			.setLocalOnly(true)
 			.setOngoing(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER);
@@ -85,6 +87,11 @@ public class RemindmeService extends QtService {
 	public void completeAction() {
 		stopForeground(true);
 		stopService(new Intent(this, RemindmeService.class));//Stop myself
+		try {
+			runThread.join(2500);
+		} catch(Throwable e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static native void handleIntent(String action, String remId, int versionCode, String resultExtra);
@@ -93,12 +100,17 @@ public class RemindmeService extends QtService {
 		String remId = intent.getStringExtra(Globals.ExtraId);
 		int versionCode = intent.getIntExtra(Globals.ExtraVersion, 0);
 
+		// cancel complete notifications early for a smoother experience
+		// TODO maybe not needed? -> check again after join removed
+		if(intent.getAction() == Globals.Actions.ActionComplete.getAction())
+			Notifier.cancelExplicitly(this, remId);
+
 		String resultExtra = null;
-//		if(intent.getAction() == Globals.Actions.ActionSnooze.getAction()) {
-//			Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-//			if(remoteInput != null)
-//				resultExtra = remoteInput.getCharSequence(Globals.ExtraSnoozeTime).toString();
-//		}
+		if(intent.getAction() == Globals.Actions.ActionSnooze.getAction()) {
+			Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+			if(remoteInput != null)
+				resultExtra = remoteInput.getCharSequence(Globals.ExtraSnoozeTime).toString();
+		}
 
 		handleIntent(intent.getAction(), remId, versionCode, resultExtra);
 	}

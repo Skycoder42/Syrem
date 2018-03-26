@@ -22,7 +22,7 @@ public class Notifier {
 		this.context = context;
 	}
 
-	public void notify(String remId, int versionCode, boolean important, String text, String[] choices) {
+	public void notify(String remId, int versionCode, boolean important, CharSequence text, String[] choices) {
 		NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		Intent activityIntent = new Intent(context, RemindmeActivity.class);
@@ -39,9 +39,8 @@ public class Notifier {
 				.bigText(text))
 			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
-			.setColor(Color.YELLOW)
+			.setColor(important ? Globals.ImportantColor : Globals.NormalColor)
 			.setOnlyAlertOnce(true)
-			.setAutoCancel(false)
 			.setShowWhen(true)
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)
 			.setGroup(important ? "important" : "normal")
@@ -52,20 +51,22 @@ public class Notifier {
 
 		if (Globals.isOreo()) {
 			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze_black_24dp,
-					context.getString(R.string.not_snooze),
-					Globals.createPending(context, Globals.Actions.ActionSnooze, remId, versionCode))
-				.addRemoteInput(new RemoteInput.Builder(Globals.ExtraSnoozeTime)
-					.setLabel(context.getString(R.string.not_snooze_label))
-					.setAllowFreeFormInput(true)
-					.setChoices(choices)
-					.build())
-				.build());
+						context.getString(R.string.not_snooze),
+						Globals.createPending(context, Globals.Actions.ActionSnooze, remId, versionCode))
+					.addRemoteInput(new RemoteInput.Builder(Globals.ExtraSnoozeTime)
+						.setLabel(context.getString(R.string.not_snooze_label))
+						.setAllowFreeFormInput(true)
+						.setChoices(choices)
+						.build())
+					.build());
 		} else {
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
 				.setPriority(important ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT)
-				.addAction(R.drawable.ic_snooze_black_24dp,
+				.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze_black_24dp,
 						context.getString(R.string.not_snooze),
-						activityPending);
+						activityPending)
+//					.setShowsUserInterface(true)
+					.build());
 		}
 
 		Notification notification = builder.build();
@@ -75,9 +76,13 @@ public class Notifier {
 		manager.notify(remId, Globals.NotifyId, notification);
 	}
 
-	public void cancel(String id) {
+	public static void cancelExplicitly(Context context, String id) {
 		NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		manager.cancel(id, Globals.NotifyId);
+	}
+
+	public void cancel(String id) {
+		cancelExplicitly(context, id);
 	}
 
 	public void notifyError(String text) {

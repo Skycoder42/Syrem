@@ -1,7 +1,11 @@
 #include "remindmeservice.h"
 #include <QtAndroid>
+#include <QRemoteObjectReplica>
+#include <QtMvvmCore/ServiceRegistry>
 
 const QString RemindmeService::ActionScheduler { QStringLiteral("de.skycoder42.remindme.Action.Scheduler") };
+const QString RemindmeService::ActionComplete { QStringLiteral("de.skycoder42.remindme.Action.Complete") };
+const QString RemindmeService::ActionSnooze { QStringLiteral("de.skycoder42.remindme.Action.Snooze") };
 
 QMutex RemindmeService::_runMutex;
 QPointer<RemindmeService> RemindmeService::_runInstance = nullptr;
@@ -11,6 +15,7 @@ RemindmeService::RemindmeService(QObject *parent) :
 	QObject(parent),
 	_store(nullptr),
 	_manager(nullptr),
+	_parser(nullptr),
 	_scheduler(new AndroidScheduler(this)),
 	_notifier(new AndroidNotifier(this))
 {}
@@ -25,15 +30,26 @@ bool RemindmeService::startService()
 		RemindMe::setup(setup);
 		setup.create();
 
+		_parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
+
 		_store = new ReminderStore(this);
 		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
 				this, &RemindmeService::dataChanged);
 
 		_manager = new QtDataSync::SyncManager(this);
-		_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
-			qDebug() << "Synchronization completed in state" << state;
-			handleAllIntents();
-		});
+		auto runFn = [this](){
+			_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
+				qDebug() << "Synchronization completed in state" << state;
+				handleAllIntents();
+			});
+		};
+
+		if(_manager->replica()->isInitialized())
+			runFn();
+		else {
+			connect(_manager->replica(), &QRemoteObjectReplica::initialized,
+					this, runFn);
+		}
 
 		qInfo() << "service successfully started";
 		return true;
@@ -57,11 +73,13 @@ void RemindmeService::dataChanged(const QString &key, const QVariant &value)
 {
 	if(value.isValid()) {
 		auto reminder = value.value<Reminder>();
+		_notifier->removeNotification(reminder.id());
 		if(!_scheduler->scheduleReminder(reminder))
 			_notifier->showNotification(reminder);
 	} else {
 		QUuid id(key);
 		_scheduler->cancleReminder(id);
+		_notifier->removeNotification(id);
 	}
 }
 
@@ -77,6 +95,10 @@ void RemindmeService::handleAllIntents()
 	for(auto intent : _currentIntents) {
 		if(intent.action == ActionScheduler)
 			actionSchedule(intent.reminderId, intent.versionCode);
+		else if(intent.action == ActionComplete)
+			actionComplete(intent.reminderId, intent.versionCode);
+		else if(intent.action == ActionSnooze)
+			actionSnooze(intent.reminderId, intent.versionCode, intent.result);
 		else
 			qWarning() << "Received unknown intent action:" << intent.action;
 	}
@@ -116,6 +138,49 @@ void RemindmeService::actionSchedule(const QUuid &id, quint32 versionCode)
 		qCritical() << "Failed to load reminder with id" << id
 					<< "to show a notification with error:" << e.what();
 		_notifier->showErrorMessage(tr("Failed to load details of triggered reminder!"));
+	}
+}
+
+void RemindmeService::actionComplete(const QUuid &id, quint32 versionCode)
+{
+	try {
+		auto reminder = _store->load(id);
+		if(reminder.versionCode() != versionCode) {
+			qInfo() << "Skipping completing of changed reminder" << id;
+			return;
+		}
+		reminder.nextSchedule(_store->store(), QDateTime::currentDateTime());
+	} catch(QtDataSync::NoDataException &e) {
+		Q_UNUSED(e)
+		qInfo() << "Skipping completing of deleted reminder" << id;
+	} catch(QException &e) {
+		qCritical() << "Failed to load reminder with id" << id
+					<< "to complete it with error:" << e.what();
+	}
+}
+
+void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const QString &expression)
+{
+	try {
+		auto reminder = _store->load(id);
+		try {
+			auto snooze  = _parser->snoozeParse(expression);
+
+			if(reminder.versionCode() != versionCode) {
+				qInfo() << "Skipping completing of changed reminder" << id;
+				return;
+			}
+
+			reminder.performSnooze(_store->store(), snooze);
+		} catch (DateParserException &e) {
+			_notifier->showParserError(reminder, e.qWhat());
+		}
+	} catch(QtDataSync::NoDataException &e) {
+		Q_UNUSED(e)
+		qInfo() << "Skipping completing of deleted reminder" << id;
+	} catch(QException &e) {
+		qCritical() << "Failed to load reminder with id" << id
+					<< "to complete it with error:" << e.what();
 	}
 }
 

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
 #include <reminder.h>
 
 class AndroidNotifier : public QObject
@@ -14,11 +15,14 @@ public:
 
 public slots:
 	void showNotification(const Reminder &reminder);
+	void showParserError(const Reminder &reminder, const QString &errorText);
 	void removeNotification(const QUuid &id);
 	void showErrorMessage(const QString &error);
 
 private:
 	QAndroidJniObject _jNotifier;
+
+	QAndroidJniObject createSnoozeArray(QAndroidJniEnvironment &env);
 };
 
 #endif // ANDROIDNOTIFIER_H

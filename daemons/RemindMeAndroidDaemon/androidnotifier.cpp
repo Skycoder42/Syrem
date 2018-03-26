@@ -1,6 +1,5 @@
 #include "androidnotifier.h"
 #include <QtAndroid>
-#include <QAndroidJniEnvironment>
 #include <syncedsettings.h>
 
 AndroidNotifier::AndroidNotifier(QObject *parent) :
@@ -13,18 +12,37 @@ void AndroidNotifier::showNotification(const Reminder &reminder)
 {
 	//build the choices
 	QAndroidJniEnvironment env;
-	SnoozeTimes times = SyncedSettings::instance()->scheduler.snoozetimes;
-	auto choices = QAndroidJniObject::fromLocalRef(env->NewObjectArray((jint)times.size(), env->FindClass("java/lang/String"), NULL));
-	for(auto i = 0; i < times.size(); i++) {
-		auto str = QAndroidJniObject::fromString(times.value(i));
-		env->SetObjectArrayElement(choices.object<jobjectArray>(), i, str.object());
-	}
+	auto choices = createSnoozeArray(env);
 
-	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/String;[Ljava/lang/String;)V",
+	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;)V",
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
 								(jint)reminder.versionCode(),
 								(jboolean)reminder.isImportant(),
 								QAndroidJniObject::fromString(reminder.description()).object(),
+								choices.object());
+}
+
+void AndroidNotifier::showParserError(const Reminder &reminder, const QString &errorText)
+{
+	//build the choices
+	QAndroidJniEnvironment env;
+	auto choices = createSnoozeArray(env);
+	auto text = tr("<p>%1</p>"
+				   "<p><b>Error – Invalid expression:</b><br/>"
+				   "<i>%2</i></p>")
+				.arg(reminder.description().toHtmlEscaped())
+				.arg(errorText.toHtmlEscaped());
+	auto htmlText = QAndroidJniObject::callStaticObjectMethod("android/text/Html", "fromHtml",
+															  "(Ljava/lang/String;I)Landroid/text/Spanned;",
+															  QAndroidJniObject::fromString(text).object(),
+															  (jint)0);
+
+	//TODO turn notification red as well
+	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;)V",
+								QAndroidJniObject::fromString(reminder.id().toString()).object(),
+								(jint)reminder.versionCode(),
+								(jboolean)reminder.isImportant(),
+								htmlText.object(),
 								choices.object());
 }
 
@@ -38,4 +56,15 @@ void AndroidNotifier::showErrorMessage(const QString &error)
 {
 	_jNotifier.callMethod<void>("notifyError", "(Ljava/lang/String;)V",
 								QAndroidJniObject::fromString(error).object());
+}
+
+QAndroidJniObject AndroidNotifier::createSnoozeArray(QAndroidJniEnvironment &env)
+{
+	SnoozeTimes times = SyncedSettings::instance()->scheduler.snoozetimes;
+	auto choices = QAndroidJniObject::fromLocalRef(env->NewObjectArray((jint)times.size(), env->FindClass("java/lang/String"), NULL));
+	for(auto i = 0; i < times.size(); i++) {
+		auto str = QAndroidJniObject::fromString(times.value(i));
+		env->SetObjectArrayElement(choices.object<jobjectArray>(), i, str.object());
+	}
+	return choices;
 }

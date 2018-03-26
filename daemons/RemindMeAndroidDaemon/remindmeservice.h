@@ -6,11 +6,12 @@
 #include <QMutex>
 #include <QtDataSync/SyncManager>
 #include <remindmelib.h>
+#include <dateparser.h>
 
 #include "androidscheduler.h"
 #include "androidnotifier.h"
 
-class RemindmeService : public QObject
+class RemindmeService : public QObject //TODO use service registry more?
 {
 	Q_OBJECT
 
@@ -35,12 +36,17 @@ private slots:
 	void tryQuit();
 
 	void actionSchedule(const QUuid &id, quint32 versionCode);
+	void actionComplete(const QUuid &id, quint32 versionCode);
+	void actionSnooze(const QUuid &id, quint32 versionCode, const QString &expression);
 
 private:
 	static const QString ActionScheduler;
+	static const QString ActionComplete;
+	static const QString ActionSnooze;
 
 	ReminderStore *_store;
 	QtDataSync::SyncManager *_manager;
+	DateParser *_parser;
 
 	AndroidScheduler *_scheduler;
 	AndroidNotifier *_notifier;

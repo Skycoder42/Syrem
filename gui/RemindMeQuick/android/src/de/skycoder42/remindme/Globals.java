@@ -9,6 +9,8 @@ import android.net.Uri;
 
 import android.app.PendingIntent;
 
+import android.graphics.Color;
+
 public class Globals {
 	public static enum Actions {
 		ActionScheduler(21, "de.skycoder42.remindme.Action.Scheduler"),
@@ -50,6 +52,12 @@ public class Globals {
 	public static final int ForegroundId = 41;
 	public static final int NotifyId = 42;
 	public static final int ErrorNotifyId = 43;
+
+	// colors
+	public static final int ForegroundColor = 0xFF673AB7;
+	public static final int NormalColor = 0xFF673AB7;
+	public static final int ImportantColor = Color.RED;
+	public static final int ErrorColor = Color.RED;
 
 	public static boolean isOreo() {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;

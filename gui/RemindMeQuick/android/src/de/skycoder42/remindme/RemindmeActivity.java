@@ -12,8 +12,6 @@ import android.app.PendingIntent;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
 
-import android.graphics.Color;
-
 import org.qtproject.qt5.android.bindings.QtActivity;
 
 public class RemindmeActivity extends QtActivity {
@@ -61,7 +59,7 @@ public class RemindmeActivity extends QtActivity {
 				NotificationManager.IMPORTANCE_DEFAULT);
 		normal.setDescription(getString(R.string.channel_nrm_desc));
 		normal.enableLights(true);
-		normal.setLightColor(Color.YELLOW);
+		normal.setLightColor(Globals.NormalColor);
 		normal.enableVibration(true);
 		normal.setShowBadge(true);
 		manager.createNotificationChannel(normal);
@@ -72,7 +70,7 @@ public class RemindmeActivity extends QtActivity {
 				NotificationManager.IMPORTANCE_HIGH);
 		important.setDescription(getString(R.string.channel_imp_desc));
 		important.enableLights(true);
-		important.setLightColor(Color.RED);
+		important.setLightColor(Globals.ImportantColor);
 		important.enableVibration(true);
 		important.setShowBadge(true);
 		important.setBypassDnd(true);
@@ -84,7 +82,7 @@ public class RemindmeActivity extends QtActivity {
 				NotificationManager.IMPORTANCE_DEFAULT);
 		error.setDescription(getString(R.string.channel_err_desc));
 		error.enableLights(true);
-		error.setLightColor(Color.RED);
+		error.setLightColor(Globals.ErrorColor);
 		error.enableVibration(true);
 		error.setShowBadge(true);
 		manager.createNotificationChannel(error);
