@@ -19,15 +19,22 @@ matrix:
     - os: linux
       env:
         - PLATFORM=gcc_64
-#    - os: osx
-#      env:
-#        - PLATFORM=clang_64
+    - os: linux
+      env:
+        - PLATFORM=android_armv7
+    - os: linux
+      env:
+        - PLATFORM=android_x86
+    - os: osx
+      env:
+        - PLATFORM=clang_64
 
 before_install:
   - git clone https://github.com/Skycoder42/QtModules.git ./qtmodules-travis
   - travis_wait 40 ./qtmodules-travis/ci/$TRAVIS_OS_NAME/setup.sh
 
 script:
+  - ./gui/RemindMeQuick/openssl/openssl.sh
   - ./qtmodules-travis/ci/$TRAVIS_OS_NAME/build.sh
 
 before_cache:
