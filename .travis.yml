@@ -31,10 +31,10 @@ matrix:
 
 before_install:
   - git clone https://github.com/Skycoder42/QtModules.git ./qtmodules-travis
+  - ./ci/setup-travis.sh
   - travis_wait 40 ./qtmodules-travis/ci/$TRAVIS_OS_NAME/setup.sh
 
 script:
-  - ./gui/RemindMeQuick/openssl/openssl.sh
   - ./qtmodules-travis/ci/$TRAVIS_OS_NAME/build.sh
 
 before_cache:
