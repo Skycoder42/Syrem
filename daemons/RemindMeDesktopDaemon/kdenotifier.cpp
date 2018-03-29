@@ -98,6 +98,15 @@ void KdeNotifier::showErrorMessage(const QString &error)
 	notification->sendEvent();
 }
 
+void KdeNotifier::cancelAll()
+{
+	for(auto notification : _notifications) {
+		notification->close();
+		notification->deleteLater();
+	}
+	_notifications.clear();
+}
+
 void KdeNotifier::qtmvvm_init()
 {
 	connect(qApp, &QApplication::aboutToQuit, this, [this](){

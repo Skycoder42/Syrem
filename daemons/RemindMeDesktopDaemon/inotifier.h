@@ -17,6 +17,8 @@ public slots:
 
 	virtual void showErrorMessage(const QString &error) = 0;
 
+	virtual void cancelAll() = 0;
+
 signals:
 	virtual void messageCompleted(const QUuid &id, quint32 versionCode) = 0;
 	virtual void messageDelayed(const QUuid &id, quint32 versionCode, const QDateTime &nextTrigger) = 0;

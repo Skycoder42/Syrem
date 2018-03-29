@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QColor>
 #include <QtMvvmQuick/QuickPresenter>
 #include <QtMvvmDataSyncQuick/qtmvvmdatasyncquick_global.h>
 #include <remindmeapp.h>
@@ -11,7 +12,6 @@
 #include "settingsqmlwrapper.h"
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
-#include <QColor>
 #endif
 
 QTMVVM_REGISTER_CORE_APP(RemindMeApp)

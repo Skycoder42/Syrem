@@ -57,6 +57,13 @@ void WidgetsNotifier::showErrorMessage(const QString &error)
 	qCDebug(notifier) << "Showed critical error message";
 }
 
+void WidgetsNotifier::cancelAll()
+{
+	_notifications.clear();
+	qCDebug(notifier) << "Removed all active notifications";
+	updateIcon();
+}
+
 void WidgetsNotifier::qtmvvm_init()
 {
 	_trayMenu->addAction(tr("Snooze/Complete Reminder"), this, &WidgetsNotifier::trigger);

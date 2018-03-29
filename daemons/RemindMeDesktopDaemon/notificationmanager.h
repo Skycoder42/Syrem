@@ -32,6 +32,7 @@ private slots:
 	void messageActivated(const QUuid &id);
 
 	void dataChanged(const QString &key, const QVariant &value);
+	void dataResetted();
 
 private:
 	TimerScheduler *_scheduler;

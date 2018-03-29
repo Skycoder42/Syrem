@@ -51,6 +51,14 @@ void TimerScheduler::cancleReminder(const QUuid &id)
 	}
 }
 
+void TimerScheduler::cancelAll()
+{
+	for(auto sched : _schedules)
+		killTimer(sched.timerId);
+	_schedules.clear();
+	qCDebug(scheduler) << "Cleared all active schedules";
+}
+
 
 void TimerScheduler::timerEvent(QTimerEvent *event)
 {

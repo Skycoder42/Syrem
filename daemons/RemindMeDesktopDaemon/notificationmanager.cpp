@@ -48,6 +48,8 @@ void NotificationManager::init()
 
 				connect(_store, &DataTypeStoreBase::dataChanged,
 						this, &NotificationManager::dataChanged);
+				connect(_store, &DataTypeStoreBase::dataResetted,
+						this, &NotificationManager::dataResetted);
 			} catch(QException &e) {
 				qCCritical(manager) << "Failed to load stored reminders with error:" << e.what();
 				_notifier->showErrorMessage(tr("Failed to load any reminders!"));
@@ -158,6 +160,12 @@ void NotificationManager::dataChanged(const QString &key, const QVariant &value)
 		_notifier->removeNotification(id);
 		removeNotify(id);
 	}
+}
+
+void NotificationManager::dataResetted()
+{
+	_scheduler->cancelAll();
+	_notifier->cancelAll();
 }
 
 void NotificationManager::addNotify(const QUuid &id)

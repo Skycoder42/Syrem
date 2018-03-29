@@ -17,6 +17,8 @@ public slots:
 	void scheduleReminder(const Reminder &reminder);
 	void cancleReminder(const QUuid &id);
 
+	void cancelAll();
+
 signals:
 	void scheduleTriggered(const QUuid &id);
 
