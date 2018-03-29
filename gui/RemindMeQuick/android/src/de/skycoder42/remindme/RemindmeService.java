@@ -1,6 +1,5 @@
 package de.skycoder42.remindme;
 
-import android.content.Context;
 import android.content.Intent;
 
 import android.os.Bundle;

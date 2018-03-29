@@ -41,7 +41,11 @@ DISTFILES += \
 	android/res/drawable-xhdpi/* \
 	android/res/drawable-xxhdpi/* \
 	android/res/drawable-xxxhdpi/* \
-	android/res/mipmap/* \
+	android/res/mipmap-hdpi/* \
+	android/res/mipmap-mdpi/* \
+	android/res/mipmap-xhdpi/* \
+	android/res/mipmap-xxhdpi/* \
+	android/res/mipmap-xxxhdpi/* \
 	android/res/mipmap-anydpi/*
 
 # actual install

@@ -30,6 +30,7 @@ public:
 	static void handleIntent(const Intent &intent);
 
 private slots:
+	void dataResetted();
 	void dataChanged(const QString &key, const QVariant &value);
 
 	void handleAllIntents();

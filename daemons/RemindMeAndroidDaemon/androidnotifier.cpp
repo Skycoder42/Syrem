@@ -56,6 +56,11 @@ void AndroidNotifier::showErrorMessage(const QString &error)
 								QAndroidJniObject::fromString(error).object());
 }
 
+void AndroidNotifier::cleanNotifications()
+{
+	_jNotifier.callMethod<void>("cancelAll");
+}
+
 QAndroidJniObject AndroidNotifier::createSnoozeArray(QAndroidJniEnvironment &env)
 {
 	SnoozeTimes times = SyncedSettings::instance()->scheduler.snoozetimes;

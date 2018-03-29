@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import android.app.PendingIntent;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
 
@@ -44,10 +43,8 @@ public class RemindmeActivity extends QtActivity {
 		super.onStart();
 		Intent intent = getIntent();
 		_createOnly = false;
-		if(intent != null) {
-			if(intent.getAction() == Globals.Actions.ActionCreate.getAction())
-				_createOnly = true;
-		}
+		if(intent != null && intent.getAction() == Globals.Actions.ActionCreate.getAction())
+			_createOnly = true;
 	}
 
 	@Override

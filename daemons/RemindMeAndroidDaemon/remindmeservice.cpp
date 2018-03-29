@@ -38,6 +38,8 @@ bool RemindmeService::startService()
 		_store = new ReminderStore(this);
 		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
 				this, &RemindmeService::dataChanged);
+		connect(_store, &QtDataSync::DataTypeStoreBase::dataResetted,
+				this, &RemindmeService::dataResetted);
 
 		_manager = new QtDataSync::SyncManager(this);
 		auto runFn = [this](){
@@ -70,6 +72,12 @@ void RemindmeService::handleIntent(const Intent &intent)
 		QMetaObject::invokeMethod(_runInstance, "handleAllIntents", Qt::QueuedConnection);
 		_runInstance = nullptr;//set to null again, this way only 1 queued invokation is done
 	}
+}
+
+void RemindmeService::dataResetted()
+{
+	// Android alarms cannot be easily canceled -> just let them be, they will do nothing as the corresponding reminders are deleted
+	_notifier->cleanNotifications();
 }
 
 void RemindmeService::dataChanged(const QString &key, const QVariant &value)

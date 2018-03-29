@@ -19,6 +19,8 @@ public slots:
 	void removeNotification(const QUuid &id);
 	void showErrorMessage(const QString &error);
 
+	void cleanNotifications();
+
 private:
 	QAndroidJniObject _jNotifier;
 
