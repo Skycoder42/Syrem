@@ -35,15 +35,14 @@ DISTFILES += \
 	android/src/de/skycoder42/remindme/* \
 	android/res/values/* \
 	android/res/xml/* \
+	android/res/drawable/* \
 	android/res/drawable-hdpi/* \
 	android/res/drawable-mdpi/* \
 	android/res/drawable-xhdpi/* \
 	android/res/drawable-xxhdpi/* \
 	android/res/drawable-xxxhdpi/* \
-	android/src/de/skycoder42/remindme/Globals.java \
-	android/src/de/skycoder42/remindme/Scheduler.java \
-	android/src/de/skycoder42/remindme/Notifier.java \
-	android/src/de/skycoder42/remindme/BootReceiver.java
+	android/res/mipmap/* \
+	android/res/mipmap-anydpi/*
 
 # actual install
 target.path = $$INSTALL_BINS

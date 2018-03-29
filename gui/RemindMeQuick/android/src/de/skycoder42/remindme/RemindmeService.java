@@ -28,7 +28,7 @@ public class RemindmeService extends QtService {
 			.setContentTitle(getString(R.string.svc_name))
 			.setContentText(getString(R.string.svc_desc))
 			.setContentInfo(getString(R.string.app_name))
-			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
+			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setColor(Globals.ForegroundColor)
 			.setLocalOnly(true)

@@ -40,7 +40,7 @@ public class Notifier {
 			.setContentInfo(context.getString(R.string.app_name))
 			.setStyle(new NotificationCompat.BigTextStyle()
 				.bigText(text))
-			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
+			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setColor(isError ? Globals.ErrorColor : (important ? Globals.ImportantColor : Globals.NormalColor))
 			.setOnlyAlertOnce(true)
@@ -48,12 +48,12 @@ public class Notifier {
 			.setCategory(NotificationCompat.CATEGORY_REMINDER)
 			.setGroup(important ? "important" : "normal")
 			.setContentIntent(activityPending)
-			.addAction(R.drawable.ic_check_black_24dp,
+			.addAction(R.drawable.ic_check,
 					context.getString(R.string.not_complete),
 					Globals.createPending(context, Globals.Actions.ActionComplete, remId, versionCode));
 
 		if (Globals.isOreo()) {
-			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze_black_24dp,
+			builder.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze,
 						context.getString(R.string.not_snooze),
 						Globals.createPending(context, Globals.Actions.ActionSnooze, remId, versionCode))
 					.addRemoteInput(new RemoteInput.Builder(Globals.ExtraSnoozeTime)
@@ -65,7 +65,7 @@ public class Notifier {
 		} else {
 			builder.setDefaults(NotificationCompat.DEFAULT_ALL)
 				.setPriority(important ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT)
-				.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze_black_24dp,
+				.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze,
 						context.getString(R.string.not_snooze),
 						activityPending)
 //					.setShowsUserInterface(true)
@@ -104,7 +104,7 @@ public class Notifier {
 			.setStyle(new NotificationCompat.BigTextStyle()
 				.bigText(text))
 			.setContentIntent(pending)
-			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
+			.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
 			.setSmallIcon(R.drawable.ic_notification)
 			.setColor(Color.RED)
 			.setAutoCancel(true)
