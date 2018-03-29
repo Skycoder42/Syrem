@@ -46,7 +46,7 @@ DISTFILES += \
 	android/res/mipmap-xhdpi/* \
 	android/res/mipmap-xxhdpi/* \
 	android/res/mipmap-xxxhdpi/* \
-	android/res/mipmap-anydpi/*
+	android/res/mipmap-anydpi-v26/*
 
 # actual install
 target.path = $$INSTALL_BINS
