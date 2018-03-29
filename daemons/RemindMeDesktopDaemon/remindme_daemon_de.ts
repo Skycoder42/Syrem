@@ -55,7 +55,7 @@
 <context>
     <name>NotificationManager</name>
     <message>
-        <location filename="notificationmanager.cpp" line="+51"/>
+        <location filename="notificationmanager.cpp" line="+55"/>
         <source>Failed to load any reminders!</source>
         <translation>Konnte keinerlei Erinnerungen laden!</translation>
     </message>
@@ -78,12 +78,12 @@
         <translation>%1 — Erinnerung</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+20"/>
         <source>%1 — Error</source>
         <translation>%1 — Fehler</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+15"/>
         <source>Snooze/Complete Reminder</source>
         <translation>Erninnerung verschieben/abschließen</translation>
     </message>

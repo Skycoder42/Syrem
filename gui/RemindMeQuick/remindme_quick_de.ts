@@ -17,7 +17,7 @@
         <translation>Erinnerung erstellen</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+17"/>
         <source>Text:</source>
         <translation>Text:</translation>
     </message>

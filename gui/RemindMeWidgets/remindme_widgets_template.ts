@@ -145,7 +145,7 @@
 <context>
     <name>ReminderProxyModel</name>
     <message>
-        <location filename="mainwindow.cpp" line="+136"/>
+        <location filename="mainwindow.cpp" line="+138"/>
         <source>Reminder</source>
         <translation type="unfinished"></translation>
     </message>

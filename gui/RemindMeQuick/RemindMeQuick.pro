@@ -34,6 +34,7 @@ DISTFILES += \
 	android/build.gradle \
 	android/src/de/skycoder42/remindme/* \
 	android/res/values/* \
+	android/res/values-de/* \
 	android/res/xml/* \
 	android/res/drawable/* \
 	android/res/drawable-hdpi/* \

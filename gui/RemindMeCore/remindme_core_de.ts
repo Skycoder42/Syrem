@@ -4,7 +4,7 @@
 <context>
     <name>CreateReminderViewModel</name>
     <message>
-        <location filename="createreminderviewmodel.cpp" line="+39"/>
+        <location filename="createreminderviewmodel.cpp" line="+47"/>
         <location line="+3"/>
         <source>Failed to create reminder</source>
         <translation>Erinnerung erstellen fehlgeschlagen</translation>
@@ -62,7 +62,7 @@
 <context>
     <name>RemindMeApp</name>
     <message>
-        <location filename="remindmeapp.cpp" line="+46"/>
+        <location filename="remindmeapp.cpp" line="+58"/>
         <source>Select a &lt;reminder&gt; from the list by its id</source>
         <translation>Eine &lt;Erinnerung&gt; in der Liste auswählen, nach ihrer ID</translation>
     </message>
@@ -89,7 +89,7 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
         <translation>Kann in Kombination mit &quot;--add&quot; verwendet werden um wichtige Erinnerungen zu erstellen.</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+31"/>
         <source>Invalid arguments for add option. Use as: remind-me --add [--important] &lt;description&gt; &lt;when&gt;</source>
         <translation>Ungültige Argumente für die add Option.Verwendung: remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
     </message>
@@ -105,7 +105,7 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
         <translation>Dienst nicht verfügbar</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+26"/>
         <source>Successfully created reminder. Next trigger at:</source>
         <translation>Erinnerung erfolgreich erstellt. Nächste Fälligkeit:</translation>
     </message>
@@ -147,157 +147,157 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
 <context>
     <name>qtmvvm_settings_xml</name>
     <message>
-        <location filename=".ts-dummy/settings.tsdummy.cpp" line="+32"/>
+        <location filename=".ts-dummy/settings.tsdummy.cpp" line="+26"/>
         <source>Create custom standard snooze times for fast selection from the combo box</source>
         <translation>Erstellen Sie eigenen Vorschläge für Verzögerungen für schnelle Auswahl</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-2"/>
         <source>&amp;Important Reminders</source>
         <translation>&amp;Wichtige Erinnerungen</translation>
     </message>
     <message>
-        <location line="-3"/>
+        <location line="-5"/>
         <source> minutes</source>
         <translation> Minuten</translation>
     </message>
     <message>
-        <location line="-2"/>
+        <location line="-1"/>
         <source>09:00</source>
         <translation>09:00</translation>
     </message>
     <message>
-        <location line="-2"/>
+        <location line="+9"/>
         <source>Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled</source>
         <translation>Zusätzliche Verzögerungen beim planen von Benachrichtigungen. 5 Minuten zum Beispiel hieße die Benachrichtigungen werden 5 Minuten nach dem eigentlichen Zeitpunkt gezeigt</translation>
     </message>
     <message>
-        <location line="-1"/>
+        <location line="-20"/>
         <source>Narrow</source>
         <translation>Sehr kurz</translation>
     </message>
     <message>
-        <location line="-2"/>
+        <location line="+18"/>
         <source>Long</source>
         <translation>Lang</translation>
     </message>
     <message>
-        <location line="-11"/>
+        <location line="-10"/>
         <source>Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)</source>
         <translation>Wählen sie ein Blink-Intervall für das Benachrichtigungs-Icon bei wichtigen Erinnerungen (Nicht für KDE-Benachrichtigungen)</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+14"/>
         <source>&amp;Date Format</source>
         <translation>&amp;Datums-Format</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+5"/>
         <source> ms</source>
         <translation> ms</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="-4"/>
         <source>in 1 week on Monday</source>
         <translation>in 1 Woche am Montag</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+3"/>
         <source>Desktop</source>
         <translation>PC</translation>
     </message>
     <message>
-        <location line="-30"/>
+        <location line="-29"/>
         <source>General application settings</source>
         <translation>Allgemeine Anwendungseinstellungen</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
         <source>Tray Blink &amp;interval</source>
         <translation>Systemicon-&amp;Blinkinterval</translation>
     </message>
     <message>
-        <location line="-1"/>
+        <location line="+15"/>
         <source>&amp;Normal Reminders</source>
         <translation>&amp;Normale Erinnerungen</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-12"/>
         <source>in 1 hour</source>
         <translation>in 1 Stunde</translation>
     </message>
     <message>
-        <location line="-2"/>
+        <location line="+5"/>
         <source>Default &amp;Time</source>
         <translation>Standard-&amp;Zeit</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-6"/>
         <source>tomorrow</source>
         <translation>Morgen</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+10"/>
         <source>in 20 minutes</source>
         <translation>in 20 Minuten</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-6"/>
         <source>Reminders</source>
         <translation>Erinnerungen</translation>
     </message>
     <message>
-        <location line="-16"/>
+        <location line="+18"/>
         <source>Settings regarding the creation and snoozing of reminders</source>
         <translation>Einstellungen bezüglich des Erstellens und Verschiebens von Erinnerungen</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="-15"/>
         <source>in 3 hours</source>
         <translation>in 3 Stunden</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="-11"/>
         <source>Not set</source>
         <translation>Nicht gesetzt</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+7"/>
         <source>Select the format to display dates as</source>
         <translation>Wählen Sie ein Anzeigeformat für die Daten</translation>
     </message>
     <message>
-        <location line="-5"/>
+        <location line="+9"/>
         <source>Enter a delay (in minutes) to use as delay for important Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled</source>
         <translation>Zusätzliche Verzögerungen beim planen von Benachrichtigungen. 5 Minuten zum Beispiel hieße die Benachrichtigungen werden 5 Minuten nach dem eigentlichen Zeitpunkt gezeigt</translation>
     </message>
     <message>
-        <location line="-1"/>
+        <location line="+6"/>
         <source>Short</source>
         <translation>Kurz</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-19"/>
         <source>Mobile Scheduling delays</source>
         <translation>Verzögerung für mobile Benachrichtigungen</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+3"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+9"/>
         <source>Enter a delay (in minutes) to use as delay for normal Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled</source>
         <translation>Zusätzliche Verzögerungen beim planen von Benachrichtigungen. 5 Minuten zum Beispiel hieße die Benachrichtigungen werden 5 Minuten nach dem eigentlichen Zeitpunkt gezeigt</translation>
     </message>
     <message>
-        <location line="-9"/>
+        <location line="+10"/>
         <source>The time to be used as default for new reminders/snoozing, in case the reminder is date-oriented and no time has been set. Set to &lt;b&gt;00:00&lt;/b&gt; to not set the time</source>
         <translation>Standard-Zeit für Erinnerungen ohne explizite Zeit-Komponente beim Erstellen oder Verschieben von Erinnerungen. Es wird die jeweils aktuelle Uhrzeit verwendet, wenn auf &lt;b&gt;00:00&lt;/b&gt; gesetzt</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-26"/>
         <source>&amp;Predefined snooze times</source>
         <translation>Vordefinierte &amp;Verzögerungs-Zeiten</translation>
     </message>
