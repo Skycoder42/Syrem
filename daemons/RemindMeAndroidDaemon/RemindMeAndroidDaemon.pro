@@ -15,7 +15,20 @@ SOURCES += main.cpp \
 	remindmeservice.cpp \
 	androidnotifier.cpp
 
-RESOURCES +=
+TRANSLATIONS += remindme_daemon_de.ts \
+	remindme_daemon_template.ts
+
+EXTRA_TRANSLATIONS +=  \
+	remindmed_de.ts \
+	remindmed_template.ts
+
+DISTFILES += \
+	$$TRANSLATIONS \
+	$$EXTRA_TRANSLATIONS
+
+qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
+extra_ts_target.path = $$INSTALL_TRANSLATIONS
+INSTALLS += qpmx_ts_target extra_ts_target
 
 # link against main lib
 include(../../lib.pri)

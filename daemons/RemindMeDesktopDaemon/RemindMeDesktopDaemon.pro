@@ -51,6 +51,7 @@ EXTRA_TRANSLATIONS +=  \
 DISTFILES += \
 	remind-me.service.in \
 	$$TRANSLATIONS \
+	$$EXTRA_TRANSLATIONS \
 	remind-me.notifyrc
 
 # install
