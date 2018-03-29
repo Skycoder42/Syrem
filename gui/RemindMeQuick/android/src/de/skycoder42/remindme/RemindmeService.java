@@ -1,73 +1,23 @@
 package de.skycoder42.remindme;
 
-import java.util.concurrent.Semaphore;
-
 import android.content.Context;
 import android.content.Intent;
 
-import android.os.IBinder;
-import android.os.Binder;
 import android.os.Bundle;
 
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 
 import org.qtproject.qt5.android.bindings.QtService;
 
-import android.util.Log;
-
 public class RemindmeService extends QtService {
-	private Thread runThread;
-	private Semaphore semaphore = new Semaphore(0, true);
-
-	private final IBinder _binder = new Binder();
-
-	public void qtReady() {
-		semaphore.release(1);
-	}
-
-	@Override
-	public void onCreateHook() {
-		try {
-			runThread = new Thread(new Runnable() {
-				@Override public void run() {
-					createQt();
-				}
-			});
-
-			runThread.setDaemon(true);
-			runThread.start();
-			semaphore.acquire(1);
-			Scheduler.scheduleAutoCheck(this);
-		} catch(Throwable e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void createQt() {
-		Log.d("RemindmeService", "createQt");
-		super.onCreateHook();
-		Log.d("RemindmeService", "super.onCreateHook() finally returned");
-	}
-
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		try {
-			runThread.join(500);
-		} catch(Throwable e) {
-			e.printStackTrace();
-		}
 		// explicitly exit to prevent the process from beeing cached
 		System.exit(0);
-	}
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		return _binder;
 	}
 
 	@Override

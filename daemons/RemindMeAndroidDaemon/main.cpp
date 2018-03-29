@@ -1,18 +1,14 @@
-#include <QCoreApplication>
-#include <QtAndroid>
+#include <QAndroidService>
 #include <QSet>
 #include <QUuid>
 #include "remindmeservice.h"
 
 int main(int argc, char *argv[])
 {
-	QCoreApplication a(argc, argv);
+	QAndroidService a(argc, argv);
 	//workarond
 	qputenv("PLUGIN_KEYSTORES_PATH", QCoreApplication::applicationDirPath().toUtf8());
 	qInfo() << "Overwriting keystore path to:" << qgetenv("PLUGIN_KEYSTORES_PATH");
-
-	//unlock the semaphore to complete creation
-	QtAndroid::androidService().callMethod<void>("qtReady");
 
 	qRegisterMetaTypeStreamOperators<QSet<QUuid>>();
 
