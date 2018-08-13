@@ -1,11 +1,5 @@
 {
-    "dependencies": [
-        {
-            "package": "https://github.com/skycoder42/qsettingsgenerator.git",
-            "provider": "git",
-            "version": "1.4.0"
-        }
-    ],
+    "dependencies": [],
     "license": {
         "file": "",
         "name": ""

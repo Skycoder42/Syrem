@@ -25,7 +25,7 @@
 			</Entry>
 		</Group>
 		<Group title="Desktop"
-			   frontend="widgets">
+			   frontends="widgets">
 			<Entry key="gui/notifications/blinkinterval"
 				   type="int"
 				   title="Tray Blink &amp;interval"
@@ -69,9 +69,9 @@
 			</Entry>
 		</Group>
 		<Group title="Mobile Scheduling delays"
-			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled">
+			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
+			   frontends="quick">
 			<Entry key="scheduler/delay/normal"
-				   frontend="quick"
 				   type="int"
 				   title="&amp;Normal Reminders"
 				   tooltip="Enter a delay (in minutes) to use as delay for normal Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
@@ -84,7 +84,6 @@
 			   <Property key="to" type="int">60</Property>
 			</Entry>
 			<Entry key="scheduler/delay/important"
-				   frontend="quick"
 				   type="int"
 				   title="&amp;Important Reminders"
 				   tooltip="Enter a delay (in minutes) to use as delay for important Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"

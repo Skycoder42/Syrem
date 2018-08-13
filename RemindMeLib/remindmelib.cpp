@@ -12,7 +12,6 @@
 #include "snoozetimes.h"
 
 #include <syncedsettings.h>
-#include <datasyncsettingsaccessor.h>
 
 void RemindMe::prepareTranslations(const QString &tsName)
 {
@@ -116,9 +115,9 @@ void cleanSettings()
 {
 	try {
 		//WORKAROUND for settings destruction bug
-		auto accessor = dynamic_cast<DataSyncSettingsAccessor*>(SyncedSettings::instance()->accessor());
-		if(accessor)
-			delete accessor;
+//		auto accessor = dynamic_cast<DataSyncSettingsAccessor*>(SyncedSettings::instance()->accessor());
+//		if(accessor)
+//			delete accessor;
 		qDebug() << "Cleaned settings";
 	} catch(QException &e) {
 		qCritical() << "Failed to clean settings:" << e.what();

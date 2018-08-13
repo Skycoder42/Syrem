@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Settings name="SyncedSettings" prefix="REMINDMELIBSHARED_EXPORT" backend="DataSyncSettingsAccessor">
+<Settings name="SyncedSettings" prefix="REMINDMELIBSHARED_EXPORT">
 	<Include>remindmelib_global.h</Include>
+	<Include>QtMvvmDataSyncCore/DataSyncSettingsAccessor</Include>
 	<Include>QKeySequence</Include>
 	<Include>QTime</Include>
 	<Include>snoozetimes.h</Include>
 
-	<Node key="gui">
-		<Entry key="dateformat" type="int" default="1"/>
-	</Node>
-	<Node key="scheduler">
-		<Entry key="snoozetimes" type="SnoozeTimes">
-			<Code>
-				QStringList {
+	<Backend class="QtMvvm::DataSyncSettingsAccessor"/>
+
+	<TypeMapping key="list" type="int"/>
+
+	<Import>../gui/RemindMeCore/settings.xml</Import>
+	<Entry key="snoozetimes_fallback" type="bool">
+		<Code> <!-- VERY dirty trick to get the defaults into the snoozetimes -->
+			[&amp;](){
+				scheduler.snoozetimes.setup(QStringLiteral("scheduler/snoozetimes"), _accessor, QVariant::fromValue(QStringList {
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
 					QCoreApplication::translate("qtmvvm_settings_xml", "tomorrow"),
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 week on Monday")
-				}
-			</Code>
-		</Entry>
-	</Node>
+				}));
+				return false;
+			}()
+		</Code>
+	</Entry>
 </Settings>

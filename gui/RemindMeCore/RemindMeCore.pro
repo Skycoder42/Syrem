@@ -40,7 +40,6 @@ DISTFILES += \
 
 QTMVVM_TS_SETTINGS = settings.xml
 _never_true_condition: SOURCES += $$files($$PWD/.ts-dummy/*)
-PRE_TARGETDEPS += qtmvvm-tsgen
 
 # install
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
