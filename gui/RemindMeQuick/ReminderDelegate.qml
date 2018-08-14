@@ -95,7 +95,7 @@ SwipeDelegate {
 			Layout.fillHeight: true
 			horizontalAlignment: Qt.AlignRight
 			verticalAlignment: Qt.AlignVCenter
-			text: current ? parseDateISOString(current).toLocaleString(Qt.locale(), Settings.gui_dateformat) : ""
+			text: current ? parseDateISOString(current).toLocaleString(Qt.locale(), SyncedSettings.gui.dateformat) : ""
 
 			function parseDateISOString(s) {
 				var b = s.split(/\D/);

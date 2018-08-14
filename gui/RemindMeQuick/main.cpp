@@ -9,7 +9,7 @@
 #include <createreminderviewmodel.h>
 #include <snoozeviewmodel.h>
 #include <snoozetimes.h>
-#include "settingsqmlwrapper.h"
+#include <qml_syncedsettings.h>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
@@ -22,12 +22,6 @@ QObject *create_snooze_times_generator(QQmlEngine *qmlEngine, QJSEngine *jsEngin
 {
 	Q_UNUSED(jsEngine)
 	return new SnoozeTimesGenerator(qmlEngine);
-}
-
-QObject *create_settings_wrapper(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
-{
-	Q_UNUSED(jsEngine)
-	return new SettingsQmlWrapper(qmlEngine);
 }
 
 void setStatusBarColor(QColor color)
@@ -67,17 +61,17 @@ int main(int argc, char *argv[])
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QGuiApplication app(argc, argv);
 
-	qmlRegisterSingletonType<SnoozeTimesGenerator>("de.skycoder42.remindme", 1, 0, "SnoozeTimes", create_snooze_times_generator);
-	qmlRegisterSingletonType<SettingsQmlWrapper>("de.skycoder42.remindme", 1, 0, "Settings", create_settings_wrapper);
+	qmlRegisterUncreatableType<SnoozeTimes>("de.skycoder42.remindme", 1, 0, "SnoozeTimes", QStringLiteral("Q_GADGETs cannot be created!"));
+	QMLTYPE_SyncedSettings::registerQmlTypes("de.skycoder42.remindme", 1, 0);
+	qmlRegisterSingletonType<SnoozeTimesGenerator>("de.skycoder42.remindme", 1, 0, "SnoozeTimesGenerator", create_snooze_times_generator);
 	qmlRegisterUncreatableType<Reminder>("de.skycoder42.remindme", 1, 0, "Reminder", QStringLiteral("Q_GADGETs cannot be created!"));
 	qmlRegisterUncreatableType<MainViewModel>("de.skycoder42.remindme", 1, 0, "MainViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderViewModel>("de.skycoder42.remindme", 1, 0, "CreateReminderViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<SnoozeViewModel>("de.skycoder42.remindme", 1, 0, "SnoozeViewModel", QStringLiteral("ViewModels cannot be created!"));
 
 	QtMvvm::registerDataSyncQuick();
-	auto qPres = dynamic_cast<QtMvvm::QuickPresenter*>(QtMvvm::ServiceRegistry::instance()->service<QtMvvm::IPresenter>());
-	qPres->inputViewFactory()->addSimpleInput<QTime>(QStringLiteral("qrc:/qtmvvm/inputs/TimeEdit.qml"));
-	qPres->inputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qtmvvm/inputs/SnoozeTimesEdit.qml"));
+	QtMvvm::QuickPresenter::getInputViewFactory()->addSimpleInput<QTime>(QStringLiteral("qrc:/qtmvvm/inputs/TimeEdit.qml"));
+	QtMvvm::QuickPresenter::getInputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qtmvvm/inputs/SnoozeTimesEdit.qml"));
 
 	QQmlApplicationEngine engine;
 	engine.rootContext()->setContextProperty(QStringLiteral("coreApp"), coreApp);

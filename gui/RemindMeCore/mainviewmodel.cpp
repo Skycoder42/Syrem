@@ -9,18 +9,40 @@
 #include "snoozeviewmodel.h"
 #include "datasyncsettingsviewmodel.h"
 
+namespace { //NOTE remove once fixed
+
+class BugModel : public QtDataSync::DataStoreModel
+{
+public:
+	inline BugModel(QObject *parent) :
+		DataStoreModel{parent}
+	{}
+
+	// QAbstractItemModel interface
+public:
+	inline QHash<int, QByteArray> roleNames() const override {
+		auto rNames = QtDataSync::DataStoreModel::roleNames();
+		rNames.remove(0); //remove the original id
+		rNames.insert(rNames.key("bugId"), "id"); //replace by bugId
+		qDebug() << rNames;
+		return rNames;
+	}
+};
+
+}
+
 const QString MainViewModel::paramRemId{QStringLiteral("reminder-id")};
 
 MainViewModel::MainViewModel(QObject *parent) :
 	ViewModel{parent},
-	_reminderModel{new QtDataSync::DataStoreModel{this}},
+	_reminderModel{new BugModel{this}},
 	_sortedModel{new QSortFilterProxyModel{this}}
 {
 	static Q_CONSTEXPR auto SortRole = Qt::UserRole + 100;
 	_reminderModel->setTypeId<Reminder>();
 	auto column = _reminderModel->addColumn(tr("Reminder"), "description");
 	_reminderModel->addRole(column, Qt::DecorationRole, "important");
-	_reminderModel->addRole(column, Qt::DisplayRole, "description");
+	_reminderModel->addRole(column, Qt::ToolTipRole, "description");
 	_reminderModel->addRole(column, SortRole, "description");
 	column = _reminderModel->addColumn(tr("Due on"), "current");
 	_reminderModel->addRole(column, Qt::DecorationRole, "triggerState");

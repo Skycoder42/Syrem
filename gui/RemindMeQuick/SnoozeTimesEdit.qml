@@ -64,14 +64,14 @@ Item {
 						visible = false;
 						var nList = elementList.model;
 						nList[index] = editInput.text;
-						inputValue = SnoozeTimes.generate(nList);
+						inputValue = SnoozeTimesGenerator.generate(nList);
 					}
 
 					onRemoved: {
 						visible = false;
 						var nList = elementList.model;
 						nList.splice(index, 1);
-						inputValue = SnoozeTimes.generate(nList);
+						inputValue = SnoozeTimesGenerator.generate(nList);
 					}
 				}
 			}
@@ -92,7 +92,7 @@ Item {
 			onEditDone: {
 				var nList = elementList.model;
 				nList.push(text);
-				inputValue = SnoozeTimes.generate(nList);
+				inputValue = SnoozeTimesGenerator.generate(nList);
 				addInput.text = "";
 			}
 		}

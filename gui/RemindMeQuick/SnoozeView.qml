@@ -33,6 +33,13 @@ AlertDialog {
 				viewProperty: "editText"
 				type: MvvmBinding.OneWayToViewModel
 			}
+
+			Component.onCompleted: {
+				selectAll();
+				snoozeBox.forceActiveFocus();
+			}
+
+			onAccepted: snoozeDialog.accept()
 		}
 	}
 

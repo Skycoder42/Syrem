@@ -18,6 +18,7 @@ class REMINDMELIBSHARED_EXPORT Reminder
 	Q_GADGET
 
 	Q_PROPERTY(QUuid id READ id WRITE setId USER true)
+	Q_PROPERTY(QUuid bugId READ id WRITE setId STORED false) //NOTE remove again...
 	Q_PROPERTY(quint32 versionCode READ versionCode WRITE setVersionCode)
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)

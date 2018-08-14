@@ -9,11 +9,10 @@ else: TARGET = remind-me
 QMAKE_TARGET_PRODUCT = "Remind-Me"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-HEADERS += \
-	settingsqmlwrapper.h
+SOURCES += main.cpp
 
-SOURCES += main.cpp \
-	settingsqmlwrapper.cpp
+QML_SETTINGS_DEFINITIONS += \
+	../../RemindMeLib/syncedsettings.xml
 
 RESOURCES += \
 	remindmequick.qrc
