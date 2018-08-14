@@ -1,5 +1,6 @@
 #include "mainviewmodel.h"
 
+#include <QGuiApplication>
 #include <QtMvvmCore/Messages>
 #include <QtMvvmCore/SettingsViewModel>
 #include <QtMvvmDataSyncCore/DataSyncViewModel>
@@ -117,6 +118,7 @@ void MainViewModel::snoozeReminder(const QUuid &id)
 
 void MainViewModel::onInit(const QVariantHash &params)
 {
+	QGuiApplication::setQuitOnLastWindowClosed(true);
 	if(params.contains(paramRemId)) {
 		auto remId = params.value(paramRemId).toUuid();
 		auto mIndex = _reminderModel->idIndex(remId);

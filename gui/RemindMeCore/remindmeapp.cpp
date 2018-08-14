@@ -30,6 +30,7 @@ RemindMeApp::RemindMeApp(QObject *parent) :
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QGuiApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
+	QGuiApplication::setQuitOnLastWindowClosed(false);
 }
 
 bool RemindMeApp::isCreateOnly() const
@@ -39,10 +40,7 @@ bool RemindMeApp::isCreateOnly() const
 
 void RemindMeApp::performRegistrations()
 {
-	//if you are using a qt resource (e.g. "remindmecore.qrc"), initialize it here
 	Q_INIT_RESOURCE(remindmecore);
-
-	//load translations
 	RemindMe::prepareTranslations(QStringLiteral("remindme"));
 }
 
@@ -101,10 +99,15 @@ int RemindMeApp::startApp(const QStringList &arguments)
 #endif
 #endif
 
-	// create datasync etc
+	// create datasync etc.
+	auto progress = QtMvvm::showBusy(this,
+									 tr("Starting Service"),
+									 tr("Starting the Remind-Me service. Please wait until it started…"),
+									 false);
 	QtDataSync::Setup setup;
 	RemindMe::setup(setup);
-	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 3000);
+	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 5000);
+	progress->close();
 
 #ifdef Q_OS_ANDROID
 	bool forceCreate = QtAndroid::androidActivity().callMethod<jboolean>("isCreateOnly");
@@ -132,7 +135,7 @@ int RemindMeApp::startApp(const QStringList &arguments)
 		_createOnly = true;
 		show<CreateReminderViewModel>();
 	} else if(parser.isSet(QStringLiteral("select")))
-		show<MainViewModel>(MainViewModel::showParams(QUuid(parser.value(QStringLiteral("select")))));
+		show<MainViewModel>(MainViewModel::showParams(QUuid{parser.value(QStringLiteral("select"))}));
 	else
 		show<MainViewModel>();
 
@@ -149,7 +152,7 @@ void RemindMeApp::createReminderInline(bool important, const QString &descriptio
 {
 	try {
 		auto parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
-		auto store = new ReminderStore();
+		auto store = new ReminderStore{this};
 
 		Reminder reminder;
 		reminder.setImportant(important);
