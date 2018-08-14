@@ -2,12 +2,7 @@
 #define REMINDMEDAEMON_H
 
 #include <QObject>
-#include <sys/syslog.h>
 class NotificationManager;
-
-namespace QtDataSync {
-class DataStoreModel;
-}
 
 class RemindMeDaemon : public QObject
 {

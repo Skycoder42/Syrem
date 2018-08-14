@@ -6,6 +6,8 @@
 
 #include "notificationmanager.h"
 
+#include <QtCore/private/qtcore-config_p.h>
+
 using namespace QtDataSync;
 
 RemindMeDaemon::RemindMeDaemon(QObject *parent) :
@@ -16,6 +18,7 @@ RemindMeDaemon::RemindMeDaemon(QObject *parent) :
 bool RemindMeDaemon::startDaemon(bool systemdLog)
 {
 	if(systemdLog) {
+#if !QT_CONFIG(journald) && !QT_CONFIG(syslog)
 		qSetMessagePattern(QStringLiteral("%{if-fatal}<0>%{endif}"
 										  "%{if-critical}<2>%{endif}"
 										  "%{if-warning}<4>%{endif}"
@@ -23,6 +26,7 @@ bool RemindMeDaemon::startDaemon(bool systemdLog)
 										  "%{if-debug}<7>%{endif}"
 										  "%{if-category}%{category}: %{endif}"
 										  "%{message}"));
+#endif
 	} else {
 		qSetMessagePattern(QStringLiteral("[%{time} %{type}]\t"
 										  "%{if-category}%{category}: %{endif}"

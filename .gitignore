@@ -75,3 +75,4 @@ Thumbs.db
 .qpmx-dev-cache 
 *.tsdummy.cpp
 *.json.user
+.tsdummy.pro.dummy

@@ -13,7 +13,7 @@
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	QCoreApplication::setApplicationName(QStringLiteral("remind-me"));
+	QCoreApplication::setApplicationName(QStringLiteral(PROJECT_TARGET));
 	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
 	QCoreApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));

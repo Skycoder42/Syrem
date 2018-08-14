@@ -5,7 +5,7 @@ TARGET = remind-med
 QMAKE_TARGET_PRODUCT = "Remind-Me Daemon"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-QT += widgets mvvmcore
+QT += widgets mvvmcore core-private
 
 !no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
 
