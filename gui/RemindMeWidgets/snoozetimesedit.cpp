@@ -38,6 +38,8 @@ SnoozeTimes SnoozeTimesEdit::times() const
 
 void SnoozeTimesEdit::setTimes(const SnoozeTimes &times)
 {
+	if(times.isEmpty())
+		return;
 	_ui->listWidget->clear();
 	for(const auto& time : times) {
 		auto item = new QListWidgetItem(time, _ui->listWidget);

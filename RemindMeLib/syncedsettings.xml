@@ -16,7 +16,7 @@
 	<Entry key="snoozetimes_fallback" type="bool">
 		<Code> <!-- VERY dirty trick to get the defaults into the snoozetimes -->
 			[&amp;](){
-				scheduler.snoozetimes.setup(QStringLiteral("scheduler/snoozetimes"), _accessor, QVariant::fromValue(QStringList {
+				scheduler.snoozetimes.setup(QStringLiteral("scheduler/snoozetimes"), _accessor, QVariant::fromValue(SnoozeTimes {
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
 					QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
