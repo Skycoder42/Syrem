@@ -16,10 +16,17 @@ MainViewModel::MainViewModel(QObject *parent) :
 	_sortedModel(new QSortFilterProxyModel(this))
 {
 	_reminderModel->setTypeId<Reminder>();
+	auto column = _reminderModel->addColumn(tr("Reminder"), "description");
+	_reminderModel->addRole(column, Qt::DecorationRole, "important");
+	_reminderModel->addRole(column, Qt::DisplayRole, "description");
+	column = _reminderModel->addColumn(tr("Due on"), "current");
+	_reminderModel->addRole(column, Qt::DecorationRole, "triggerState");
+	_reminderModel->addRole(column, Qt::ToolTipRole, "triggerState");
+
 	_sortedModel->setSortLocaleAware(true);
 	_sortedModel->setSourceModel(_reminderModel);
 	_sortedModel->setSortRole(_reminderModel->roleNames().key("current")); //NOTE make settable
-	_sortedModel->sort(0);
+	_sortedModel->sort(0); //TODO implement correct date sorting
 }
 
 QVariantHash MainViewModel::showParams(const QUuid &reminderId)
@@ -41,7 +48,7 @@ QSortFilterProxyModel *MainViewModel::sortedModel() const
 
 void MainViewModel::showSettings()
 {
-	show<QtMvvm::SettingsViewModel>(QtMvvm::SettingsViewModel::showParams(SyncedSettings::instance()->accessor()));
+	show<QtMvvm::SettingsViewModel>(QtMvvm::SettingsViewModel::showParams(SyncedSettings::instance()->accessor())); //TODO get via injection
 }
 
 void MainViewModel::showSync()

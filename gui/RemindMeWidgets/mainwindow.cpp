@@ -9,8 +9,7 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QMainWindow(parent),
 	_viewModel(static_cast<MainViewModel*>(viewModel)),
 	_ui(new Ui::MainWindow),
-	_proxyModel(new ReminderProxyModel(this)),
-	_sortModel(new QSortFilterProxyModel(this))
+	_proxyModel(new ReminderProxyModel(this))
 {
 	_ui->setupUi(this);
 	setCentralWidget(_ui->treeView);
@@ -38,11 +37,8 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 								  _ui->action_Snooze_Reminder
 							  });
 
-	_proxyModel->setSourceModel(_viewModel->reminderModel());
-	_sortModel->setSortLocaleAware(true);
-	_sortModel->setSortRole(Qt::UserRole + 1);
-	_sortModel->setSourceModel(_proxyModel);
-	_ui->treeView->setModel(_sortModel);
+	_proxyModel->setSourceModel(_viewModel->sortedModel());
+	_ui->treeView->setModel(_proxyModel);
 	_ui->treeView->sortByColumn(1, Qt::AscendingOrder);
 
 	_ui->treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -76,8 +72,8 @@ MainWindow::~MainWindow()
 void MainWindow::select(int row)
 {
 	auto index = _viewModel->reminderModel()->index(row);
+	index = _viewModel->sortedModel()->mapFromSource(index);
 	index = _proxyModel->mapFromSource(index);
-	index = _sortModel->mapFromSource(index);
 	_ui->treeView->setCurrentIndex(index);
 }
 
@@ -118,14 +114,14 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 
 Reminder MainWindow::reminderAt(const QModelIndex &sIndex)
 {
-	if(!sIndex.isValid())
+	if(!sIndex.isValid()) //NOTE use special property from datasync once created
 		return {};
 
-	auto pIndex = _sortModel->mapToSource(sIndex);
-	if(!pIndex.isValid())
+	auto index = _proxyModel->mapToSource(sIndex);
+	if(!index.isValid())
 		return {};
 
-	auto index = _proxyModel->mapToSource(pIndex);
+	index = _viewModel->sortedModel()->mapToSource(index);
 	if(!index.isValid())
 		return {};
 
@@ -135,12 +131,12 @@ Reminder MainWindow::reminderAt(const QModelIndex &sIndex)
 
 
 ReminderProxyModel::ReminderProxyModel(QObject *parent) :
-	QObjectProxyModel({tr("Reminder"), tr("Due on")}, parent)
+	QIdentityProxyModel{parent}
 {}
 
 QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 {
-	auto data = QObjectProxyModel::data(index, role);
+	auto data = QIdentityProxyModel::data(index, role);
 	if(!data.isValid())
 		return {};
 
@@ -149,11 +145,11 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 	case 0:
 		if(role == Qt::DecorationRole) {
 			if(data.toBool())
-				return QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
+				return QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon{QStringLiteral(":/icons/important.ico")});
 			else
 				return QIcon(QStringLiteral(":/icons/empty.ico"));
 		} else if(role == Qt::ToolTipRole) {
-			auto important = QObjectProxyModel::data(index, Qt::DecorationRole).toBool();
+			auto important = QIdentityProxyModel::data(index, Qt::DecorationRole).toBool();
 			if(important)
 				return data.toString().append(tr("<br/><i>This is an important reminder</i>"));
 		}
@@ -173,7 +169,7 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 				break;
 			}
 		} else if(role == Qt::ToolTipRole) {
-			auto dateTime = QObjectProxyModel::data(index, Qt::DisplayRole);
+			auto dateTime = QIdentityProxyModel::data(index, Qt::DisplayRole);
 			auto baseStr = QLocale().toString(dateTime.toDateTime(), QLocale::LongFormat);
 			switch(data.toInt()) {
 			case Reminder::Normal:
@@ -195,17 +191,4 @@ QVariant ReminderProxyModel::data(const QModelIndex &index, int role) const
 	}
 
 	return data;
-}
-
-void ReminderProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
-{
-	QObjectProxyModel::setSourceModel(sourceModel);
-	addMapping(0, Qt::DecorationRole, "important");
-	addMapping(0, Qt::DisplayRole, "description");
-	addMapping(0, Qt::ToolTipRole, "description");
-	addMapping(0, Qt::UserRole + 1, "description");
-	addMapping(1, Qt::DisplayRole, "current");
-	addMapping(1, Qt::DecorationRole, "triggerState");
-	addMapping(1, Qt::ToolTipRole, "triggerState");
-	addMapping(1, Qt::UserRole + 1, "current");
 }

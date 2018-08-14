@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Settings name="SyncedSettings" prefix="REMINDMELIBSHARED_EXPORT">
+<Settings name="SyncedSettings"
+		  prefix="REMINDMELIBSHARED_EXPORT"
+		  scope="DestroyOnAppQuit">
 	<Include>remindmelib_global.h</Include>
 	<Include>QtMvvmDataSyncCore/DataSyncSettingsAccessor</Include>
 	<Include>QKeySequence</Include>
