@@ -13,7 +13,6 @@ class ConflictResolver : public QtDataSync::GenericConflictResolver<Reminder>
 public:
 	explicit ConflictResolver(QObject *parent = nullptr);
 
-	QJsonObject resolveConflict(int typeId, const QJsonObject &data1, const QJsonObject &data2) const override;
 	Reminder resolveConflict(Reminder data1, Reminder data2, QObject *parent) const override;
 };
 

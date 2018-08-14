@@ -7,7 +7,7 @@
 #include "remindmelib_global.h"
 #include "reminder.h"
 
-typedef QtDataSync::DataTypeStore<Reminder, QUuid> ReminderStore;
+using ReminderStore = QtDataSync::DataTypeStore<Reminder, QUuid>;
 
 namespace RemindMe {
 

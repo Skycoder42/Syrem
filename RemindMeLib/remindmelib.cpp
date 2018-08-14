@@ -111,19 +111,6 @@ QString RemindMe::whenExpressionHelp()
 
 namespace {
 
-void cleanSettings()
-{
-	try {
-		//WORKAROUND for settings destruction bug
-//		auto accessor = dynamic_cast<DataSyncSettingsAccessor*>(SyncedSettings::instance()->accessor());
-//		if(accessor)
-//			delete accessor;
-		qDebug() << "Cleaned settings";
-	} catch(QException &e) {
-		qCritical() << "Failed to clean settings:" << e.what();
-	}
-}
-
 void setupRemindMeLib()
 {
 	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
@@ -148,14 +135,12 @@ void setupRemindMeLib()
 	});
 	QMetaType::registerConverter<QVariantList, SnoozeTimes>([](const QVariantList &list) -> SnoozeTimes {
 		SnoozeTimes l;
-		for(auto v : list)
+		for(const auto& v : list)
 			l.append(v.toString());
 		return l;
 	});
 
 	QtMvvm::ServiceRegistry::instance()->registerObject<DateParser>();
-
-	qAddPostRoutine(cleanSettings);
 }
 
 }

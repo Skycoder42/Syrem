@@ -4,23 +4,6 @@ ConflictResolver::ConflictResolver(QObject *parent) :
 	GenericConflictResolver<Reminder>(parent)
 {}
 
-//NOTE remove once fixed in upstream
-QJsonObject ConflictResolver::resolveConflict(int typeId, const QJsonObject &data1, const QJsonObject &data2) const
-{
-	if(typeId == qMetaTypeId<Reminder>()) {
-		QObject scope;
-		const QJsonSerializer *ser = this->defaults().serializer();
-		auto d1 = ser->deserialize<Reminder>(data1, &scope);
-		auto d2 = ser->deserialize<Reminder>(data2, &scope);
-		auto res = resolveConflict(d1, d2, &scope);
-		if(!res.id().isNull())
-			return ser->serialize<Reminder>(resolveConflict(d1, d2, &scope));
-		else
-			return QJsonObject();
-	} else
-		return resolveUnknownConflict(typeId, data1, data2);
-}
-
 Reminder ConflictResolver::resolveConflict(Reminder data1, Reminder data2, QObject *parent) const
 {
 	Q_UNUSED(parent)
@@ -48,9 +31,6 @@ Reminder ConflictResolver::resolveConflict(Reminder data1, Reminder data2, QObje
 		return data1;
 	else if(data2.schedule()->current() > data1.schedule()->current())
 		return data2;
-
-	//default case: no clear winner
-	Reminder r;
-	r.setId(QUuid());
-	return r;
+	else
+		throw NoConflictResultException{};
 }
