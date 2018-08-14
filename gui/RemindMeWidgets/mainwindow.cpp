@@ -6,10 +6,10 @@
 #include <QtMvvmCore/Binding>
 
 MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
-	QMainWindow(parent),
-	_viewModel(static_cast<MainViewModel*>(viewModel)),
-	_ui(new Ui::MainWindow),
-	_proxyModel(new ReminderProxyModel(this))
+	QMainWindow{parent},
+	_viewModel{static_cast<MainViewModel*>(viewModel)},
+	_ui{new Ui::MainWindow{}},
+	_proxyModel{new ReminderProxyModel{this}}
 {
 	_ui->setupUi(this);
 	setCentralWidget(_ui->treeView);

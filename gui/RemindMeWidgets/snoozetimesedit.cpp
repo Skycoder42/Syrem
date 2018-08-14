@@ -2,8 +2,8 @@
 #include "ui_snoozetimesedit.h"
 
 SnoozeTimesEdit::SnoozeTimesEdit(QWidget *parent) :
-	QWidget(parent),
-	_ui(new Ui::SnoozeTimesEdit)
+	QWidget{parent},
+	_ui{new Ui::SnoozeTimesEdit{}}
 {
 	_ui->setupUi(this);
 
@@ -12,7 +12,7 @@ SnoozeTimesEdit::SnoozeTimesEdit(QWidget *parent) :
 	_ui->upButton->setDefaultAction(_ui->actionMove_Up);
 	_ui->downButton->setDefaultAction(_ui->actionMove_Down);
 
-	auto sep = new QAction(this);
+	auto sep = new QAction{this};
 	sep->setSeparator(true);
 	_ui->listWidget->addActions({
 									_ui->action_Add_Time,
@@ -39,7 +39,7 @@ SnoozeTimes SnoozeTimesEdit::times() const
 void SnoozeTimesEdit::setTimes(const SnoozeTimes &times)
 {
 	_ui->listWidget->clear();
-	for(auto time : times) {
+	for(const auto& time : times) {
 		auto item = new QListWidgetItem(time, _ui->listWidget);
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 	}

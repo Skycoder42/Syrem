@@ -5,6 +5,7 @@
 #include <QtMvvmCore/ViewModel>
 #include <QtDataSync/DataStoreModel>
 #include <reminder.h>
+#include <syncedsettings.h>
 
 class MainViewModel : public QtMvvm::ViewModel
 {
@@ -12,6 +13,8 @@ class MainViewModel : public QtMvvm::ViewModel
 
 	Q_PROPERTY(QtDataSync::DataStoreModel* reminderModel READ reminderModel CONSTANT)
 	Q_PROPERTY(QSortFilterProxyModel* sortedModel READ sortedModel CONSTANT)
+
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 
 public:
 	static const QString paramRemId;
@@ -40,6 +43,7 @@ protected:
 	void onInit(const QVariantHash &params) override;
 
 private:
+	SyncedSettings *_settings = nullptr;
 	QtDataSync::DataStoreModel *_reminderModel;
 	QSortFilterProxyModel *_sortedModel;
 };

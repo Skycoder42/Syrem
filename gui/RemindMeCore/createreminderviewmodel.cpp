@@ -3,12 +3,8 @@
 #include <QTimer>
 
 CreateReminderViewModel::CreateReminderViewModel(QObject *parent) :
-	ViewModel(parent),
-	_parser(nullptr), //injected
-	_store(new ReminderStore(this)),
-	_text(),
-	_important(false),
-	_expression()
+	ViewModel{parent},
+	_store{new ReminderStore{this}}
 {}
 
 QString CreateReminderViewModel::text() const

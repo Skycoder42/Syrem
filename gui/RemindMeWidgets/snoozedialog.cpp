@@ -5,8 +5,8 @@
 #include <localsettings.h>
 
 SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
-	QInputDialog(parent),
-	_viewModel(static_cast<SnoozeViewModel*>(viewModel))
+	QInputDialog{parent},
+	_viewModel{static_cast<SnoozeViewModel*>(viewModel)}
 {
 	setWindowTitle(tr("Snooze Reminder"));
 	setInputMode(QInputDialog::TextInput);
@@ -24,6 +24,10 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	QtMvvm::bind(_viewModel, "snoozeTimes",
 				 this, "comboBoxItems",
 				 QtMvvm::Binding::OneWayToView);
+	connect(_viewModel, &SnoozeViewModel::reminderLoaded,
+			this, [this]() {
+		setTextValue(comboBoxItems().isEmpty() ? QString{} : comboBoxItems().first());
+	});
 
 	if(LocalSettings::instance()->gui.snoozedialog.size.isSet())
 		resize(LocalSettings::instance()->gui.snoozedialog.size);

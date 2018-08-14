@@ -5,7 +5,7 @@ import QtQuick.Controls.Material 2.3
 import QtQuick.Controls.Universal 2.3
 import QtQuick.Layouts 1.3
 import QtGraphicalEffects 1.0
-import de.skycoder42.QtMvvm.Quick 1.0
+import de.skycoder42.QtMvvm.Quick 1.1
 import de.skycoder42.remindme 1.0
 
 SwipeDelegate {

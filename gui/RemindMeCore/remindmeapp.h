@@ -19,9 +19,9 @@ protected:
 
 private:
 #ifndef Q_OS_ANDROID
-	QtService::ServiceControl *_serviceControl;
+	QtService::ServiceControl *_serviceControl = nullptr;
 #endif
-	bool _createOnly;
+	bool _createOnly = false;
 
 	void createReminderInline(bool important, const QString &description, const QString &when);
 };

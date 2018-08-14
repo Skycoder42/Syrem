@@ -3,16 +3,11 @@
 #include <snoozetimes.h>
 #include <syncedsettings.h>
 
-const QString SnoozeViewModel::paramReminder = QStringLiteral("reminder");
+const QString SnoozeViewModel::paramReminder{QStringLiteral("reminder")};
 
 SnoozeViewModel::SnoozeViewModel(QObject *parent) :
-	ViewModel(parent),
-	_settings(nullptr), //injected
-	_parser(nullptr), //injected
-	_store(new ReminderStore(this)),
-	_reminder(),
-	_snoozeTimes(),
-	_expression()
+	ViewModel{parent},
+	_store{new ReminderStore{this}}
 {}
 
 QVariantHash SnoozeViewModel::showParams(const Reminder &reminder)

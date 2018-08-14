@@ -46,8 +46,8 @@ protected:
 	void onInit(const QVariantHash &params) override;
 
 private:
-	SyncedSettings *_settings;
-	DateParser *_parser;
+	SyncedSettings *_settings = nullptr;
+	DateParser *_parser = nullptr;
 	ReminderStore *_store;
 
 	Reminder _reminder;

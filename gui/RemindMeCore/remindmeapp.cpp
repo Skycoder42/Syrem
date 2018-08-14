@@ -18,11 +18,7 @@
 #include "createreminderviewmodel.h"
 
 RemindMeApp::RemindMeApp(QObject *parent) :
-	CoreApp(parent),
-#ifndef Q_OS_ANDROID
-	_serviceControl(nullptr),
-#endif
-	_createOnly(false)
+	CoreApp{parent}
 {
 	QCoreApplication::setApplicationName(QStringLiteral(PROJECT_TARGET));
 	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
@@ -144,7 +140,6 @@ int RemindMeApp::startApp(const QStringList &arguments)
 						tr("Failed to connect to service. The application will still work, "
 						   "but neither synchronize nor schedule new reminders!"));
 	}
-
 	return EXIT_SUCCESS;
 }
 

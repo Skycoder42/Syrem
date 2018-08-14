@@ -39,11 +39,11 @@ signals:
 	void expressionChanged(const QString &expression);
 
 private:
-	DateParser *_parser;
+	DateParser *_parser = nullptr;
 	ReminderStore *_store;
 
 	QString _text;
-	bool _important;
+	bool _important = false;
 	QString _expression;
 };
 

@@ -9,25 +9,28 @@
 #include "snoozeviewmodel.h"
 #include "datasyncsettingsviewmodel.h"
 
-const QString MainViewModel::paramRemId = QStringLiteral("reminder-id");
+const QString MainViewModel::paramRemId{QStringLiteral("reminder-id")};
 
 MainViewModel::MainViewModel(QObject *parent) :
-	ViewModel(parent),
-	_reminderModel(new QtDataSync::DataStoreModel(this)),
-	_sortedModel(new QSortFilterProxyModel(this))
+	ViewModel{parent},
+	_reminderModel{new QtDataSync::DataStoreModel{this}},
+	_sortedModel{new QSortFilterProxyModel{this}}
 {
+	static Q_CONSTEXPR auto SortRole = Qt::UserRole + 100;
 	_reminderModel->setTypeId<Reminder>();
 	auto column = _reminderModel->addColumn(tr("Reminder"), "description");
 	_reminderModel->addRole(column, Qt::DecorationRole, "important");
 	_reminderModel->addRole(column, Qt::DisplayRole, "description");
+	_reminderModel->addRole(column, SortRole, "description");
 	column = _reminderModel->addColumn(tr("Due on"), "current");
 	_reminderModel->addRole(column, Qt::DecorationRole, "triggerState");
 	_reminderModel->addRole(column, Qt::ToolTipRole, "triggerState");
+	_reminderModel->addRole(column, SortRole, "current");
 
 	_sortedModel->setSortLocaleAware(true);
 	_sortedModel->setSourceModel(_reminderModel);
-	_sortedModel->setSortRole(_reminderModel->roleNames().key("current")); //NOTE make settable
-	_sortedModel->sort(0); //TODO implement correct date sorting
+	_sortedModel->setSortRole(SortRole);
+	_sortedModel->sort(1);
 }
 
 QVariantHash MainViewModel::showParams(const QUuid &reminderId)
@@ -49,7 +52,7 @@ QSortFilterProxyModel *MainViewModel::sortedModel() const
 
 void MainViewModel::showSettings()
 {
-	show<QtMvvm::SettingsViewModel>(QtMvvm::SettingsViewModel::showParams(SyncedSettings::instance()->accessor())); //TODO get via injection
+	show<QtMvvm::SettingsViewModel>(QtMvvm::SettingsViewModel::showParams(_settings->accessor()));
 }
 
 void MainViewModel::showSync()

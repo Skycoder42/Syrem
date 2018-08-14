@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
 	QtMvvm::WidgetsPresenter::registerView<MainWindow>();
 	QtMvvm::WidgetsPresenter::registerView<CreateReminderDialog>();
 	QtMvvm::WidgetsPresenter::registerView<SnoozeDialog>();
-	auto wPres = dynamic_cast<QtMvvm::WidgetsPresenter*>(QtMvvm::ServiceRegistry::instance()->service<QtMvvm::IPresenter>());
-	wPres->inputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
+	QtMvvm::WidgetsPresenter::getInputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
 
 	return a.exec();
 }
