@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += mvvmcore mvvmdatasynccore
+QT += mvvmcore mvvmdatasynccore service
 android: QT += androidextras
 CONFIG += static
 
@@ -13,19 +13,17 @@ HEADERS += \
 	remindmeapp.h \
 	mainviewmodel.h \
 	createreminderviewmodel.h \
-	snoozeviewmodel.h \
-	datasyncsettingsviewmodel.h
+	snoozeviewmodel.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	mainviewmodel.cpp \
 	createreminderviewmodel.cpp \
-	snoozeviewmodel.cpp \
-	datasyncsettingsviewmodel.cpp
+	snoozeviewmodel.cpp
 
 !android {
-	HEADERS += daemoncontroller.h
-	SOURCES += daemoncontroller.cpp
+	HEADERS +=
+	SOURCES +=
 }
 
 RESOURCES += \

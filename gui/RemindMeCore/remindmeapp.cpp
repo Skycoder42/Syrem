@@ -20,7 +20,7 @@
 RemindMeApp::RemindMeApp(QObject *parent) :
 	CoreApp(parent),
 #ifndef Q_OS_ANDROID
-	_daemon(nullptr),
+	_serviceControl(nullptr),
 #endif
 	_createOnly(false)
 {
@@ -77,13 +77,27 @@ int RemindMeApp::startApp(const QStringList &arguments)
 	if(!autoParse(parser, arguments))
 		return EXIT_SUCCESS;
 
+
 #ifndef Q_OS_ANDROID
-	// start the daemon
-	_daemon = new DaemonController(this);
-	_daemon->ensureStarted();
+#if !defined(QT_NO_DEBUG)
+	_serviceControl = QtService::ServiceControl::create(QStringLiteral("standard"),
+														QCoreApplication::applicationDirPath() +
+														QStringLiteral("/../../daemons/RemindMeDesktopDaemon/remind-med"),
+														this);
+#elif defined(Q_OS_LINUX)
+	_serviceControl = QtService::ServiceControl::create(QStringLiteral("systemd"),
+														QStringLiteral(PROJECT_TARGET),
+														this);
+#else
+	_serviceControl = QtService::ServiceControl::create(QStringLiteral("standard"),
+														QCoreApplication::applicationDirPath() + QStringLiteral("/remind-med"),
+														this);
+#endif
+	if(!_serviceControl->start())
+		qWarning() << "Failed to start service";
 #ifndef QT_NO_DEBUG
 	connect(qApp, &QGuiApplication::aboutToQuit,
-			_daemon, &DaemonController::stop);
+			_serviceControl, &QtService::ServiceControl::stop);
 #endif
 #endif
 
@@ -134,7 +148,7 @@ int RemindMeApp::startApp(const QStringList &arguments)
 void RemindMeApp::createReminderInline(bool important, const QString &description, const QString &when)
 {
 	try {
-		DateParser* parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
+		auto parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
 		auto store = new ReminderStore();
 
 		Reminder reminder;

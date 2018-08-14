@@ -2,10 +2,7 @@
 #define REMINDMEAPP_H
 
 #include <QtMvvmCore/CoreApp>
-
-#ifndef Q_OS_ANDROID
-#include "daemoncontroller.h"
-#endif
+#include <QtService/ServiceControl>
 
 class RemindMeApp : public QtMvvm::CoreApp
 {
@@ -22,7 +19,7 @@ protected:
 
 private:
 #ifndef Q_OS_ANDROID
-	DaemonController *_daemon;
+	QtService::ServiceControl *_serviceControl;
 #endif
 	bool _createOnly;
 

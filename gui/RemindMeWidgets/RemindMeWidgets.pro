@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += widgets mvvmwidgets mvvmdatasyncwidgets
+QT += widgets mvvmwidgets mvvmdatasyncwidgets service
 
 TARGET = remind-me
 
