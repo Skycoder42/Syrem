@@ -44,21 +44,23 @@ Item {
 				width: parent.width
 				text: editInput.visible ? "" : modelData
 
-				onClicked: editInput.visible = true
+				onClicked: {
+					editInput.visible = true;
+					editInput.activate();
+				}
 
 				SnoozeEdit {
 					id: editInput
-					anchors.centerIn: parent
-					width: parent.width
+					anchors.left: parent.left
+					anchors.leftMargin: 16
+					anchors.right: parent.right
+					anchors.verticalCenter: parent.verticalCenter
 					visible: false
 
 					text: modelData
 					edit: true
 
-					onFocusChanged: {
-						if(!focus)
-							visible = false;
-					}
+					onFocusLost: visible = false
 
 					onEditDone: {
 						visible = false;

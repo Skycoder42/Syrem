@@ -10,7 +10,6 @@ import de.skycoder42.remindme 1.0
 
 SwipeDelegate {
 	id: delegate
-	width: parent.width
 	text: description
 	highlighted: important ? important == "true" : false
 
@@ -50,42 +49,43 @@ SwipeDelegate {
 			text: delegate.text
 		}
 
-		Displace {
-			source: imgBtn
-			Layout.preferredWidth: imgBtn.width
-			Layout.preferredHeight: imgBtn.height
-
-			ActionButton {
-				id: imgBtn
-				visible: false
-				down: false
-				icon.name: {
-					switch(Number(triggerState)) {
-					case 0:
-						return "";
-					case 1:
-						return "media-playlist-repeat";
-					case 2:
-						return "alarm-symbolic";
-					case 3:
-						return "view-calendar-upcoming-events";
-					default:
-						return "";
-					}
+		TintIcon {
+			visible: {
+				switch(Number(triggerState)) {
+				case 1:
+				case 2:
+				case 3:
+					return true;
+				default:
+					return false;
 				}
-				icon.source: {
-					switch(Number(triggerState)) {
-					case 0:
-						return "";
-					case 1:
-						return "qrc:/icons/ic_repeat.svg";
-					case 2:
-						return "qrc:/icons/ic_snooze.svg";
-					case 3:
-						return "qrc:/icons/ic_assignment_late.svg";
-					default:
-						return "";
-					}
+			}
+			icon.name: {
+				switch(Number(triggerState)) {
+				case 0:
+					return "";
+				case 1:
+					return "media-playlist-repeat";
+				case 2:
+					return "alarm-symbolic";
+				case 3:
+					return "view-calendar-upcoming-events";
+				default:
+					return "";
+				}
+			}
+			icon.source: {
+				switch(Number(triggerState)) {
+				case 0:
+					return "";
+				case 1:
+					return "qrc:/icons/ic_repeat.svg";
+				case 2:
+					return "qrc:/icons/ic_snooze.svg";
+				case 3:
+					return "qrc:/icons/ic_assignment_late.svg";
+				default:
+					return "";
 				}
 			}
 		}
@@ -125,7 +125,7 @@ SwipeDelegate {
 
 				onClicked: {
 					delegate.swipe.close();
-					isTriggered ? reminderCompleted() : reminderDeleted()
+					isTriggered ? reminderCompleted() : reminderDeleted();
 				}
 			}
 		}

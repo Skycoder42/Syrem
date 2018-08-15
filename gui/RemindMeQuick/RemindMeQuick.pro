@@ -2,6 +2,7 @@ TEMPLATE = app
 
 QT += quick mvvmquick mvvmdatasyncquick service
 android: QT += androidextras
+CONFIG += qtquickcompiler
 
 android: TARGET = RemindMeQuick
 else: TARGET = remind-me

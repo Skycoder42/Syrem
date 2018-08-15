@@ -3,20 +3,36 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import de.skycoder42.QtMvvm.Quick 1.1
 
-TextField {
-	id: editInput
+RowLayout {
+	id: snoozeEdit
 
 	property bool edit: false
+	property alias text: editInput.text
 
 	signal editDone()
 	signal removed()
+	signal focusLost()
 
-	placeholderText: edit ? qsTr("Edit snooze time…") : qsTr("Add new snooze time…")
+	function activate() {
+		editInput.selectAll();
+		editInput.forceActiveFocus();
+	}
+
+	TextField {
+		id: editInput
+		Layout.fillWidth: true
+
+		placeholderText: edit ? qsTr("Edit snooze time…") : qsTr("Add new snooze time…")
+		selectByMouse: true
+
+		onFocusChanged: {
+			if(!focus)
+				focusLost();
+		}
+	}
 
 	ActionButton {
-		anchors.right: parent.right
-		anchors.verticalCenter: parent.verticalCenter
-		visible: editInput.text != ""
+		enabled: editInput.text != ""
 
 		icon.name: edit ? "gtk-apply" : "gtk-add"
 		icon.source: edit ? "qrc:/icons/ic_check.svg" : "qrc:/icons/ic_add.svg"

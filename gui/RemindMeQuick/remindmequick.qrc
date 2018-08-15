@@ -22,6 +22,5 @@
     <qresource prefix="/qtmvvm/inputs">
         <file>SnoozeEdit.qml</file>
         <file>SnoozeTimesEdit.qml</file>
-        <file>TimeEdit.qml</file>
     </qresource>
 </RCC>

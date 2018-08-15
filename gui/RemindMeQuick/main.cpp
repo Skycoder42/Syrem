@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 	qmlRegisterUncreatableType<SnoozeViewModel>("de.skycoder42.remindme", 1, 0, "SnoozeViewModel", QStringLiteral("ViewModels cannot be created!"));
 
 	QtMvvm::registerDataSyncQuick();
-	QtMvvm::QuickPresenter::getInputViewFactory()->addSimpleInput<QTime>(QStringLiteral("qrc:/qtmvvm/inputs/TimeEdit.qml"));
 	QtMvvm::QuickPresenter::getInputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qtmvvm/inputs/SnoozeTimesEdit.qml"));
 
 	QQmlApplicationEngine engine;

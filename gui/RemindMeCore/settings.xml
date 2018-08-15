@@ -8,6 +8,7 @@
 				   title="&amp;Date Format"
 				   tooltip="Select the format to display dates as"
 				   default="1">
+				<Property key="qtmvvm_preview" type="string" tr="true">Current format: %1</Property>
 				<Property key="listElements" type="list">
 				   <Element type="object">
 					   <Property key="name" type="string" ts="true">Long</Property>
@@ -31,6 +32,7 @@
 				   title="Tray Blink &amp;interval"
 				   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)"
 				   default="750">
+				<Property key="qtmvvm_preview" type="string" tr="true">Blink every %L1 milliseconds</Property>
 				<Property key="minimum" type="int">100</Property>
 				<Property key="maximum" type="int">10000</Property>
 				<Property key="singleStep" type="int">10</Property>
@@ -53,7 +55,7 @@
 				   tooltip="The time to be used as default for new reminders/snoozing, in case the reminder is date-oriented and no time has been set. Set to &lt;b&gt;00:00&lt;/b&gt; to not set the time"
 				   default="09:00"
 				   tsdefault="true">
-				<Property key="specialValueText" type="string" ts="true">Not set</Property>
+				<Property key="qtmvvm_preview" type="string" tr="true">Currently set to: %1</Property>
 			</Entry>
 			<Entry key="scheduler/snoozetimes"
 				   type="SnoozeTimes"
@@ -66,6 +68,7 @@
 					<Element type="string" ts="true">tomorrow</Element>
 					<Element type="string" ts="true">in 1 week on Monday</Element>
 				</Property>
+				<Property key="qtmvvm_preview" type="string" tr="true">Currently set to: %1</Property><!-- TODO implement -->
 			</Entry>
 		</Group>
 		<Group title="Mobile Scheduling delays"
@@ -76,24 +79,26 @@
 				   title="&amp;Normal Reminders"
 				   tooltip="Enter a delay (in minutes) to use as delay for normal Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
 				   default="5">
-			   <Property key="minimum" type="int">0</Property>
-			   <Property key="maximum" type="int">60</Property><!--max 1 hour-->
-			   <Property key="suffix" type="string" ts="true"> minutes</Property>
-			   <!-- QML special values -->
-			   <Property key="from" type="int">0</Property>
-			   <Property key="to" type="int">60</Property>
+				<Property key="qtmvvm_preview" type="string" tr="true">Delay for %L1 minutes</Property>
+				<Property key="minimum" type="int">0</Property>
+				<Property key="maximum" type="int">60</Property><!--max 1 hour-->
+				<Property key="suffix" type="string" ts="true"> minutes</Property>
+				<!-- QML special values -->
+				<Property key="from" type="int">0</Property>
+				<Property key="to" type="int">60</Property>
 			</Entry>
 			<Entry key="scheduler/delay/important"
 				   type="int"
 				   title="&amp;Important Reminders"
 				   tooltip="Enter a delay (in minutes) to use as delay for important Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
 				   default="2">
-			   <Property key="minimum" type="int">0</Property>
-			   <Property key="maximum" type="int">60</Property><!--max 1 hour-->
-			   <Property key="suffix" type="string" ts="true"> minutes</Property>
-			   <!-- QML special values -->
-			   <Property key="from" type="int">0</Property>
-			   <Property key="to" type="int">60</Property>
+				<Property key="qtmvvm_preview" type="string" tr="true">Delay for %L1 minutes</Property>
+				<Property key="minimum" type="int">0</Property>
+				<Property key="maximum" type="int">60</Property><!--max 1 hour-->
+				<Property key="suffix" type="string" ts="true"> minutes</Property>
+				<!-- QML special values -->
+				<Property key="from" type="int">0</Property>
+				<Property key="to" type="int">60</Property>
 			</Entry>
 		</Group>
 	</Section>

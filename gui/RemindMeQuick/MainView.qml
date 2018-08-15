@@ -47,17 +47,19 @@ Page {
 
 	PresenterProgress {}
 
-	ListView {
+	ScrollView {
+		id: scrollView
 		anchors.fill: parent
 
-		model: viewModel.sortedModel
+		ListView {
+			model: viewModel.sortedModel
 
-		ScrollBar.vertical: ScrollBar {}
-
-		delegate: ReminderDelegate {
-			onReminderActivated: viewModel.snoozeReminder(id)
-			onReminderCompleted: viewModel.completeReminder(id)
-			onReminderDeleted: viewModel.deleteReminder(id)
+			delegate: ReminderDelegate {
+				width: scrollView.width
+				onReminderActivated: viewModel.snoozeReminder(id)
+				onReminderCompleted: viewModel.completeReminder(id)
+				onReminderDeleted: viewModel.deleteReminder(id)
+			}
 		}
 	}
 

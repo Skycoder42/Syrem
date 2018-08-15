@@ -19,13 +19,8 @@ AlertDialog {
 		}
 	}
 
-	GridLayout {
-		columns: 2
+	ColumnLayout {
 		width: parent.width
-
-		Label {
-			text: qsTr("Text:")
-		}
 
 		TextField {
 			id: textField
@@ -42,10 +37,6 @@ AlertDialog {
 			}
 		}
 
-		Label {
-			text: qsTr("When:")
-		}
-
 		TextField {
 			id: whenField
 			Layout.fillWidth: true
@@ -60,12 +51,10 @@ AlertDialog {
 			}
 		}
 
-		Label {
-			text: qsTr("Important:")
-		}
-
 		Switch {
 			id: impSwitch
+			Layout.fillWidth: true
+			text: qsTr("Important")
 
 			MvvmBinding {
 				viewModel: createDialog.viewModel

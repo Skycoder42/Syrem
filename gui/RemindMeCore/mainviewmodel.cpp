@@ -24,7 +24,6 @@ public:
 		auto rNames = QtDataSync::DataStoreModel::roleNames();
 		rNames.remove(0); //remove the original id
 		rNames.insert(rNames.key("bugId"), "id"); //replace by bugId
-		qDebug() << rNames;
 		return rNames;
 	}
 };
