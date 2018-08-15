@@ -29,10 +29,9 @@ Item {
 
 		anchors.fill: parent
 
-		ListView {
-			id: elementList
-
-			implicitHeight: dummyDelegate.height * (model ? model.length : 1)
+		ScrollView {
+			id: scrollView
+			implicitHeight: dummyDelegate.height * (elementList.model ? elementList.model.length : 1)
 
 			Layout.minimumHeight: dummyDelegate.height
 			Layout.preferredHeight: implicitHeight
@@ -40,48 +39,52 @@ Item {
 			Layout.fillHeight: true
 			clip: true
 
-			delegate: ItemDelegate {
-				width: parent.width
-				text: editInput.visible ? "" : modelData
+			ListView {
+				id: elementList
 
-				onClicked: {
-					editInput.visible = true;
-					editInput.activate();
-				}
-
-				SnoozeEdit {
-					id: editInput
-					anchors.left: parent.left
-					anchors.leftMargin: 16
-					anchors.right: parent.right
-					anchors.verticalCenter: parent.verticalCenter
+				ItemDelegate {
+					id: dummyDelegate
 					visible: false
+					text: "dummy"
+				}
 
-					text: modelData
-					edit: true
+				delegate: ItemDelegate {
+					width: scrollView.width
+					text: editInput.visible ? "" : modelData
 
-					onFocusLost: visible = false
-
-					onEditDone: {
-						visible = false;
-						var nList = elementList.model;
-						nList[index] = editInput.text;
-						inputValue = SnoozeTimesGenerator.generate(nList);
+					onClicked: {
+						editInput.visible = true;
+						editInput.activate();
 					}
 
-					onRemoved: {
-						visible = false;
-						var nList = elementList.model;
-						nList.splice(index, 1);
-						inputValue = SnoozeTimesGenerator.generate(nList);
+					SnoozeEdit {
+						id: editInput
+						anchors.left: parent.left
+						anchors.leftMargin: 16
+						anchors.right: parent.right
+						anchors.verticalCenter: parent.verticalCenter
+						visible: false
+
+						text: modelData
+						edit: true
+
+						onFocusLost: visible = false
+
+						onEditDone: {
+							visible = false;
+							var nList = elementList.model;
+							nList[index] = editInput.text;
+							inputValue = SnoozeTimesGenerator.generate(nList);
+						}
+
+						onRemoved: {
+							visible = false;
+							var nList = elementList.model;
+							nList.splice(index, 1);
+							inputValue = SnoozeTimesGenerator.generate(nList);
+						}
 					}
 				}
-			}
-
-			ItemDelegate {
-				id: dummyDelegate
-				visible: false
-				text: "dummy"
 			}
 		}
 
