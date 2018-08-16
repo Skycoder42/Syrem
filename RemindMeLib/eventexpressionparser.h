@@ -43,7 +43,10 @@ Q_DECLARE_FLAGS(Scope, ScopeFlag)
 enum WordKey {
 	TimePrefix,
 	TimeSuffix,
-	TimePattern
+	TimePattern,
+
+	DatePrefix,
+	DatePattern
 };
 
 } // break namespace to declare flag operators
@@ -68,20 +71,17 @@ public:
 	Scope scope;
 	bool certain;
 
-	virtual void apply(QDateTime &datetime) = 0;
+	virtual void apply(QDateTime &datetime) const = 0;
 };
 
-class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm
+class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm //TODO add support for "20 past/before 3" via extra subterm
 {
 public:
-	inline TimeTerm(QTime time, bool certain) :
-		SubTerm{RelativeTimepoint, Hour | Minute, certain},
-		_time{time}
-	{}
+	TimeTerm(QTime time, bool certain);
 
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
 
-	void apply(QDateTime &datetime) override;
+	void apply(QDateTime &datetime) const override;
 
 private:
 	QTime _time;
@@ -89,10 +89,26 @@ private:
 	static QString toRegex(QString pattern);
 };
 
+class REMINDMELIBSHARED_EXPORT DateTerm : public SubTerm
+{
+public:
+	DateTerm(QDate date, bool hasYear, bool certain);
 
+	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 
+	void apply(QDateTime &datetime) const override;
+
+private:
+	QDate _date;
+
+	static QString toRegex(QString pattern, bool &hasYear);
+};
+
+// general helper method
 QString trWord(WordKey key, bool escape = true);
 QStringList trList(WordKey key, bool escape = true);
+
+QString dateTimeFormatToRegex(QString pattern, const std::function<void(QString&)> &replacer);
 
 }
 
