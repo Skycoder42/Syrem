@@ -4,10 +4,10 @@ QT += testlib
 CONFIG += console
 CONFIG -= app_bundle
 
-TARGET = tst_coreremindertest
+TARGET = tst_parser
 
 SOURCES += \
-		tst_coreremindertest.cpp
+    tst_parser.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

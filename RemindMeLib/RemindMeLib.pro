@@ -14,7 +14,8 @@ HEADERS += \
 	schedule.h \
 	conflictresolver.h \
 	remindmelib.h \
-	snoozetimes.h
+	snoozetimes.h \
+    eventexpressionparser.h
 
 SOURCES += \
 	dateparser.cpp \
@@ -22,7 +23,8 @@ SOURCES += \
 	schedule.cpp \
 	conflictresolver.cpp \
 	remindmelib.cpp \
-	snoozetimes.cpp
+	snoozetimes.cpp \
+    eventexpressionparser.cpp
 
 SETTINGS_DEFINITIONS += \
 	localsettings.xml \
