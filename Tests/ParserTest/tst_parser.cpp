@@ -28,6 +28,8 @@ private Q_SLOTS:
 	void testDateExpressions();
 	void testInvertedTimeExpressions_data();
 	void testInvertedTimeExpressions();
+	void testMonthDayExpressions_data();
+	void testMonthDayExpressions();
 
 private:
 	EventExpressionParser *parser;
@@ -151,52 +153,54 @@ void ParserTest::testTimeExpressions_data()
 	QTest::addColumn<QDateTime>("result");
 
 	// basic
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
 	QTest::addRow("simple") << QStringLiteral("14:00")
 							<< QTime{14, 00}
 							<< 5
 							<< false
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate::currentDate(), QTime{14, 00}};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{cDate, QTime{14, 00}};
 	QTest::addRow("prefix") << QStringLiteral("at 7:00")
 							<< QTime{7, 00}
 							<< 7
 							<< true
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate::currentDate(), QTime{7, 00}};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{cDate, QTime{7, 00}};
 	QTest::addRow("suffix") << QStringLiteral("14:5 o'clock")
 							<< QTime{14, 5}
 							<< 12
 							<< true
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate::currentDate(), QTime{14, 5}};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{cDate, QTime{14, 5}};
 	QTest::addRow("allfix") << QStringLiteral("at 7 o'clock")
 							<< QTime{7, 0}
 							<< 12
 							<< true
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate::currentDate(), QTime{7, 0}};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{cDate, QTime{7, 0}};
 
 	// with remaing
 	QTest::addRow("substr") << QStringLiteral("05 cars")
 							<< QTime{5, 00}
 							<< 3
 							<< false
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate::currentDate(), QTime{5, 00}};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{cDate, QTime{5, 00}};
 	QTest::addRow("pmstr") << QStringLiteral("3 pm cars")
 						   << QTime{15, 00}
 						   << 5
 						   << false
-						   << QDateTime::currentDateTime()
-						   << QDateTime{QDate::currentDate(), QTime{15, 00}};
+						   << QDateTime{cDate, cTime}
+						   << QDateTime{cDate, QTime{15, 00}};
 
 	// invalid
 	QTest::addRow("partial") << QStringLiteral("14:30:25 pm")
 							 << QTime{14, 30}
 							 << 5
 							 << false
-							 << QDateTime::currentDateTime()
-							 << QDateTime{QDate::currentDate(), QTime{14, 30}};
+							 << QDateTime{cDate, cTime}
+							 << QDateTime{cDate, QTime{14, 30}};
 	QTest::addRow("partial.rest") << QStringLiteral(":25 pm")
 								  << QTime{}
 								  << 0
@@ -231,7 +235,7 @@ void ParserTest::testTimeExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since);
+		res.first->apply(since, true);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -240,6 +244,7 @@ void ParserTest::testTimeExpressions()
 void ParserTest::testDateExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<QDate>("date");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<Type>("type");
@@ -249,74 +254,124 @@ void ParserTest::testDateExpressions_data()
 	QTest::addColumn<QDateTime>("result");
 
 	// basic
-	auto cYear = QDate::currentDate().year();
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	auto cYear = cDate.year();
 	QTest::addRow("simple.dots") << QStringLiteral("13.12.")
+								 << false
 								 << QDate{1900, 12, 13}
 								 << 6
 								 << Type{RelativeTimepoint}
 								 << Scope{Month | MonthDay}
 								 << false
-								 << QDateTime::currentDateTime()
-								 << QDateTime{QDate{cYear, 12, 13}, QTime::currentTime()};
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, 12, 13}, cTime};
 	QTest::addRow("simple.dash") << QStringLiteral("5-3")
-								  << QDate{1900, 3, 5}
-								  << 3
-								  << Type{RelativeTimepoint}
-								  << Scope{Month | MonthDay}
-								  << false
-								  << QDateTime::currentDateTime()
-								  << QDateTime{QDate{cYear, 3, 5}, QTime::currentTime()};
+								 << false
+								 << QDate{1900, 3, 5}
+								 << 3
+								 << Type{RelativeTimepoint}
+								 << Scope{Month | MonthDay}
+								 << false
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, 3, 5}, cTime};
 	QTest::addRow("year.dots") << QStringLiteral("3.3.95")
+							   << false
 							   << QDate{1995, 3, 3}
 							   << 6
 							   << Type{AbsoluteTimepoint}
 							   << Scope{Year | Month | MonthDay}
 							   << false
-							   << QDateTime::currentDateTime()
-							   << QDateTime{QDate{1995, 3, 3}, QTime::currentTime()};
+							   << QDateTime{cDate, cTime}
+							   << QDateTime{QDate{1995, 3, 3}, cTime};
 	QTest::addRow("year.dash") << QStringLiteral("25-10-2010")
+							   << false
 							   << QDate{2010, 10, 25}
 							   << 10
 							   << Type{AbsoluteTimepoint}
 							   << Scope{Year | Month | MonthDay}
 							   << false
-							   << QDateTime::currentDateTime()
-							   << QDateTime{QDate{2010, 10, 25}, QTime::currentTime()};
+							   << QDateTime{cDate, cTime}
+							   << QDateTime{QDate{2010, 10, 25}, cTime};
 	QTest::addRow("prefix.simple") << QStringLiteral("on 11. 11.")
+								   << false
 								   << QDate{1900, 11, 11}
 								   << 10
 								   << Type{RelativeTimepoint}
 								   << Scope{Month | MonthDay}
 								   << true
-								   << QDateTime::currentDateTime()
-								   << QDateTime{QDate{cYear, 11, 11}, QTime::currentTime()};
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, 11, 11}, cTime};
 	QTest::addRow("prefix.year") << QStringLiteral("on 2. 1. 2014")
+								 << false
 								 << QDate{2014, 1, 2}
 								 << 13
 								 << Type{AbsoluteTimepoint}
 								 << Scope{Year | Month | MonthDay}
 								 << true
-								 << QDateTime::currentDateTime()
-								 << QDateTime{QDate{2014, 1, 2}, QTime::currentTime()};
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{2014, 1, 2}, cTime};
 	QTest::addRow("substr") << QStringLiteral("on 24-12 at 14:00")
+							<< false
 							<< QDate{1900, 12, 24}
 							<< 9
 							<< Type{RelativeTimepoint}
 							<< Scope{Month | MonthDay}
 							<< true
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate{cYear, 12, 24}, QTime::currentTime()};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{QDate{cYear, 12, 24}, cTime};
+
+	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
+	cYear = referenceTime.date().year();
+	QTest::addRow("offset.future.noKeep") << QStringLiteral("13.12.")
+										  << false
+										  << QDate{1900, 12, 13}
+										  << 6
+										  << Type{RelativeTimepoint}
+										  << Scope{Month | MonthDay}
+										  << false
+										  << referenceTime
+										  << QDateTime{QDate{cYear, 12, 13}, referenceTime.time()};
+	QTest::addRow("offset.future.keep") << QStringLiteral("13.12.")
+										<< true
+										<< QDate{1900, 12, 13}
+										<< 6
+										<< Type{RelativeTimepoint}
+										<< Scope{Month | MonthDay}
+										<< false
+										<< referenceTime
+										<< QDateTime{QDate{cYear, 12, 13}, referenceTime.time()};
+	QTest::addRow("offset.past.noKeep") << QStringLiteral("15.07.")
+										<< false
+										<< QDate{1900, 7, 15}
+										<< 6
+										<< Type{RelativeTimepoint}
+										<< Scope{Month | MonthDay}
+										<< false
+										<< referenceTime
+										<< QDateTime{QDate{cYear, 7, 15}, referenceTime.time()};
+	QTest::addRow("offset.past.keep") << QStringLiteral("15.07.")
+									  << true
+									  << QDate{1900, 7, 15}
+									  << 6
+									  << Type{RelativeTimepoint}
+									  << Scope{Month | MonthDay}
+									  << false
+									  << referenceTime
+									  << QDateTime{QDate{cYear + 1, 7, 15}, referenceTime.time()};
 
 	// invalid
 	QTest::addRow("partial") << QStringLiteral("24. 12. 03.")
+							 << false
 							 << QDate{1903, 12, 24}
 							 << 10
 							 << Type{AbsoluteTimepoint}
 							 << Scope{Year | Month | MonthDay}
 							 << false
-							 << QDateTime::currentDateTime()
-							 << QDateTime{QDate{1903, 12, 24}, QTime::currentTime()};
+							 << QDateTime{cDate, cTime}
+							 << QDateTime{QDate{1903, 12, 24}, cTime};
 	QTest::addRow("invalid") << QStringLiteral("10.")
+							 << false
 							 << QDate{}
 							 << 0
 							 << Type{InvalidType}
@@ -329,6 +384,7 @@ void ParserTest::testDateExpressions_data()
 void ParserTest::testDateExpressions()
 {
 	QFETCH(QString, expression);
+	QFETCH(bool, applyRelative);
 	QFETCH(QDate, date);
 	QFETCH(int, offset);
 	QFETCH(Type, type);
@@ -348,7 +404,7 @@ void ParserTest::testDateExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since);
+		res.first->apply(since, applyRelative);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -362,37 +418,39 @@ void ParserTest::testInvertedTimeExpressions_data()
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
 
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
 	QTest::addRow("numbered.past") << QStringLiteral("10 past 11")
 								   << QTime{11, 10}
 								   << 10
-								   << QDateTime::currentDateTime()
-								   << QDateTime{QDate::currentDate(), QTime{11, 10}};
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{cDate, QTime{11, 10}};
 	QTest::addRow("numbered.to") << QStringLiteral("at 4 to 3 pm")
 								 << QTime{14, 56}
 								 << 12
-								 << QDateTime::currentDateTime()
-								 << QDateTime{QDate::currentDate(), QTime{14, 56}};
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{cDate, QTime{14, 56}};
 	QTest::addRow("quarter.past") << QStringLiteral("at quarter past 17")
 								  << QTime{17, 15}
 								  << 18
-								  << QDateTime::currentDateTime()
-								  << QDateTime{QDate::currentDate(), QTime{17, 15}};
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{cDate, QTime{17, 15}};
 	QTest::addRow("quarter.to") << QStringLiteral("quarter to 12")
 								<< QTime{11, 45}
 								<< 13
-								<< QDateTime::currentDateTime()
-								<< QDateTime{QDate::currentDate(), QTime{11, 45}};
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{cDate, QTime{11, 45}};
 	QTest::addRow("half.past") << QStringLiteral("half-past 7")
 							   << QTime{7, 30}
 							   << 11
-							   << QDateTime::currentDateTime()
-							   << QDateTime{QDate::currentDate(), QTime{7, 30}};
+							   << QDateTime{cDate, cTime}
+							   << QDateTime{cDate, QTime{7, 30}};
 
 	QTest::addRow("substr") << QStringLiteral("at 4 past 14 am")
 							<< QTime{14, 4}
 							<< 13
-							<< QDateTime::currentDateTime()
-							<< QDateTime{QDate::currentDate(), QTime{14, 4}};
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{cDate, QTime{14, 4}};
 	QTest::addRow("invalid.text") << QStringLiteral("at car past 12")
 								  << QTime{}
 								  << 0
@@ -424,7 +482,202 @@ void ParserTest::testInvertedTimeExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since);
+		res.first->apply(since, true);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testMonthDayExpressions_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<int>("day");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<Type>("type");
+	QTest::addColumn<bool>("certain");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	// basic
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	auto cYear = cDate.year();
+	auto cMonth = cDate.month();
+	QTest::addRow("simple.raw") << QStringLiteral("12.")
+								<< false
+								<< 12
+								<< 3
+								<< Type{RelativeTimepoint}
+								<< false
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{QDate{cYear, cMonth, 12}, cTime};
+	QTest::addRow("simple.prefix") << QStringLiteral("the 23rd")
+								   << false
+								   << 23
+								   << 8
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, cMonth, 23}, cTime};
+	QTest::addRow("simple.suffix") << QStringLiteral("2nd of")
+								   << false
+								   << 2
+								   << 6
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, cMonth, 2}, cTime};
+	QTest::addRow("simple.allfix") << QStringLiteral("on the 1st of")
+								   << false
+								   << 1
+								   << 13
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, cMonth, 1}, cTime};
+
+	QTest::addRow("boundary.valid") << QStringLiteral("31.")
+									<< false
+									<< 31
+									<< 3
+									<< Type{RelativeTimepoint}
+									<< false
+									<< QDateTime{QDate{cYear, 5, 1}, cTime}
+									<< QDateTime{QDate{cYear, 5, 31}, cTime};
+	QTest::addRow("boundary.monthover") << QStringLiteral("31.")
+										<< false
+										<< 31
+										<< 3
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, 4, 1}, cTime}
+										<< QDateTime{QDate{cYear, 4, 30}, cTime};
+	QTest::addRow("boundary.overflow") << QStringLiteral("40.")
+									   << false
+									   << 0
+									   << 0
+									   << Type{InvalidType}
+									   << false
+									   << QDateTime{}
+									   << QDateTime{};
+	QTest::addRow("boundary.underflow") << QStringLiteral("0.")
+										<< false
+										<< 0
+										<< 0
+										<< Type{InvalidType}
+										<< false
+										<< QDateTime{}
+										<< QDateTime{};
+
+	QTest::addRow("offset.future.noKeep") << QStringLiteral("14.")
+										  << false
+										  << 14
+										  << 3
+										  << Type{RelativeTimepoint}
+										  << false
+										  << QDateTime{QDate{cYear, cMonth, 10}, cTime}
+										  << QDateTime{QDate{cYear, cMonth, 14}, cTime};
+	QTest::addRow("offset.future.keep") << QStringLiteral("14.")
+										<< true
+										<< 14
+										<< 3
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, cMonth, 10}, cTime}
+										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
+	QTest::addRow("offset.past.noKeep") << QStringLiteral("14.")
+										<< false
+										<< 14
+										<< 3
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, cMonth, 20}, cTime}
+										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
+	QTest::addRow("offset.past.keep") << QStringLiteral("14.")
+									  << true
+									  << 14
+									  << 3
+									  << Type{RelativeTimepoint}
+									  << false
+									  << QDateTime{QDate{cYear, cMonth, 20}, cTime}
+									  << QDateTime{QDate{cYear, cMonth + 1, 14}, cTime};
+	QTest::addRow("offset.monthover.noKeep") << QStringLiteral("30.")
+											 << false
+											 << 30
+											 << 3
+											 << Type{RelativeTimepoint}
+											 << false
+											 << QDateTime{QDate{cYear, 2, 28}, cTime}
+											 << QDateTime{QDate{cYear, 2, 28}, cTime};
+	QTest::addRow("offset.monthover.keep") << QStringLiteral("30.")
+										   << true
+										   << 30
+										   << 3
+										   << Type{RelativeTimepoint}
+										   << false
+										   << QDateTime{QDate{cYear, 2, 28}, cTime}
+										   << QDateTime{QDate{cYear, 3, 30}, cTime};
+
+	QTest::addRow("loop.simple") << QStringLiteral("every 21st")
+								 << false
+								 << 21
+								 << 10
+								 << Type{LoopedTimePoint}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, cMonth, 21}, cTime};
+	QTest::addRow("loop.long") << QStringLiteral("every 5. of")
+							   << false
+							   << 5
+							   << 11
+							   << Type{LoopedTimePoint}
+							   << true
+							   << QDateTime{cDate, cTime}
+							   << QDateTime{QDate{cYear, cMonth, 5}, cTime};
+
+	QTest::addRow("substr.simple") << QStringLiteral("on 4th of july")
+								   << false
+								   << 4
+								   << 10
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, cMonth, 4}, cTime};
+	QTest::addRow("substr.loop") << QStringLiteral("every 3. in June")
+								 << false
+								 << 3
+								 << 9
+								 << Type{LoopedTimePoint}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, cMonth, 3}, cTime};
+
+}
+
+void ParserTest::testMonthDayExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(bool, applyRelative);
+	QFETCH(int, day);
+	QFETCH(int, offset);
+	QFETCH(Type, type);
+	QFETCH(bool, certain);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = MonthDayTerm::parse(expression.midRef(0)); //pass full str
+	if(day > 0) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, type);
+		QCOMPARE(res.first->scope, MonthDay);
+		QCOMPARE(res.first->certain, certain);
+		QCOMPARE(res.first->_day, day);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since, applyRelative);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);

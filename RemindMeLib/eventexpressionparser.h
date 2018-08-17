@@ -21,8 +21,11 @@ enum TypeFlag {
 	AbsoluteTimepoint = FlagAbsolute | FlagTimepoint,
 	RelativeTimepoint = FlagRelative | FlagTimepoint,
 	Timespan = FlagRelative | FlagTimespan,
-	LoopedPoint = RelativeTimepoint | FlagLooped,
-	LoopedSpan = Timespan | FlagLooped
+	LoopedTimePoint = RelativeTimepoint | FlagLooped,
+	LoopedTimeSpan = Timespan | FlagLooped
+
+	// NOTE do not allaw spans after timepoints. i.e. "in 3 months on 24." is ok, but "in june in 5 days" is not
+	// NOTE ... and when in loops, use the timepoints as "from+until" restriction
 };
 Q_DECLARE_FLAGS(Type, TypeFlag)
 
@@ -32,11 +35,11 @@ enum ScopeFlag {
 	Year = 0x01,
 	Month = 0x02,
 	Week = 0x04,
-	WeekDay = 0x08,
-	MonthDay = 0x10 | Week | WeekDay,
-	Day = 0x20 | WeekDay | MonthDay,
-	Hour = 0x40,
-	Minute = 0x80
+	Day = 0x08,
+	WeekDay = Day,
+	MonthDay = Week | Day,
+	Hour = 0x10,
+	Minute = 0x20,
 };
 Q_DECLARE_FLAGS(Scope, ScopeFlag)
 
@@ -53,6 +56,12 @@ enum WordKey {
 	InvTimeHourPattern,
 	InvTimeMinutePattern,
 	InvTimeKeyword,
+
+	MonthDayPrefix,
+	MonthDaySuffix,
+	MonthDayLoopPrefix,
+	MonthDayLoopSuffix,
+	MonthDayIndicator,
 };
 
 } // break namespace to declare flag operators
@@ -77,7 +86,7 @@ public:
 	Scope scope;
 	bool certain;
 
-	virtual void apply(QDateTime &datetime) const = 0;
+	virtual void apply(QDateTime &datetime, bool applyRelative) const = 0;
 };
 
 // sub-expession terms that use Qt date/time formats
@@ -86,10 +95,8 @@ class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm //TODO add support for 
 {
 public:
 	TimeTerm(QTime time, bool certain);
-
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
-
-	void apply(QDateTime &datetime) const override;
+	void apply(QDateTime &datetime, bool keepOffset) const override;
 
 private:
 	QTime _time;
@@ -101,10 +108,8 @@ class REMINDMELIBSHARED_EXPORT DateTerm : public SubTerm
 {
 public:
 	DateTerm(QDate date, bool hasYear, bool certain);
-
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
-
-	void apply(QDateTime &datetime) const override;
+	void apply(QDateTime &datetime, bool applyRelative) const override;
 
 private:
 	QDate _date;
@@ -117,16 +122,25 @@ class REMINDMELIBSHARED_EXPORT InvertedTimeTerm : public SubTerm
 {
 public:
 	InvertedTimeTerm(QTime time);
-
 	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
-
-	void apply(QDateTime &datetime) const override;
+	void apply(QDateTime &datetime, bool applyRelative) const override;
 
 private:
 	QTime _time;
 
 	static QString hourToRegex(QString pattern);
 	static QString minToRegex(QString pattern);
+};
+
+class REMINDMELIBSHARED_EXPORT MonthDayTerm : public SubTerm
+{
+public:
+	MonthDayTerm(int day, bool looped, bool certain);
+	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	int _day;
 };
 
 // general helper method

@@ -36,13 +36,11 @@ std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expre
 		};
 		auto match = regex.match(expression);
 		if(match.hasMatch()) {
-			auto subLen = match.capturedLength(0);
 			auto time = locale.toTime(match.captured(2), pattern);
 			if(time.isValid()) {
 				return {
-					QSharedPointer<TimeTerm>::create(time,
-													 match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
-					subLen
+					QSharedPointer<TimeTerm>::create(time, match.capturedLength(1) > 0 || match.capturedLength(3) > 0),
+					match.capturedLength(0)
 				};
 			}
 		}
@@ -51,8 +49,9 @@ std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expre
 	return {};
 }
 
-void TimeTerm::apply(QDateTime &datetime) const
+void TimeTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
+	Q_UNUSED(applyRelative)
 	datetime.setTime(_time);
 }
 
@@ -101,14 +100,13 @@ std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expre
 		};
 		auto match = regex.match(expression);
 		if(match.hasMatch()) {
-			auto subLen = match.capturedLength(0);
 			auto date = locale.toDate(match.captured(2), pattern);
 			if(date.isValid()) {
 				return {
 					QSharedPointer<DateTerm>::create(date,
 													 hasYear,
 													 match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
-					subLen
+					match.capturedLength(0)
 				};
 			}
 		}
@@ -117,16 +115,19 @@ std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expre
 	return {};
 }
 
-void DateTerm::apply(QDateTime &datetime) const
+void DateTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
 	if(scope.testFlag(Year)) //set the whole date
 		datetime.setDate(_date);
 	else { // set only day and month, keep year
-		datetime.setDate(QDate {
+		QDate newDate {
 			datetime.date().year(),
 			_date.month(),
 			_date.day()
-		});
+		};
+		if(applyRelative && datetime.date() >= newDate)
+			newDate = newDate.addYears(1);
+		datetime.setDate(newDate);
 	}
 }
 
@@ -204,7 +205,6 @@ std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const Q
 				auto match = regex.match(expression);
 				if(match.hasMatch()) {
 					// extract minutes and hours from the expression
-					auto subLen = match.capturedLength(0);
 					auto hours = locale.toTime(match.captured(QStringLiteral("hours")), hourPattern.first).hour();
 					auto minutesStr = match.captured(QStringLiteral("minutes"));
 					auto minutes = keywordMap.contains(minutesStr) ?
@@ -216,8 +216,12 @@ std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const Q
 						minutes = 60 - minutes;
 					}
 					QTime time{hours, minutes};
-					if(time.isValid())
-						return {QSharedPointer<InvertedTimeTerm>::create(time),	subLen};
+					if(time.isValid()) {
+						return {
+							QSharedPointer<InvertedTimeTerm>::create(time),
+							match.capturedLength(0)
+						};
+					}
 				}
 			}
 		}
@@ -226,8 +230,9 @@ std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const Q
 	return {};
 }
 
-void InvertedTimeTerm::apply(QDateTime &datetime) const
+void InvertedTimeTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
+	Q_UNUSED(applyRelative)
 	datetime.setTime(_time);
 }
 
@@ -253,6 +258,79 @@ QString InvertedTimeTerm::minToRegex(QString pattern)
 	});
 }
 
+
+
+MonthDayTerm::MonthDayTerm(int day, bool looped, bool certain) :
+	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, MonthDay, certain},
+	_day{day}
+{}
+
+std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRef &expression)
+{
+	// get and prepare standard *fixes and indicators
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(MonthDayPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)?").arg(trList(MonthDaySuffix).join(QLatin1Char('|')));
+	auto indicators = trList(MonthDayIndicator, false);
+	for(auto &indicator : indicators) {
+		const auto split = indicator.split(QLatin1Char('_'));
+		Q_ASSERT_X(split.size() == 2, Q_FUNC_INFO, "Invalid MonthDayIndicator translation. Must be some indicator text with a '_' as date placeholder");
+		indicator = QRegularExpression::escape(split[0]) + QStringLiteral("(\\d{1,2})") + QRegularExpression::escape(split[1]);
+	}
+
+	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
+	QVector<std::tuple<QString, QString, bool>> exprCombos;
+	exprCombos.reserve(3);
+	{
+		const auto loopPrefix = trList(MonthDayLoopPrefix);
+		if(!loopPrefix.isEmpty())
+			exprCombos.append(std::make_tuple(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+	}
+	{
+		const auto loopSuffix = trList(MonthDayLoopSuffix);
+		if(!loopSuffix.isEmpty())
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+	}
+	exprCombos.append(std::make_tuple(prefix, suffix, false));
+
+	// then loop through all the combinations and try to find one
+	for(const auto &loopCombo : exprCombos) {
+		for(const auto &indicator : indicators) {
+			QRegularExpression regex {
+				QLatin1Char('^') + std::get<0>(loopCombo) + indicator + std::get<1>(loopCombo) + QStringLiteral("\\s*"),
+				QRegularExpression::DontAutomaticallyOptimizeOption |
+				QRegularExpression::CaseInsensitiveOption |
+				QRegularExpression::UseUnicodePropertiesOption
+			};
+			auto match = regex.match(expression);
+			if(match.hasMatch()) {
+				bool ok = false;
+				auto day = match.captured(2).toInt(&ok);
+				if(ok && day >= 1 && day <= 31) {
+					auto isLoop =  std::get<2>(loopCombo);
+					return {
+						QSharedPointer<MonthDayTerm>::create(day, isLoop,
+															 isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+						match.capturedLength(0)
+					};
+				}
+			}
+		}
+	}
+
+	return {};
+}
+
+void MonthDayTerm::apply(QDateTime &datetime, bool applyRelative) const
+{
+	auto date = datetime.date();
+	if(applyRelative && date.day() >= std::min(_day, date.daysInMonth())) // compare with shortend date
+		date = date.addMonths(1);
+	datetime.setDate({
+		date.year(),
+		date.month(),
+		std::min(_day, date.daysInMonth()) // shorten day to target month
+	});
+}
 
 
 
@@ -301,6 +379,21 @@ QString Expressions::trWord(WordKey key, bool escape)
 		break;
 	case InvTimeKeyword:
 		word = EventExpressionParser::tr("quarter:15|half:30", "InvTimeKeywords");
+		break;
+	case MonthDayPrefix:
+		word = EventExpressionParser::tr("on |on the |the ", "MonthDayPrefix");
+		break;
+	case MonthDaySuffix:
+		word = EventExpressionParser::tr(" of", "MonthDaySuffix");
+		break;
+	case MonthDayLoopPrefix:
+		word = EventExpressionParser::tr("every |any |all", "MonthDayLoopPrefix");
+		break;
+	case MonthDayLoopSuffix:
+		word = EventExpressionParser::tr("", "MonthDayLoopSuffix");
+		break;
+	case MonthDayIndicator:
+		word = EventExpressionParser::tr("_.|_th|_st|_nd|_rd", "MonthDayIndicator");
 		break;
 	}
 	if(escape)
