@@ -62,6 +62,11 @@ enum WordKey {
 	MonthDayLoopPrefix,
 	MonthDayLoopSuffix,
 	MonthDayIndicator,
+
+	MonthPrefix,
+	MonthSuffix,
+	MonthLoopPrefix,
+	MonthLoopSuffix,
 };
 
 } // break namespace to declare flag operators
@@ -141,6 +146,17 @@ public:
 
 private:
 	int _day;
+};
+
+class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
+{
+public:
+	MonthTerm(int month, bool looped, bool certain);
+	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	int _month;
 };
 
 // general helper method

@@ -306,7 +306,7 @@ std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRe
 				bool ok = false;
 				auto day = match.captured(2).toInt(&ok);
 				if(ok && day >= 1 && day <= 31) {
-					auto isLoop =  std::get<2>(loopCombo);
+					auto isLoop = std::get<2>(loopCombo);
 					return {
 						QSharedPointer<MonthDayTerm>::create(day, isLoop,
 															 isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
@@ -329,6 +329,98 @@ void MonthDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 		date.year(),
 		date.month(),
 		std::min(_day, date.daysInMonth()) // shorten day to target month
+	});
+}
+
+
+
+MonthTerm::MonthTerm(int month, bool looped, bool certain) :
+	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, Month, certain},
+	_month{month}
+{}
+
+std::pair<QSharedPointer<MonthTerm>, int> MonthTerm::parse(const QStringRef &expression)
+{
+	const QLocale locale;
+	// get and prepare standard *fixes and indicators
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(MonthPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)?").arg(trList(MonthSuffix).join(QLatin1Char('|')));
+	QString shortMonths;
+	QString longMonths;
+	{
+		QStringList sList;
+		QStringList lList;
+		sList.reserve(24);
+		lList.reserve(24);
+		for(auto i = 1; i <= 12; i++) {
+			sList.append(QRegularExpression::escape(locale.monthName(i, QLocale::ShortFormat)));
+			sList.append(QRegularExpression::escape(locale.standaloneMonthName(i, QLocale::ShortFormat)));
+			lList.append(QRegularExpression::escape(locale.monthName(i, QLocale::LongFormat)));
+			lList.append(QRegularExpression::escape(locale.standaloneMonthName(i, QLocale::LongFormat)));
+		}
+		sList.removeDuplicates();
+		lList.removeDuplicates();
+		shortMonths = sList.join(QLatin1Char('|'));
+		longMonths = lList.join(QLatin1Char('|'));
+	}
+
+	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
+	QVector<std::tuple<QString, QString, bool>> exprCombos;
+	exprCombos.reserve(3);
+	{
+		const auto loopPrefix = trList(MonthLoopPrefix);
+		if(!loopPrefix.isEmpty())
+			exprCombos.append(std::make_tuple(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+	}
+	{
+		const auto loopSuffix = trList(MonthLoopSuffix);
+		if(!loopSuffix.isEmpty())
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+	}
+	exprCombos.append(std::make_tuple(prefix, suffix, false));
+
+	// then loop through all the combinations and try to find one
+	for(const auto &loopCombo : exprCombos) {
+		for(const auto &monthType : {
+				std::make_pair(longMonths, QStringLiteral("MMMM")),
+				std::make_pair(shortMonths, QStringLiteral("MMM"))
+			}) {
+			QRegularExpression regex {
+				QLatin1Char('^') + std::get<0>(loopCombo) +
+				QLatin1Char('(') + monthType.first + QLatin1Char(')') +
+				std::get<1>(loopCombo) + QStringLiteral("\\s*"),
+				QRegularExpression::DontAutomaticallyOptimizeOption |
+				QRegularExpression::CaseInsensitiveOption |
+				QRegularExpression::UseUnicodePropertiesOption
+			};
+			auto match = regex.match(expression);
+			if(match.hasMatch()) {
+				auto monthName = match.captured(2);
+				auto mDate = locale.toDate(monthName, monthType.second);
+				if(mDate.isValid()) {
+					auto isLoop = std::get<2>(loopCombo);
+					return {
+						QSharedPointer<MonthTerm>::create(mDate.month(), isLoop,
+														  isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+						match.capturedLength(0)
+					};
+				}
+			}
+		}
+	}
+
+	return {};
+}
+
+void MonthTerm::apply(QDateTime &datetime, bool applyRelative) const
+{
+	auto date = datetime.date();
+	if(applyRelative && date.month() >= _month) // compare with shortend date
+		date = date.addYears(1);
+	datetime.setDate({
+		date.year(),
+		_month,
+		1 //always set to the first of the month. if a day was specified, that one is set after this
 	});
 }
 
@@ -394,6 +486,18 @@ QString Expressions::trWord(WordKey key, bool escape)
 		break;
 	case MonthDayIndicator:
 		word = EventExpressionParser::tr("_.|_th|_st|_nd|_rd", "MonthDayIndicator");
+		break;
+	case MonthPrefix:
+		word = EventExpressionParser::tr("in ", "MonthPrefix");
+		break;
+	case MonthSuffix:
+		word = EventExpressionParser::tr("", "MonthSuffix");
+		break;
+	case MonthLoopPrefix:
+		word = EventExpressionParser::tr("every |any |all", "MonthLoopPrefix");
+		break;
+	case MonthLoopSuffix:
+		word = EventExpressionParser::tr("", "MonthLoopSuffix");
 		break;
 	}
 	if(escape)

@@ -30,6 +30,8 @@ private Q_SLOTS:
 	void testInvertedTimeExpressions();
 	void testMonthDayExpressions_data();
 	void testMonthDayExpressions();
+	void testMonthExpressions_data();
+	void testMonthExpressions();
 
 private:
 	EventExpressionParser *parser;
@@ -652,6 +654,14 @@ void ParserTest::testMonthDayExpressions_data()
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 3}, cTime};
+	QTest::addRow("invalid") << QStringLiteral("in 10")
+							 << false
+							 << 0
+							 << 0
+							 << Type{InvalidScope}
+							 << false
+							 << QDateTime{}
+							 << QDateTime{};
 
 }
 
@@ -674,6 +684,166 @@ void ParserTest::testMonthDayExpressions()
 		QCOMPARE(res.first->scope, MonthDay);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_day, day);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since, applyRelative);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testMonthExpressions_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<int>("month");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<Type>("type");
+	QTest::addColumn<bool>("certain");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	// basic
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	auto cYear = cDate.year();
+	QTest::addRow("simple.raw") << QStringLiteral("May")
+								<< false
+								<< 5
+								<< 3
+								<< Type{RelativeTimepoint}
+								<< false
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{QDate{cYear, 5, 1}, cTime};
+	QTest::addRow("simple.short") << QStringLiteral("Dec")
+								  << false
+								  << 12
+								  << 3
+								  << Type{RelativeTimepoint}
+								  << false
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{QDate{cYear, 12, 1}, cTime};
+	QTest::addRow("simple.long") << QStringLiteral("October")
+								 << false
+								 << 10
+								 << 7
+								 << Type{RelativeTimepoint}
+								 << false
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, 10, 1}, cTime};
+	QTest::addRow("simple.prefix") << QStringLiteral("in June")
+								   << false
+								   << 6
+								   << 7
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, 6, 1}, cTime};
+
+	QTest::addRow("offset.future.noKeep") << QStringLiteral("April")
+										  << false
+										  << 4
+										  << 5
+										  << Type{RelativeTimepoint}
+										  << false
+										  << QDateTime{QDate{cYear, 2, 10}, cTime}
+										  << QDateTime{QDate{cYear, 4, 1}, cTime};
+	QTest::addRow("offset.future.keep") << QStringLiteral("July")
+										<< true
+										<< 7
+										<< 4
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, 5, 10}, cTime}
+										<< QDateTime{QDate{cYear, 7, 1}, cTime};
+	QTest::addRow("offset.past.noKeep") << QStringLiteral("Feb")
+										<< false
+										<< 2
+										<< 3
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, 7, 20}, cTime}
+										<< QDateTime{QDate{cYear, 2, 1}, cTime};
+	QTest::addRow("offset.past.keep") << QStringLiteral("March")
+									  << true
+									  << 3
+									  << 5
+									  << Type{RelativeTimepoint}
+									  << false
+									  << QDateTime{QDate{cYear, 7, 20}, cTime}
+									  << QDateTime{QDate{cYear + 1, 3, 1}, cTime};
+
+	QTest::addRow("loop.short") << QStringLiteral("every Nov")
+								<< false
+								<< 11
+								<< 9
+								<< Type{LoopedTimePoint}
+								<< true
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{QDate{cYear, 11, 1}, cTime};
+	QTest::addRow("loop.long") << QStringLiteral("every August")
+							   << false
+							   << 8
+							   << 12
+							   << Type{LoopedTimePoint}
+							   << true
+							   << QDateTime{cDate, cTime}
+							   << QDateTime{QDate{cYear, 8, 1}, cTime};
+
+	QTest::addRow("substr.simple") << QStringLiteral("in September on 27th")
+								   << false
+								   << 9
+								   << 13
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, 9, 1}, cTime};
+	QTest::addRow("substr.loop") << QStringLiteral("every September on 27th")
+								 << false
+								 << 9
+								 << 16
+								 << Type{LoopedTimePoint}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, 9, 1}, cTime};
+	QTest::addRow("substr.half") << QStringLiteral("in Octobear")
+								 << false
+								 << 10
+								 << 6
+								 << Type{RelativeTimepoint}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, 10, 1}, cTime};
+	QTest::addRow("invalid") << QStringLiteral("in Jarnurary")
+							 << false
+							 << 0
+							 << 0
+							 << Type{InvalidScope}
+							 << false
+							 << QDateTime{}
+							 << QDateTime{};
+}
+
+void ParserTest::testMonthExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(bool, applyRelative);
+	QFETCH(int, month);
+	QFETCH(int, offset);
+	QFETCH(Type, type);
+	QFETCH(bool, certain);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = MonthTerm::parse(expression.midRef(0)); //pass full str
+	if(month > 0) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, type);
+		QCOMPARE(res.first->scope, Month);
+		QCOMPARE(res.first->certain, certain);
+		QCOMPARE(res.first->_month, month);
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
