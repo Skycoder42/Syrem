@@ -26,6 +26,8 @@ private Q_SLOTS:
 	void testTimeExpressions();
 	void testDateExpressions_data();
 	void testDateExpressions();
+	void testInvertedTimeExpressions_data();
+	void testInvertedTimeExpressions();
 
 private:
 	EventExpressionParser *parser;
@@ -343,6 +345,82 @@ void ParserTest::testDateExpressions()
 		QCOMPARE(res.first->scope, scope);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_date, date);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testInvertedTimeExpressions_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<QTime>("time");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	QTest::addRow("numbered.past") << QStringLiteral("10 past 11")
+								   << QTime{11, 10}
+								   << 10
+								   << QDateTime::currentDateTime()
+								   << QDateTime{QDate::currentDate(), QTime{11, 10}};
+	QTest::addRow("numbered.to") << QStringLiteral("at 4 to 3 pm")
+								 << QTime{14, 56}
+								 << 12
+								 << QDateTime::currentDateTime()
+								 << QDateTime{QDate::currentDate(), QTime{14, 56}};
+	QTest::addRow("quarter.past") << QStringLiteral("at quarter past 17")
+								  << QTime{17, 15}
+								  << 18
+								  << QDateTime::currentDateTime()
+								  << QDateTime{QDate::currentDate(), QTime{17, 15}};
+	QTest::addRow("quarter.to") << QStringLiteral("quarter to 12")
+								<< QTime{11, 45}
+								<< 13
+								<< QDateTime::currentDateTime()
+								<< QDateTime{QDate::currentDate(), QTime{11, 45}};
+	QTest::addRow("half.past") << QStringLiteral("half-past 7")
+							   << QTime{7, 30}
+							   << 11
+							   << QDateTime::currentDateTime()
+							   << QDateTime{QDate::currentDate(), QTime{7, 30}};
+
+	QTest::addRow("substr") << QStringLiteral("at 4 past 14 am")
+							<< QTime{14, 4}
+							<< 13
+							<< QDateTime::currentDateTime()
+							<< QDateTime{QDate::currentDate(), QTime{14, 4}};
+	QTest::addRow("invalid.text") << QStringLiteral("at car past 12")
+								  << QTime{}
+								  << 0
+								  << QDateTime{}
+								  << QDateTime{};
+	QTest::addRow("invalid.offset") << QStringLiteral("70 to 4")
+								  << QTime{}
+								  << 0
+								  << QDateTime{}
+								  << QDateTime{};
+}
+
+void ParserTest::testInvertedTimeExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(QTime, time);
+	QFETCH(int, offset);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = InvertedTimeTerm::parse(expression.midRef(0)); //pass full str
+	if(time.isValid()) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, RelativeTimepoint);
+		QCOMPARE(res.first->scope, Hour | Minute);
+		QCOMPARE(res.first->certain, true);
+		QCOMPARE(res.first->_time, time);
 		QCOMPARE(res.second, offset);
 
 		// second: test applying

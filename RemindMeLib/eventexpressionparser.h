@@ -46,7 +46,13 @@ enum WordKey {
 	TimePattern,
 
 	DatePrefix,
-	DatePattern
+	DateSuffix,
+	DatePattern,
+
+	InvTimeExprPattern,
+	InvTimeHourPattern,
+	InvTimeMinutePattern,
+	InvTimeKeyword,
 };
 
 } // break namespace to declare flag operators
@@ -73,6 +79,8 @@ public:
 
 	virtual void apply(QDateTime &datetime) const = 0;
 };
+
+// sub-expession terms that use Qt date/time formats
 
 class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm //TODO add support for "20 past/before 3" via extra subterm
 {
@@ -102,6 +110,23 @@ private:
 	QDate _date;
 
 	static QString toRegex(QString pattern, bool &hasYear);
+};
+
+// time expression for worded times like "10 past 11"
+class REMINDMELIBSHARED_EXPORT InvertedTimeTerm : public SubTerm
+{
+public:
+	InvertedTimeTerm(QTime time);
+
+	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
+
+	void apply(QDateTime &datetime) const override;
+
+private:
+	QTime _time;
+
+	static QString hourToRegex(QString pattern);
+	static QString minToRegex(QString pattern);
 };
 
 // general helper method

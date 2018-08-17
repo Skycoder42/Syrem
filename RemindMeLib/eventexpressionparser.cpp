@@ -1,6 +1,7 @@
 #include "eventexpressionparser.h"
 
 #include <QLocale>
+#include <QVector>
 using namespace Expressions;
 
 EventExpressionParser::EventExpressionParser(QObject *parent) :
@@ -22,18 +23,11 @@ TimeTerm::TimeTerm(QTime time, bool certain) :
 
 std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expression)
 {
-	QLocale locale;
-	auto prefixList = trList(TimePrefix);
-	auto suffixList = trList(TimeSuffix);
-	auto patterns = trList(TimePattern, false);
+	const QLocale locale;
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(TimePrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)?").arg(trList(TimeSuffix).join(QLatin1Char('|')));
 
-	auto prefix = prefixList.isEmpty() ?
-					  QString{} :
-					  QStringLiteral("(%1\\s)?").arg(prefixList.join(QLatin1Char('|')));
-	auto suffix = suffixList.isEmpty() ?
-					  QString{} :
-					  QStringLiteral("(\\s%1)?").arg(suffixList.join(QLatin1Char('|')));
-	for(const auto &pattern : patterns) {
+	for(const auto &pattern : trList(TimePattern, false)) {
 		QRegularExpression regex {
 			QLatin1Char('^') + prefix + QLatin1Char('(') + toRegex(pattern) + QLatin1Char(')') + suffix + QStringLiteral("\\s*"),
 			QRegularExpression::DontAutomaticallyOptimizeOption |
@@ -93,17 +87,14 @@ DateTerm::DateTerm(QDate date, bool hasYear, bool certain) :
 
 std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expression)
 {
-	QLocale locale;
-	auto prefixList = trList(DatePrefix);
-	auto patterns = trList(DatePattern, false);
+	const QLocale locale;
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(DatePrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)?").arg(trList(DateSuffix).join(QLatin1Char('|')));
 
-	auto prefix = prefixList.isEmpty() ?
-					  QString{} :
-					  QStringLiteral("(%1\\s)?").arg(prefixList.join(QLatin1Char('|')));
-	for(const auto &pattern : patterns) {
+	for(const auto &pattern : trList(DatePattern, false)) {
 		bool hasYear = false;
 		QRegularExpression regex {
-			QLatin1Char('^') + prefix + QLatin1Char('(') + toRegex(pattern, hasYear) + QLatin1Char(')') + QStringLiteral("\\s*"),
+			QLatin1Char('^') + prefix + QLatin1Char('(') + toRegex(pattern, hasYear) + QLatin1Char(')') + suffix + QStringLiteral("\\s*"),
 			QRegularExpression::DontAutomaticallyOptimizeOption |
 			QRegularExpression::CaseInsensitiveOption |
 			QRegularExpression::UseUnicodePropertiesOption
@@ -156,26 +147,137 @@ QString DateTerm::toRegex(QString pattern, bool &hasYear)
 
 
 
+InvertedTimeTerm::InvertedTimeTerm(QTime time) :
+	SubTerm{RelativeTimepoint, Hour | Minute, true},
+	_time{time}
+{}
+
+std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const QStringRef &expression)
+{
+	const QLocale locale;
+	// prepare suffix/prefix
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(TimePrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(TimeSuffix).join(QLatin1Char('|')));
+
+	// prepare primary expression patterns
+	QHash<QString, int> keywordMap;
+	QString keywordRegexStr;
+	for(const auto &mapping : trList(InvTimeKeyword, false)) {
+		const auto split = mapping.split(QLatin1Char(':'));
+		Q_ASSERT_X(split.size() == 2, Q_FUNC_INFO, "Invalid InvTimeKeyword translation. Must be keyword and value, seperated by a ':'");
+		keywordMap.insert(split[0], split[1].toInt());
+		keywordRegexStr.append(QLatin1Char('|') + QRegularExpression::escape(split[0]));
+	}
+	// prepare hour/minute patterns
+	QVector<std::pair<QString, QString>> hourPatterns;
+	{
+		const auto pList = trList(InvTimeHourPattern, false);
+		hourPatterns.reserve(pList.size());
+		for(auto &pattern : pList)
+			hourPatterns.append({pattern, hourToRegex(pattern)});
+	}
+	QVector<std::pair<QString, QString>> minPatterns;
+	{
+		const auto pList = trList(InvTimeMinutePattern, false);
+		minPatterns.reserve(pList.size());
+		for(auto &pattern : pList)
+			minPatterns.append({pattern, minToRegex(pattern)});
+	}
+
+	for(const auto &exprPattern : trList(InvTimeExprPattern, false)) {
+		const auto split = exprPattern.split(QLatin1Char(':'));
+		Q_ASSERT_X(split.size() == 2 && (split[1] == QLatin1Char('+') || split[1] == QLatin1Char('-')),
+				Q_FUNC_INFO,
+				"Invalid InvTimePattern translation. Must be an expression and sign (+/-), seperated by a ':'");
+
+		for(const auto &hourPattern : hourPatterns) {
+			for(const auto &minPattern : minPatterns) {
+				QRegularExpression regex {
+					QLatin1Char('^') + prefix +
+					split[0].arg(QStringLiteral(R"__((?<hours>%1))__").arg(hourPattern.second),
+								 QStringLiteral(R"__((?<minutes>%1%2))__").arg(minPattern.second, keywordRegexStr)) +
+					suffix + QStringLiteral("\\s*"),
+					QRegularExpression::DontAutomaticallyOptimizeOption |
+					QRegularExpression::CaseInsensitiveOption |
+					QRegularExpression::UseUnicodePropertiesOption
+				};
+				auto match = regex.match(expression);
+				if(match.hasMatch()) {
+					// extract minutes and hours from the expression
+					auto subLen = match.capturedLength(0);
+					auto hours = locale.toTime(match.captured(QStringLiteral("hours")), hourPattern.first).hour();
+					auto minutesStr = match.captured(QStringLiteral("minutes"));
+					auto minutes = keywordMap.contains(minutesStr) ?
+									   keywordMap.value(minutesStr) :
+									   locale.toTime(minutesStr, minPattern.first).minute();
+					//negative minutes (i.e. 10 to 4 -> 3:50)
+					if(split[1] == QLatin1Char('-')) {
+						hours = (hours == 0 ? 23 : hours - 1);
+						minutes = 60 - minutes;
+					}
+					QTime time{hours, minutes};
+					if(time.isValid())
+						return {QSharedPointer<InvertedTimeTerm>::create(time),	subLen};
+				}
+			}
+		}
+	}
+
+	return {};
+}
+
+void InvertedTimeTerm::apply(QDateTime &datetime) const
+{
+	datetime.setTime(_time);
+}
+
+QString InvertedTimeTerm::hourToRegex(QString pattern)
+{
+	const QLocale locale;
+	return dateTimeFormatToRegex(std::move(pattern), [&locale](QString &text) {
+		text.replace(QStringLiteral("hh"), QStringLiteral("\\d{2}"))
+				.replace(QStringLiteral("h"), QStringLiteral("\\d{1,2}"))
+				.replace(QStringLiteral("ap"),
+						 QStringLiteral("(?:%1|%2)")
+						 .arg(QRegularExpression::escape(locale.amText()),
+							  QRegularExpression::escape(locale.pmText())),
+						 Qt::CaseInsensitive);
+	});
+}
+
+QString InvertedTimeTerm::minToRegex(QString pattern)
+{
+	return dateTimeFormatToRegex(std::move(pattern), [](QString &text) {
+		text.replace(QStringLiteral("mm"), QStringLiteral("\\d{2}"))
+				.replace(QStringLiteral("m"), QStringLiteral("\\d{1,2}"));
+	});
+}
+
+
+
 
 QString Expressions::trWord(WordKey key, bool escape)
 {
 	QString word;
 	switch(key) {
-	case Expressions::TimePrefix:
-		word = EventExpressionParser::tr("at");
+	case TimePrefix:
+		word = EventExpressionParser::tr("at ", "TimePrefix");
 		break;
-	case Expressions::TimeSuffix:
-		word = EventExpressionParser::tr("o'clock");
+	case TimeSuffix:
+		word = EventExpressionParser::tr(" o'clock", "TimeSuffix");
 		break;
-	case Expressions::TimePattern:
+	case TimePattern:
 		word = EventExpressionParser::tr("hh:mm ap|h:mm ap|hh:m ap|h:m ap|hh ap|h ap|"
 										 "hh:mm AP|h:mm AP|hh:m AP|h:m AP|hh AP|h AP|"
-										 "hh:mm|h:mm|hh:m|h:m|hh|h");
+										 "hh:mm|h:mm|hh:m|h:m|hh|h", "TimePattern");
 		break;
-	case Expressions::DatePrefix:
-		word = EventExpressionParser::tr("on");
+	case DatePrefix:
+		word = EventExpressionParser::tr("on |on the |the ", "DatePrefix");
 		break;
-	case Expressions::DatePattern:
+	case DateSuffix:
+		word = EventExpressionParser::tr("", "DateSuffix");
+		break;
+	case DatePattern:
 		word= EventExpressionParser::tr("dd.MM.yyyy|d.MM.yyyy|dd.M.yyyy|d.M.yyyy|"
 										"dd. MM. yyyy|d. MM. yyyy|dd. M. yyyy|d. M. yyyy|"
 										"dd-MM-yyyy|d-MM-yyyy|dd-M-yyyy|d-M-yyyy|"
@@ -186,7 +288,19 @@ QString Expressions::trWord(WordKey key, bool escape)
 
 										"dd.MM.|d.MM.|dd.M.|d.M.|"
 										"dd. MM.|d. MM.|dd. M.|d. M.|"
-										"dd-MM|d-MM|dd-M|d-M");
+										"dd-MM|d-MM|dd-M|d-M", "DatePattern");
+		break;
+	case InvTimeExprPattern:
+		word = EventExpressionParser::tr("%2 past %1:+|%2-past %1:+|%2 to %1:-", "InvTimeExprPattern");
+		break;
+	case Expressions::InvTimeHourPattern:
+		word = EventExpressionParser::tr("hh ap|h ap|hh AP|h AP|hh|h", "InvTimeHourPattern");
+		break;
+	case Expressions::InvTimeMinutePattern:
+		word = EventExpressionParser::tr("mm|m", "InvTimeMinutePattern");
+		break;
+	case InvTimeKeyword:
+		word = EventExpressionParser::tr("quarter:15|half:30", "InvTimeKeywords");
 		break;
 	}
 	if(escape)
@@ -196,7 +310,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 
 QStringList Expressions::trList(WordKey key, bool escape)
 {
-	auto resList = trWord(key, false).split(QLatin1Char('|'));
+	auto resList = trWord(key, false).split(QLatin1Char('|'), QString::SkipEmptyParts);
 	if(escape) {
 		for(auto &word : resList)
 			word = QRegularExpression::escape(word);
