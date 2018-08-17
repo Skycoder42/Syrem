@@ -426,6 +426,45 @@ void MonthTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
+YearTerm::YearTerm(int year, bool certain) :
+	SubTerm{AbsoluteTimepoint, Year, certain},
+	_year{year}
+{}
+
+std::pair<QSharedPointer<YearTerm>, int> YearTerm::parse(const QStringRef &expression)
+{
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(YearPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)?").arg(trList(YearSuffix).join(QLatin1Char('|')));
+
+	QRegularExpression regex {
+		QLatin1Char('^') + prefix + QStringLiteral("(-?\\d{4,})") + suffix + QStringLiteral("\\s*"),
+		QRegularExpression::DontAutomaticallyOptimizeOption |
+		QRegularExpression::CaseInsensitiveOption |
+		QRegularExpression::UseUnicodePropertiesOption
+	};
+	auto match = regex.match(expression);
+	if(match.hasMatch()) {
+		bool ok = false;
+		auto year = match.captured(2).toInt(&ok);
+		if(ok) {
+			return {
+				QSharedPointer<YearTerm>::create(year, match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+				match.capturedLength(0)
+			};
+		}
+	}
+
+	return {};
+}
+
+void YearTerm::apply(QDateTime &datetime, bool applyRelative) const
+{
+	Q_UNUSED(applyRelative)
+	datetime.setDate({_year, 1, 1}); //set the year and reset month/date. They will be specified as needed
+}
+
+
+
 QString Expressions::trWord(WordKey key, bool escape)
 {
 	QString word;
@@ -498,6 +537,12 @@ QString Expressions::trWord(WordKey key, bool escape)
 		break;
 	case MonthLoopSuffix:
 		word = EventExpressionParser::tr("", "MonthLoopSuffix");
+		break;
+	case YearPrefix:
+		word = EventExpressionParser::tr("in ", "YearPrefix");
+		break;
+	case YearSuffix:
+		word = EventExpressionParser::tr("", "YearSuffix");
 		break;
 	}
 	if(escape)

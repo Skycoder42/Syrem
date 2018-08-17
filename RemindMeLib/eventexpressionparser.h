@@ -67,6 +67,9 @@ enum WordKey {
 	MonthSuffix,
 	MonthLoopPrefix,
 	MonthLoopSuffix,
+
+	YearPrefix,
+	YearSuffix
 };
 
 } // break namespace to declare flag operators
@@ -157,6 +160,17 @@ public:
 
 private:
 	int _month;
+};
+
+class REMINDMELIBSHARED_EXPORT YearTerm : public SubTerm
+{
+public:
+	YearTerm(int year, bool certain);
+	static std::pair<QSharedPointer<YearTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	int _year;
 };
 
 // general helper method

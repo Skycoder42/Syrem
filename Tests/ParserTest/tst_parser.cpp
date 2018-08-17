@@ -32,6 +32,8 @@ private Q_SLOTS:
 	void testMonthDayExpressions();
 	void testMonthExpressions_data();
 	void testMonthExpressions();
+	void testYearExpressions_data();
+	void testYearExpressions();
 
 private:
 	EventExpressionParser *parser;
@@ -848,6 +850,98 @@ void ParserTest::testMonthExpressions()
 
 		// second: test applying
 		res.first->apply(since, applyRelative);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testYearExpressions_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<int>("year");
+	QTest::addColumn<bool>("valid");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<bool>("certain");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	// basic
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	QTest::addRow("simple.short") << QStringLiteral("2015")
+								  << 2015
+								  << true
+								  << 4
+								  << false
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{QDate{2015, 1, 1}, cTime};
+	QTest::addRow("simple.low") << QStringLiteral("0045")
+								<< 45
+								<< true
+								<< 4
+								<< false
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{QDate{45, 1, 1}, cTime};
+	QTest::addRow("simple.negative") << QStringLiteral("-2015")
+									 << -2015
+									 << true
+									 << 5
+									 << false
+									 << QDateTime{cDate, cTime}
+									 << QDateTime{QDate{-2015, 1, 1}, cTime};
+	QTest::addRow("simple.long") << QStringLiteral("124563")
+								 << 124563
+								 << true
+								 << 6
+								 << false
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{124563, 1, 1}, cTime};
+	QTest::addRow("simple.prefix") << QStringLiteral("in 0000")
+								   << 0
+								   << true
+								   << 7
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{0, 1, 1}, cTime};
+
+	QTest::addRow("substr") << QStringLiteral("in 2017 in June")
+							<< 2017
+							<< true
+							<< 8
+							<< true
+							<< QDateTime{cDate, cTime}
+							<< QDateTime{QDate{2017, 1, 1}, cTime};
+	QTest::addRow("invalid") << QStringLiteral("in 95")
+							 << 0
+							 << false
+							 << 0
+							 << false
+							 << QDateTime{}
+							 << QDateTime{};
+}
+
+void ParserTest::testYearExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(int, year);
+	QFETCH(bool, valid);
+	QFETCH(int, offset);
+	QFETCH(bool, certain);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = YearTerm::parse(expression.midRef(0)); //pass full str
+	if(valid) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, AbsoluteTimepoint);
+		QCOMPARE(res.first->scope, Year);
+		QCOMPARE(res.first->certain, certain);
+		QCOMPARE(res.first->_year, year);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since, true);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
