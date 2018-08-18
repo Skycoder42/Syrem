@@ -557,6 +557,157 @@ void YearTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
+SequenceTerm::SequenceTerm(Sequence &&sequence, bool looped, bool certain) :
+	SubTerm{looped ? LoopedTimeSpan : Timespan, [&]() {
+		Scope scope = InvalidScope;
+		for(auto it = sequence.constBegin(); it != sequence.constEnd(); ++it)
+			scope |= it.key();
+		return scope;
+	}(), certain},
+	_sequence{std::move(sequence)}
+{}
+
+std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRef &expression)
+{
+	// get and prepare standard *fixes
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(SpanPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)").arg(trList(SpanSuffix).join(QLatin1Char('|')));
+	const auto conjunctors = QStringLiteral("(%1)").arg(trList(SpanConjuction).join(QLatin1Char('|')));
+	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
+	QVector<std::pair<QString, bool>> exprCombos;
+	exprCombos.reserve(2);
+	{
+		const auto loopPrefix = trList(SpanLoopPrefix);
+		if(!loopPrefix.isEmpty())
+			exprCombos.append(std::make_pair(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), true));
+	}
+	exprCombos.append(std::make_pair(prefix, false));
+
+	// prepare lookup of span scopes
+	QHash<QString, ScopeFlag> nameLookup;
+	QString nameKey;
+	{
+		QStringList nameKeys;
+		for(const auto &scopeInfo : {
+				std::make_pair(SpanKeyMinute, Minute),
+				std::make_pair(SpanKeyHour, Hour),
+				std::make_pair(SpanKeyDay, Day),
+				std::make_pair(SpanKeyWeek, Week),
+				std::make_pair(SpanKeyMonth, Month),
+				std::make_pair(SpanKeyYear, Year)
+			}) {
+			for(const auto &key : trList(scopeInfo.first, false)) {
+				nameLookup.insert(key, scopeInfo.second);
+				nameKeys.append(QRegularExpression::escape(key));
+			}
+		}
+		// sort by length to test the longest variants first
+		std::sort(nameKeys.begin(), nameKeys.end(), [](const QString &lhs, const QString &rhs) {
+			return lhs.size() > rhs.size();
+		}); //TODO sort globally via trList as optional param
+		nameKey = nameKeys.join(QLatin1Char('|'));
+	}
+
+	for(const auto &loopCombo : exprCombos) {
+		// check for the prefix
+		QRegularExpression prefixRegex {
+			QLatin1Char('^') + loopCombo.first,
+			QRegularExpression::DontAutomaticallyOptimizeOption |
+			QRegularExpression::CaseInsensitiveOption |
+			QRegularExpression::UseUnicodePropertiesOption
+		};
+		auto prefixMatch = prefixRegex.match(expression);
+		if(!prefixMatch.hasMatch())
+			continue;
+		auto hasPrefix = prefixMatch.capturedLength(1) > 0;
+
+		// iterate through all "and" expressions
+		auto offset = prefixMatch.capturedLength(0);
+		QRegularExpression regex {
+			QLatin1Char('^') +
+					QStringLiteral("(?:(\\d+)\\s)%1").arg(loopCombo.second ? QString{QLatin1Char('?')} : QString{}) +
+			QLatin1Char('(') + nameKey + QStringLiteral(")(?:") +
+			conjunctors + QLatin1Char('|') + suffix + QStringLiteral(")?\\s*"),
+			QRegularExpression::DontAutomaticallyOptimizeOption |
+			QRegularExpression::CaseInsensitiveOption |
+			QRegularExpression::UseUnicodePropertiesOption
+		};
+
+		Sequence sequence;
+		forever {
+			auto match = regex.match(expression.mid(offset));
+			if(match.hasMatch()) {
+				// get the scope
+				auto scope = nameLookup.value(match.captured(2).toLower(), InvalidScope);
+				if(scope == InvalidScope || sequence.contains(scope))
+					break;
+				// get the amount of days
+				bool ok = false;
+				int numDays;
+				if(loopCombo.second && match.capturedLength(1) == 0) {
+					ok = true;
+					numDays = 1;
+				} else
+					numDays = match.captured(1).toInt(&ok);
+				if(!ok)
+					break;
+				// add to sequence
+				sequence.insert(scope, numDays);
+
+				// check how to continue
+				if(match.capturedLength(3) > 0) {//has found conjunction
+					hasPrefix = true;
+					offset += match.capturedLength(0);
+					// continue in loop
+				} else {
+					return {
+						QSharedPointer<SequenceTerm>::create(std::move(sequence),
+															 loopCombo.second,
+															 hasPrefix || match.capturedLength(4) > 0 ),
+						offset + match.capturedLength(0)
+					};
+				}
+			} else
+				break;
+		};
+	}
+
+	return {};
+}
+
+void SequenceTerm::apply(QDateTime &datetime, bool applyRelative) const
+{
+	using namespace std::chrono;
+	Q_UNUSED(applyRelative)
+	for(auto it = _sequence.constBegin(); it != _sequence.constEnd(); ++it) {
+		switch(it.key()) {
+		case Minute:
+			datetime = datetime.addSecs(duration_cast<seconds>(minutes{*it}).count());
+			break;
+		case Hour:
+			datetime = datetime.addSecs(duration_cast<seconds>(hours{*it}).count());
+			break;
+		case Day:
+			datetime = datetime.addDays(*it);
+			break;
+		case Week:
+			datetime = datetime.addDays(static_cast<qint64>(*it) * 7ll);
+			break;
+		case Month:
+			datetime = datetime.addMonths(*it);
+			break;
+		case Year:
+			datetime = datetime.addYears(*it);
+			break;
+		default:
+			Q_UNREACHABLE();
+			break;
+		}
+	}
+}
+
+
+
 QString Expressions::trWord(WordKey key, bool escape)
 {
 	QString word;
@@ -647,6 +798,39 @@ QString Expressions::trWord(WordKey key, bool escape)
 		break;
 	case YearSuffix:
 		word = EventExpressionParser::tr("", "YearSuffix");
+		break;
+	case SpanPrefix:
+		word = EventExpressionParser::tr("in ", "SpanPrefix");
+		break;
+	case SpanSuffix:
+		word = EventExpressionParser::tr("", "SpanSuffix");
+		break;
+	case SpanLoopPrefix:
+		word = EventExpressionParser::tr("every |all", "SpanLoopPrefix");
+		break;
+	case SpanConjuction:
+		word = EventExpressionParser::tr(" and", "SpanConjuction");
+		break;
+	case SpanKeyMinute:
+		word = EventExpressionParser::tr("min|mins|minute|minutes", "SpanKeyMinute");
+		break;
+	case SpanKeyHour:
+		word = EventExpressionParser::tr("hour|hours", "SpanKeyHour");
+		break;
+	case SpanKeyDay:
+		word = EventExpressionParser::tr("day|days", "SpanKeyDay");
+		break;
+	case SpanKeyWeek:
+		word = EventExpressionParser::tr("week|weeks", "SpanKeyWeek");
+		break;
+	case SpanKeyMonth:
+		word = EventExpressionParser::tr("mon|mons|month|months", "SpanKeyMonth");
+		break;
+	case SpanKeyYear:
+		word = EventExpressionParser::tr("year|years", "SpanKeyYear");
+		break;
+	case KeywordDayspan:
+		word = EventExpressionParser::tr("today:0|tomorrow:1", "KeywordDayspan");
 		break;
 	}
 	if(escape)

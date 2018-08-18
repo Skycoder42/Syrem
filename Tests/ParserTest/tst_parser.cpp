@@ -8,6 +8,7 @@ using namespace Expressions;
 
 Q_DECLARE_METATYPE(Expressions::Type)
 Q_DECLARE_METATYPE(Expressions::Scope)
+Q_DECLARE_METATYPE(Expressions::SequenceTerm::Sequence)
 
 class ParserTest : public QObject
 {
@@ -36,6 +37,8 @@ private Q_SLOTS:
 	void testMonthExpressions();
 	void testYearExpressions_data();
 	void testYearExpressions();
+	void testSequenceExpressions_data();
+	void testSequenceExpressions();
 
 private:
 	EventExpressionParser *parser;
@@ -508,8 +511,8 @@ void ParserTest::testMonthDayExpressions_data()
 	// basic
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
-	auto cYear = cDate.year();
-	auto cMonth = cDate.month();
+	const auto cYear = cDate.year();
+	const auto cMonth = cDate.month();
 	QTest::addRow("simple.raw") << QStringLiteral("12.")
 								<< false
 								<< 12
@@ -710,8 +713,8 @@ void ParserTest::testWeekDayExpressions_data()
 	// basic
 	const QDate cDate{2018, 10, 15}; //somewhere in the middle of a month
 	const auto cTime = QTime::currentTime();
-	auto cYear = cDate.year();
-	auto cMonth = cDate.month();
+	const auto cYear = cDate.year();
+	const auto cMonth = cDate.month();
 	QTest::addRow("simple.raw") << QStringLiteral("Thursday")
 								<< false
 								<< 4
@@ -879,7 +882,7 @@ void ParserTest::testMonthExpressions_data()
 	// basic
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
-	auto cYear = cDate.year();
+	const auto cYear = cDate.year();
 	QTest::addRow("simple.raw") << QStringLiteral("May")
 								<< false
 								<< 5
@@ -1108,6 +1111,237 @@ void ParserTest::testYearExpressions()
 		QCOMPARE(res.first->scope, Year);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_year, year);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since, true);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testSequenceExpressions_data()
+{
+	using Seq = SequenceTerm::Sequence;
+
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<SequenceTerm::Sequence>("sequence");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<Type>("type");
+	QTest::addColumn<Scope>("scope");
+	QTest::addColumn<bool>("certain");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	// basic
+	const QDate cDate{2018, 7, 12};
+	const QTime cTime{14, 30};
+	const auto cYear = cDate.year();
+	const auto cMonth = cDate.month();
+	const auto cDay = cDate.day();
+	const auto cHour = cTime.hour();
+	const auto cMin = cTime.minute();
+	QTest::addRow("simple.minutes") << QStringLiteral("10 mins")
+									<< Seq{{Minute, 10}}
+									<< 7
+									<< Type{Timespan}
+									<< Scope{Minute}
+									<< false
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{cDate, {cHour, cMin + 10}};
+	QTest::addRow("simple.hours") << QStringLiteral("5 hours")
+								  << Seq{{Hour, 5}}
+								  << 7
+								  << Type{Timespan}
+								  << Scope{Hour}
+								  << false
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{cDate, {cHour + 5, cMin}};
+	QTest::addRow("simple.days") << QStringLiteral("1 day")
+								 << Seq{{Day, 1}}
+								 << 5
+								 << Type{Timespan}
+								 << Scope{Day}
+								 << false
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{{cYear, cMonth, cDay + 1}, cTime};
+	QTest::addRow("simple.weeks") << QStringLiteral("2 weeks")
+								  << Seq{{Week, 2}}
+								  << 7
+								  << Type{Timespan}
+								  << Scope{Week}
+								  << false
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{{cYear, cMonth, cDay + 14}, cTime};
+	QTest::addRow("simple.months") << QStringLiteral("4 months")
+								   << Seq{{Month, 4}}
+								   << 8
+								   << Type{Timespan}
+								   << Scope{Month}
+								   << false
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{{cYear, cMonth + 4, cDay}, cTime};
+	QTest::addRow("simple.years") << QStringLiteral("40 years")
+								   << Seq{{Year, 40}}
+								   << 8
+								   << Type{Timespan}
+								   << Scope{Year}
+								   << false
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{{cYear + 40, cMonth, cDay}, cTime};
+	QTest::addRow("simple.prefix") << QStringLiteral("in 3 days")
+								   << Seq{{Day, 3}}
+								   << 9
+								   << Type{Timespan}
+								   << Scope{Day}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{{cYear, cMonth, cDay + 3}, cTime};
+
+	QTest::addRow("combined.times") << QStringLiteral("3 hours and 50 minutes")
+									<< Seq{{Hour, 3}, {Minute, 50}}
+									<< 22
+									<< Type{Timespan}
+									<< Scope{Minute | Hour}
+									<< true
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{cDate, {cHour + 4, 20}};
+	QTest::addRow("combined.dates") << QStringLiteral("24 days and 5 years and 10 mons")
+									<< Seq{{Day, 24}, {Year, 5}, {Month, 10}}
+									<< 31
+									<< Type{Timespan}
+									<< Scope{Year | Month | Day}
+									<< true
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{{2024, 6, 5}, cTime};
+	QTest::addRow("combined.all") << QStringLiteral("1 week and 2 mins and 3 years and 4 hours and 5 months and 6 days")
+								  << Seq{{Week, 1}, {Minute, 2}, {Year, 3}, {Hour, 4}, {Month, 5}, {Day, 6}}
+								  << 65
+								  << Type{Timespan}
+								  << Scope{Year | Month | Week | Day | Hour | Minute}
+								  << true
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{{cYear + 3, cMonth + 5, cDay + 13}, {cHour + 4, cMin + 2}};
+	QTest::addRow("combined.prefix") << QStringLiteral("in 2 weeks and 30 mins")
+									 << Seq{{Week, 2}, {Minute, 30}}
+									 << 22
+									 << Type{Timespan}
+									 << Scope{Minute | Week}
+									 << true
+									 << QDateTime{cDate, cTime}
+									 << QDateTime{{cYear, cMonth, cDay + 14}, {cHour + 1, 00}};
+
+	QTest::addRow("loop.simple") << QStringLiteral("every 3 weeks")
+								 << Seq{{Week, 3}}
+								 << 13
+								 << Type{LoopedTimeSpan}
+								 << Scope{Week}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{{cYear, cMonth + 1, 2}, cTime};
+	QTest::addRow("loop.singular") << QStringLiteral("every day")
+								   << Seq{{Day, 1}}
+								   << 9
+								   << Type{LoopedTimeSpan}
+								   << Scope{Day}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{{cYear, cMonth, cDay + 1}, cTime};
+	QTest::addRow("loop.combined") << QStringLiteral("every 3 hours and 2 years and week")
+								   << Seq{{Hour, 3}, {Year, 2}, {Week, 1}}
+								   << 34
+								   << Type{LoopedTimeSpan}
+								   << Scope{Hour | Year | Week}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{{cYear + 2, cMonth, cDay + 7}, {cHour + 3, cMin}};
+
+	QTest::addRow("substr.simple") << QStringLiteral("in 10 mins in 3 days")
+									<< Seq{{Minute, 10}}
+									<< 11
+									<< Type{Timespan}
+									<< Scope{Minute}
+									<< true
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{cDate, {cHour, cMin + 10}};
+	QTest::addRow("substr.loop") << QStringLiteral("every day of the year")
+									<< Seq{{Day, 1}}
+									<< 10
+									<< Type{LoopedTimeSpan}
+									<< Scope{Day}
+									<< true
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{{cYear, cMonth, cDay + 1}, cTime};
+	QTest::addRow("substr.half") << QStringLiteral("3 dayz")
+									<< Seq{{Day, 3}}
+									<< 5
+									<< Type{Timespan}
+									<< Scope{Day}
+									<< false
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{{cYear, cMonth, cDay + 3}, cTime};
+
+	QTest::addRow("invalid.format") << QStringLiteral("in 10 horas")
+									<< Seq{}
+									<< 0
+									<< Type{InvalidType}
+									<< Scope{InvalidScope}
+									<< false
+									<< QDateTime{}
+									<< QDateTime{};
+	QTest::addRow("invalid.number") << QStringLiteral("in day")
+									<< Seq{}
+									<< 0
+									<< Type{InvalidType}
+									<< Scope{InvalidScope}
+									<< false
+									<< QDateTime{}
+									<< QDateTime{};
+	QTest::addRow("invalid.combined") << QStringLiteral("in 2 mins and 5 minutes")
+									  << Seq{}
+									  << 0
+									  << Type{InvalidType}
+									  << Scope{InvalidScope}
+									  << false
+									  << QDateTime{}
+									  << QDateTime{};
+	QTest::addRow("invalid.substr") << QStringLiteral("in 10 mins and in 3 days")
+									<< Seq{}
+									<< 0
+									<< Type{InvalidType}
+									<< Scope{InvalidScope}
+									<< false
+									<< QDateTime{}
+									<< QDateTime{};
+	QTest::addRow("invalid.loop") << QStringLiteral("every 10 horas")
+								  << Seq{}
+								  << 0
+								  << Type{InvalidType}
+								  << Scope{InvalidScope}
+								  << false
+								  << QDateTime{}
+								  << QDateTime{};
+}
+
+void ParserTest::testSequenceExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(SequenceTerm::Sequence, sequence);
+	QFETCH(int, offset);
+	QFETCH(Type, type);
+	QFETCH(Scope, scope);
+	QFETCH(bool, certain);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = SequenceTerm::parse(expression.midRef(0)); //pass full str
+	if(!sequence.isEmpty()) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, type);
+		QCOMPARE(res.first->scope, scope);
+		QCOMPARE(res.first->certain, certain);
+		QCOMPARE(res.first->_sequence, sequence);
 		QCOMPARE(res.second, offset);
 
 		// second: test applying

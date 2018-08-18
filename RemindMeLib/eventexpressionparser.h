@@ -26,6 +26,7 @@ enum TypeFlag {
 
 	// NOTE do not allaw spans after timepoints. i.e. "in 3 months on 24." is ok, but "in june in 5 days" is not
 	// NOTE ... and when in loops, use the timepoints as "from+until" restriction
+	// NOTE add from/until for limitation of spans
 };
 Q_DECLARE_FLAGS(Type, TypeFlag)
 
@@ -74,7 +75,20 @@ enum WordKey {
 	MonthLoopSuffix,
 
 	YearPrefix,
-	YearSuffix
+	YearSuffix,
+
+	SpanPrefix,
+	SpanSuffix,
+	SpanLoopPrefix,
+	SpanConjuction,
+	SpanKeyMinute,
+	SpanKeyHour,
+	SpanKeyDay,
+	SpanKeyWeek,
+	SpanKeyMonth,
+	SpanKeyYear,
+
+	KeywordDayspan,
 };
 
 } // break namespace to declare flag operators
@@ -189,8 +203,19 @@ private:
 	int _year;
 };
 
+class REMINDMELIBSHARED_EXPORT SequenceTerm : public SubTerm
+{
+public:
+	using Sequence = QMap<ScopeFlag, int>;
+	SequenceTerm(Sequence &&sequence, bool looped, bool certain);
+	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	Sequence _sequence;
+};
 // general helper method
-QString trWord(WordKey key, bool escape = true);
+QString trWord(WordKey key, bool escape = true); //TODO no defaults...
 QStringList trList(WordKey key, bool escape = true);
 
 QString dateTimeFormatToRegex(QString pattern, const std::function<void(QString&)> &replacer);
