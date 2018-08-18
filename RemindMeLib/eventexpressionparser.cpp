@@ -334,6 +334,98 @@ void MonthDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
+WeekDayTerm::WeekDayTerm(int weekDay, bool looped, bool certain) :
+	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, WeekDay, certain},
+	_weekDay{weekDay}
+{}
+
+std::pair<QSharedPointer<WeekDayTerm>, int> WeekDayTerm::parse(const QStringRef &expression)
+{
+	const QLocale locale;
+	// get and prepare standard *fixes and indicators
+	const auto prefix = QStringLiteral("(%1)?").arg(trList(WeekDayPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(%1)?").arg(trList(WeekDaySuffix).join(QLatin1Char('|')));
+	QString shortDays;
+	QString longDays;
+	{
+		QStringList sList;
+		QStringList lList;
+		sList.reserve(14);
+		lList.reserve(14);
+		for(auto i = 1; i <= 7; i++) {
+			sList.append(QRegularExpression::escape(locale.dayName(i, QLocale::ShortFormat)));
+			sList.append(QRegularExpression::escape(locale.standaloneDayName(i, QLocale::ShortFormat)));
+			lList.append(QRegularExpression::escape(locale.dayName(i, QLocale::LongFormat)));
+			lList.append(QRegularExpression::escape(locale.standaloneDayName(i, QLocale::LongFormat)));
+		}
+		sList.removeDuplicates();
+		lList.removeDuplicates();
+		shortDays = sList.join(QLatin1Char('|'));
+		longDays = lList.join(QLatin1Char('|'));
+	}
+
+	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
+	QVector<std::tuple<QString, QString, bool>> exprCombos;
+	exprCombos.reserve(3);
+	{
+		const auto loopPrefix = trList(WeekDayLoopPrefix);
+		if(!loopPrefix.isEmpty())
+			exprCombos.append(std::make_tuple(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+	}
+	{
+		const auto loopSuffix = trList(WeekDayLoopSuffix);
+		if(!loopSuffix.isEmpty())
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+	}
+	exprCombos.append(std::make_tuple(prefix, suffix, false));
+
+	// then loop through all the combinations and try to find one
+	for(const auto &loopCombo : exprCombos) {
+		for(const auto &dayType : {
+				std::make_pair(longDays, QStringLiteral("dddd")),
+				std::make_pair(shortDays, QStringLiteral("ddd"))
+			}) {
+			QRegularExpression regex {
+				QLatin1Char('^') + std::get<0>(loopCombo) +
+				QLatin1Char('(') + dayType.first + QLatin1Char(')') +
+				std::get<1>(loopCombo) + QStringLiteral("\\s*"),
+				QRegularExpression::DontAutomaticallyOptimizeOption |
+				QRegularExpression::CaseInsensitiveOption |
+				QRegularExpression::UseUnicodePropertiesOption
+			};
+			auto match = regex.match(expression);
+			if(match.hasMatch()) {
+				auto dayName = match.captured(2);
+				auto dDate = locale.toDate(dayName, dayType.second);
+				if(dDate.isValid()) {
+					auto isLoop = std::get<2>(loopCombo);
+					return {
+						QSharedPointer<WeekDayTerm>::create(dDate.dayOfWeek(), isLoop,
+															isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+						match.capturedLength(0)
+					};
+				}
+			}
+		}
+	}
+
+	return {};
+}
+
+void WeekDayTerm::apply(QDateTime &datetime, bool applyRelative) const
+{
+	auto date = datetime.date();
+	// get the number of days to add to reach the target date
+	auto dayDiff = _weekDay - date.dayOfWeek();
+	if(applyRelative && dayDiff <= 0) //make days positive into the next week
+		dayDiff = 7 + dayDiff; // + because diff is already negative
+	date = date.addDays(dayDiff);
+	Q_ASSERT(date.dayOfWeek() == _weekDay);
+	datetime.setDate(date);
+}
+
+
+
 MonthTerm::MonthTerm(int month, bool looped, bool certain) :
 	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, Month, certain},
 	_month{month}
@@ -525,6 +617,18 @@ QString Expressions::trWord(WordKey key, bool escape)
 		break;
 	case MonthDayIndicator:
 		word = EventExpressionParser::tr("_.|_th|_st|_nd|_rd", "MonthDayIndicator");
+		break;
+	case WeekDayPrefix:
+		word = EventExpressionParser::tr("on ", "WeekDayPrefix");
+		break;
+	case WeekDaySuffix:
+		word = EventExpressionParser::tr("", "WeekDaySuffix");
+		break;
+	case WeekDayLoopPrefix:
+		word = EventExpressionParser::tr("every |any |all", "WeekDayLoopPrefix");
+		break;
+	case WeekDayLoopSuffix:
+		word = EventExpressionParser::tr("", "WeekDayLoopSuffix");
 		break;
 	case MonthPrefix:
 		word = EventExpressionParser::tr("in ", "MonthPrefix");

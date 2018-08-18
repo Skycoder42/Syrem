@@ -30,6 +30,8 @@ private Q_SLOTS:
 	void testInvertedTimeExpressions();
 	void testMonthDayExpressions_data();
 	void testMonthDayExpressions();
+	void testWeekDayExpressions_data();
+	void testWeekDayExpressions();
 	void testMonthExpressions_data();
 	void testMonthExpressions();
 	void testYearExpressions_data();
@@ -664,7 +666,6 @@ void ParserTest::testMonthDayExpressions_data()
 							 << false
 							 << QDateTime{}
 							 << QDateTime{};
-
 }
 
 void ParserTest::testMonthDayExpressions()
@@ -686,6 +687,175 @@ void ParserTest::testMonthDayExpressions()
 		QCOMPARE(res.first->scope, MonthDay);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_day, day);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since, applyRelative);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testWeekDayExpressions_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<int>("weekDay");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<Type>("type");
+	QTest::addColumn<bool>("certain");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	// basic
+	const QDate cDate{2018, 10, 15}; //somewhere in the middle of a month
+	const auto cTime = QTime::currentTime();
+	auto cYear = cDate.year();
+	auto cMonth = cDate.month();
+	QTest::addRow("simple.raw") << QStringLiteral("Thursday")
+								<< false
+								<< 4
+								<< 8
+								<< Type{RelativeTimepoint}
+								<< false
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{QDate{cYear, cMonth, 18}, cTime};
+	QTest::addRow("simple.short") << QStringLiteral("Fri")
+								  << false
+								  << 5
+								  << 3
+								  << Type{RelativeTimepoint}
+								  << false
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
+	QTest::addRow("simple.long") << QStringLiteral("Monday")
+								 << false
+								 << 1
+								 << 6
+								 << Type{RelativeTimepoint}
+								 << false
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, cMonth, 15}, cTime};
+	QTest::addRow("simple.prefix") << QStringLiteral("on Wed")
+								   << false
+								   << 3
+								   << 6
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, cMonth, 17}, cTime};
+
+	QTest::addRow("offset.future.noKeep") << QStringLiteral("Sat")
+										  << false
+										  << 6
+										  << 3
+										  << Type{RelativeTimepoint}
+										  << false
+										  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
+										  << QDateTime{QDate{cYear, cMonth, 20}, cTime};
+	QTest::addRow("offset.future.keep") << QStringLiteral("Sunday")
+										<< true
+										<< 7
+										<< 6
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
+										<< QDateTime{QDate{cYear, cMonth, 21}, cTime};
+	QTest::addRow("offset.past.noKeep") << QStringLiteral("Monday")
+										<< false
+										<< 1
+										<< 6
+										<< Type{RelativeTimepoint}
+										<< false
+										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
+										<< QDateTime{QDate{cYear, cMonth, 15}, cTime};
+	QTest::addRow("offset.past.keep") << QStringLiteral("Tue")
+									  << true
+									  << 2
+									  << 3
+									  << Type{RelativeTimepoint}
+									  << false
+									  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
+									  << QDateTime{QDate{cYear, cMonth, 23}, cTime};
+	QTest::addRow("offset.boundary.noKeep") << QStringLiteral("Wed")
+											<< false
+											<< 3
+											<< 3
+											<< Type{RelativeTimepoint}
+											<< false
+											<< QDateTime{QDate{cYear, 12, 28}, cTime}
+											<< QDateTime{QDate{cYear, 12, 26}, cTime};
+	QTest::addRow("offset.boundary.keep") << QStringLiteral("Wed")
+										  << true
+										  << 3
+										  << 3
+										  << Type{RelativeTimepoint}
+										  << false
+										  << QDateTime{QDate{cYear, 12, 28}, cTime}
+										  << QDateTime{QDate{cYear + 1, 1, 2}, cTime};
+
+	QTest::addRow("loop") << QStringLiteral("every Friday")
+						  << false
+						  << 5
+						  << 12
+						  << Type{LoopedTimePoint}
+						  << true
+						  << QDateTime{cDate, cTime}
+						  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
+
+	QTest::addRow("substr.simple") << QStringLiteral("on Monday next week")
+								   << false
+								   << 1
+								   << 10
+								   << Type{RelativeTimepoint}
+								   << true
+								   << QDateTime{cDate, cTime}
+								   << QDateTime{QDate{cYear, cMonth, 15}, cTime};
+	QTest::addRow("substr.loop") << QStringLiteral("every Wed in June")
+								 << false
+								 << 3
+								 << 10
+								 << Type{LoopedTimePoint}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
+	QTest::addRow("substr.half") << QStringLiteral("on Weddingday")
+								 << false
+								 << 3
+								 << 6
+								 << Type{RelativeTimepoint}
+								 << true
+								 << QDateTime{cDate, cTime}
+								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
+	QTest::addRow("invalid") << QStringLiteral("on Thorsday")
+							 << false
+							 << 0
+							 << 0
+							 << Type{InvalidScope}
+							 << false
+							 << QDateTime{}
+							 << QDateTime{};
+}
+
+void ParserTest::testWeekDayExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(bool, applyRelative);
+	QFETCH(int, weekDay);
+	QFETCH(int, offset);
+	QFETCH(Type, type);
+	QFETCH(bool, certain);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = WeekDayTerm::parse(expression.midRef(0)); //pass full str
+	if(weekDay > 0) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, type);
+		QCOMPARE(res.first->scope, WeekDay);
+		QCOMPARE(res.first->certain, certain);
+		QCOMPARE(res.first->_weekDay, weekDay);
 		QCOMPARE(res.second, offset);
 
 		// second: test applying

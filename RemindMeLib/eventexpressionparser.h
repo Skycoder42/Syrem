@@ -63,6 +63,11 @@ enum WordKey {
 	MonthDayLoopSuffix,
 	MonthDayIndicator,
 
+	WeekDayPrefix,
+	WeekDaySuffix,
+	WeekDayLoopPrefix,
+	WeekDayLoopSuffix,
+
 	MonthPrefix,
 	MonthSuffix,
 	MonthLoopPrefix,
@@ -149,6 +154,17 @@ public:
 
 private:
 	int _day;
+};
+
+class REMINDMELIBSHARED_EXPORT WeekDayTerm : public SubTerm
+{
+public:
+	WeekDayTerm(int weekDay, bool looped, bool certain);
+	static std::pair<QSharedPointer<WeekDayTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	int _weekDay;
 };
 
 class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
