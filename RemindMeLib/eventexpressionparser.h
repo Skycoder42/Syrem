@@ -214,6 +214,18 @@ public:
 private:
 	Sequence _sequence;
 };
+
+class REMINDMELIBSHARED_EXPORT KeywordTerm : public SubTerm
+{
+public:
+	KeywordTerm(int days);
+	static std::pair<QSharedPointer<KeywordTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	int _days;
+};
+
 // general helper method
 QString trWord(WordKey key, bool escape = true); //TODO no defaults...
 QStringList trList(WordKey key, bool escape = true);

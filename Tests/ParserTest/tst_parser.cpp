@@ -39,6 +39,8 @@ private Q_SLOTS:
 	void testYearExpressions();
 	void testSequenceExpressions_data();
 	void testSequenceExpressions();
+	void testKeywordExpressions_data();
+	void testKeywordExpressions();
 
 private:
 	EventExpressionParser *parser;
@@ -1342,6 +1344,58 @@ void ParserTest::testSequenceExpressions()
 		QCOMPARE(res.first->scope, scope);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_sequence, sequence);
+		QCOMPARE(res.second, offset);
+
+		// second: test applying
+		res.first->apply(since, true);
+		QCOMPARE(since, result);
+	} else
+		QVERIFY(!res.first);
+}
+
+void ParserTest::testKeywordExpressions_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<int>("days");
+	QTest::addColumn<int>("offset");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	QTest::addRow("today") << QStringLiteral("today")
+						   << 0
+						   << 5
+						   << QDateTime{cDate, cTime}
+						   << QDateTime{cDate, cTime};
+	QTest::addRow("tomorrow") << QStringLiteral("tomorrow")
+							  << 1
+							  << 8
+							  << QDateTime{cDate, cTime}
+							  << QDateTime{cDate.addDays(1), cTime};
+	QTest::addRow("invalid") << QStringLiteral("invalid")
+							 << -1
+							 << 0
+							 << QDateTime{}
+							 << QDateTime{};
+}
+
+void ParserTest::testKeywordExpressions()
+{
+	QFETCH(QString, expression);
+	QFETCH(int, days);
+	QFETCH(int, offset);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	// first: parse and verify parse result
+	auto res = KeywordTerm::parse(expression.midRef(0)); //pass full str
+	if(days >= 0) {
+		QVERIFY(res.first);
+		QCOMPARE(res.first->type, Timespan);
+		QCOMPARE(res.first->scope, Day);
+		QCOMPARE(res.first->certain, true);
+		QCOMPARE(res.first->_days, days);
 		QCOMPARE(res.second, offset);
 
 		// second: test applying

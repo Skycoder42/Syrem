@@ -1,5 +1,5 @@
 #include "eventexpressionparser.h"
-
+#include <chrono>
 #include <QLocale>
 #include <QVector>
 using namespace Expressions;
@@ -704,6 +704,35 @@ void SequenceTerm::apply(QDateTime &datetime, bool applyRelative) const
 			break;
 		}
 	}
+}
+
+
+
+KeywordTerm::KeywordTerm(int days) :
+	SubTerm{Timespan, Day, true},
+	_days{days}
+{}
+
+std::pair<QSharedPointer<KeywordTerm>, int> KeywordTerm::parse(const QStringRef &expression)
+{
+	for(const auto &info : trList(KeywordDayspan, false)) {
+		const auto split = info.split(QLatin1Char(':'));
+		Q_ASSERT_X(split.size() == 2, Q_FUNC_INFO, "Invalid KeywordDayspan translation. Must be keyword and value, seperated by a ':'");
+		if(expression.startsWith(split[0])) {
+			return {
+				QSharedPointer<KeywordTerm>::create(split[1].toInt()),
+				split[0].size()
+			};
+		}
+	}
+
+	return {};
+}
+
+void KeywordTerm::apply(QDateTime &datetime, bool applyRelative) const
+{
+	Q_UNUSED(applyRelative)
+	datetime = datetime.addDays(_days);
 }
 
 
