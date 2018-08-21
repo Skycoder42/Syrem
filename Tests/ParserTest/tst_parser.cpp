@@ -244,7 +244,7 @@ void ParserTest::testTimeExpressions()
 	auto res = TimeTerm::parse(expression.midRef(0)); //pass full str
 	if(time.isValid()) {
 		QVERIFY(res.first);
-		QCOMPARE(res.first->type, RelativeTimepoint);
+		QCOMPARE(res.first->type, Timepoint);
 		QCOMPARE(res.first->scope, Hour | Minute);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_time, time);
@@ -277,7 +277,7 @@ void ParserTest::testDateExpressions_data()
 								 << false
 								 << QDate{1900, 12, 13}
 								 << 6
-								 << Type{RelativeTimepoint}
+								 << Type{Timepoint}
 								 << Scope{Month | MonthDay}
 								 << false
 								 << QDateTime{cDate, cTime}
@@ -286,7 +286,7 @@ void ParserTest::testDateExpressions_data()
 								 << false
 								 << QDate{1900, 3, 5}
 								 << 3
-								 << Type{RelativeTimepoint}
+								 << Type{Timepoint}
 								 << Scope{Month | MonthDay}
 								 << false
 								 << QDateTime{cDate, cTime}
@@ -313,7 +313,7 @@ void ParserTest::testDateExpressions_data()
 								   << false
 								   << QDate{1900, 11, 11}
 								   << 10
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << Scope{Month | MonthDay}
 								   << true
 								   << QDateTime{cDate, cTime}
@@ -331,7 +331,7 @@ void ParserTest::testDateExpressions_data()
 							<< false
 							<< QDate{1900, 12, 24}
 							<< 9
-							<< Type{RelativeTimepoint}
+							<< Type{Timepoint}
 							<< Scope{Month | MonthDay}
 							<< true
 							<< QDateTime{cDate, cTime}
@@ -343,7 +343,7 @@ void ParserTest::testDateExpressions_data()
 										  << false
 										  << QDate{1900, 12, 13}
 										  << 6
-										  << Type{RelativeTimepoint}
+										  << Type{Timepoint}
 										  << Scope{Month | MonthDay}
 										  << false
 										  << referenceTime
@@ -352,7 +352,7 @@ void ParserTest::testDateExpressions_data()
 										<< true
 										<< QDate{1900, 12, 13}
 										<< 6
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< Scope{Month | MonthDay}
 										<< false
 										<< referenceTime
@@ -361,7 +361,7 @@ void ParserTest::testDateExpressions_data()
 										<< false
 										<< QDate{1900, 7, 15}
 										<< 6
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< Scope{Month | MonthDay}
 										<< false
 										<< referenceTime
@@ -370,7 +370,7 @@ void ParserTest::testDateExpressions_data()
 									  << true
 									  << QDate{1900, 7, 15}
 									  << 6
-									  << Type{RelativeTimepoint}
+									  << Type{Timepoint}
 									  << Scope{Month | MonthDay}
 									  << false
 									  << referenceTime
@@ -491,7 +491,7 @@ void ParserTest::testInvertedTimeExpressions()
 	auto res = InvertedTimeTerm::parse(expression.midRef(0)); //pass full str
 	if(time.isValid()) {
 		QVERIFY(res.first);
-		QCOMPARE(res.first->type, RelativeTimepoint);
+		QCOMPARE(res.first->type, Timepoint);
 		QCOMPARE(res.first->scope, Hour | Minute);
 		QCOMPARE(res.first->certain, true);
 		QCOMPARE(res.first->_time, time);
@@ -524,7 +524,7 @@ void ParserTest::testMonthDayExpressions_data()
 								<< false
 								<< 12
 								<< 3
-								<< Type{RelativeTimepoint}
+								<< Type{Timepoint}
 								<< false
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, cMonth, 12}, cTime};
@@ -532,7 +532,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 23
 								   << 8
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 23}, cTime};
@@ -540,7 +540,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 2
 								   << 6
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 2}, cTime};
@@ -548,7 +548,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 1
 								   << 13
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 1}, cTime};
@@ -557,7 +557,7 @@ void ParserTest::testMonthDayExpressions_data()
 									<< false
 									<< 31
 									<< 3
-									<< Type{RelativeTimepoint}
+									<< Type{Timepoint}
 									<< false
 									<< QDateTime{QDate{cYear, 5, 1}, cTime}
 									<< QDateTime{QDate{cYear, 5, 31}, cTime};
@@ -565,7 +565,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< false
 										<< 31
 										<< 3
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, 4, 1}, cTime}
 										<< QDateTime{QDate{cYear, 4, 30}, cTime};
@@ -590,7 +590,7 @@ void ParserTest::testMonthDayExpressions_data()
 										  << false
 										  << 14
 										  << 3
-										  << Type{RelativeTimepoint}
+										  << Type{Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, cMonth, 10}, cTime}
 										  << QDateTime{QDate{cYear, cMonth, 14}, cTime};
@@ -598,7 +598,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< true
 										<< 14
 										<< 3
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 10}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
@@ -606,7 +606,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< false
 										<< 14
 										<< 3
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 20}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
@@ -614,7 +614,7 @@ void ParserTest::testMonthDayExpressions_data()
 									  << true
 									  << 14
 									  << 3
-									  << Type{RelativeTimepoint}
+									  << Type{Timepoint}
 									  << false
 									  << QDateTime{QDate{cYear, cMonth, 20}, cTime}
 									  << QDateTime{QDate{cYear, cMonth + 1, 14}, cTime};
@@ -622,7 +622,7 @@ void ParserTest::testMonthDayExpressions_data()
 											 << false
 											 << 30
 											 << 3
-											 << Type{RelativeTimepoint}
+											 << Type{Timepoint}
 											 << false
 											 << QDateTime{QDate{cYear, 2, 28}, cTime}
 											 << QDateTime{QDate{cYear, 2, 28}, cTime};
@@ -630,7 +630,7 @@ void ParserTest::testMonthDayExpressions_data()
 										   << true
 										   << 30
 										   << 3
-										   << Type{RelativeTimepoint}
+										   << Type{Timepoint}
 										   << false
 										   << QDateTime{QDate{cYear, 2, 28}, cTime}
 										   << QDateTime{QDate{cYear, 3, 30}, cTime};
@@ -656,7 +656,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 4
 								   << 10
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 4}, cTime};
@@ -726,7 +726,7 @@ void ParserTest::testWeekDayExpressions_data()
 								<< false
 								<< 4
 								<< 8
-								<< Type{RelativeTimepoint}
+								<< Type{Timepoint}
 								<< false
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, cMonth, 18}, cTime};
@@ -734,7 +734,7 @@ void ParserTest::testWeekDayExpressions_data()
 								  << false
 								  << 5
 								  << 3
-								  << Type{RelativeTimepoint}
+								  << Type{Timepoint}
 								  << false
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
@@ -742,7 +742,7 @@ void ParserTest::testWeekDayExpressions_data()
 								 << false
 								 << 1
 								 << 6
-								 << Type{RelativeTimepoint}
+								 << Type{Timepoint}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 15}, cTime};
@@ -750,7 +750,7 @@ void ParserTest::testWeekDayExpressions_data()
 								   << false
 								   << 3
 								   << 6
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 17}, cTime};
@@ -759,7 +759,7 @@ void ParserTest::testWeekDayExpressions_data()
 										  << false
 										  << 6
 										  << 3
-										  << Type{RelativeTimepoint}
+										  << Type{Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
 										  << QDateTime{QDate{cYear, cMonth, 20}, cTime};
@@ -767,7 +767,7 @@ void ParserTest::testWeekDayExpressions_data()
 										<< true
 										<< 7
 										<< 6
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 21}, cTime};
@@ -775,7 +775,7 @@ void ParserTest::testWeekDayExpressions_data()
 										<< false
 										<< 1
 										<< 6
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 15}, cTime};
@@ -783,7 +783,7 @@ void ParserTest::testWeekDayExpressions_data()
 									  << true
 									  << 2
 									  << 3
-									  << Type{RelativeTimepoint}
+									  << Type{Timepoint}
 									  << false
 									  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
 									  << QDateTime{QDate{cYear, cMonth, 23}, cTime};
@@ -791,7 +791,7 @@ void ParserTest::testWeekDayExpressions_data()
 											<< false
 											<< 3
 											<< 3
-											<< Type{RelativeTimepoint}
+											<< Type{Timepoint}
 											<< false
 											<< QDateTime{QDate{cYear, 12, 28}, cTime}
 											<< QDateTime{QDate{cYear, 12, 26}, cTime};
@@ -799,7 +799,7 @@ void ParserTest::testWeekDayExpressions_data()
 										  << true
 										  << 3
 										  << 3
-										  << Type{RelativeTimepoint}
+										  << Type{Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, 12, 28}, cTime}
 										  << QDateTime{QDate{cYear + 1, 1, 2}, cTime};
@@ -817,7 +817,7 @@ void ParserTest::testWeekDayExpressions_data()
 								   << false
 								   << 1
 								   << 10
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 15}, cTime};
@@ -833,7 +833,7 @@ void ParserTest::testWeekDayExpressions_data()
 								 << false
 								 << 3
 								 << 6
-								 << Type{RelativeTimepoint}
+								 << Type{Timepoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
@@ -894,7 +894,7 @@ void ParserTest::testMonthExpressions_data()
 								<< false
 								<< 5
 								<< 3
-								<< Type{RelativeTimepoint}
+								<< Type{Timepoint}
 								<< false
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, 5, 1}, cTime};
@@ -902,7 +902,7 @@ void ParserTest::testMonthExpressions_data()
 								  << false
 								  << 12
 								  << 3
-								  << Type{RelativeTimepoint}
+								  << Type{Timepoint}
 								  << false
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{QDate{cYear, 12, 1}, cTime};
@@ -910,7 +910,7 @@ void ParserTest::testMonthExpressions_data()
 								 << false
 								 << 10
 								 << 7
-								 << Type{RelativeTimepoint}
+								 << Type{Timepoint}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 10, 1}, cTime};
@@ -918,7 +918,7 @@ void ParserTest::testMonthExpressions_data()
 								   << false
 								   << 6
 								   << 7
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, 6, 1}, cTime};
@@ -927,7 +927,7 @@ void ParserTest::testMonthExpressions_data()
 										  << false
 										  << 4
 										  << 5
-										  << Type{RelativeTimepoint}
+										  << Type{Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, 2, 10}, cTime}
 										  << QDateTime{QDate{cYear, 4, 1}, cTime};
@@ -935,7 +935,7 @@ void ParserTest::testMonthExpressions_data()
 										<< true
 										<< 7
 										<< 4
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, 5, 10}, cTime}
 										<< QDateTime{QDate{cYear, 7, 1}, cTime};
@@ -943,7 +943,7 @@ void ParserTest::testMonthExpressions_data()
 										<< false
 										<< 2
 										<< 3
-										<< Type{RelativeTimepoint}
+										<< Type{Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, 7, 20}, cTime}
 										<< QDateTime{QDate{cYear, 2, 1}, cTime};
@@ -951,7 +951,7 @@ void ParserTest::testMonthExpressions_data()
 									  << true
 									  << 3
 									  << 5
-									  << Type{RelativeTimepoint}
+									  << Type{Timepoint}
 									  << false
 									  << QDateTime{QDate{cYear, 7, 20}, cTime}
 									  << QDateTime{QDate{cYear + 1, 3, 1}, cTime};
@@ -977,7 +977,7 @@ void ParserTest::testMonthExpressions_data()
 								   << false
 								   << 9
 								   << 13
-								   << Type{RelativeTimepoint}
+								   << Type{Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, 9, 1}, cTime};
@@ -993,7 +993,7 @@ void ParserTest::testMonthExpressions_data()
 								 << false
 								 << 10
 								 << 6
-								 << Type{RelativeTimepoint}
+								 << Type{Timepoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 10, 1}, cTime};
@@ -1373,9 +1373,9 @@ void ParserTest::testKeywordExpressions_data()
 						   << 5
 						   << QDateTime{cDate, cTime}
 						   << QDateTime{cDate, cTime};
-	QTest::addRow("tomorrow") << QStringLiteral("tomorrow")
+	QTest::addRow("tomorrow") << QStringLiteral("tomorrow ")
 							  << 1
-							  << 8
+							  << 9
 							  << QDateTime{cDate, cTime}
 							  << QDateTime{cDate.addDays(1), cTime};
 	QTest::addRow("invalid") << QStringLiteral("invalid")

@@ -142,9 +142,9 @@ bool EventExpressionParser::validateFullTerm(Term &term)
 		else if(subTerm->type.testFlag(FlagAbsolute)) // (2) Only the first element can be absolute
 			return false;
 
-		if(isPoint && subTerm->type.testFlag(FlagTimespan)) // (3) Spans must not be followed by timepoints
+		if(isPoint && subTerm->type.testFlag(Timespan)) // (3) Spans must not be followed by timepoints
 			return false;
-		else if(subTerm->type.testFlag(FlagTimepoint))
+		else if(subTerm->type.testFlag(Timepoint))
 			isPoint = true;
 	}
 
@@ -156,7 +156,7 @@ void EventExpressionParser::parseMultiTerm(QUuid id, const QString &expression, 
 {
 	// first: find all subterms and prepare the multi term for them
 	QRegularExpression splitRegex {
-		QStringLiteral("\\s*") + trWord(ExpressionSeperator, true) + QStringLiteral("\\s*"),
+		QStringLiteral("\\s*(?:") + trList(ExpressionSeperator).join(QLatin1Char('|')) + QStringLiteral(")\\s*"),
 		QRegularExpression::DontAutomaticallyOptimizeOption |
 		QRegularExpression::CaseInsensitiveOption |
 		QRegularExpression::UseUnicodePropertiesOption |
@@ -218,7 +218,7 @@ SubTerm::~SubTerm() = default;
 
 
 TimeTerm::TimeTerm(QTime time, bool certain) :
-	SubTerm{RelativeTimepoint, Hour | Minute, certain},
+	SubTerm{Timepoint, Hour | Minute, certain},
 	_time{time}
 {}
 
@@ -279,7 +279,7 @@ QString TimeTerm::toRegex(QString pattern)
 
 
 DateTerm::DateTerm(QDate date, bool hasYear, bool certain) :
-	SubTerm{hasYear ? AbsoluteTimepoint : RelativeTimepoint,
+	SubTerm{hasYear ? AbsoluteTimepoint : Timepoint,
 			(hasYear ? Year : InvalidScope) | Month | MonthDay,
 			certain},
 	_date{date}
@@ -350,7 +350,7 @@ QString DateTerm::toRegex(QString pattern, bool &hasYear)
 
 
 InvertedTimeTerm::InvertedTimeTerm(QTime time) :
-	SubTerm{RelativeTimepoint, Hour | Minute, true},
+	SubTerm{Timepoint, Hour | Minute, true},
 	_time{time}
 {}
 
@@ -462,7 +462,7 @@ QString InvertedTimeTerm::minToRegex(QString pattern)
 
 
 MonthDayTerm::MonthDayTerm(int day, bool looped, bool certain) :
-	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, MonthDay, certain},
+	SubTerm{looped ? LoopedTimePoint : Timepoint, MonthDay, certain},
 	_day{day}
 {}
 
@@ -536,7 +536,7 @@ void MonthDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 WeekDayTerm::WeekDayTerm(int weekDay, bool looped, bool certain) :
-	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, WeekDay, certain},
+	SubTerm{looped ? LoopedTimePoint : Timepoint, WeekDay, certain},
 	_weekDay{weekDay}
 {}
 
@@ -628,7 +628,7 @@ void WeekDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 MonthTerm::MonthTerm(int month, bool looped, bool certain) :
-	SubTerm{looped ? LoopedTimePoint : RelativeTimepoint, Month, certain},
+	SubTerm{looped ? LoopedTimePoint : Timepoint, Month, certain},
 	_month{month}
 {}
 
@@ -797,15 +797,18 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 				std::make_pair(SpanKeyMonth, Month),
 				std::make_pair(SpanKeyYear, Year)
 			}) {
-			for(const auto &key : trList(scopeInfo.first, false)) {
+			for(const auto &key : trList(scopeInfo.first, false, false)) {
 				nameLookup.insert(key, scopeInfo.second);
-				nameKeys.append(QRegularExpression::escape(key));
+				nameKeys.append(key);
 			}
 		}
 		// sort by length to test the longest variants first
 		std::sort(nameKeys.begin(), nameKeys.end(), [](const QString &lhs, const QString &rhs) {
 			return lhs.size() > rhs.size();
-		}); //TODO sort globally via trList as optional param
+		});
+		// escape after sorting
+		for(auto &key : nameKeys)
+			key = QRegularExpression::escape(key);
 		nameKey = nameKeys.join(QLatin1Char('|'));
 	}
 
@@ -919,10 +922,17 @@ std::pair<QSharedPointer<KeywordTerm>, int> KeywordTerm::parse(const QStringRef 
 	for(const auto &info : trList(KeywordDayspan, false)) {
 		const auto split = info.split(QLatin1Char(':'));
 		Q_ASSERT_X(split.size() == 2, Q_FUNC_INFO, "Invalid KeywordDayspan translation. Must be keyword and value, seperated by a ':'");
-		if(expression.startsWith(split[0])) {
+		QRegularExpression regex {
+			QRegularExpression::escape(split[0]) + QStringLiteral("\\s*"),
+			QRegularExpression::DontAutomaticallyOptimizeOption |
+			QRegularExpression::CaseInsensitiveOption |
+			QRegularExpression::UseUnicodePropertiesOption
+		};
+		auto match = regex.match(expression);
+		if(match.hasMatch()) {
 			return {
 				QSharedPointer<KeywordTerm>::create(split[1].toInt()),
-				split[0].size()
+				match.capturedLength(0)
 			};
 		}
 	}
@@ -1114,9 +1124,14 @@ QString Expressions::trWord(WordKey key, bool escape)
 	return word;
 }
 
-QStringList Expressions::trList(WordKey key, bool escape)
+QStringList Expressions::trList(WordKey key, bool escape, bool sort)
 {
 	auto resList = trWord(key, false).split(QLatin1Char('|'), QString::SkipEmptyParts);
+	if(sort) {
+		std::sort(resList.begin(), resList.end(), [](const QString &lhs, const QString &rhs) {
+			return lhs.size() > rhs.size();
+		});
+	}
 	if(escape) {
 		for(auto &word : resList)
 			word = QRegularExpression::escape(word);

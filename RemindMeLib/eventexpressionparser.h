@@ -18,16 +18,15 @@ namespace Expressions {
 enum TypeFlag {
 	InvalidType = 0x00,
 
-	FlagAbsolute = 0x01, //TODO remove? kinda duplicates with the year scope
-	FlagRelative = 0x02,
-	FlagTimepoint = 0x04,
-	FlagTimespan = 0x08,
-	FlagLooped = 0x10,
+	Timepoint = 0x01,
+	Timespan = 0x02,
 
-	AbsoluteTimepoint = FlagAbsolute | FlagTimepoint,
-	RelativeTimepoint = FlagRelative | FlagTimepoint,
-	Timespan = FlagRelative | FlagTimespan,
-	LoopedTimePoint = RelativeTimepoint | FlagLooped,
+	// No flag means relative, unlooped
+	FlagAbsolute = 0x10,
+	FlagLooped = 0x20,
+
+	AbsoluteTimepoint = Timepoint | FlagAbsolute,
+	LoopedTimePoint = Timepoint | FlagLooped,
 	LoopedTimeSpan = Timespan | FlagLooped
 
 	// TODO ... and when in loops, use the timepoints as "from+until" restriction
@@ -126,7 +125,7 @@ public:
 
 // sub-expession terms that use Qt date/time formats
 
-class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm //TODO add support for "20 past/before 3" via extra subterm
+class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm
 {
 public:
 	TimeTerm(QTime time, bool certain);
@@ -264,8 +263,8 @@ using TermSelection = QList<Term>;
 using MultiTerm = QVector<TermSelection>;
 
 // general helper method
-QString trWord(WordKey key, bool escape = true); //TODO no defaults...
-QStringList trList(WordKey key, bool escape = true);
+QString trWord(WordKey key, bool escape = true);
+QStringList trList(WordKey key, bool escape = true, bool sort = true);
 
 QString dateTimeFormatToRegex(QString pattern, const std::function<void(QString&)> &replacer);
 
