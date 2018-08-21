@@ -1,7 +1,7 @@
 TEMPLATE = lib
 
 QT -= gui
-QT += datasync mvvmcore mvvmdatasynccore remoteobjects
+QT += datasync mvvmcore mvvmdatasynccore remoteobjects concurrent
 
 TARGET = remind-me
 
@@ -15,7 +15,7 @@ HEADERS += \
 	conflictresolver.h \
 	remindmelib.h \
 	snoozetimes.h \
-    eventexpressionparser.h
+	eventexpressionparser.h
 
 SOURCES += \
 	dateparser.cpp \
@@ -24,7 +24,7 @@ SOURCES += \
 	conflictresolver.cpp \
 	remindmelib.cpp \
 	snoozetimes.cpp \
-    eventexpressionparser.cpp
+	eventexpressionparser.cpp
 
 SETTINGS_DEFINITIONS += \
 	localsettings.xml \

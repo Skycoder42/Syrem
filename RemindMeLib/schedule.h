@@ -22,7 +22,7 @@ class REMINDMELIBSHARED_EXPORT Schedule : public QObject
 
 public:
 	explicit Schedule(QObject *parent = nullptr);
-	explicit Schedule(const QDateTime &since, QObject *parent = nullptr);
+	explicit Schedule(QDateTime since, QObject *parent = nullptr);
 
 	virtual bool isRepeating() const = 0;
 	QDateTime current() const;
@@ -48,7 +48,7 @@ class REMINDMELIBSHARED_EXPORT OneTimeSchedule : public Schedule
 
 public:
 	Q_INVOKABLE OneTimeSchedule(QObject *parent = nullptr);
-	OneTimeSchedule(const QDateTime timepoint, const QDateTime &since, QObject *parent = nullptr);
+	OneTimeSchedule(QDateTime timepoint, QDateTime since, QObject *parent = nullptr);
 
 	bool isRepeating() const override;
 
@@ -91,7 +91,7 @@ public:
 	Q_ENUM(Span)
 
 	Q_INVOKABLE LoopSchedule(QObject *parent = nullptr);
-	LoopSchedule(const QDateTime &since, QObject *parent = nullptr);
+	LoopSchedule(QDateTime since, QObject *parent = nullptr);
 
 	bool isRepeating() const override;
 
@@ -99,8 +99,8 @@ protected:
 	QDateTime generateNextSchedule() override;
 
 private:
-	ParserTypes::Type *type;
-	ParserTypes::Datum *datum;
+	ParserTypes::Type *type = nullptr;
+	ParserTypes::Datum *datum = nullptr;
 	QTime time;
 
 	QDateTime from;
@@ -115,7 +115,7 @@ class REMINDMELIBSHARED_EXPORT MultiSchedule : public Schedule
 
 public:
 	Q_INVOKABLE MultiSchedule(QObject *parent = nullptr);
-	MultiSchedule(const QDateTime &since, QObject *parent = nullptr);
+	MultiSchedule(QDateTime since, QObject *parent = nullptr);
 
 	void addSubSchedule(Schedule *schedule);
 

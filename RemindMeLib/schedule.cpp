@@ -6,9 +6,9 @@ Schedule::Schedule(QObject *parent) :
 	_current()
 {}
 
-Schedule::Schedule(const QDateTime &since, QObject *parent) :
-	QObject(parent),
-	_current(since)
+Schedule::Schedule(QDateTime since, QObject *parent) :
+	QObject{parent},
+	_current{std::move(since)}
 {}
 
 QDateTime Schedule::current() const
@@ -29,9 +29,9 @@ OneTimeSchedule::OneTimeSchedule(QObject *parent) :
 	OneTimeSchedule({}, {}, parent)
 {}
 
-OneTimeSchedule::OneTimeSchedule(const QDateTime timepoint, const QDateTime &since, QObject *parent) :
-	Schedule(since, parent),
-	timepoint(timepoint)
+OneTimeSchedule::OneTimeSchedule(QDateTime timepoint, QDateTime since, QObject *parent) :
+	Schedule{std::move(since), parent},
+	timepoint{std::move(timepoint)}
 {}
 
 bool OneTimeSchedule::isRepeating() const
@@ -50,16 +50,11 @@ QDateTime OneTimeSchedule::generateNextSchedule()
 
 
 LoopSchedule::LoopSchedule(QObject *parent) :
-	LoopSchedule({}, parent)
+	LoopSchedule{{}, parent}
 {}
 
-LoopSchedule::LoopSchedule(const QDateTime &since, QObject *parent) :
-	Schedule(since, parent),
-	type(nullptr),
-	datum(nullptr),
-	time(),
-	from(),
-	until()
+LoopSchedule::LoopSchedule(QDateTime since, QObject *parent) :
+	Schedule{std::move(since), parent}
 {}
 
 bool LoopSchedule::isRepeating() const
@@ -91,13 +86,11 @@ QDateTime LoopSchedule::generateNextSchedule()
 
 
 MultiSchedule::MultiSchedule(QObject *parent) :
-	Schedule(parent),
-	subSchedules()
+	Schedule{parent}
 {}
 
-MultiSchedule::MultiSchedule(const QDateTime &since, QObject *parent) :
-	Schedule(since, parent),
-	subSchedules()
+MultiSchedule::MultiSchedule(QDateTime since, QObject *parent) :
+	Schedule{std::move(since), parent}
 {}
 
 void MultiSchedule::addSubSchedule(Schedule *schedule)
@@ -115,7 +108,7 @@ bool MultiSchedule::isRepeating() const
 QDateTime MultiSchedule::generateNextSchedule()
 {
 	QDateTime closest;
-	for(auto schedule : subSchedules) {
+	for(auto schedule : qAsConst(subSchedules)) {
 		auto next = schedule->current();
 		while(next.isValid() && next <= current())
 			next = schedule->nextSchedule();

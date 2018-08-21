@@ -1,5 +1,8 @@
 #include "eventexpressionparser.h"
+#include "schedule.h"
 #include <chrono>
+#include <QtConcurrentRun>
+#include <QEventLoop>
 #include <QLocale>
 #include <QVector>
 using namespace Expressions;
@@ -7,6 +10,204 @@ using namespace Expressions;
 EventExpressionParser::EventExpressionParser(QObject *parent) :
 	QObject{parent}
 {}
+
+MultiTerm EventExpressionParser::parseMultiExpression(const QString &expression)
+{
+	return parseExpressionImpl(expression, true);
+}
+
+TermSelection EventExpressionParser::parseExpression(const QString &expression)
+{
+	auto resList = parseExpressionImpl(expression, false);
+	Q_ASSERT(resList.size() == 1);
+	return std::move(resList.first());
+}
+
+QSharedPointer<Schedule> EventExpressionParser::parseSchedule(const Term &term)
+{
+
+}
+
+QDateTime EventExpressionParser::parseSnoozeTime(const Term &term)
+{
+	const auto now = QDateTime::currentDateTime();
+	auto then = term.apply(now);
+	if(!term.scope().testFlag(Hour) &&
+	   !term.scope().testFlag(Minute)) {
+		QTime time = _settings->scheduler.defaultTime;
+		if(time.isValid() && time != QTime{0,0})
+			then.setTime(time);
+	}
+	if(now >= then)
+		return {};
+	else
+		return then;
+}
+
+MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, bool allowMulti)
+{
+	// prepare eventloop with result signal handlers
+	const auto id = QUuid::createUuid();
+	MultiTerm terms;
+	QEventLoop loop;
+	connect(this, &EventExpressionParser::termCompleted, &loop, [&](QUuid termId, int termIndex, const Term &term){
+		if(termId == id)
+			terms[termIndex].append(term);
+	}, Qt::QueuedConnection);
+	connect(this, &EventExpressionParser::operationCompleted, &loop, [&](QUuid doneId){
+		if(doneId == id)
+			loop.quit();
+	}, Qt::QueuedConnection);
+
+	// start operations
+	{
+		QWriteLocker lock{&_taskLocker};
+		_taskCounter.insert(id, 1);
+	}
+	if(allowMulti)
+		QtConcurrent::run(this, &EventExpressionParser::parseMultiTerm, id, expression, &terms);
+	else {
+		terms.append(TermSelection{});
+		//parseTerm must be directly called. The manual call to complete is only needed here, as only the async methods do that
+		parseTerm(id, &expression, {}, 0);
+		completeTask(id);
+	}
+
+	auto res = loop.exec();
+	{
+		QWriteLocker lock{&_taskLocker};
+		Q_ASSERT(_taskCounter.value(id) == 0);
+		_taskCounter.remove(id);
+	}
+	if(res == EXIT_SUCCESS)
+		return terms;
+	else
+		return {};
+}
+
+void EventExpressionParser::parseTerm(QUuid id, const QStringRef &expression, const Term &term, int termIndex)
+{
+	// start parser-tasks for all the possible subterms
+	addTasks(id, 9);
+	parseSubTerm<TimeTerm>(id, expression, term, termIndex);
+	parseSubTerm<DateTerm>(id, expression, term, termIndex);
+	parseSubTerm<InvertedTimeTerm>(id, expression, term, termIndex);
+	parseSubTerm<MonthDayTerm>(id, expression, term, termIndex);
+	parseSubTerm<WeekDayTerm>(id, expression, term, termIndex);
+	parseSubTerm<MonthTerm>(id, expression, term, termIndex);
+	parseSubTerm<YearTerm>(id, expression, term, termIndex);
+	parseSubTerm<SequenceTerm>(id, expression, term, termIndex);
+	parseSubTerm<KeywordTerm>(id, expression, term, termIndex);
+}
+
+bool EventExpressionParser::validatePartialTerm(const Term &term)
+{
+	/* Checks to perform after every subterm:
+	 *	1. All Scopes must be unique
+	 *	2. Only a single loop is allowed
+	 */
+	Scope allScope = InvalidScope;
+	auto hasLoop = false;
+	for(const auto &subTerm : term) {
+		if((static_cast<int>(allScope) & static_cast<int>(subTerm->scope)) != 0) // (1) at least 1 scope is shared by 2 subterms
+			return false;
+		if(subTerm->type.testFlag(FlagLooped)) {
+			if(hasLoop) // (2) only 1 loop per term
+				return false;
+			else
+				hasLoop = true;
+		}
+		allScope |= subTerm->scope;
+	}
+
+	return true;
+}
+
+bool EventExpressionParser::validateFullTerm(Term &term)
+{
+	/* Checks to perform on the full term:
+	 *	1. Sort by scope...
+	 *	2. Only the first element can be absolute
+	 *	3. Timepoints must not be followed by spans TODO except for loops
+	 */
+	std::sort(term.begin(), term.end(), [](const QSharedPointer<const SubTerm> &lhs, const QSharedPointer<const SubTerm> &rhs){
+		return lhs->scope < rhs->scope;
+	});
+
+	auto isFirst = true;
+	auto isPoint = false;
+	for(const auto &subTerm : qAsConst(term)) {
+		if(isFirst)
+			isFirst = false;
+		else if(subTerm->type.testFlag(FlagAbsolute)) // (2) Only the first element can be absolute
+			return false;
+
+		if(isPoint && subTerm->type.testFlag(FlagTimespan)) // (3) Spans must not be followed by timepoints
+			return false;
+		else if(subTerm->type.testFlag(FlagTimepoint))
+			isPoint = true;
+	}
+
+	term.finalize();
+	return true;
+}
+
+void EventExpressionParser::parseMultiTerm(QUuid id, const QString &expression, MultiTerm *terms)
+{
+	// first: find all subterms and prepare the multi term for them
+	QRegularExpression splitRegex {
+		QStringLiteral("\\s*") + trWord(ExpressionSeperator, true) + QStringLiteral("\\s*"),
+		QRegularExpression::DontAutomaticallyOptimizeOption |
+		QRegularExpression::CaseInsensitiveOption |
+		QRegularExpression::UseUnicodePropertiesOption |
+		QRegularExpression::DontCaptureOption
+	};
+	auto subExpressions = expression.splitRef(splitRegex, QString::SkipEmptyParts);
+	terms->resize(subExpressions.size());
+
+	// second: actually parse them. From here on the term is not edited anymore
+	terms = nullptr;
+	auto counter = 0;
+	for(const auto &subExpr : subExpressions)
+		parseTerm(id, subExpr, {}, counter++);
+
+	completeTask(id);
+}
+
+template<typename TSubTerm>
+void EventExpressionParser::parseSubTerm(QUuid id, const QStringRef &expression, Term term, int termIndex)
+{
+	static_assert(std::is_base_of<SubTerm, TSubTerm>::value, "TSubTerm must implement SubTerm");
+	using ParseResult = std::pair<QSharedPointer<TSubTerm>, int>;
+	ParseResult result = TSubTerm::parse(expression);
+	if(result.first) {
+		term.append(result.first);
+		if(!validatePartialTerm(term))
+			; //TODO report errors
+		else if(result.second == expression.size()) {
+			if(validateFullTerm(term))
+				emit termCompleted(id, termIndex, term);
+			else
+				; //TODO report errors
+		}
+		else
+			parseTerm(id, expression.mid(result.second), term, termIndex);
+	}
+	completeTask(id);
+}
+
+void EventExpressionParser::addTasks(QUuid id, int count)
+{
+	QReadLocker lock{&_taskLocker};
+	_taskCounter[id] += count;
+}
+
+void EventExpressionParser::completeTask(QUuid id)
+{
+	QReadLocker lock{&_taskLocker};
+	if(--_taskCounter[id] == 0)
+		emit operationCompleted(id);
+}
 
 
 
@@ -737,6 +938,49 @@ void KeywordTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
+Term::Term(std::initializer_list<QSharedPointer<const SubTerm>> args) :
+	QList{args}
+{}
+
+Scope Term::scope() const
+{
+	Q_ASSERT(_scope != InvalidScope);
+	return _scope;
+}
+
+bool Term::isLooped() const
+{
+	return _looped;
+}
+
+bool Term::isAbsolute() const
+{
+	return _absolute;
+}
+
+QDateTime Term::apply(QDateTime datetime) const
+{
+	auto applyFirst = true;
+	for(const auto &term : *this) {
+		term->apply(datetime, applyFirst);
+		applyFirst = false;
+	}
+	return datetime;
+}
+
+void Term::finalize()
+{
+	Q_ASSERT(_scope == InvalidScope);
+	for(const auto &subTerm : qAsConst(*this)) {
+		_scope |= subTerm->scope;
+		_looped = _looped || subTerm->type.testFlag(FlagLooped);
+		_absolute = _absolute || subTerm->type.testFlag(FlagAbsolute);
+	}
+}
+
+
+
+
 QString Expressions::trWord(WordKey key, bool escape)
 {
 	QString word;
@@ -811,7 +1055,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("", "WeekDayLoopSuffix");
 		break;
 	case MonthPrefix:
-		word = EventExpressionParser::tr("in ", "MonthPrefix");
+		word = EventExpressionParser::tr("in |on ", "MonthPrefix");
 		break;
 	case MonthSuffix:
 		word = EventExpressionParser::tr("", "MonthSuffix");
@@ -860,6 +1104,9 @@ QString Expressions::trWord(WordKey key, bool escape)
 		break;
 	case KeywordDayspan:
 		word = EventExpressionParser::tr("today:0|tomorrow:1", "KeywordDayspan");
+		break;
+	case ExpressionSeperator:
+		word = EventExpressionParser::tr(";", "ExpressionSeperator");
 		break;
 	}
 	if(escape)
