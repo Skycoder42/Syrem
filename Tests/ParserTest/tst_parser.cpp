@@ -46,6 +46,8 @@ private Q_SLOTS:
 	void testExpressionParsing();
 	void testMultiExpressionParsing_data();
 	void testMultiExpressionParsing();
+	void testExpressionLimiters_data();
+	void testExpressionLimiters();
 
 private:
 	EventExpressionParser *parser;
@@ -1575,6 +1577,110 @@ void ParserTest::testMultiExpressionParsing()
 		auto date = terms[i].first().apply(since[i]);
 		QCOMPARE(date, result[i]);
 	}
+}
+
+void ParserTest::testExpressionLimiters_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("valid");
+	QTest::addColumn<QDateTime>("sinceFrom");
+	QTest::addColumn<QDateTime>("resultFrom");
+	QTest::addColumn<QDateTime>("sinceUntil");
+	QTest::addColumn<QDateTime>("resultUntil");
+
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	QTest::addRow("loop.from") << QStringLiteral("every day from 10. of June")
+							   << true
+							   << QDateTime{{2017, 10, 16}, cTime}
+							   << QDateTime{{2018, 6, 10}, cTime}
+							   << QDateTime{}
+							   << QDateTime{};
+	QTest::addRow("loop.until") << QStringLiteral("every Tuesday until 2020")
+								<< true
+								<< QDateTime{}
+								<< QDateTime{}
+								<< QDateTime{{2018, 1, 2}, cTime}
+								<< QDateTime{{2020, 1, 1}, cTime};
+//	QTest::addRow("loop.from-until") << QStringLiteral("every 20 minutes from 10 to 14")
+//									 << true
+//									 << QDateTime{{2017, 10, 16}, cTime}
+//									 << QDateTime{{2018, 6, 10}, cTime}
+//									 << QDateTime{}
+//									 << QDateTime{}; //TODO use to test for duplicates
+	QTest::addRow("loop.from-until") << QStringLiteral("every 20 minutes from 10:00 to 17:15")
+									 << true
+									 << QDateTime{cDate, {8, 0}}
+									 << QDateTime{cDate, {10, 0}}
+									 << QDateTime{cDate, {8, 0}}
+									 << QDateTime{cDate, {17, 15}};
+	QTest::addRow("loop.until-from") << QStringLiteral("every year until June from 2015")
+									 << true
+									 << QDateTime{{2010, 7, 15}, cTime}
+									 << QDateTime{{2015, 1, 1}, cTime}
+									 << QDateTime{{2018, 4, 5}, cTime}
+									 << QDateTime{{2018, 6, 1}, cTime};
+
+	QTest::addRow("invalid.noloop.from") << QStringLiteral("tomorrow from 7:00")
+										 << false
+										 << QDateTime{}
+										 << QDateTime{}
+										 << QDateTime{}
+										 << QDateTime{};
+	QTest::addRow("invalid.noloop.until") << QStringLiteral("on 24.10. to 2020")
+										  << false
+										  << QDateTime{}
+										  << QDateTime{}
+										  << QDateTime{}
+										  << QDateTime{};
+	QTest::addRow("invalid.double.from") << QStringLiteral("every day from 10. of June from 10:00")
+										 << false
+										 << QDateTime{}
+										 << QDateTime{}
+										 << QDateTime{}
+										 << QDateTime{};
+	QTest::addRow("invalid.double.until") << QStringLiteral("every Tuesday until 2020 to 17:15")
+										  << false
+										  << QDateTime{}
+										  << QDateTime{}
+										  << QDateTime{}
+										  << QDateTime{};
+}
+
+void ParserTest::testExpressionLimiters()
+{
+	QFETCH(QString, expression);
+	QFETCH(bool, valid);
+	QFETCH(QDateTime, sinceFrom);
+	QFETCH(QDateTime, resultFrom);
+	QFETCH(QDateTime, sinceUntil);
+	QFETCH(QDateTime, resultUntil);
+
+	auto terms = parser->parseExpression(expression);
+	if(valid) {
+		QCOMPARE(terms.size(), 1);
+		auto &term = terms.first();
+		for(const auto &subTerm : term) {
+			if(subTerm->type == FromSubterm) {
+				QVERIFY2(sinceFrom.isValid(), "Found unexpected from term");
+				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
+				subTerm->apply(sinceFrom, true);
+				QCOMPARE(sinceFrom, resultFrom);
+				sinceFrom = QDateTime{};
+			}
+			if(subTerm->type == UntilSubTerm) {
+				QVERIFY2(sinceUntil.isValid(), "Found unexpected until term");
+				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
+				subTerm->apply(sinceUntil, true);
+				QCOMPARE(sinceUntil, resultUntil);
+				sinceUntil = QDateTime{};
+			}
+		}
+
+		QVERIFY2(!sinceFrom.isValid(), "Expected from term but none was found");
+		QVERIFY2(!sinceUntil.isValid(), "Expected until term but none was found");
+	} else
+		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
 }
 
 QTEST_MAIN(ParserTest)

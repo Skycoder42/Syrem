@@ -24,10 +24,13 @@ enum TypeFlag {
 	// No flag means relative, unlooped
 	FlagAbsolute = 0x10,
 	FlagLooped = 0x20,
+	FlagLimiter = 0x40,
 
 	AbsoluteTimepoint = Timepoint | FlagAbsolute,
 	LoopedTimePoint = Timepoint | FlagLooped,
-	LoopedTimeSpan = Timespan | FlagLooped
+	LoopedTimeSpan = Timespan | FlagLooped,
+	FromSubterm = 0x04 | FlagLimiter,
+	UntilSubTerm = 0x08 | FlagLimiter,
 
 	// TODO ... and when in loops, use the timepoints as "from+until" restriction
 	// TODO add from/until for limitation of spans
@@ -94,6 +97,9 @@ enum WordKey {
 	SpanKeyYear,
 
 	KeywordDayspan,
+
+	LimiterFromPrefix,
+	LimiterUntilPrefix,
 
 	ExpressionSeperator
 };
@@ -233,16 +239,22 @@ private:
 	int _days;
 };
 
-class REMINDMELIBSHARED_EXPORT Term : public QList<QSharedPointer<const SubTerm>>
+class REMINDMELIBSHARED_EXPORT Term : public QList<QSharedPointer<SubTerm>>
 {
 public:
 	Term() = default;
 	Term(const Term &other) = default;
-	Term(Term &&other) = default;
+	Term(Term &&other) noexcept = default;
 	Term& operator=(const Term &other) = default;
-	Term& operator=(Term &&other) = default;
+	Term& operator=(Term &&other) noexcept = default;
+	inline friend void swap(Term &lhs, Term &rhs) {
+		lhs.QList::swap(rhs);
+		std::swap(lhs._scope, rhs._scope);
+		std::swap(lhs._looped, rhs._looped);
+		std::swap(lhs._absolute, rhs._absolute);
+	}
 
-	Term(std::initializer_list<QSharedPointer<const SubTerm>> args);
+	Term(std::initializer_list<QSharedPointer<SubTerm>> args);
 
 	Scope scope() const;
 	bool isLooped() const;
@@ -261,6 +273,18 @@ private:
 
 using TermSelection = QList<Term>;
 using MultiTerm = QVector<TermSelection>;
+
+class REMINDMELIBSHARED_EXPORT LimiterTerm : public SubTerm
+{
+public:
+	LimiterTerm(bool isFrom);
+	static std::pair<QSharedPointer<LimiterTerm>, int> parse(const QStringRef &expression);
+	void apply(QDateTime &datetime, bool applyRelative) const override;
+
+private:
+	friend class ::EventExpressionParser;
+	Term _limitTerm;
+};
 
 // general helper method
 QString trWord(WordKey key, bool escape = true);
@@ -298,17 +322,20 @@ private:
 	Expressions::MultiTerm parseExpressionImpl(const QString &expression, bool allowMulti);
 
 	// direct invokations
-	void parseTerm(QUuid id, const QStringRef &expression, const Expressions::Term &term, int termIndex);
+	void parseTerm(QUuid id, const QStringRef &expression, const Expressions::Term &term, int termIndex, const Expressions::Term &rootTerm);
 	bool validatePartialTerm(const Expressions::Term &term);
-	bool validateFullTerm(Expressions::Term &term);
+	bool validateFullTerm(Expressions::Term &term, Expressions::Term &rootTerm);
 	// async invokations
-	void parseMultiTerm(QUuid id, const QString &expression, Expressions::MultiTerm *terms);
+	void parseMultiTerm(QUuid id, const QString *expression, Expressions::MultiTerm *terms);
 	template <typename TSubTerm>
-	void parseSubTerm(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex);
+	void parseSubTerm(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm);
 
 	void addTasks(QUuid id, int count);
 	void completeTask(QUuid id);
 };
+
+template <>
+REMINDMELIBSHARED_EXPORT void EventExpressionParser::parseSubTerm<Expressions::LimiterTerm>(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm);
 
 Q_DECLARE_METATYPE(Expressions::Term)
 Q_DECLARE_METATYPE(Expressions::TermSelection)
