@@ -1,15 +1,14 @@
 ﻿#include <QtTest>
-#include <QtMvvmCore/ServiceRegistry>
-#include <QtDataSync/Setup>
+#include <QtMvvmCore>
+#include <QtDataSync>
 #define private public
 #define protected public
 #include <eventexpressionparser.h>
+#include <terms.h>
 #undef protected
 #undef private
 using namespace Expressions;
 
-Q_DECLARE_METATYPE(Expressions::Type)
-Q_DECLARE_METATYPE(Expressions::Scope)
 Q_DECLARE_METATYPE(Expressions::SequenceTerm::Sequence)
 
 class ParserTest : public QObject
@@ -257,8 +256,8 @@ void ParserTest::testTimeExpressions()
 	auto res = TimeTerm::parse(expression.midRef(0)); //pass full str
 	if(time.isValid()) {
 		QVERIFY(res.first);
-		QCOMPARE(res.first->type, Timepoint);
-		QCOMPARE(res.first->scope, Hour | Minute);
+		QCOMPARE(res.first->type, SubTerm::Timepoint);
+		QCOMPARE(res.first->scope, SubTerm::Hour | SubTerm::Minute);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_time, time);
 		QCOMPARE(res.second, offset);
@@ -276,8 +275,8 @@ void ParserTest::testDateExpressions_data()
 	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<QDate>("date");
 	QTest::addColumn<int>("offset");
-	QTest::addColumn<Type>("type");
-	QTest::addColumn<Scope>("scope");
+	QTest::addColumn<SubTerm::Type>("type");
+	QTest::addColumn<SubTerm::Scope>("scope");
 	QTest::addColumn<bool>("certain");
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
@@ -290,8 +289,8 @@ void ParserTest::testDateExpressions_data()
 								 << false
 								 << QDate{1900, 12, 13}
 								 << 6
-								 << Type{Timepoint}
-								 << Scope{Month | MonthDay}
+								 << SubTerm::Type{SubTerm::Timepoint}
+								 << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 12, 13}, cTime};
@@ -299,8 +298,8 @@ void ParserTest::testDateExpressions_data()
 								 << false
 								 << QDate{1900, 3, 5}
 								 << 3
-								 << Type{Timepoint}
-								 << Scope{Month | MonthDay}
+								 << SubTerm::Type{SubTerm::Timepoint}
+								 << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 3, 5}, cTime};
@@ -308,8 +307,8 @@ void ParserTest::testDateExpressions_data()
 							   << false
 							   << QDate{1995, 3, 3}
 							   << 6
-							   << Type{AbsoluteTimepoint}
-							   << Scope{Year | Month | MonthDay}
+							   << SubTerm::Type{SubTerm::AbsoluteTimepoint}
+							   << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay}
 							   << false
 							   << QDateTime{cDate, cTime}
 							   << QDateTime{QDate{1995, 3, 3}, cTime};
@@ -317,8 +316,8 @@ void ParserTest::testDateExpressions_data()
 							   << false
 							   << QDate{2010, 10, 25}
 							   << 10
-							   << Type{AbsoluteTimepoint}
-							   << Scope{Year | Month | MonthDay}
+							   << SubTerm::Type{SubTerm::AbsoluteTimepoint}
+							   << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay}
 							   << false
 							   << QDateTime{cDate, cTime}
 							   << QDateTime{QDate{2010, 10, 25}, cTime};
@@ -326,8 +325,8 @@ void ParserTest::testDateExpressions_data()
 								   << false
 								   << QDate{1900, 11, 11}
 								   << 10
-								   << Type{Timepoint}
-								   << Scope{Month | MonthDay}
+								   << SubTerm::Type{SubTerm::Timepoint}
+								   << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, 11, 11}, cTime};
@@ -335,8 +334,8 @@ void ParserTest::testDateExpressions_data()
 								 << false
 								 << QDate{2014, 1, 2}
 								 << 13
-								 << Type{AbsoluteTimepoint}
-								 << Scope{Year | Month | MonthDay}
+								 << SubTerm::Type{SubTerm::AbsoluteTimepoint}
+								 << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{2014, 1, 2}, cTime};
@@ -344,8 +343,8 @@ void ParserTest::testDateExpressions_data()
 							<< false
 							<< QDate{1900, 12, 24}
 							<< 9
-							<< Type{Timepoint}
-							<< Scope{Month | MonthDay}
+							<< SubTerm::Type{SubTerm::Timepoint}
+							<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 							<< true
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{QDate{cYear, 12, 24}, cTime};
@@ -356,8 +355,8 @@ void ParserTest::testDateExpressions_data()
 										  << false
 										  << QDate{1900, 12, 13}
 										  << 6
-										  << Type{Timepoint}
-										  << Scope{Month | MonthDay}
+										  << SubTerm::Type{SubTerm::Timepoint}
+										  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 										  << false
 										  << referenceTime
 										  << QDateTime{QDate{cYear, 12, 13}, referenceTime.time()};
@@ -365,8 +364,8 @@ void ParserTest::testDateExpressions_data()
 										<< true
 										<< QDate{1900, 12, 13}
 										<< 6
-										<< Type{Timepoint}
-										<< Scope{Month | MonthDay}
+										<< SubTerm::Type{SubTerm::Timepoint}
+										<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 										<< false
 										<< referenceTime
 										<< QDateTime{QDate{cYear, 12, 13}, referenceTime.time()};
@@ -374,8 +373,8 @@ void ParserTest::testDateExpressions_data()
 										<< false
 										<< QDate{1900, 7, 15}
 										<< 6
-										<< Type{Timepoint}
-										<< Scope{Month | MonthDay}
+										<< SubTerm::Type{SubTerm::Timepoint}
+										<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 										<< false
 										<< referenceTime
 										<< QDateTime{QDate{cYear, 7, 15}, referenceTime.time()};
@@ -383,8 +382,8 @@ void ParserTest::testDateExpressions_data()
 									  << true
 									  << QDate{1900, 7, 15}
 									  << 6
-									  << Type{Timepoint}
-									  << Scope{Month | MonthDay}
+									  << SubTerm::Type{SubTerm::Timepoint}
+									  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 									  << false
 									  << referenceTime
 									  << QDateTime{QDate{cYear + 1, 7, 15}, referenceTime.time()};
@@ -394,8 +393,8 @@ void ParserTest::testDateExpressions_data()
 							 << false
 							 << QDate{1903, 12, 24}
 							 << 10
-							 << Type{AbsoluteTimepoint}
-							 << Scope{Year | Month | MonthDay}
+							 << SubTerm::Type{SubTerm::AbsoluteTimepoint}
+							 << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay}
 							 << false
 							 << QDateTime{cDate, cTime}
 							 << QDateTime{QDate{1903, 12, 24}, cTime};
@@ -403,8 +402,8 @@ void ParserTest::testDateExpressions_data()
 							 << false
 							 << QDate{}
 							 << 0
-							 << Type{InvalidType}
-							 << Scope{InvalidScope}
+							 << SubTerm::Type{SubTerm::InvalidType}
+							 << SubTerm::Scope{SubTerm::InvalidScope}
 							 << false
 							 << QDateTime{}
 							 << QDateTime{};
@@ -416,8 +415,8 @@ void ParserTest::testDateExpressions()
 	QFETCH(bool, applyRelative);
 	QFETCH(QDate, date);
 	QFETCH(int, offset);
-	QFETCH(Type, type);
-	QFETCH(Scope, scope);
+	QFETCH(SubTerm::Type, type);
+	QFETCH(SubTerm::Scope, scope);
 	QFETCH(bool, certain);
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
@@ -504,8 +503,8 @@ void ParserTest::testInvertedTimeExpressions()
 	auto res = InvertedTimeTerm::parse(expression.midRef(0)); //pass full str
 	if(time.isValid()) {
 		QVERIFY(res.first);
-		QCOMPARE(res.first->type, Timepoint);
-		QCOMPARE(res.first->scope, Hour | Minute);
+		QCOMPARE(res.first->type, SubTerm::Timepoint);
+		QCOMPARE(res.first->scope, SubTerm::Hour | SubTerm::Minute);
 		QCOMPARE(res.first->certain, true);
 		QCOMPARE(res.first->_time, time);
 		QCOMPARE(res.second, offset);
@@ -523,7 +522,7 @@ void ParserTest::testMonthDayExpressions_data()
 	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<int>("day");
 	QTest::addColumn<int>("offset");
-	QTest::addColumn<Type>("type");
+	QTest::addColumn<SubTerm::Type>("type");
 	QTest::addColumn<bool>("certain");
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
@@ -537,7 +536,7 @@ void ParserTest::testMonthDayExpressions_data()
 								<< false
 								<< 12
 								<< 3
-								<< Type{Timepoint}
+								<< SubTerm::Type{SubTerm::Timepoint}
 								<< false
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, cMonth, 12}, cTime};
@@ -545,7 +544,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 23
 								   << 8
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 23}, cTime};
@@ -553,7 +552,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 2
 								   << 6
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 2}, cTime};
@@ -561,7 +560,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 1
 								   << 13
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 1}, cTime};
@@ -570,7 +569,7 @@ void ParserTest::testMonthDayExpressions_data()
 									<< false
 									<< 31
 									<< 3
-									<< Type{Timepoint}
+									<< SubTerm::Type{SubTerm::Timepoint}
 									<< false
 									<< QDateTime{QDate{cYear, 5, 1}, cTime}
 									<< QDateTime{QDate{cYear, 5, 31}, cTime};
@@ -578,7 +577,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< false
 										<< 31
 										<< 3
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, 4, 1}, cTime}
 										<< QDateTime{QDate{cYear, 4, 30}, cTime};
@@ -586,7 +585,7 @@ void ParserTest::testMonthDayExpressions_data()
 									   << false
 									   << 0
 									   << 0
-									   << Type{InvalidType}
+									   << SubTerm::Type{SubTerm::InvalidType}
 									   << false
 									   << QDateTime{}
 									   << QDateTime{};
@@ -594,7 +593,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< false
 										<< 0
 										<< 0
-										<< Type{InvalidType}
+										<< SubTerm::Type{SubTerm::InvalidType}
 										<< false
 										<< QDateTime{}
 										<< QDateTime{};
@@ -603,7 +602,7 @@ void ParserTest::testMonthDayExpressions_data()
 										  << false
 										  << 14
 										  << 3
-										  << Type{Timepoint}
+										  << SubTerm::Type{SubTerm::Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, cMonth, 10}, cTime}
 										  << QDateTime{QDate{cYear, cMonth, 14}, cTime};
@@ -611,7 +610,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< true
 										<< 14
 										<< 3
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 10}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
@@ -619,7 +618,7 @@ void ParserTest::testMonthDayExpressions_data()
 										<< false
 										<< 14
 										<< 3
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 20}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
@@ -627,7 +626,7 @@ void ParserTest::testMonthDayExpressions_data()
 									  << true
 									  << 14
 									  << 3
-									  << Type{Timepoint}
+									  << SubTerm::Type{SubTerm::Timepoint}
 									  << false
 									  << QDateTime{QDate{cYear, cMonth, 20}, cTime}
 									  << QDateTime{QDate{cYear, cMonth + 1, 14}, cTime};
@@ -635,7 +634,7 @@ void ParserTest::testMonthDayExpressions_data()
 											 << false
 											 << 30
 											 << 3
-											 << Type{Timepoint}
+											 << SubTerm::Type{SubTerm::Timepoint}
 											 << false
 											 << QDateTime{QDate{cYear, 2, 28}, cTime}
 											 << QDateTime{QDate{cYear, 2, 28}, cTime};
@@ -643,7 +642,7 @@ void ParserTest::testMonthDayExpressions_data()
 										   << true
 										   << 30
 										   << 3
-										   << Type{Timepoint}
+										   << SubTerm::Type{SubTerm::Timepoint}
 										   << false
 										   << QDateTime{QDate{cYear, 2, 28}, cTime}
 										   << QDateTime{QDate{cYear, 3, 30}, cTime};
@@ -652,7 +651,7 @@ void ParserTest::testMonthDayExpressions_data()
 								 << false
 								 << 21
 								 << 10
-								 << Type{LoopedTimePoint}
+								 << SubTerm::Type{SubTerm::LoopedTimePoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 21}, cTime};
@@ -660,7 +659,7 @@ void ParserTest::testMonthDayExpressions_data()
 							   << false
 							   << 5
 							   << 11
-							   << Type{LoopedTimePoint}
+							   << SubTerm::Type{SubTerm::LoopedTimePoint}
 							   << true
 							   << QDateTime{cDate, cTime}
 							   << QDateTime{QDate{cYear, cMonth, 5}, cTime};
@@ -669,7 +668,7 @@ void ParserTest::testMonthDayExpressions_data()
 								   << false
 								   << 4
 								   << 10
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 4}, cTime};
@@ -677,7 +676,7 @@ void ParserTest::testMonthDayExpressions_data()
 								 << false
 								 << 3
 								 << 9
-								 << Type{LoopedTimePoint}
+								 << SubTerm::Type{SubTerm::LoopedTimePoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 3}, cTime};
@@ -685,7 +684,7 @@ void ParserTest::testMonthDayExpressions_data()
 							 << false
 							 << 0
 							 << 0
-							 << Type{InvalidScope}
+							 << SubTerm::Type{SubTerm::InvalidScope}
 							 << false
 							 << QDateTime{}
 							 << QDateTime{};
@@ -697,7 +696,7 @@ void ParserTest::testMonthDayExpressions()
 	QFETCH(bool, applyRelative);
 	QFETCH(int, day);
 	QFETCH(int, offset);
-	QFETCH(Type, type);
+	QFETCH(SubTerm::Type, type);
 	QFETCH(bool, certain);
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
@@ -707,7 +706,7 @@ void ParserTest::testMonthDayExpressions()
 	if(day > 0) {
 		QVERIFY(res.first);
 		QCOMPARE(res.first->type, type);
-		QCOMPARE(res.first->scope, MonthDay);
+		QCOMPARE(res.first->scope, SubTerm::MonthDay);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_day, day);
 		QCOMPARE(res.second, offset);
@@ -725,7 +724,7 @@ void ParserTest::testWeekDayExpressions_data()
 	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<int>("weekDay");
 	QTest::addColumn<int>("offset");
-	QTest::addColumn<Type>("type");
+	QTest::addColumn<SubTerm::Type>("type");
 	QTest::addColumn<bool>("certain");
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
@@ -739,7 +738,7 @@ void ParserTest::testWeekDayExpressions_data()
 								<< false
 								<< 4
 								<< 8
-								<< Type{Timepoint}
+								<< SubTerm::Type{SubTerm::Timepoint}
 								<< false
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, cMonth, 18}, cTime};
@@ -747,7 +746,7 @@ void ParserTest::testWeekDayExpressions_data()
 								  << false
 								  << 5
 								  << 3
-								  << Type{Timepoint}
+								  << SubTerm::Type{SubTerm::Timepoint}
 								  << false
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
@@ -755,7 +754,7 @@ void ParserTest::testWeekDayExpressions_data()
 								 << false
 								 << 1
 								 << 6
-								 << Type{Timepoint}
+								 << SubTerm::Type{SubTerm::Timepoint}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 15}, cTime};
@@ -763,7 +762,7 @@ void ParserTest::testWeekDayExpressions_data()
 								   << false
 								   << 3
 								   << 6
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 17}, cTime};
@@ -772,7 +771,7 @@ void ParserTest::testWeekDayExpressions_data()
 										  << false
 										  << 6
 										  << 3
-										  << Type{Timepoint}
+										  << SubTerm::Type{SubTerm::Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
 										  << QDateTime{QDate{cYear, cMonth, 20}, cTime};
@@ -780,7 +779,7 @@ void ParserTest::testWeekDayExpressions_data()
 										<< true
 										<< 7
 										<< 6
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 21}, cTime};
@@ -788,7 +787,7 @@ void ParserTest::testWeekDayExpressions_data()
 										<< false
 										<< 1
 										<< 6
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
 										<< QDateTime{QDate{cYear, cMonth, 15}, cTime};
@@ -796,7 +795,7 @@ void ParserTest::testWeekDayExpressions_data()
 									  << true
 									  << 2
 									  << 3
-									  << Type{Timepoint}
+									  << SubTerm::Type{SubTerm::Timepoint}
 									  << false
 									  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
 									  << QDateTime{QDate{cYear, cMonth, 23}, cTime};
@@ -804,7 +803,7 @@ void ParserTest::testWeekDayExpressions_data()
 											<< false
 											<< 3
 											<< 3
-											<< Type{Timepoint}
+											<< SubTerm::Type{SubTerm::Timepoint}
 											<< false
 											<< QDateTime{QDate{cYear, 12, 28}, cTime}
 											<< QDateTime{QDate{cYear, 12, 26}, cTime};
@@ -812,7 +811,7 @@ void ParserTest::testWeekDayExpressions_data()
 										  << true
 										  << 3
 										  << 3
-										  << Type{Timepoint}
+										  << SubTerm::Type{SubTerm::Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, 12, 28}, cTime}
 										  << QDateTime{QDate{cYear + 1, 1, 2}, cTime};
@@ -821,7 +820,7 @@ void ParserTest::testWeekDayExpressions_data()
 						  << false
 						  << 5
 						  << 12
-						  << Type{LoopedTimePoint}
+						  << SubTerm::Type{SubTerm::LoopedTimePoint}
 						  << true
 						  << QDateTime{cDate, cTime}
 						  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
@@ -830,7 +829,7 @@ void ParserTest::testWeekDayExpressions_data()
 								   << false
 								   << 1
 								   << 10
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 15}, cTime};
@@ -838,7 +837,7 @@ void ParserTest::testWeekDayExpressions_data()
 								 << false
 								 << 3
 								 << 10
-								 << Type{LoopedTimePoint}
+								 << SubTerm::Type{SubTerm::LoopedTimePoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
@@ -846,7 +845,7 @@ void ParserTest::testWeekDayExpressions_data()
 								 << false
 								 << 3
 								 << 6
-								 << Type{Timepoint}
+								 << SubTerm::Type{SubTerm::Timepoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
@@ -854,7 +853,7 @@ void ParserTest::testWeekDayExpressions_data()
 							 << false
 							 << 0
 							 << 0
-							 << Type{InvalidScope}
+							 << SubTerm::Type{SubTerm::InvalidScope}
 							 << false
 							 << QDateTime{}
 							 << QDateTime{};
@@ -866,7 +865,7 @@ void ParserTest::testWeekDayExpressions()
 	QFETCH(bool, applyRelative);
 	QFETCH(int, weekDay);
 	QFETCH(int, offset);
-	QFETCH(Type, type);
+	QFETCH(SubTerm::Type, type);
 	QFETCH(bool, certain);
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
@@ -876,7 +875,7 @@ void ParserTest::testWeekDayExpressions()
 	if(weekDay > 0) {
 		QVERIFY(res.first);
 		QCOMPARE(res.first->type, type);
-		QCOMPARE(res.first->scope, WeekDay);
+		QCOMPARE(res.first->scope, SubTerm::WeekDay);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_weekDay, weekDay);
 		QCOMPARE(res.second, offset);
@@ -894,7 +893,7 @@ void ParserTest::testMonthExpressions_data()
 	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<int>("month");
 	QTest::addColumn<int>("offset");
-	QTest::addColumn<Type>("type");
+	QTest::addColumn<SubTerm::Type>("type");
 	QTest::addColumn<bool>("certain");
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
@@ -907,7 +906,7 @@ void ParserTest::testMonthExpressions_data()
 								<< false
 								<< 5
 								<< 3
-								<< Type{Timepoint}
+								<< SubTerm::Type{SubTerm::Timepoint}
 								<< false
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, 5, 1}, cTime};
@@ -915,7 +914,7 @@ void ParserTest::testMonthExpressions_data()
 								  << false
 								  << 12
 								  << 3
-								  << Type{Timepoint}
+								  << SubTerm::Type{SubTerm::Timepoint}
 								  << false
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{QDate{cYear, 12, 1}, cTime};
@@ -923,7 +922,7 @@ void ParserTest::testMonthExpressions_data()
 								 << false
 								 << 10
 								 << 7
-								 << Type{Timepoint}
+								 << SubTerm::Type{SubTerm::Timepoint}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 10, 1}, cTime};
@@ -931,7 +930,7 @@ void ParserTest::testMonthExpressions_data()
 								   << false
 								   << 6
 								   << 7
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, 6, 1}, cTime};
@@ -940,7 +939,7 @@ void ParserTest::testMonthExpressions_data()
 										  << false
 										  << 4
 										  << 5
-										  << Type{Timepoint}
+										  << SubTerm::Type{SubTerm::Timepoint}
 										  << false
 										  << QDateTime{QDate{cYear, 2, 10}, cTime}
 										  << QDateTime{QDate{cYear, 4, 1}, cTime};
@@ -948,7 +947,7 @@ void ParserTest::testMonthExpressions_data()
 										<< true
 										<< 7
 										<< 4
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, 5, 10}, cTime}
 										<< QDateTime{QDate{cYear, 7, 1}, cTime};
@@ -956,7 +955,7 @@ void ParserTest::testMonthExpressions_data()
 										<< false
 										<< 2
 										<< 3
-										<< Type{Timepoint}
+										<< SubTerm::Type{SubTerm::Timepoint}
 										<< false
 										<< QDateTime{QDate{cYear, 7, 20}, cTime}
 										<< QDateTime{QDate{cYear, 2, 1}, cTime};
@@ -964,7 +963,7 @@ void ParserTest::testMonthExpressions_data()
 									  << true
 									  << 3
 									  << 5
-									  << Type{Timepoint}
+									  << SubTerm::Type{SubTerm::Timepoint}
 									  << false
 									  << QDateTime{QDate{cYear, 7, 20}, cTime}
 									  << QDateTime{QDate{cYear + 1, 3, 1}, cTime};
@@ -973,7 +972,7 @@ void ParserTest::testMonthExpressions_data()
 								<< false
 								<< 11
 								<< 9
-								<< Type{LoopedTimePoint}
+								<< SubTerm::Type{SubTerm::LoopedTimePoint}
 								<< true
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, 11, 1}, cTime};
@@ -981,7 +980,7 @@ void ParserTest::testMonthExpressions_data()
 							   << false
 							   << 8
 							   << 12
-							   << Type{LoopedTimePoint}
+							   << SubTerm::Type{SubTerm::LoopedTimePoint}
 							   << true
 							   << QDateTime{cDate, cTime}
 							   << QDateTime{QDate{cYear, 8, 1}, cTime};
@@ -990,7 +989,7 @@ void ParserTest::testMonthExpressions_data()
 								   << false
 								   << 9
 								   << 13
-								   << Type{Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, 9, 1}, cTime};
@@ -998,7 +997,7 @@ void ParserTest::testMonthExpressions_data()
 								 << false
 								 << 9
 								 << 16
-								 << Type{LoopedTimePoint}
+								 << SubTerm::Type{SubTerm::LoopedTimePoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 9, 1}, cTime};
@@ -1006,7 +1005,7 @@ void ParserTest::testMonthExpressions_data()
 								 << false
 								 << 10
 								 << 6
-								 << Type{Timepoint}
+								 << SubTerm::Type{SubTerm::Timepoint}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, 10, 1}, cTime};
@@ -1014,7 +1013,7 @@ void ParserTest::testMonthExpressions_data()
 							 << false
 							 << 0
 							 << 0
-							 << Type{InvalidScope}
+							 << SubTerm::Type{SubTerm::InvalidScope}
 							 << false
 							 << QDateTime{}
 							 << QDateTime{};
@@ -1026,7 +1025,7 @@ void ParserTest::testMonthExpressions()
 	QFETCH(bool, applyRelative);
 	QFETCH(int, month);
 	QFETCH(int, offset);
-	QFETCH(Type, type);
+	QFETCH(SubTerm::Type, type);
 	QFETCH(bool, certain);
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
@@ -1036,7 +1035,7 @@ void ParserTest::testMonthExpressions()
 	if(month > 0) {
 		QVERIFY(res.first);
 		QCOMPARE(res.first->type, type);
-		QCOMPARE(res.first->scope, Month);
+		QCOMPARE(res.first->scope, SubTerm::Month);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_month, month);
 		QCOMPARE(res.second, offset);
@@ -1127,8 +1126,8 @@ void ParserTest::testYearExpressions()
 	auto res = YearTerm::parse(expression.midRef(0)); //pass full str
 	if(valid) {
 		QVERIFY(res.first);
-		QCOMPARE(res.first->type, AbsoluteTimepoint);
-		QCOMPARE(res.first->scope, Year);
+		QCOMPARE(res.first->type, SubTerm::AbsoluteTimepoint);
+		QCOMPARE(res.first->scope, SubTerm::Year);
 		QCOMPARE(res.first->certain, certain);
 		QCOMPARE(res.first->_year, year);
 		QCOMPARE(res.second, offset);
@@ -1147,8 +1146,8 @@ void ParserTest::testSequenceExpressions_data()
 	QTest::addColumn<QString>("expression");
 	QTest::addColumn<SequenceTerm::Sequence>("sequence");
 	QTest::addColumn<int>("offset");
-	QTest::addColumn<Type>("type");
-	QTest::addColumn<Scope>("scope");
+	QTest::addColumn<SubTerm::Type>("type");
+	QTest::addColumn<SubTerm::Scope>("scope");
 	QTest::addColumn<bool>("certain");
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
@@ -1162,141 +1161,141 @@ void ParserTest::testSequenceExpressions_data()
 	const auto cHour = cTime.hour();
 	const auto cMin = cTime.minute();
 	QTest::addRow("simple.minutes") << QStringLiteral("10 mins")
-									<< Seq{{Minute, 10}}
+									<< Seq{{SubTerm::Minute, 10}}
 									<< 7
-									<< Type{Timespan}
-									<< Scope{Minute}
+									<< SubTerm::Type{SubTerm::Timespan}
+									<< SubTerm::Scope{SubTerm::Minute}
 									<< false
 									<< QDateTime{cDate, cTime}
 									<< QDateTime{cDate, {cHour, cMin + 10}};
 	QTest::addRow("simple.hours") << QStringLiteral("5 hours")
-								  << Seq{{Hour, 5}}
+								  << Seq{{SubTerm::Hour, 5}}
 								  << 7
-								  << Type{Timespan}
-								  << Scope{Hour}
+								  << SubTerm::Type{SubTerm::Timespan}
+								  << SubTerm::Scope{SubTerm::Hour}
 								  << false
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{cDate, {cHour + 5, cMin}};
 	QTest::addRow("simple.days") << QStringLiteral("1 day")
-								 << Seq{{Day, 1}}
+								 << Seq{{SubTerm::Day, 1}}
 								 << 5
-								 << Type{Timespan}
-								 << Scope{Day}
+								 << SubTerm::Type{SubTerm::Timespan}
+								 << SubTerm::Scope{SubTerm::Day}
 								 << false
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{{cYear, cMonth, cDay + 1}, cTime};
 	QTest::addRow("simple.weeks") << QStringLiteral("2 weeks")
-								  << Seq{{Week, 2}}
+								  << Seq{{SubTerm::Week, 2}}
 								  << 7
-								  << Type{Timespan}
-								  << Scope{Week}
+								  << SubTerm::Type{SubTerm::Timespan}
+								  << SubTerm::Scope{SubTerm::Week}
 								  << false
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{{cYear, cMonth, cDay + 14}, cTime};
 	QTest::addRow("simple.months") << QStringLiteral("4 months")
-								   << Seq{{Month, 4}}
+								   << Seq{{SubTerm::Month, 4}}
 								   << 8
-								   << Type{Timespan}
-								   << Scope{Month}
+								   << SubTerm::Type{SubTerm::Timespan}
+								   << SubTerm::Scope{SubTerm::Month}
 								   << false
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{{cYear, cMonth + 4, cDay}, cTime};
 	QTest::addRow("simple.years") << QStringLiteral("40 years")
-								   << Seq{{Year, 40}}
+								   << Seq{{SubTerm::Year, 40}}
 								   << 8
-								   << Type{Timespan}
-								   << Scope{Year}
+								   << SubTerm::Type{SubTerm::Timespan}
+								   << SubTerm::Scope{SubTerm::Year}
 								   << false
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{{cYear + 40, cMonth, cDay}, cTime};
 	QTest::addRow("simple.prefix") << QStringLiteral("in 3 days")
-								   << Seq{{Day, 3}}
+								   << Seq{{SubTerm::Day, 3}}
 								   << 9
-								   << Type{Timespan}
-								   << Scope{Day}
+								   << SubTerm::Type{SubTerm::Timespan}
+								   << SubTerm::Scope{SubTerm::Day}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{{cYear, cMonth, cDay + 3}, cTime};
 
 	QTest::addRow("combined.times") << QStringLiteral("3 hours and 50 minutes")
-									<< Seq{{Hour, 3}, {Minute, 50}}
+									<< Seq{{SubTerm::Hour, 3}, {SubTerm::Minute, 50}}
 									<< 22
-									<< Type{Timespan}
-									<< Scope{Minute | Hour}
+									<< SubTerm::Type{SubTerm::Timespan}
+									<< SubTerm::Scope{SubTerm::Minute | SubTerm::Hour}
 									<< true
 									<< QDateTime{cDate, cTime}
 									<< QDateTime{cDate, {cHour + 4, 20}};
 	QTest::addRow("combined.dates") << QStringLiteral("24 days and 5 years and 10 mons")
-									<< Seq{{Day, 24}, {Year, 5}, {Month, 10}}
+									<< Seq{{SubTerm::Day, 24}, {SubTerm::Year, 5}, {SubTerm::Month, 10}}
 									<< 31
-									<< Type{Timespan}
-									<< Scope{Year | Month | Day}
+									<< SubTerm::Type{SubTerm::Timespan}
+									<< SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::Day}
 									<< true
 									<< QDateTime{cDate, cTime}
 									<< QDateTime{{2024, 6, 5}, cTime};
 	QTest::addRow("combined.all") << QStringLiteral("1 week and 2 mins and 3 years and 4 hours and 5 months and 6 days")
-								  << Seq{{Week, 1}, {Minute, 2}, {Year, 3}, {Hour, 4}, {Month, 5}, {Day, 6}}
+								  << Seq{{SubTerm::Week, 1}, {SubTerm::Minute, 2}, {SubTerm::Year, 3}, {SubTerm::Hour, 4}, {SubTerm::Month, 5}, {SubTerm::Day, 6}}
 								  << 65
-								  << Type{Timespan}
-								  << Scope{Year | Month | Week | Day | Hour | Minute}
+								  << SubTerm::Type{SubTerm::Timespan}
+								  << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::Week | SubTerm::Day | SubTerm::Hour | SubTerm::Minute}
 								  << true
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{{cYear + 3, cMonth + 5, cDay + 13}, {cHour + 4, cMin + 2}};
 	QTest::addRow("combined.prefix") << QStringLiteral("in 2 weeks and 30 mins")
-									 << Seq{{Week, 2}, {Minute, 30}}
+									 << Seq{{SubTerm::Week, 2}, {SubTerm::Minute, 30}}
 									 << 22
-									 << Type{Timespan}
-									 << Scope{Minute | Week}
+									 << SubTerm::Type{SubTerm::Timespan}
+									 << SubTerm::Scope{SubTerm::Minute | SubTerm::Week}
 									 << true
 									 << QDateTime{cDate, cTime}
 									 << QDateTime{{cYear, cMonth, cDay + 14}, {cHour + 1, 00}};
 
 	QTest::addRow("loop.simple") << QStringLiteral("every 3 weeks")
-								 << Seq{{Week, 3}}
+								 << Seq{{SubTerm::Week, 3}}
 								 << 13
-								 << Type{LoopedTimeSpan}
-								 << Scope{Week}
+								 << SubTerm::Type{SubTerm::LoopedTimeSpan}
+								 << SubTerm::Scope{SubTerm::Week}
 								 << true
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{{cYear, cMonth + 1, 2}, cTime};
 	QTest::addRow("loop.singular") << QStringLiteral("every day")
-								   << Seq{{Day, 1}}
+								   << Seq{{SubTerm::Day, 1}}
 								   << 9
-								   << Type{LoopedTimeSpan}
-								   << Scope{Day}
+								   << SubTerm::Type{SubTerm::LoopedTimeSpan}
+								   << SubTerm::Scope{SubTerm::Day}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{{cYear, cMonth, cDay + 1}, cTime};
 	QTest::addRow("loop.combined") << QStringLiteral("every 3 hours and 2 years and week")
-								   << Seq{{Hour, 3}, {Year, 2}, {Week, 1}}
+								   << Seq{{SubTerm::Hour, 3}, {SubTerm::Year, 2}, {SubTerm::Week, 1}}
 								   << 34
-								   << Type{LoopedTimeSpan}
-								   << Scope{Hour | Year | Week}
+								   << SubTerm::Type{SubTerm::LoopedTimeSpan}
+								   << SubTerm::Scope{SubTerm::Hour | SubTerm::Year | SubTerm::Week}
 								   << true
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{{cYear + 2, cMonth, cDay + 7}, {cHour + 3, cMin}};
 
 	QTest::addRow("substr.simple") << QStringLiteral("in 10 mins in 3 days")
-									<< Seq{{Minute, 10}}
+									<< Seq{{SubTerm::Minute, 10}}
 									<< 11
-									<< Type{Timespan}
-									<< Scope{Minute}
+									<< SubTerm::Type{SubTerm::Timespan}
+									<< SubTerm::Scope{SubTerm::Minute}
 									<< true
 									<< QDateTime{cDate, cTime}
 									<< QDateTime{cDate, {cHour, cMin + 10}};
 	QTest::addRow("substr.loop") << QStringLiteral("every day of the year")
-									<< Seq{{Day, 1}}
+									<< Seq{{SubTerm::Day, 1}}
 									<< 10
-									<< Type{LoopedTimeSpan}
-									<< Scope{Day}
+									<< SubTerm::Type{SubTerm::LoopedTimeSpan}
+									<< SubTerm::Scope{SubTerm::Day}
 									<< true
 									<< QDateTime{cDate, cTime}
 									<< QDateTime{{cYear, cMonth, cDay + 1}, cTime};
 	QTest::addRow("substr.half") << QStringLiteral("3 dayz")
-									<< Seq{{Day, 3}}
+									<< Seq{{SubTerm::Day, 3}}
 									<< 5
-									<< Type{Timespan}
-									<< Scope{Day}
+									<< SubTerm::Type{SubTerm::Timespan}
+									<< SubTerm::Scope{SubTerm::Day}
 									<< false
 									<< QDateTime{cDate, cTime}
 									<< QDateTime{{cYear, cMonth, cDay + 3}, cTime};
@@ -1304,40 +1303,40 @@ void ParserTest::testSequenceExpressions_data()
 	QTest::addRow("invalid.format") << QStringLiteral("in 10 horas")
 									<< Seq{}
 									<< 0
-									<< Type{InvalidType}
-									<< Scope{InvalidScope}
+									<< SubTerm::Type{SubTerm::InvalidType}
+									<< SubTerm::Scope{SubTerm::InvalidScope}
 									<< false
 									<< QDateTime{}
 									<< QDateTime{};
 	QTest::addRow("invalid.number") << QStringLiteral("in day")
 									<< Seq{}
 									<< 0
-									<< Type{InvalidType}
-									<< Scope{InvalidScope}
+									<< SubTerm::Type{SubTerm::InvalidType}
+									<< SubTerm::Scope{SubTerm::InvalidScope}
 									<< false
 									<< QDateTime{}
 									<< QDateTime{};
 	QTest::addRow("invalid.combined") << QStringLiteral("in 2 mins and 5 minutes")
 									  << Seq{}
 									  << 0
-									  << Type{InvalidType}
-									  << Scope{InvalidScope}
+									  << SubTerm::Type{SubTerm::InvalidType}
+									  << SubTerm::Scope{SubTerm::InvalidScope}
 									  << false
 									  << QDateTime{}
 									  << QDateTime{};
 	QTest::addRow("invalid.substr") << QStringLiteral("in 10 mins and in 3 days")
 									<< Seq{}
 									<< 0
-									<< Type{InvalidType}
-									<< Scope{InvalidScope}
+									<< SubTerm::Type{SubTerm::InvalidType}
+									<< SubTerm::Scope{SubTerm::InvalidScope}
 									<< false
 									<< QDateTime{}
 									<< QDateTime{};
 	QTest::addRow("invalid.loop") << QStringLiteral("every 10 horas")
 								  << Seq{}
 								  << 0
-								  << Type{InvalidType}
-								  << Scope{InvalidScope}
+								  << SubTerm::Type{SubTerm::InvalidType}
+								  << SubTerm::Scope{SubTerm::InvalidScope}
 								  << false
 								  << QDateTime{}
 								  << QDateTime{};
@@ -1348,8 +1347,8 @@ void ParserTest::testSequenceExpressions()
 	QFETCH(QString, expression);
 	QFETCH(SequenceTerm::Sequence, sequence);
 	QFETCH(int, offset);
-	QFETCH(Type, type);
-	QFETCH(Scope, scope);
+	QFETCH(SubTerm::Type, type);
+	QFETCH(SubTerm::Scope, scope);
 	QFETCH(bool, certain);
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
@@ -1410,8 +1409,8 @@ void ParserTest::testKeywordExpressions()
 	auto res = KeywordTerm::parse(expression.midRef(0)); //pass full str
 	if(days >= 0) {
 		QVERIFY(res.first);
-		QCOMPARE(res.first->type, Timespan);
-		QCOMPARE(res.first->scope, Day);
+		QCOMPARE(res.first->type, SubTerm::Timespan);
+		QCOMPARE(res.first->scope, SubTerm::Day);
 		QCOMPARE(res.first->certain, true);
 		QCOMPARE(res.first->_days, days);
 		QCOMPARE(res.second, offset);
@@ -1427,7 +1426,7 @@ void ParserTest::testExpressionParsing_data()
 {
 	QTest::addColumn<QString>("expression");
 	QTest::addColumn<int>("depth");
-	QTest::addColumn<Scope>("scope");
+	QTest::addColumn<SubTerm::Scope>("scope");
 	QTest::addColumn<bool>("looped");
 	QTest::addColumn<bool>("absolute");
 	QTest::addColumn<QDateTime>("since");
@@ -1437,21 +1436,21 @@ void ParserTest::testExpressionParsing_data()
 	const auto cTime = QTime::currentTime();
 	QTest::addRow("time") << QStringLiteral("14:00")
 						  << 1
-						  << Scope{Hour | Minute}
+						  << SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
 						  << false
 						  << false
 						  << QDateTime{cDate, cTime}
 						  << QDateTime{cDate, {14, 0}};
 	QTest::addRow("date") << QStringLiteral("March 24th")
 						  << 2
-						  << Scope{MonthDay | Month}
+						  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
 						  << false
 						  << false
 						  << QDateTime{{2018, 2, 10}, cTime}
 						  << QDateTime{{2018, 3, 24}, cTime};
 	QTest::addRow("datetime") << QStringLiteral("on March the 24th at 14:00")
 							  << 3
-							  << Scope{MonthDay | Month | Hour | Minute}
+							  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month | SubTerm::Hour | SubTerm::Minute}
 							  << false
 							  << false
 							  << QDateTime{{2018, 2, 10}, cTime}
@@ -1459,21 +1458,21 @@ void ParserTest::testExpressionParsing_data()
 
 	QTest::addRow("parts.time") << QStringLiteral("in 3 hours 20 mins")
 								<< 2
-								<< Scope{Hour | Minute}
+								<< SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
 								<< false
 								<< false
 								<< QDateTime{cDate, {14, 10}}
 								<< QDateTime{cDate, {17, 30}};
 	QTest::addRow("parts.date") << QStringLiteral("every 2 years and 3 months on Saturday")
 								<< 2
-								<< Scope{Year | Month | WeekDay}
+								<< SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::WeekDay}
 								<< true
 								<< false
 								<< QDateTime{{2018, 2, 10}, cTime}
 								<< QDateTime{{2020, 5, 9}, cTime};
 	QTest::addRow("parts.datetime") << QStringLiteral("in 2019 on 24.10. at quarter past 10")
 									<< 3
-									<< Scope{Year | Month | MonthDay | Hour | Minute}
+									<< SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay | SubTerm::Hour | SubTerm::Minute}
 									<< false
 									<< true
 									<< QDateTime{{2010, 11, 11}, cTime}
@@ -1481,28 +1480,28 @@ void ParserTest::testExpressionParsing_data()
 
 	QTest::addRow("invalid.scope") << QStringLiteral("in April at 4 o'clock on 24.12.")
 								   << 0
-								   << Scope{InvalidScope}
+								   << SubTerm::Scope{SubTerm::InvalidScope}
 								   << false
 								   << false
 								   << QDateTime{}
 								   << QDateTime{};
 	QTest::addRow("invalid.loop") << QStringLiteral("every 3 days every 20 minutes")
 								  << 0
-								  << Scope{InvalidScope}
+								  << SubTerm::Scope{SubTerm::InvalidScope}
 								  << false
 								  << false
 								  << QDateTime{}
 								  << QDateTime{};
 	QTest::addRow("invalid.pointspan") << QStringLiteral("In November in 3 weeks")
 									   << 0
-									   << Scope{InvalidScope}
+									   << SubTerm::Scope{SubTerm::InvalidScope}
 									   << false
 									   << false
 									   << QDateTime{}
 									   << QDateTime{};
 	QTest::addRow("loop.subscope") << QStringLiteral("In November every week")
 								   << 2
-								   << Scope{Month | Week}
+								   << SubTerm::Scope{SubTerm::Month | SubTerm::Week}
 								   << true
 								   << false
 								   << QDateTime{{2018, 7, 15}, cTime}
@@ -1513,7 +1512,7 @@ void ParserTest::testExpressionParsing()
 {
 	QFETCH(QString, expression);
 	QFETCH(int, depth);
-	QFETCH(Scope, scope);
+	QFETCH(SubTerm::Scope, scope);
 	QFETCH(bool, looped);
 	QFETCH(bool, absolute);
 	QFETCH(QDateTime, since);
@@ -1672,14 +1671,14 @@ void ParserTest::testExpressionLimiters()
 		QCOMPARE(terms.size(), 1);
 		auto &term = terms.first();
 		for(const auto &subTerm : term) {
-			if(subTerm->type == FromSubterm) {
+			if(subTerm->type == SubTerm::FromSubterm) {
 				QVERIFY2(sinceFrom.isValid(), "Found unexpected from term");
 				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
 				subTerm->apply(sinceFrom, true);
 				QCOMPARE(sinceFrom, resultFrom);
 				sinceFrom = QDateTime{};
 			}
-			if(subTerm->type == UntilSubTerm) {
+			if(subTerm->type == SubTerm::UntilSubTerm) {
 				QVERIFY2(sinceUntil.isValid(), "Found unexpected until term");
 				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
 				subTerm->apply(sinceUntil, true);
