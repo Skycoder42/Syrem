@@ -1,13 +1,13 @@
 TEMPLATE = app
 
-QT += testlib
+QT += testlib mvvmcore datasync
 CONFIG += console
 CONFIG -= app_bundle
 
 TARGET = tst_parser
 
 SOURCES += \
-    tst_parser.cpp
+	tst_parser.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

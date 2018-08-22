@@ -1,4 +1,6 @@
 ﻿#include <QtTest>
+#include <QtMvvmCore/ServiceRegistry>
+#include <QtDataSync/Setup>
 #define private public
 #define protected public
 #include <eventexpressionparser.h>
@@ -49,19 +51,28 @@ private Q_SLOTS:
 	void testExpressionLimiters_data();
 	void testExpressionLimiters();
 
+	void testTermEvaluation_data();
+	void testTermEvaluation();
+
 private:
+	QTemporaryDir tDir;
 	EventExpressionParser *parser;
 };
 
 void ParserTest::initTestCase()
 {
 	QLocale::setDefault(QLocale::c());
-	parser = new EventExpressionParser{this};
+
+	QtDataSync::Setup()
+			.setLocalDir(tDir.path())
+			.create();
+
+	parser = QtMvvm::ServiceRegistry::instance()->constructInjected<EventExpressionParser>(this);
 }
 
 void ParserTest::cleanupTestCase()
 {
-	parser->deleteLater();
+	delete parser;
 }
 
 void ParserTest::testTimeRegexConversion_data()
@@ -1681,6 +1692,51 @@ void ParserTest::testExpressionLimiters()
 		QVERIFY2(!sinceUntil.isValid(), "Expected until term but none was found");
 	} else
 		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
+}
+
+void ParserTest::testTermEvaluation_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<QTime>("parserTime");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QDateTime>("result");
+
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	QTest::addRow("valid.time") << QStringLiteral("in 2 days at 15:30")
+								<< QTime{9, 0}
+								<< QDateTime{cDate, cTime}
+								<< QDateTime{cDate.addDays(2), {15, 30}};
+	QTest::addRow("valid.autotime") << QStringLiteral("in 5 months")
+									<< QTime{9, 0}
+									<< QDateTime{cDate, cTime}
+									<< QDateTime{cDate.addMonths(5), {9, 0}};
+	QTest::addRow("valid.notime") << QStringLiteral("in August the 10th")
+								  << QTime{0, 0}
+								  << QDateTime{{2018, 4, 27}, cTime}
+								  << QDateTime{{2018, 8, 10}, cTime};
+	QTest::addRow("invalid.past") << QStringLiteral("11.09.2015 at half past 3 am")
+								  << QTime{}
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{};
+}
+
+void ParserTest::testTermEvaluation()
+{
+	QFETCH(QString, expression);
+	QFETCH(QTime, parserTime);
+	QFETCH(QDateTime, since);
+	QFETCH(QDateTime, result);
+
+	parser->_settings->scheduler.defaultTime = parserTime;
+	auto terms = parser->parseExpression(expression);
+	if(!since.isValid())
+		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
+	else {
+		QCOMPARE(terms.size(), 1);
+		auto res = parser->evaluteTerm(terms.first(), since);
+		QCOMPARE(res, result);
+	}
 }
 
 QTEST_MAIN(ParserTest)

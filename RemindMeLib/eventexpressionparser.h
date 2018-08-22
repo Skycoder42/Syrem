@@ -259,6 +259,7 @@ public:
 	Scope scope() const;
 	bool isLooped() const;
 	bool isAbsolute() const;
+	bool hasTimeScope() const;
 
 	QDateTime apply(QDateTime datetime) const;
 
@@ -306,8 +307,8 @@ public:
 	Expressions::MultiTerm parseMultiExpression(const QString &expression);
 	Expressions::TermSelection parseExpression(const QString &expression);
 
-	QSharedPointer<Schedule> parseSchedule(const Expressions::Term &term);
-	QDateTime parseSnoozeTime(const Expressions::Term &term);
+	QSharedPointer<Schedule> createSchedule(const Expressions::Term &term);
+	QDateTime evaluteTerm(const Expressions::Term &term, const QDateTime &reference = QDateTime::currentDateTime());
 
 Q_SIGNALS:
 	void termCompleted(QUuid termId, int termIndex, const Expressions::Term &term);

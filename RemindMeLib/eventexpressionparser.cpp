@@ -23,22 +23,20 @@ TermSelection EventExpressionParser::parseExpression(const QString &expression)
 	return std::move(resList.first());
 }
 
-QSharedPointer<Schedule> EventExpressionParser::parseSchedule(const Term &term)
+QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term)
 {
 
 }
 
-QDateTime EventExpressionParser::parseSnoozeTime(const Term &term)
+QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
 {
-	const auto now = QDateTime::currentDateTime();
-	auto then = term.apply(now);
-	if(!term.scope().testFlag(Hour) &&
-	   !term.scope().testFlag(Minute)) {
+	auto then = term.apply(reference);
+	if(!term.hasTimeScope()) {
 		QTime time = _settings->scheduler.defaultTime;
 		if(time.isValid() && time != QTime{0,0})
 			then.setTime(time);
 	}
-	if(now >= then)
+	if(reference >= then)
 		return {};
 	else
 		return then;
@@ -1053,6 +1051,12 @@ bool Term::isLooped() const
 bool Term::isAbsolute() const
 {
 	return _absolute;
+}
+
+bool Term::hasTimeScope() const
+{
+	return _scope.testFlag(Hour) ||
+			_scope.testFlag(Minute);
 }
 
 QDateTime Term::apply(QDateTime datetime) const
