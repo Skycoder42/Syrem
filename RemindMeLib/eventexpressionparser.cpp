@@ -152,30 +152,45 @@ bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 	/* Checks to perform on the full term:
 	 *	1. Sort by scope...
 	 *	2. Only the first element can be absolute
-	 *	3. Timepoints must not be followed by spans TODO except for loops
+	 *	3. Timepoints must not be followed by spans, except for loops (as the point part serves as "fence")
 	 *
 	 *	4. If rootTerm is "valid", then merge the term into root term and swap them
+	 *	5. Verify limiters are "bigger" in scope then the eventual loop fence
 	 */
 	std::sort(term.begin(), term.end(), [](const QSharedPointer<SubTerm> &lhs, const QSharedPointer<SubTerm> &rhs){
-		return lhs->scope < rhs->scope;
+		return lhs->scope > rhs->scope;
 	});
 
 	auto isFirst = true;
 	auto isPoint = false;
+	auto isLoop = false;
 	for(const auto &subTerm : qAsConst(term)) {
+		 // (2)
 		if(isFirst)
 			isFirst = false;
-		else if(subTerm->type.testFlag(SubTerm::FlagAbsolute)) // (2)
+		else if(subTerm->type.testFlag(SubTerm::FlagAbsolute))
 			return false;
 
-		if(isPoint && subTerm->type.testFlag(SubTerm::Timespan)) // (3)
-			return false;
-		else if(subTerm->type.testFlag(SubTerm::Timepoint))
-			isPoint = true;
+		// (3)
+		isLoop = isLoop || subTerm->type.testFlag(SubTerm::FlagLooped);
+		if(!isLoop) {
+			if(isPoint && subTerm->type.testFlag(SubTerm::Timespan))
+				return false;
+			else if(subTerm->type.testFlag(SubTerm::Timepoint))
+				isPoint = true;
+		}
 	}
 	term.finalize();
 
-	if(!rootTerm.isEmpty()) { // (4)
+	if(!rootTerm.isEmpty()) {
+		// (5)
+		auto fence = rootTerm.splitLoop().first;
+		if((static_cast<int>(fence.scope()) & static_cast<int>(term.scope())) != 0)
+			return false;
+		if(term.scope() <= fence.scope())
+			return false;
+
+		// (4)
 		auto limiter = rootTerm.last().dynamicCast<LimiterTerm>();
 		Q_ASSERT(limiter);
 		limiter->_limitTerm = Term {};
@@ -293,13 +308,19 @@ void SubTerm::setScope(Scope value)
 
 
 
-Term::Term(std::initializer_list<QSharedPointer<SubTerm> > args) :
+Term::Term(std::initializer_list<QSharedPointer<SubTerm>> args) :
 	QList{args}
 {}
 
+Term::Term(const QList<QSharedPointer<SubTerm>> &list) :
+	QList{list}
+{
+	finalize();
+}
+
 SubTerm::Scope Term::scope() const
 {
-	Q_ASSERT(_scope != SubTerm::InvalidScope);
+	Q_ASSERT(isEmpty() || _scope != SubTerm::InvalidScope);
 	return _scope;
 }
 
@@ -329,6 +350,21 @@ QDateTime Term::apply(QDateTime datetime) const
 		applyFirst = false;
 	}
 	return datetime;
+}
+
+std::pair<Term, Term> Term::splitLoop() const
+{
+	if(!isLooped())
+		return {};
+
+	for(auto i = 0; i < size(); ++i) {
+		if(at(i)->type.testFlag(SubTerm::FlagLooped)) {
+			return {mid(0, i), mid(i, -1)};
+		}
+	}
+
+	Q_UNREACHABLE();
+	return {};
 }
 
 void Term::finalize()

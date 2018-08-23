@@ -53,14 +53,14 @@ public:
 	enum ScopeFlag {
 		InvalidScope = 0x00,
 
-		Year = 0x01,
-		Month = 0x02,
-		Week = 0x04,
-		Day = 0x08,
+		Minute = 0x01,
+		Hour = 0x02,
+		Day = 0x04,
 		WeekDay = Day,
+		Week = 0x08,
 		MonthDay = Week | Day,
-		Hour = 0x10,
-		Minute = 0x20,
+		Month = 0x10,
+		Year = 0x20,
 	};
 	Q_DECLARE_FLAGS(Scope, ScopeFlag)
 	Q_FLAG(Scope)
@@ -98,6 +98,7 @@ public:
 	}
 
 	Term(std::initializer_list<QSharedPointer<SubTerm>> args);
+	Term(const QList<QSharedPointer<SubTerm>> &list);
 
 	SubTerm::Scope scope() const;
 	bool isLooped() const;
@@ -105,6 +106,7 @@ public:
 	bool hasTimeScope() const;
 
 	QDateTime apply(QDateTime datetime) const;
+	std::pair<Term, Term> splitLoop() const; //(fence, loop)
 
 private:
 	friend class ::EventExpressionParser;

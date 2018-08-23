@@ -1499,13 +1499,13 @@ void ParserTest::testExpressionParsing_data()
 									   << false
 									   << QDateTime{}
 									   << QDateTime{};
-	QTest::addRow("loop.subscope") << QStringLiteral("In November every week")
+	QTest::addRow("loop.subscope") << QStringLiteral("every week In November")
 								   << 2
 								   << SubTerm::Scope{SubTerm::Month | SubTerm::Week}
 								   << true
 								   << false
 								   << QDateTime{{2018, 7, 15}, cTime}
-								   << QDateTime{{2018, 11, 8}, cTime};
+								   << QDateTime{{2018, 11, 8}, cTime}; //TODO not correct? should be < 8 !!!
 }
 
 void ParserTest::testExpressionParsing()
@@ -1522,8 +1522,6 @@ void ParserTest::testExpressionParsing()
 	if(depth == 0)
 		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
 	else {
-		QEXPECT_FAIL("loop.subscope", "Not implemented yet", Abort);
-
 		QCOMPARE(terms.size(), 1);
 		auto &term = terms.first();
 		QCOMPARE(term.size(), depth);
@@ -1600,36 +1598,57 @@ void ParserTest::testExpressionLimiters_data()
 
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
-	QTest::addRow("loop.from") << QStringLiteral("every day from 10. of June")
-							   << true
-							   << QDateTime{{2017, 10, 16}, cTime}
-							   << QDateTime{{2018, 6, 10}, cTime}
-							   << QDateTime{}
-							   << QDateTime{};
-	QTest::addRow("loop.until") << QStringLiteral("every Tuesday until 2020")
+	QTest::addRow("limit.from") << QStringLiteral("every day from 10. of June")
 								<< true
+								<< QDateTime{{2017, 10, 16}, cTime}
+								<< QDateTime{{2018, 6, 10}, cTime}
 								<< QDateTime{}
+								<< QDateTime{};
+	QTest::addRow("limit.until") << QStringLiteral("every Tuesday until 2020")
+								 << true
+								 << QDateTime{}
+								 << QDateTime{}
+								 << QDateTime{{2018, 1, 2}, cTime}
+								 << QDateTime{{2020, 1, 1}, cTime};
+	//	QTest::addRow("limit.from-until") << QStringLiteral("every 20 minutes from 10 to 14")
+	//									 << true
+	//									 << QDateTime{{2017, 10, 16}, cTime}
+	//									 << QDateTime{{2018, 6, 10}, cTime}
+	//									 << QDateTime{}
+	//									 << QDateTime{}; //TODO use to test for duplicates
+	QTest::addRow("limit.from-until") << QStringLiteral("every 20 minutes from 10:00 to 17:15")
+									  << true
+									  << QDateTime{cDate, {8, 0}}
+									  << QDateTime{cDate, {10, 0}}
+									  << QDateTime{cDate, {8, 0}}
+									  << QDateTime{cDate, {17, 15}};
+	QTest::addRow("limit.until-from") << QStringLiteral("every year until June from 2015")
+									  << true
+									  << QDateTime{{2010, 7, 15}, cTime}
+									  << QDateTime{{2015, 1, 1}, cTime}
+									  << QDateTime{{2018, 4, 5}, cTime}
+									  << QDateTime{{2018, 6, 1}, cTime};
+
+	QTest::addRow("fence.from") << QStringLiteral("every day in April from 2020")
+								<< true
+								<< QDateTime{{2017, 10, 16}, cTime}
+								<< QDateTime{{2020, 1, 1}, cTime}
 								<< QDateTime{}
-								<< QDateTime{{2018, 1, 2}, cTime}
-								<< QDateTime{{2020, 1, 1}, cTime};
-//	QTest::addRow("loop.from-until") << QStringLiteral("every 20 minutes from 10 to 14")
-//									 << true
-//									 << QDateTime{{2017, 10, 16}, cTime}
-//									 << QDateTime{{2018, 6, 10}, cTime}
-//									 << QDateTime{}
-//									 << QDateTime{}; //TODO use to test for duplicates
-	QTest::addRow("loop.from-until") << QStringLiteral("every 20 minutes from 10:00 to 17:15")
-									 << true
-									 << QDateTime{cDate, {8, 0}}
-									 << QDateTime{cDate, {10, 0}}
-									 << QDateTime{cDate, {8, 0}}
-									 << QDateTime{cDate, {17, 15}};
-	QTest::addRow("loop.until-from") << QStringLiteral("every year until June from 2015")
-									 << true
-									 << QDateTime{{2010, 7, 15}, cTime}
-									 << QDateTime{{2015, 1, 1}, cTime}
-									 << QDateTime{{2018, 4, 5}, cTime}
-									 << QDateTime{{2018, 6, 1}, cTime};
+								<< QDateTime{};
+	QTest::addRow("fence.until") << QStringLiteral("every minute on 24th until in 1 month")
+								 << true
+								 << QDateTime{}
+								 << QDateTime{}
+								 << QDateTime{{2018, 1, 2}, cTime}
+								 << QDateTime{{2018, 2, 2}, cTime};
+	QTest::addRow("fence.from-until") << QStringLiteral("every 20 minutes on Tuesday from 2010 to 2020")
+									  << true
+									  << QDateTime{{2000, 1, 2}, cTime}
+									  << QDateTime{{2010, 1, 1}, cTime}
+									  << QDateTime{{2000, 1, 2}, cTime}
+									  << QDateTime{{2020, 1, 1}, cTime};
+
+
 
 	QTest::addRow("invalid.noloop.from") << QStringLiteral("tomorrow from 7:00")
 										 << false
@@ -1655,6 +1674,18 @@ void ParserTest::testExpressionLimiters_data()
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{};
+	QTest::addRow("invalid.fence.overlap") << QStringLiteral("on the 24th every minute until in 10 days")
+										   << false
+										   << QDateTime{}
+										   << QDateTime{}
+										   << QDateTime{}
+										   << QDateTime{};
+	QTest::addRow("invalid.fence.inverted") << QStringLiteral("on the 24th every minute until 10:30")
+											<< false
+											<< QDateTime{}
+											<< QDateTime{}
+											<< QDateTime{}
+											<< QDateTime{};
 }
 
 void ParserTest::testExpressionLimiters()

@@ -80,6 +80,7 @@ class REMINDMELIBSHARED_EXPORT Type : public QObject
 	Q_PROPERTY(bool isDatum MEMBER isDatum)
 	Q_PROPERTY(ParserTypes::Datum* datum MEMBER datum)
 	Q_PROPERTY(QList<QPair<int,ParserTypes::Expression::Span>> sequence MEMBER sequence) //dont use typedef to not confuse json serializer
+	;
 
 public:
 	Q_INVOKABLE Type(QObject *parent = nullptr);
