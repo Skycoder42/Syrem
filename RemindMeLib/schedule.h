@@ -40,6 +40,43 @@ private:
 	QDateTime _current;
 };
 
+class REMINDMELIBSHARED_EXPORT SingularSchedule : public Schedule
+{
+	Q_OBJECT
+
+public:
+	Q_INVOKABLE SingularSchedule(QObject *parent = nullptr);
+	SingularSchedule(QDateTime timepoint, QObject *parent = nullptr);
+
+	bool isRepeating() const override;
+
+protected:
+	QDateTime generateNextSchedule() override;
+};
+
+class REMINDMELIBSHARED_EXPORT MultiSchedule : public Schedule
+{
+	Q_OBJECT
+
+	Q_PROPERTY(QList<Schedule*> subSchedules MEMBER subSchedules)
+
+public:
+	Q_INVOKABLE MultiSchedule(QObject *parent = nullptr);
+	MultiSchedule(QDateTime since, QObject *parent = nullptr);
+
+	void addSubSchedule(Schedule *schedule);
+
+	bool isRepeating() const override;
+
+protected:
+	QDateTime generateNextSchedule() override;
+
+private:
+	QList<Schedule*> subSchedules;
+};
+
+// historic schedules MAJOR convert and remove
+
 class REMINDMELIBSHARED_EXPORT OneTimeSchedule : public Schedule
 {
 	Q_OBJECT
@@ -105,27 +142,6 @@ private:
 
 	QDateTime from;
 	QDateTime until;
-};
-
-class REMINDMELIBSHARED_EXPORT MultiSchedule : public Schedule
-{
-	Q_OBJECT
-
-	Q_PROPERTY(QList<Schedule*> subSchedules MEMBER subSchedules)
-
-public:
-	Q_INVOKABLE MultiSchedule(QObject *parent = nullptr);
-	MultiSchedule(QDateTime since, QObject *parent = nullptr);
-
-	void addSubSchedule(Schedule *schedule);
-
-	bool isRepeating() const override;
-
-protected:
-	QDateTime generateNextSchedule() override;
-
-private:
-	QList<Schedule*> subSchedules;
 };
 
 Q_DECLARE_METATYPE(Schedule*)

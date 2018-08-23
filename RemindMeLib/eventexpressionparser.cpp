@@ -24,9 +24,18 @@ TermSelection EventExpressionParser::parseExpression(const QString &expression)
 	return std::move(resList.first());
 }
 
-QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term)
+QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term, const QDateTime &reference)
 {
-
+	if(term.isLooped()) {
+		Q_UNIMPLEMENTED();
+		return {};
+	} else {
+		const auto then = evaluteTerm(term, reference);
+		if(then.isValid())
+			return QSharedPointer<SingularSchedule>::create(then); // create a "pre-evaluated" one time schedule
+		else
+			return {};
+	}
 }
 
 QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
@@ -37,10 +46,10 @@ QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &
 		if(time.isValid() && time != QTime{0,0})
 			then.setTime(time);
 	}
-	if(reference >= then)
-		return {};
-	else
+	if(reference < then)
 		return then;
+	else
+		return {};
 }
 
 MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, bool allowMulti)

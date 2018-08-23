@@ -25,6 +25,68 @@ QDateTime Schedule::nextSchedule()
 
 
 
+SingularSchedule::SingularSchedule(QObject *parent) :
+	Schedule{parent}
+{}
+
+SingularSchedule::SingularSchedule(QDateTime timepoint, QObject *parent) :
+	Schedule{std::move(timepoint), parent}
+{}
+
+bool SingularSchedule::isRepeating() const
+{
+	return false;
+}
+
+QDateTime SingularSchedule::generateNextSchedule()
+{
+	return {}; // has no next schedule
+}
+
+
+
+MultiSchedule::MultiSchedule(QObject *parent) :
+	Schedule{parent}
+{}
+
+MultiSchedule::MultiSchedule(QDateTime since, QObject *parent) :
+	Schedule{std::move(since), parent}
+{}
+
+void MultiSchedule::addSubSchedule(Schedule *schedule)
+{
+	Q_ASSERT_X(schedule, Q_FUNC_INFO, "schedule must not be null");
+	schedule->setParent(this);
+	subSchedules.append(schedule);
+}
+
+bool MultiSchedule::isRepeating() const
+{
+	return true;
+}
+
+QDateTime MultiSchedule::generateNextSchedule()
+{
+	QDateTime closest;
+	for(auto schedule : qAsConst(subSchedules)) {
+		auto next = schedule->current();
+		while(next.isValid() && next <= current())
+			next = schedule->nextSchedule();
+
+		if(next.isValid()) {
+			if(!closest.isValid() || closest > next)
+				closest = next;
+		}
+	}
+	return closest;
+}
+
+
+
+// ------------- Historic Schedules -------------
+
+
+
 OneTimeSchedule::OneTimeSchedule(QObject *parent) :
 	OneTimeSchedule({}, {}, parent)
 {}
@@ -81,42 +143,4 @@ QDateTime LoopSchedule::generateNextSchedule()
 		return {};
 	else
 		return tp;
-}
-
-
-
-MultiSchedule::MultiSchedule(QObject *parent) :
-	Schedule{parent}
-{}
-
-MultiSchedule::MultiSchedule(QDateTime since, QObject *parent) :
-	Schedule{std::move(since), parent}
-{}
-
-void MultiSchedule::addSubSchedule(Schedule *schedule)
-{
-	Q_ASSERT_X(schedule, Q_FUNC_INFO, "schedule must not be null");
-	schedule->setParent(this);
-	subSchedules.append(schedule);
-}
-
-bool MultiSchedule::isRepeating() const
-{
-	return true;
-}
-
-QDateTime MultiSchedule::generateNextSchedule()
-{
-	QDateTime closest;
-	for(auto schedule : qAsConst(subSchedules)) {
-		auto next = schedule->current();
-		while(next.isValid() && next <= current())
-			next = schedule->nextSchedule();
-
-		if(next.isValid()) {
-			if(!closest.isValid() || closest > next)
-				closest = next;
-		}
-	}
-	return closest;
 }
