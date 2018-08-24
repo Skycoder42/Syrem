@@ -674,10 +674,10 @@ void SequenceTerm::apply(QDateTime &datetime, bool applyRelative) const
 		const auto delta = applyRelative ? *it : (*it - 1);
 		switch(it.key()) {
 		case Minute:
-			datetime = datetime.addSecs(duration_cast<seconds>(minutes{delta}).count());
+			datetime = datetime.addSecs(duration_cast<seconds>(minutes{*it}).count());
 			break;
 		case Hour:
-			datetime = datetime.addSecs(duration_cast<seconds>(hours{delta}).count());
+			datetime = datetime.addSecs(duration_cast<seconds>(hours{*it}).count());
 			break;
 		case Day:
 			datetime = datetime.addDays(delta);
@@ -841,7 +841,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("quarter:15|half:30", "InvTimeKeywords");
 		break;
 	case MonthDayPrefix:
-		word = EventExpressionParser::tr("on |on the |the ", "MonthDayPrefix");
+		word = EventExpressionParser::tr("on |on the |the |next ", "MonthDayPrefix");
 		break;
 	case MonthDaySuffix:
 		word = EventExpressionParser::tr(" of", "MonthDaySuffix");
@@ -856,7 +856,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("_.|_th|_st|_nd|_rd", "MonthDayIndicator");
 		break;
 	case WeekDayPrefix:
-		word = EventExpressionParser::tr("on ", "WeekDayPrefix");
+		word = EventExpressionParser::tr("on |next ", "WeekDayPrefix");
 		break;
 	case WeekDaySuffix:
 		word = EventExpressionParser::tr("", "WeekDaySuffix");
@@ -868,7 +868,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("", "WeekDayLoopSuffix");
 		break;
 	case MonthPrefix:
-		word = EventExpressionParser::tr("in |on ", "MonthPrefix");
+		word = EventExpressionParser::tr("in |on |next ", "MonthPrefix");
 		break;
 	case MonthSuffix:
 		word = EventExpressionParser::tr("", "MonthSuffix");

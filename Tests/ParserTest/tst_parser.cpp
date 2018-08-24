@@ -1,4 +1,4 @@
-﻿#include <QtTest>
+#include <QtTest>
 #include <QtMvvmCore>
 #include <QtDataSync>
 #define private public
@@ -1523,7 +1523,7 @@ void ParserTest::testExpressionParsing_data()
 						  << SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
 						  << false
 						  << false
-						  << QDateTime{cDate, cTime}
+						  << QDateTime{cDate, {10, 0}}
 						  << QDateTime{cDate, {14, 0}};
 	QTest::addRow("date") << QStringLiteral("March 24th")
 						  << 2
@@ -2070,6 +2070,69 @@ void ParserTest::testRepeatedSchedules_data()
 										  {cDate.addDays(1), {15, 50}},
 										  {cDate.addDays(1), {16, 10}},
 									  };
+	QTest::addRow("limits.until") << QStringLiteral("every 3 Months on 27th until 2019")
+								  << QTime{9, 0}
+								  << QDateTime{{2018, 2, 11}, cTime}
+								  << QList<QDateTime>{
+										   {{2018, 5, 27}, {9, 0}},
+										   {{2018, 8, 27}, {9, 0}},
+										   {{2018, 11, 27}, {9, 0}},
+										   {},
+									   };
+	QTest::addRow("limits.both") << QStringLiteral("every Tuesday at 10 o'clock from the 27th until the 12th")
+								 << QTime{9, 0}
+								 << QDateTime{{2018, 8, 24}, cTime}
+								 << QList<QDateTime>{
+										  {{2018, 8, 28}, {10, 0}},
+										  {{2018, 9, 4}, {10, 0}},
+										  {{2018, 9, 11}, {10, 0}},
+										  {},
+									  };
+	QTest::addRow("limits.close") << QStringLiteral("every Tuesday at 10 o'clock from the 28th to the 11th")
+								  << QTime{9, 0}
+								  << QDateTime{{2018, 8, 24}, cTime}
+								  << QList<QDateTime>{
+										   {{2018, 9, 4}, {10, 0}},
+										   {{2018, 9, 11}, {10, 0}},
+										   {},
+									   };
+
+	QTest::addRow("combined.from") << QStringLiteral("every Monday in April from 2025")
+								   << QTime{9, 0}
+								   << QDateTime{{2018, 8, 24}, cTime}
+								   << QList<QDateTime>{
+											{{2025, 4, 7}, {9, 0}},
+											{{2025, 4, 14}, {9, 0}},
+											{{2025, 4, 21}, {9, 0}},
+											{{2025, 4, 28}, {9, 0}},
+											{{2026, 4, 6}, {9, 0}},
+										};
+	QTest::addRow("combined.until") << QStringLiteral("every 7 hours and 20 minutes on Monday until in 2 weeks")
+									<< QTime{9, 0}
+									<< QDateTime{{2018, 8, 24}, cTime}
+									<< QList<QDateTime>{
+											 {{2018, 8, 27}, {7, 20}},
+											 {{2018, 8, 27}, {14, 40}},
+											 {{2018, 8, 27}, {22, 0}},
+											 {{2018, 9, 3}, {7, 20}},
+											 {{2018, 9, 3}, {14, 40}},
+											 {{2018, 9, 3}, {22, 0}},
+											 {},
+										 };
+	QTest::addRow("combined.all") << QStringLiteral("every 7 hours and 20 minutes on Monday until in 2 weeks from in 1 week")
+								  << QTime{9, 0}
+								  << QDateTime{{2018, 8, 24}, cTime}
+								  << QList<QDateTime>{
+										   {{2018, 9, 3}, {7, 20}},
+										   {{2018, 9, 3}, {14, 40}},
+										   {{2018, 9, 3}, {22, 0}},
+										   {},
+									   };
+
+	QTest::addRow("invalid.inverse") << QStringLiteral("every 10 minutes from in 1 month until tomorrow")
+									 << QTime{9, 0}
+									 << QDateTime{{2018, 8, 24}, cTime}
+									 << QList<QDateTime>{};
 }
 
 void ParserTest::testRepeatedSchedules()
@@ -2090,12 +2153,13 @@ void ParserTest::testRepeatedSchedules()
 			QVERIFY(res);
 			QVERIFY(res->isRepeating());
 
-			QDateTime next;
+			auto isFirst = true;
 			for(const auto &result : results) {
+				if(isFirst)
+					isFirst = false;
+				else
+					QCOMPARE(res->nextSchedule(), result);
 				QCOMPARE(res->current(), result);
-				if(next.isValid())
-					QCOMPARE(next, result);
-				next = res->nextSchedule();
 			}
 		} else
 			QVERIFY(!res);

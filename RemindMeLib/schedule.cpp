@@ -70,23 +70,31 @@ QDateTime RepeatedSchedule::generateNextSchedule()
 	// check if the initial fences need to be generated
 	// this is only the case on the very first run
 	// Use the "last" aka "from" time as reference to generate the first fence in that case
-	auto applyRelative = true; // normally do not include the "current" day
+	auto applyRelative = true; // normally do not include the "current" day.
+	QDateTime fenceBegin;
 	if(!fenceTerm.isEmpty() && !fenceEnd.isValid()) {
-		next = generateFences(last);
+		fenceBegin = generateFences(last);
+		next = fenceBegin;
 		applyRelative = false; // include the first "fence-day" as the "current" day, thus set to false here
 	}
 
 	// get the next time on the schedule
 	next = loopTerm.apply(next, applyRelative);
+	// and "fix" it in case it goes below the fence (can happen for weeks)
+	if(!fenceTerm.isEmpty() && next < fenceBegin)
+		next = loopTerm.apply(fenceBegin, true); //if below fence, simpyl reapply relative to prevent that
 
 	// if it exceeds the fence, generate a new fence
 	if(!fenceTerm.isEmpty() && next >= fenceEnd) {
-		auto nextFence = generateFences(fenceEnd); //use end of last fence as reference
+		const auto nextFence = generateFences(fenceEnd); //use end of last fence as reference
 		if(next >= fenceEnd) // can happen for absolute fences
 			return {};
 		// Generate the next real sched. based of the nextFence. Only regen if not already within the new fence
-		if(next < nextFence)
+		if(next < nextFence) {
 			next = loopTerm.apply(nextFence, false); // false for same reason as before
+			if(next < nextFence)
+				next = loopTerm.apply(nextFence, true); // with the same possible fix
+		}
 		// safeguard for potential edge cases
 		if(next >= fenceEnd)
 			return {};
@@ -96,7 +104,7 @@ QDateTime RepeatedSchedule::generateNextSchedule()
 	if(next <= last)
 		return {};
 	// verify if below until limit
-	if(until.isValid() && next >= until)
+	if(until.isValid() && next > until)
 		return {};
 	else
 		return next;

@@ -27,23 +27,37 @@ TermSelection EventExpressionParser::parseExpression(const QString &expression)
 QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term, const QDateTime &reference)
 {
 	if(term.isLooped()) {
-		//TODO make use of overwrite time
 		Term loop, fence, from, until;
 		std::tie(loop, fence, from, until) = term.splitLoop();
-		if(!loop.hasTimeScope())
+		if(!loop.hasTimeScope()) {
 			loop.append(QSharedPointer<TimeTerm>::create(_settings->scheduler.defaultTime, true));
+			loop.finalize();
+		}
 
 		// get the from date
 		QDateTime fromDate;
-		if(!from.isEmpty())
-			fromDate = from.apply(reference); //TODO errors here and below
+		if(!from.isEmpty()) {
+			if(!from.hasTimeScope()) {
+				from.append(QSharedPointer<TimeTerm>::create(QTime{0, 0}, true));
+				from.finalize();
+			}
+			fromDate = evaluteTerm(from, reference); //TODO errors here and below
+		}
 		if(!fromDate.isValid())
 			fromDate = reference;
 
 		// get the until date
 		QDateTime untilDate;
-		if(!until.isEmpty())
-			untilDate = until.apply(untilDate);
+		if(!until.isEmpty()) {
+			if(!until.hasTimeScope()) {
+				until.append(QSharedPointer<TimeTerm>::create(QTime{23, 59}, true));
+				until.finalize();
+			}
+			untilDate = evaluteTerm(until, reference);
+		}
+
+		if(fromDate.isValid() && untilDate.isValid() && untilDate <= fromDate)
+			return {}; //TODO error
 
 		// create schedule and getNext once for the initial date
 		auto res = QSharedPointer<RepeatedSchedule>::create(loop, fence, fromDate, untilDate);
@@ -443,7 +457,9 @@ std::tuple<Term, Term, Term, Term> Term::splitLoop() const
 
 void Term::finalize()
 {
-	Q_ASSERT(_scope == SubTerm::InvalidScope);
+	_scope = SubTerm::InvalidScope;
+	_looped = false;
+	_absolute = false;
 	for(const auto &subTerm : qAsConst(*this)) {
 		_scope |= subTerm->scope;
 		_looped = _looped || subTerm->type.testFlag(SubTerm::FlagLooped);
