@@ -38,7 +38,8 @@ std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expre
 
 void TimeTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
-	Q_UNUSED(applyRelative)
+	if(applyRelative && _time <= datetime.time())
+		datetime = datetime.addDays(1);
 	datetime.setTime(_time);
 }
 
@@ -219,7 +220,8 @@ std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const Q
 
 void InvertedTimeTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
-	Q_UNUSED(applyRelative)
+	if(applyRelative && _time <= datetime.time())
+		datetime = datetime.addDays(1);
 	datetime.setTime(_time);
 }
 
@@ -668,26 +670,26 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 void SequenceTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
 	using namespace std::chrono;
-	Q_UNUSED(applyRelative)
 	for(auto it = _sequence.constBegin(); it != _sequence.constEnd(); ++it) {
+		const auto delta = applyRelative ? *it : (*it - 1);
 		switch(it.key()) {
 		case Minute:
-			datetime = datetime.addSecs(duration_cast<seconds>(minutes{*it}).count());
+			datetime = datetime.addSecs(duration_cast<seconds>(minutes{delta}).count());
 			break;
 		case Hour:
-			datetime = datetime.addSecs(duration_cast<seconds>(hours{*it}).count());
+			datetime = datetime.addSecs(duration_cast<seconds>(hours{delta}).count());
 			break;
 		case Day:
-			datetime = datetime.addDays(*it);
+			datetime = datetime.addDays(delta);
 			break;
 		case Week:
-			datetime = datetime.addDays(static_cast<qint64>(*it) * 7ll);
+			datetime = datetime.addDays(static_cast<qint64>(delta) * 7ll);
 			break;
 		case Month:
-			datetime = datetime.addMonths(*it);
+			datetime = datetime.addMonths(delta);
 			break;
 		case Year:
-			datetime = datetime.addYears(*it);
+			datetime = datetime.addYears(delta);
 			break;
 		default:
 			Q_UNREACHABLE();
@@ -781,7 +783,12 @@ std::pair<QSharedPointer<LimiterTerm>, int> LimiterTerm::parse(const QStringRef 
 void LimiterTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
 	Q_UNUSED(applyRelative)
-	datetime = _limitTerm.apply(datetime);
+	Q_UNUSED(datetime)
+}
+
+Term LimiterTerm::limitTerm() const
+{
+	return _limitTerm;
 }
 
 

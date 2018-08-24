@@ -1,13 +1,13 @@
 ﻿#include <QtTest>
 #include <QtMvvmCore>
 #include <QtDataSync>
-#include <schedule.h>
 #define private public
 #define protected public
 #include <eventexpressionparser.h>
 #include <terms.h>
 #undef protected
 #undef private
+#include <schedule.h>
 using namespace Expressions;
 
 Q_DECLARE_METATYPE(Expressions::SequenceTerm::Sequence)
@@ -50,11 +50,15 @@ private Q_SLOTS:
 	void testMultiExpressionParsing();
 	void testExpressionLimiters_data();
 	void testExpressionLimiters();
+	void testTermSplitting_data();
+	void testTermSplitting();
 
 	void testTermEvaluation_data();
 	void testTermEvaluation();
 	void testSingularSchedules_data();
 	void testSingularSchedules();
+	void testRepeatedSchedules_data();
+	void testRepeatedSchedules();
 
 private:
 	QTemporaryDir tDir;
@@ -177,6 +181,7 @@ void ParserTest::testDateRegexConversion()
 void ParserTest::testTimeExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<QTime>("time");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<bool>("certain");
@@ -187,24 +192,28 @@ void ParserTest::testTimeExpressions_data()
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
 	QTest::addRow("simple") << QStringLiteral("14:00")
+							<< false
 							<< QTime{14, 00}
 							<< 5
 							<< false
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{cDate, QTime{14, 00}};
 	QTest::addRow("prefix") << QStringLiteral("at 7:00")
+							<< false
 							<< QTime{7, 00}
 							<< 7
 							<< true
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{cDate, QTime{7, 00}};
 	QTest::addRow("suffix") << QStringLiteral("14:5 o'clock")
+							<< false
 							<< QTime{14, 5}
 							<< 12
 							<< true
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{cDate, QTime{14, 5}};
 	QTest::addRow("allfix") << QStringLiteral("at 7 o'clock")
+							<< false
 							<< QTime{7, 0}
 							<< 12
 							<< true
@@ -213,32 +222,67 @@ void ParserTest::testTimeExpressions_data()
 
 	// with remaing
 	QTest::addRow("substr") << QStringLiteral("05 cars")
+							<< false
 							<< QTime{5, 00}
 							<< 3
 							<< false
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{cDate, QTime{5, 00}};
 	QTest::addRow("pmstr") << QStringLiteral("3 pm cars")
+						   << false
 						   << QTime{15, 00}
 						   << 5
 						   << false
 						   << QDateTime{cDate, cTime}
 						   << QDateTime{cDate, QTime{15, 00}};
 
+	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
+	QTest::addRow("offset.future.noKeep") << QStringLiteral("17:30")
+										  << false
+										  << QTime{17, 30}
+										  << 5
+										  << false
+										  << referenceTime
+										  << QDateTime{referenceTime.date(), {17, 30}};
+	QTest::addRow("offset.future.keep") << QStringLiteral("17:30")
+										<< true
+										<< QTime{17, 30}
+										<< 5
+										<< false
+										<< referenceTime
+										<< QDateTime{referenceTime.date(), {17, 30}};
+	QTest::addRow("offset.past.noKeep") << QStringLiteral("10:10")
+										<< false
+										<< QTime{10, 10}
+										<< 5
+										<< false
+										<< referenceTime
+										<< QDateTime{referenceTime.date(), {10, 10}};
+	QTest::addRow("offset.past.keep") << QStringLiteral("10:10")
+									  << true
+									  << QTime{10, 10}
+									  << 5
+									  << false
+									  << referenceTime
+									  << QDateTime{referenceTime.date().addDays(1), {10, 10}};
+
 	// invalid
 	QTest::addRow("partial") << QStringLiteral("14:30:25 pm")
+							 << false
 							 << QTime{14, 30}
 							 << 5
 							 << false
 							 << QDateTime{cDate, cTime}
 							 << QDateTime{cDate, QTime{14, 30}};
 	QTest::addRow("partial.rest") << QStringLiteral(":25 pm")
+								  << false
 								  << QTime{}
 								  << 0
 								  << false
 								  << QDateTime{}
 								  << QDateTime{};
 	QTest::addRow("invalid") << QStringLiteral("60:25")
+							 << false
 							 << QTime{}
 							 << 0
 							 << false
@@ -249,6 +293,7 @@ void ParserTest::testTimeExpressions_data()
 void ParserTest::testTimeExpressions()
 {
 	QFETCH(QString, expression);
+	QFETCH(bool, applyRelative);
 	QFETCH(QTime, time);
 	QFETCH(int, offset);
 	QFETCH(bool, certain);
@@ -266,7 +311,7 @@ void ParserTest::testTimeExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, true);
+		res.first->apply(since, applyRelative);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -444,6 +489,7 @@ void ParserTest::testDateExpressions()
 void ParserTest::testInvertedTimeExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
+	QTest::addColumn<bool>("applyRelative");
 	QTest::addColumn<QTime>("time");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<QDateTime>("since");
@@ -452,51 +498,86 @@ void ParserTest::testInvertedTimeExpressions_data()
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
 	QTest::addRow("numbered.past") << QStringLiteral("10 past 11")
+								   << false
 								   << QTime{11, 10}
 								   << 10
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{cDate, QTime{11, 10}};
 	QTest::addRow("numbered.to") << QStringLiteral("at 4 to 3 pm")
+								 << false
 								 << QTime{14, 56}
 								 << 12
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{cDate, QTime{14, 56}};
 	QTest::addRow("quarter.past") << QStringLiteral("at quarter past 17")
+								  << false
 								  << QTime{17, 15}
 								  << 18
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{cDate, QTime{17, 15}};
 	QTest::addRow("quarter.to") << QStringLiteral("quarter to 12")
+								<< false
 								<< QTime{11, 45}
 								<< 13
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{cDate, QTime{11, 45}};
 	QTest::addRow("half.past") << QStringLiteral("half-past 7")
+							   << false
 							   << QTime{7, 30}
 							   << 11
 							   << QDateTime{cDate, cTime}
 							   << QDateTime{cDate, QTime{7, 30}};
 
+	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
+	QTest::addRow("offset.future.noKeep") << QStringLiteral("half past 5 pm")
+										  << false
+										  << QTime{17, 30}
+										  << 14
+										  << referenceTime
+										  << QDateTime{referenceTime.date(), {17, 30}};
+	QTest::addRow("offset.future.keep") << QStringLiteral("half past 5 pm")
+										<< true
+										<< QTime{17, 30}
+										<< 14
+										<< referenceTime
+										<< QDateTime{referenceTime.date(), {17, 30}};
+	QTest::addRow("offset.past.noKeep") << QStringLiteral("quarter past 10")
+										<< false
+										<< QTime{10, 15}
+										<< 15
+										<< referenceTime
+										<< QDateTime{referenceTime.date(), {10, 15}};
+	QTest::addRow("offset.past.keep") << QStringLiteral("quarter past 10")
+									  << true
+									  << QTime{10, 15}
+									  << 15
+									  << referenceTime
+									  << QDateTime{referenceTime.date().addDays(1), {10, 15}};
+
 	QTest::addRow("substr") << QStringLiteral("at 4 past 14 am")
+							<< false
 							<< QTime{14, 4}
 							<< 13
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{cDate, QTime{14, 4}};
 	QTest::addRow("invalid.text") << QStringLiteral("at car past 12")
+								  << false
 								  << QTime{}
 								  << 0
 								  << QDateTime{}
 								  << QDateTime{};
 	QTest::addRow("invalid.offset") << QStringLiteral("70 to 4")
-								  << QTime{}
-								  << 0
-								  << QDateTime{}
-								  << QDateTime{};
+									<< false
+									<< QTime{}
+									<< 0
+									<< QDateTime{}
+									<< QDateTime{};
 }
 
 void ParserTest::testInvertedTimeExpressions()
 {
 	QFETCH(QString, expression);
+	QFETCH(bool, applyRelative);
 	QFETCH(QTime, time);
 	QFETCH(int, offset);
 	QFETCH(QDateTime, since);
@@ -513,7 +594,7 @@ void ParserTest::testInvertedTimeExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, true);
+		res.first->apply(since, applyRelative);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -1459,13 +1540,6 @@ void ParserTest::testExpressionParsing_data()
 							  << QDateTime{{2018, 2, 10}, cTime}
 							  << QDateTime{{2018, 3, 24}, {14, 0}};
 
-	QTest::addRow("parts.time") << QStringLiteral("in 3 hours 20 mins")
-								<< 2
-								<< SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
-								<< false
-								<< false
-								<< QDateTime{cDate, {14, 10}}
-								<< QDateTime{cDate, {17, 30}};
 	QTest::addRow("parts.date") << QStringLiteral("every 2 years and 3 months on Saturday")
 								<< 2
 								<< SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::WeekDay}
@@ -1480,6 +1554,13 @@ void ParserTest::testExpressionParsing_data()
 									<< true
 									<< QDateTime{{2010, 11, 11}, cTime}
 									<< QDateTime{{2019, 10, 24}, {10, 15}};
+	QTest::addRow("loop.subscope") << QStringLiteral("every week In November")
+								   << 2
+								   << SubTerm::Scope{SubTerm::Month | SubTerm::Week}
+								   << true
+								   << false
+								   << QDateTime{{2018, 7, 15}, cTime}
+								   << QDateTime{{2018, 11, 1}, cTime};
 
 	QTest::addRow("invalid.scope") << QStringLiteral("in April at 4 o'clock on 24.12.")
 								   << 0
@@ -1488,13 +1569,20 @@ void ParserTest::testExpressionParsing_data()
 								   << false
 								   << QDateTime{}
 								   << QDateTime{};
-	QTest::addRow("invalid.loop") << QStringLiteral("every 3 days every 20 minutes")
-								  << 0
-								  << SubTerm::Scope{SubTerm::InvalidScope}
-								  << false
-								  << false
-								  << QDateTime{}
-								  << QDateTime{};
+	QTest::addRow("invalid.loop.double") << QStringLiteral("every 3 days every 20 minutes")
+										 << 0
+										 << SubTerm::Scope{SubTerm::InvalidScope}
+										 << false
+										 << false
+										 << QDateTime{}
+										 << QDateTime{};
+	QTest::addRow("invalid.loop.span") << QStringLiteral("every 3 days in 20 minutes")
+									   << 0
+									   << SubTerm::Scope{SubTerm::InvalidScope}
+									   << false
+									   << false
+									   << QDateTime{}
+									   << QDateTime{};
 	QTest::addRow("invalid.pointspan") << QStringLiteral("In November in 3 weeks")
 									   << 0
 									   << SubTerm::Scope{SubTerm::InvalidScope}
@@ -1502,13 +1590,13 @@ void ParserTest::testExpressionParsing_data()
 									   << false
 									   << QDateTime{}
 									   << QDateTime{};
-	QTest::addRow("loop.subscope") << QStringLiteral("every week In November")
-								   << 2
-								   << SubTerm::Scope{SubTerm::Month | SubTerm::Week}
-								   << true
-								   << false
-								   << QDateTime{{2018, 7, 15}, cTime}
-								   << QDateTime{{2018, 11, 8}, cTime}; //TODO not correct? should be < 8 !!!
+	QTest::addRow("invalid.span.double") << QStringLiteral("in 3 hours 20 mins")
+										 << 0
+										 << SubTerm::Scope{SubTerm::InvalidScope}
+										 << false
+										 << false
+										 << QDateTime{}
+										 << QDateTime{};
 }
 
 void ParserTest::testExpressionParsing()
@@ -1557,10 +1645,10 @@ void ParserTest::testMultiExpressionParsing_data()
 							   << 5
 							   << QList<QDateTime>{
 										{{2018, 12, 13}, cTime},
-										{cDate, cTime},
+										{cDate, {10, 00}},
 										{cDate, cTime},
 										{{2018, 12, 13}, cTime},
-										{cDate, cTime}
+										{cDate, {10, 00}}
 									}
 							   << QList<QDateTime>{
 										{{2018, 12, 23}, cTime},
@@ -1677,6 +1765,18 @@ void ParserTest::testExpressionLimiters_data()
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{};
+	QTest::addRow("invalid.subloop.from") << QStringLiteral("every day from every month")
+										  << false
+										  << QDateTime{}
+										  << QDateTime{}
+										  << QDateTime{}
+										  << QDateTime{};
+	QTest::addRow("invalid.subloop.until") << QStringLiteral("every Tuesday until every Month")
+										   << false
+										   << QDateTime{}
+										   << QDateTime{}
+										   << QDateTime{}
+										   << QDateTime{};
 	QTest::addRow("invalid.fence.overlap") << QStringLiteral("on the 24th every minute until in 10 days")
 										   << false
 										   << QDateTime{}
@@ -1708,15 +1808,15 @@ void ParserTest::testExpressionLimiters()
 			if(subTerm->type == SubTerm::FromSubterm) {
 				QVERIFY2(sinceFrom.isValid(), "Found unexpected from term");
 				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
-				subTerm->apply(sinceFrom, true);
-				QCOMPARE(sinceFrom, resultFrom);
+				auto res = subTerm.staticCast<LimiterTerm>()->limitTerm().apply(sinceFrom);
+				QCOMPARE(res, resultFrom);
 				sinceFrom = QDateTime{};
 			}
 			if(subTerm->type == SubTerm::UntilSubTerm) {
 				QVERIFY2(sinceUntil.isValid(), "Found unexpected until term");
 				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
-				subTerm->apply(sinceUntil, true);
-				QCOMPARE(sinceUntil, resultUntil);
+				auto res = subTerm.staticCast<LimiterTerm>()->limitTerm().apply(sinceUntil);
+				QCOMPARE(res, resultUntil);
 				sinceUntil = QDateTime{};
 			}
 		}
@@ -1725,6 +1825,74 @@ void ParserTest::testExpressionLimiters()
 		QVERIFY2(!sinceUntil.isValid(), "Expected until term but none was found");
 	} else
 		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
+}
+
+void ParserTest::testTermSplitting_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<int>("loopSize");
+	QTest::addColumn<int>("fenceSize");
+	QTest::addColumn<int>("fromSize");
+	QTest::addColumn<int>("untilSize");
+
+	QTest::addRow("single.pureloop") << QStringLiteral("every June the 22nd")
+									 << 2
+									 << 0
+									 << 0
+									 << 0;
+	QTest::addRow("single.fenced") << QStringLiteral("every 22nd of June")
+								   << 1
+								   << 1
+								   << 0
+								   << 0;
+	QTest::addRow("single.from") << QStringLiteral("every 3 days from tomorrow")
+								 << 1
+								 << 0
+								 << 1
+								 << 0;
+	QTest::addRow("single.until") << QStringLiteral("every 2 hours and 20 mins until 22:00")
+								  << 1
+								  << 0
+								  << 0
+								  << 1;
+	QTest::addRow("multi.longfence") << QStringLiteral("every day at 22:00 in 2020 in December")
+									 << 2
+									 << 2
+									 << 0
+									 << 0;
+	QTest::addRow("multi.from-until") << QStringLiteral("every 3 days from tomorrow until 25th")
+									  << 1
+									  << 0
+									  << 1
+									  << 1;
+	QTest::addRow("multi.all") << QStringLiteral("every day at 22:00 in December from 2020 until 2025")
+							   << 2
+							   << 1
+							   << 1
+							   << 1;
+	QTest::addRow("invalid.noloop") << QStringLiteral("in 10 days")
+									<< 0
+									<< 0
+									<< 0
+									<< 0;
+}
+
+void ParserTest::testTermSplitting()
+{
+	QFETCH(QString, expression);
+	QFETCH(int, loopSize);
+	QFETCH(int, fenceSize);
+	QFETCH(int, fromSize);
+	QFETCH(int, untilSize);
+
+	auto terms = parser->parseExpression(expression);
+	QCOMPARE(terms.size(), 1);
+	Term loop, fence, from, until;
+	std::tie(loop, fence, from, until) = terms.first().splitLoop();
+	QCOMPARE(loop.size(), loopSize);
+	QCOMPARE(fence.size(), fenceSize);
+	QCOMPARE(from.size(), fromSize);
+	QCOMPARE(until.size(), untilSize);
 }
 
 void ParserTest::testTermEvaluation_data()
@@ -1749,6 +1917,10 @@ void ParserTest::testTermEvaluation_data()
 								  << QDateTime{{2018, 4, 27}, cTime}
 								  << QDateTime{{2018, 8, 10}, cTime};
 	QTest::addRow("invalid.past") << QStringLiteral("11.09.2015 at half past 3 am")
+								  << QTime{}
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{};
+	QTest::addRow("invalid.loop") << QStringLiteral("every Wed at half past 3 am")
 								  << QTime{}
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{};
@@ -1818,6 +1990,113 @@ void ParserTest::testSingularSchedules()
 			QVERIFY(!res->isRepeating());
 			QCOMPARE(res->current(), result);
 			QVERIFY(!res->nextSchedule().isValid());
+		} else
+			QVERIFY(!res);
+	}
+}
+
+void ParserTest::testRepeatedSchedules_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<QTime>("parserTime");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QList<QDateTime>>("results");
+
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	QTest::addRow("simple.span") << QStringLiteral("every day")
+								 << QTime{9, 0}
+								 << QDateTime{cDate, cTime}
+								 << QList<QDateTime>{
+										  {cDate.addDays(1), {9, 0}},
+										  {cDate.addDays(2), {9, 0}},
+										  {cDate.addDays(3), {9, 0}},
+										  {cDate.addDays(4), {9, 0}},
+									  };
+	QTest::addRow("simple.point") << QStringLiteral("every March the 21st")
+								  << QTime{9, 0}
+								  << QDateTime{{2018, 2, 3}, cTime}
+								  << QList<QDateTime>{
+										   {{2018, 3, 21}, {9, 0}},
+										   {{2019, 3, 21}, {9, 0}},
+										   {{2020, 3, 21}, {9, 0}},
+										   {{2021, 3, 21}, {9, 0}},
+									   };
+	QTest::addRow("simple.mixed") << QStringLiteral("every 2 months and 3 days at 17:30")
+								  << QTime{9, 0}
+								  << QDateTime{{2018, 7, 3}, cTime}
+								  << QList<QDateTime>{
+										   {{2018, 9, 6}, {17, 30}},
+										   {{2018, 11, 9}, {17, 30}},
+										   {{2019, 1, 12}, {17, 30}},
+										   {{2019, 3, 15}, {17, 30}},
+									   };
+
+	QTest::addRow("fenced.singular") << QStringLiteral("every day in October")
+									 << QTime{10, 0}
+									 << QDateTime{{2018, 7, 3}, cTime}
+									 << QList<QDateTime>{
+											  {{2018, 10, 1}, {10, 0}},
+											  {{2018, 10, 2}, {10, 0}},
+											  {{2018, 10, 3}, {10, 0}},
+											  {{2018, 10, 4}, {10, 0}},
+										  };
+	QTest::addRow("fenced.gaped") << QStringLiteral("every 2 Weeks in November")
+								  << QTime{9, 0}
+								  << QDateTime{{2018, 12, 3}, cTime}
+								  << QList<QDateTime>{
+										   {{2019, 11, 8}, {9, 0}},
+										   {{2019, 11, 22}, {9, 0}},
+										   {{2020, 11, 8}, {9, 0}},
+										   {{2020, 11, 22}, {9, 0}},
+									   };
+	QTest::addRow("fenced.elaborate") << QStringLiteral("every 2 Weeks on Saturday at quarter past 3 pm in November")
+									  << QTime{9, 0}
+									  << QDateTime{{2018, 2, 3}, cTime}
+									  << QList<QDateTime>{
+											   {{2018, 11, 10}, {15, 15}},
+											   {{2018, 11, 24}, {15, 15}},
+											   {{2019, 11, 9}, {15, 15}},
+											   {{2019, 11, 23}, {15, 15}},
+										   };
+
+	QTest::addRow("limits.from") << QStringLiteral("every 20 minutes from 14:30")
+								 << QTime{9, 0}
+								 << QDateTime{cDate, {17, 00}}
+								 << QList<QDateTime>{
+										  {cDate.addDays(1), {14, 50}},
+										  {cDate.addDays(1), {15, 10}},
+										  {cDate.addDays(1), {15, 30}},
+										  {cDate.addDays(1), {15, 50}},
+										  {cDate.addDays(1), {16, 10}},
+									  };
+}
+
+void ParserTest::testRepeatedSchedules()
+{
+	QFETCH(QString, expression);
+	QFETCH(QTime, parserTime);
+	QFETCH(QDateTime, since);
+	QFETCH(QList<QDateTime>, results);
+
+	parser->_settings->scheduler.defaultTime = parserTime;
+	auto terms = parser->parseExpression(expression);
+	if(!since.isValid())
+		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
+	else {
+		QCOMPARE(terms.size(), 1);
+		auto res = parser->createSchedule(terms.first(), since);
+		if(!results.isEmpty()) {
+			QVERIFY(res);
+			QVERIFY(res->isRepeating());
+
+			QDateTime next;
+			for(const auto &result : results) {
+				QCOMPARE(res->current(), result);
+				if(next.isValid())
+					QCOMPARE(next, result);
+				next = res->nextSchedule();
+			}
 		} else
 			QVERIFY(!res);
 	}

@@ -205,6 +205,8 @@ public:
 	static std::pair<QSharedPointer<LimiterTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 
+	Term limitTerm() const;
+
 private:
 	friend class ::EventExpressionParser;
 	Term _limitTerm;

@@ -5,6 +5,7 @@
 #include <QObject>
 
 #include "remindmelib_global.h"
+#include "eventexpressionparser.h"
 
 namespace ParserTypes {
 class Loop;
@@ -52,6 +53,37 @@ public:
 
 protected:
 	QDateTime generateNextSchedule() override;
+};
+
+class REMINDMELIBSHARED_EXPORT RepeatedSchedule : public Schedule
+{
+	Q_OBJECT
+
+	Q_PROPERTY(Expressions::Term loopTerm MEMBER loopTerm) //TODO add json serializer converter
+	Q_PROPERTY(Expressions::Term fenceTerm MEMBER fenceTerm)
+	Q_PROPERTY(QDateTime until MEMBER until)
+	Q_PROPERTY(QDateTime fenceEnd MEMBER fenceEnd)
+
+public:
+	Q_INVOKABLE RepeatedSchedule(QObject *parent = nullptr);
+	RepeatedSchedule(Expressions::Term loopTerm,
+					 Expressions::Term fenceTerm,
+					 QDateTime from,
+					 QDateTime until,
+					 QObject *parent = nullptr);
+
+	bool isRepeating() const override;
+
+protected:
+	QDateTime generateNextSchedule() override;
+
+private:
+	Expressions::Term loopTerm;
+	Expressions::Term fenceTerm;
+	QDateTime until;
+	QDateTime fenceEnd;
+
+	QDateTime generateFences(const QDateTime &current);
 };
 
 class REMINDMELIBSHARED_EXPORT MultiSchedule : public Schedule

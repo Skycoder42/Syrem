@@ -27,8 +27,30 @@ TermSelection EventExpressionParser::parseExpression(const QString &expression)
 QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term, const QDateTime &reference)
 {
 	if(term.isLooped()) {
-		Q_UNIMPLEMENTED();
-		return {};
+		//TODO make use of overwrite time
+		Term loop, fence, from, until;
+		std::tie(loop, fence, from, until) = term.splitLoop();
+		if(!loop.hasTimeScope())
+			loop.append(QSharedPointer<TimeTerm>::create(_settings->scheduler.defaultTime, true));
+
+		// get the from date
+		QDateTime fromDate;
+		if(!from.isEmpty())
+			fromDate = from.apply(reference); //TODO errors here and below
+		if(!fromDate.isValid())
+			fromDate = reference;
+
+		// get the until date
+		QDateTime untilDate;
+		if(!until.isEmpty())
+			untilDate = until.apply(untilDate);
+
+		// create schedule and getNext once for the initial date
+		auto res = QSharedPointer<RepeatedSchedule>::create(loop, fence, fromDate, untilDate);
+		if(res->nextSchedule().isValid())
+			return res;
+		else
+			return {};
 	} else {
 		const auto then = evaluteTerm(term, reference);
 		if(then.isValid())
@@ -40,6 +62,9 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 
 QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
 {
+	if(term.isLooped())
+		return {};
+
 	auto then = term.apply(reference);
 	if(!term.hasTimeScope()) {
 		QTime time = _settings->scheduler.defaultTime;
@@ -117,25 +142,35 @@ bool EventExpressionParser::validatePartialTerm(const Term &term)
 	/* Checks to perform after every subterm:
 	 *	1. All Scopes must be unique
 	 *	2. Only a single loop is allowed
-	 *	3. Verify there is only a single limiter of each type
-	 *	4. Only loops can have limiters
+	 *	3. Only a single span is allowed
+	 *	4. Verify there is only a single limiter of each type
+	 *	5. Only loops can have limiters
 	 */
 	SubTerm::Scope allScope = SubTerm::InvalidScope;
 	auto hasLoop = false;
+	auto hasSpan = false;
 	auto hasFromLimiter = false;
 	auto hasUntilLimiter = false;
 	for(const auto &subTerm : term) {
 		if((static_cast<int>(allScope) & static_cast<int>(subTerm->scope)) != 0) // (1)
 			return false;
+		allScope |= subTerm->scope;
+
+		// (2)
 		if(subTerm->type.testFlag(SubTerm::FlagLooped)) {
-			if(hasLoop) // (2)
+			if(hasLoop)
 				return false;
 			else
 				hasLoop = true;
 		}
-		allScope |= subTerm->scope;
-
 		// (3)
+		if(subTerm->type.testFlag(SubTerm::Timespan)) {
+			if(hasSpan)
+				return false;
+			else
+				hasSpan = true;
+		}
+		// (4)
 		if(subTerm->type == SubTerm::FromSubterm) {
 			if(hasFromLimiter)
 				return false;
@@ -150,7 +185,7 @@ bool EventExpressionParser::validatePartialTerm(const Term &term)
 		}
 	}
 
-	if((hasFromLimiter || hasUntilLimiter) && !hasLoop) // (4)
+	if((hasFromLimiter || hasUntilLimiter) && !hasLoop) // (5)
 		return false;
 
 	return true;
@@ -159,14 +194,17 @@ bool EventExpressionParser::validatePartialTerm(const Term &term)
 bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 {
 	/* Checks to perform on the full term:
-	 *	1. Sort by scope...
+	 *	1. Sort by scope
 	 *	2. Only the first element can be absolute
-	 *	3. Timepoints must not be followed by spans, except for loops (as the point part serves as "fence")
+	 *	3. Loops must not be followed by spans
+	 *	4. Timepoints must not be followed by spans, except for loops (as the point part serves as "fence")
 	 *
-	 *	4. If rootTerm is "valid", then merge the term into root term and swap them
-	 *	5. Verify limiters are "bigger" in scope then the eventual loop fence
+	 * If rootTerm is "valid", aka term is a limiter:
+	 *	5. Limiters must not be loops
+	 *	6. Verify limiters are "bigger" in scope then the loop fence, if present
+	 *	7. Merge the term into root term and swap them
 	 */
-	std::sort(term.begin(), term.end(), [](const QSharedPointer<SubTerm> &lhs, const QSharedPointer<SubTerm> &rhs){
+	std::sort(term.begin(), term.end(), [](const QSharedPointer<SubTerm> &lhs, const QSharedPointer<SubTerm> &rhs){ // (1)
 		return lhs->scope > rhs->scope;
 	});
 
@@ -174,14 +212,19 @@ bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 	auto isPoint = false;
 	auto isLoop = false;
 	for(const auto &subTerm : qAsConst(term)) {
-		 // (2)
+		// (2)
 		if(isFirst)
 			isFirst = false;
 		else if(subTerm->type.testFlag(SubTerm::FlagAbsolute))
 			return false;
 
 		// (3)
-		isLoop = isLoop || subTerm->type.testFlag(SubTerm::FlagLooped);
+		if(isLoop && subTerm->type.testFlag(SubTerm::Timespan))
+			return false;
+		else if(subTerm->type.testFlag(SubTerm::FlagLooped))
+			isLoop = true;
+
+		// (4)
 		if(!isLoop) {
 			if(isPoint && subTerm->type.testFlag(SubTerm::Timespan))
 				return false;
@@ -192,14 +235,17 @@ bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 	term.finalize();
 
 	if(!rootTerm.isEmpty()) {
-		// (5)
-		auto fence = rootTerm.splitLoop().first;
+		if(isLoop) // (4)
+			return false;
+
+		// (6)
+		auto fence = std::get<1>(rootTerm.splitLoop());
 		if((static_cast<int>(fence.scope()) & static_cast<int>(term.scope())) != 0)
 			return false;
 		if(term.scope() <= fence.scope())
 			return false;
 
-		// (4)
+		// (7)
 		auto limiter = rootTerm.last().dynamicCast<LimiterTerm>();
 		Q_ASSERT(limiter);
 		limiter->_limitTerm = Term {};
@@ -349,31 +395,50 @@ bool Term::hasTimeScope() const
 			_scope.testFlag(SubTerm::Minute);
 }
 
-QDateTime Term::apply(QDateTime datetime) const
+QDateTime Term::apply(QDateTime datetime, bool applyRelative) const
 {
-	auto applyFirst = true;
 	for(const auto &term : *this) {
 		if(term->type.testFlag(SubTerm::FlagLimiter)) // skip limiters when applying
 			continue;
-		term->apply(datetime, applyFirst);
-		applyFirst = false;
+		term->apply(datetime, applyRelative);
+		applyRelative = false;
 	}
 	return datetime;
 }
 
-std::pair<Term, Term> Term::splitLoop() const
+std::tuple<Term, Term, Term, Term> Term::splitLoop() const
 {
 	if(!isLooped())
 		return {};
 
+	auto splitIndex = -1;
+	auto fromIndex = -1;
+	auto toIndex = -1;
 	for(auto i = 0; i < size(); ++i) {
-		if(at(i)->type.testFlag(SubTerm::FlagLooped)) {
-			return {mid(0, i), mid(i, -1)};
-		}
+		if(at(i)->type.testFlag(SubTerm::FlagLooped))
+			splitIndex = i;
+		else if(at(i)->type == SubTerm::FromSubterm)
+			fromIndex = i;
+		else if(at(i)->type == SubTerm::UntilSubTerm)
+			toIndex = i;
 	}
 
-	Q_UNREACHABLE();
-	return {};
+	// get the firs limiter index (both must be at the end of the sorted sub terms, because they are noscope
+	int endIndex = -1;
+	if(fromIndex != -1) {
+		if(toIndex != -1)
+			endIndex = std::min(fromIndex, toIndex);
+		else
+			endIndex = fromIndex;
+	} else
+		endIndex = toIndex;
+
+	return std::make_tuple(
+		splitIndex != -1 ? Term{mid(splitIndex, endIndex == -1 ? -1 : endIndex - splitIndex)} : Term{mid(0, endIndex)},
+		splitIndex != -1 ? Term{mid(0, splitIndex)} : Term{},
+		fromIndex != -1 ? at(fromIndex).staticCast<LimiterTerm>()->limitTerm() : Term{},
+		toIndex != -1 ? at(toIndex).staticCast<LimiterTerm>()->limitTerm() : Term{}
+	);
 }
 
 void Term::finalize()

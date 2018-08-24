@@ -105,8 +105,8 @@ public:
 	bool isAbsolute() const;
 	bool hasTimeScope() const;
 
-	QDateTime apply(QDateTime datetime) const;
-	std::pair<Term, Term> splitLoop() const; //(fence, loop)
+	QDateTime apply(QDateTime datetime, bool applyRelative = true) const;
+	std::tuple<Term, Term, Term, Term> splitLoop() const; //(loop, fence, from, until)
 
 private:
 	friend class ::EventExpressionParser;
