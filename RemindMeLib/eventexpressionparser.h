@@ -137,8 +137,7 @@ public:
 		DuplicateFromLimiterError,
 		DuplicateUntilLimiterError,
 		UnexpectedLimiterError,
-		UnexpectedAbsoluteSubTermError,
-		SpanAfterLoopError,
+		UnexpectedAbsoluteSubTermError, // currently impossible to test, as only year scopes are absolute
 		SpanAfterTimepointError,
 		LoopAsLimiterError,
 		LimiterSmallerThanFenceError,

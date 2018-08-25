@@ -96,7 +96,7 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 	// prepare eventloop with result signal handlers
 	const auto id = QUuid::createUuid();
 	MultiTerm terms;
-	ErrorInfo lastError; //TODO use...
+	ErrorInfo lastError;
 	QEventLoop loop;
 	connect(this, &EventExpressionParser::termCompleted, &loop, [&](QUuid termId, int termIndex, const Term &term){
 		if(termId == id)
@@ -134,10 +134,14 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 		Q_ASSERT(_taskCounter.value(id).first == 0);
 		_taskCounter.remove(id);
 	}
-	if(res == EXIT_SUCCESS)
+	if(res == EXIT_SUCCESS) {
+		for(const auto &term : terms) { // throw error for the first subterm that failed
+			if(term.isEmpty())
+				throw EventExpressionParserException{lastError.type, {}};//TODO generate message
+		}
 		return terms;
-	else
-		return {};
+	} else
+		throw EventExpressionParserException{UnknownError, tr("Unknown error")};
 }
 
 void EventExpressionParser::parseTerm(QUuid id, const QStringRef &expression, const Term &term, int termIndex, const Term &rootTerm, int depth)
@@ -216,13 +220,12 @@ void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int dep
 	/* Checks to perform on the full term:
 	 *	1. Sort by scope
 	 *	2. Only the first element can be absolute
-	 *	3. Loops must not be followed by spans
-	 *	4. Timepoints must not be followed by spans, except for loops (as the point part serves as "fence")
+	 *	3. Timepoints must not be followed by spans, except for loops (as the point part serves as "fence")
 	 *
 	 * If rootTerm is "valid", aka term is a limiter:
-	 *	5. Limiters must not be loops
-	 *	6. Verify limiters are "bigger" in scope then the loop fence, if present
-	 *	7. Merge the term into root term and swap them
+	 *	4. Limiters must not be loops
+	 *	5. Verify limiters are "bigger" in scope then the loop fence, if present
+	 *	6. Merge the term into root term and swap them
 	 */
 	std::sort(term.begin(), term.end(), [](const QSharedPointer<SubTerm> &lhs, const QSharedPointer<SubTerm> &rhs){ // (1)
 		return lhs->scope > rhs->scope;
@@ -239,14 +242,10 @@ void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int dep
 			throw ErrorInfo{ErrorInfo::TermLevel, depth, UnexpectedAbsoluteSubTermError, -1};
 
 		// (3)
-		if(isLoop && subTerm->type.testFlag(SubTerm::Timespan))
-			throw ErrorInfo{ErrorInfo::TermLevel, depth, SpanAfterLoopError, -1};
-		else if(subTerm->type.testFlag(SubTerm::FlagLooped))
-			isLoop = true;
-
-		// (4)
 		if(!isLoop) {
-			if(isPoint && subTerm->type.testFlag(SubTerm::Timespan))
+			if(subTerm->type.testFlag(SubTerm::FlagLooped))
+				isLoop = true;
+			else if(isPoint && subTerm->type.testFlag(SubTerm::Timespan))
 				throw ErrorInfo{ErrorInfo::TermLevel, depth, SpanAfterTimepointError, -1};
 			else if(subTerm->type.testFlag(SubTerm::Timepoint))
 				isPoint = true;
@@ -258,14 +257,14 @@ void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int dep
 		if(isLoop) // (4)
 			throw ErrorInfo{ErrorInfo::TermLevel, depth, LoopAsLimiterError, -1};
 
-		// (6)
+		// (5)
 		auto fence = std::get<1>(rootTerm.splitLoop());
 		if((static_cast<int>(fence.scope()) & static_cast<int>(term.scope())) != 0)
 			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError, -1};
 		if(term.scope() <= fence.scope())
 			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError, -1};
 
-		// (7)
+		// (6)
 		auto limiter = rootTerm.last().dynamicCast<LimiterTerm>();
 		Q_ASSERT(limiter);
 		limiter->_limitTerm = Term {};
@@ -393,7 +392,7 @@ void EventExpressionParser::completeTask(QUuid id, QReadLocker &)
 
 quint64 EventExpressionParser::ErrorInfo::calcSignificance() const
 {
-	return (static_cast<quint64>(level) << 32) | static_cast<quint64>(depth);
+	return (static_cast<quint64>(depth) << 32) | static_cast<quint64>(level);
 }
 
 

@@ -12,6 +12,29 @@ using namespace Expressions;
 
 Q_DECLARE_METATYPE(Expressions::SequenceTerm::Sequence)
 
+#define QVERIFY_PARSER_EXCEPTION(expression, errorType) \
+	do {\
+		QT_TRY {\
+			QT_TRY {\
+				expression;\
+				QTest::qFail("Expected exception of type EventExpressionParserException to be thrown" \
+							 " but no exception caught", __FILE__, __LINE__);\
+				return;\
+			} QT_CATCH (const EventExpressionParserException &e) {\
+				QCOMPARE(e.type(), errorType);\
+			}\
+		} QT_CATCH (const std::exception &e) {\
+			QByteArray msg = QByteArray() + "Expected exception of type EventExpressionParserException" \
+											" to be thrown but std::exception caught with message: " + e.what(); \
+			QTest::qFail(msg.constData(), __FILE__, __LINE__);\
+			return;\
+		} QT_CATCH (...) {\
+			QTest::qFail("Expected exception of type EventExpressionParserException to be thrown" \
+						 " but unknown exception caught", __FILE__, __LINE__);\
+			return;\
+		}\
+	} while (false)
+
 class ParserTest : public QObject
 {
 	Q_OBJECT
@@ -1389,6 +1412,7 @@ void ParserTest::testExpressionParsing_data()
 	QTest::addColumn<bool>("absolute");
 	QTest::addColumn<QDateTime>("since");
 	QTest::addColumn<QDateTime>("result");
+	QTest::addColumn<EventExpressionParser::ErrorType>("errorType");
 
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
@@ -1398,21 +1422,24 @@ void ParserTest::testExpressionParsing_data()
 						  << false
 						  << false
 						  << QDateTime{cDate, {10, 0}}
-						  << QDateTime{cDate, {14, 0}};
+						  << QDateTime{cDate, {14, 0}}
+						  << EventExpressionParser::NoError;
 	QTest::addRow("date") << QStringLiteral("March 24th")
 						  << 2
 						  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
 						  << false
 						  << false
 						  << QDateTime{{2018, 2, 10}, cTime}
-						  << QDateTime{{2018, 3, 24}, cTime};
+						  << QDateTime{{2018, 3, 24}, cTime}
+						  << EventExpressionParser::NoError;
 	QTest::addRow("datetime") << QStringLiteral("on March the 24th at 14:00")
 							  << 3
 							  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month | SubTerm::Hour | SubTerm::Minute}
 							  << false
 							  << false
 							  << QDateTime{{2018, 2, 10}, cTime}
-							  << QDateTime{{2018, 3, 24}, {14, 0}};
+							  << QDateTime{{2018, 3, 24}, {14, 0}}
+							  << EventExpressionParser::NoError;
 
 	QTest::addRow("parts.date") << QStringLiteral("every 2 years and 3 months on Saturday")
 								<< 2
@@ -1420,57 +1447,81 @@ void ParserTest::testExpressionParsing_data()
 								<< true
 								<< false
 								<< QDateTime{{2018, 2, 10}, cTime}
-								<< QDateTime{{2020, 5, 9}, cTime};
+								<< QDateTime{{2020, 5, 9}, cTime}
+								<< EventExpressionParser::NoError;
 	QTest::addRow("parts.datetime") << QStringLiteral("in 2019 on 24.10. at quarter past 10")
 									<< 3
 									<< SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay | SubTerm::Hour | SubTerm::Minute}
 									<< false
 									<< true
 									<< QDateTime{{2010, 11, 11}, cTime}
-									<< QDateTime{{2019, 10, 24}, {10, 15}};
+									<< QDateTime{{2019, 10, 24}, {10, 15}}
+									<< EventExpressionParser::NoError;
 	QTest::addRow("loop.subscope") << QStringLiteral("every week In November")
 								   << 2
 								   << SubTerm::Scope{SubTerm::Month | SubTerm::Week}
 								   << true
 								   << false
 								   << QDateTime{{2018, 7, 15}, cTime}
-								   << QDateTime{{2018, 11, 1}, cTime};
+								   << QDateTime{{2018, 11, 1}, cTime}
+								   << EventExpressionParser::NoError;
 
+	QTest::addRow("invalid.expression") << QStringLiteral("at 4 o'clock on Christmas")
+										<< 0
+										<< SubTerm::Scope{SubTerm::InvalidScope}
+										<< false
+										<< false
+										<< QDateTime{}
+										<< QDateTime{}
+										<< EventExpressionParser::ParserError;
+	QTest::addRow("invalid.all") << QStringLiteral("tree")
+								 << 0
+								 << SubTerm::Scope{SubTerm::InvalidScope}
+								 << false
+								 << false
+								 << QDateTime{}
+								 << QDateTime{}
+								 << EventExpressionParser::ParserError;
 	QTest::addRow("invalid.scope") << QStringLiteral("in April at 4 o'clock on 24.12.")
 								   << 0
 								   << SubTerm::Scope{SubTerm::InvalidScope}
 								   << false
 								   << false
 								   << QDateTime{}
-								   << QDateTime{};
+								   << QDateTime{}
+								   << EventExpressionParser::DuplicateScopeError;
 	QTest::addRow("invalid.loop.double") << QStringLiteral("every 3 days every 20 minutes")
 										 << 0
 										 << SubTerm::Scope{SubTerm::InvalidScope}
 										 << false
 										 << false
 										 << QDateTime{}
-										 << QDateTime{};
+										 << QDateTime{}
+										 << EventExpressionParser::DuplicateLoopError;
 	QTest::addRow("invalid.loop.span") << QStringLiteral("every 3 days in 20 minutes")
 									   << 0
 									   << SubTerm::Scope{SubTerm::InvalidScope}
 									   << false
 									   << false
 									   << QDateTime{}
-									   << QDateTime{};
+									   << QDateTime{}
+									   << EventExpressionParser::DuplicateSpanError;
 	QTest::addRow("invalid.pointspan") << QStringLiteral("In November in 3 weeks")
 									   << 0
 									   << SubTerm::Scope{SubTerm::InvalidScope}
 									   << false
 									   << false
 									   << QDateTime{}
-									   << QDateTime{};
+									   << QDateTime{}
+									   << EventExpressionParser::SpanAfterTimepointError;
 	QTest::addRow("invalid.span.double") << QStringLiteral("in 3 hours 20 mins")
 										 << 0
 										 << SubTerm::Scope{SubTerm::InvalidScope}
 										 << false
 										 << false
 										 << QDateTime{}
-										 << QDateTime{};
+										 << QDateTime{}
+										 << EventExpressionParser::DuplicateSpanError;
 }
 
 void ParserTest::testExpressionParsing()
@@ -1482,19 +1533,24 @@ void ParserTest::testExpressionParsing()
 	QFETCH(bool, absolute);
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
+	QFETCH(EventExpressionParser::ErrorType, errorType);
 
-	auto terms = parser->parseExpression(expression);
-	if(depth == 0)
-		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
-	else {
-		QCOMPARE(terms.size(), 1);
-		auto &term = terms.first();
-		QCOMPARE(term.size(), depth);
-		QCOMPARE(term.scope(), scope);
-		QCOMPARE(term.isLooped(), looped);
-		QCOMPARE(term.isAbsolute(), absolute);
-		auto date = term.apply(since);
-		QCOMPARE(date, result);
+	try {
+		if(depth == 0)
+			QVERIFY_PARSER_EXCEPTION(parser->parseExpression(expression), errorType);
+		else {
+			auto terms = parser->parseExpression(expression);
+			QCOMPARE(terms.size(), 1);
+			auto &term = terms.first();
+			QCOMPARE(term.size(), depth);
+			QCOMPARE(term.scope(), scope);
+			QCOMPARE(term.isLooped(), looped);
+			QCOMPARE(term.isAbsolute(), absolute);
+			auto date = term.apply(since);
+			QCOMPARE(date, result);
+		}
+	} catch(QException &e) {
+		QFAIL(e.what());
 	}
 }
 
@@ -1513,8 +1569,8 @@ void ParserTest::testMultiExpressionParsing_data()
 							  << QList<QDateTime>{{{2018, 12, 23}, {14, 30}}};
 	QTest::addRow("dual") << QStringLiteral("in 10 days; at 14:30")
 						  << 2
-						  << QList<QDateTime>{{{2018, 12, 13}, cTime}, {cDate, cTime}}
-						  << QList<QDateTime>{{{2018, 12, 23}, cTime}, {cDate, {14, 30}}};
+						  << QList<QDateTime>{{{2018, 12, 13}, cTime}, {cDate, {17, 0}}}
+						  << QList<QDateTime>{{{2018, 12, 23}, cTime}, {cDate.addDays(1), {14, 30}}};
 	QTest::addRow("quintuple") << QStringLiteral("in 10 days; at 14:30 ;in 2020 ; tomorrow;10 to 11")
 							   << 5
 							   << QList<QDateTime>{
@@ -1543,19 +1599,23 @@ void ParserTest::testMultiExpressionParsing()
 	Q_ASSERT(since.size() == count);
 	Q_ASSERT(result.size() == count);
 
-	auto terms = parser->parseMultiExpression(expression);
-	QCOMPARE(terms.size(), count);
-	for(auto i = 0; i < count; i++) {
-		QCOMPARE(terms[i].size(), 1);
-		auto date = terms[i].first().apply(since[i]);
-		QCOMPARE(date, result[i]);
+	try {
+		auto terms = parser->parseMultiExpression(expression);
+		QCOMPARE(terms.size(), count);
+		for(auto i = 0; i < count; i++) {
+			QCOMPARE(terms[i].size(), 1);
+			auto date = terms[i].first().apply(since[i]);
+			QCOMPARE(date, result[i]);
+		}
+	} catch(QException &e) {
+		QFAIL(e.what());
 	}
 }
 
 void ParserTest::testExpressionLimiters_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("valid");
+	QTest::addColumn<EventExpressionParser::ErrorType>("errorType");
 	QTest::addColumn<QDateTime>("sinceFrom");
 	QTest::addColumn<QDateTime>("resultFrom");
 	QTest::addColumn<QDateTime>("sinceUntil");
@@ -1564,50 +1624,50 @@ void ParserTest::testExpressionLimiters_data()
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
 	QTest::addRow("limit.from") << QStringLiteral("every day from 10. of June")
-								<< true
+								<< EventExpressionParser::NoError
 								<< QDateTime{{2017, 10, 16}, cTime}
 								<< QDateTime{{2018, 6, 10}, cTime}
 								<< QDateTime{}
 								<< QDateTime{};
 	QTest::addRow("limit.until") << QStringLiteral("every Tuesday until 2020")
-								 << true
+								 << EventExpressionParser::NoError
 								 << QDateTime{}
 								 << QDateTime{}
 								 << QDateTime{{2018, 1, 2}, cTime}
 								 << QDateTime{{2020, 1, 1}, cTime};
 	//	QTest::addRow("limit.from-until") << QStringLiteral("every 20 minutes from 10 to 14")
-	//									 << true
+	//									 << EventExpressionParser::NoError
 	//									 << QDateTime{{2017, 10, 16}, cTime}
 	//									 << QDateTime{{2018, 6, 10}, cTime}
 	//									 << QDateTime{}
 	//									 << QDateTime{}; //TODO use to test for duplicates
 	QTest::addRow("limit.from-until") << QStringLiteral("every 20 minutes from 10:00 to 17:15")
-									  << true
+									  << EventExpressionParser::NoError
 									  << QDateTime{cDate, {8, 0}}
 									  << QDateTime{cDate, {10, 0}}
 									  << QDateTime{cDate, {8, 0}}
 									  << QDateTime{cDate, {17, 15}};
 	QTest::addRow("limit.until-from") << QStringLiteral("every year until June from 2015")
-									  << true
+									  << EventExpressionParser::NoError
 									  << QDateTime{{2010, 7, 15}, cTime}
 									  << QDateTime{{2015, 1, 1}, cTime}
 									  << QDateTime{{2018, 4, 5}, cTime}
 									  << QDateTime{{2018, 6, 1}, cTime};
 
 	QTest::addRow("fence.from") << QStringLiteral("every day in April from 2020")
-								<< true
+								<< EventExpressionParser::NoError
 								<< QDateTime{{2017, 10, 16}, cTime}
 								<< QDateTime{{2020, 1, 1}, cTime}
 								<< QDateTime{}
 								<< QDateTime{};
 	QTest::addRow("fence.until") << QStringLiteral("every minute on 24th until in 1 month")
-								 << true
+								 << EventExpressionParser::NoError
 								 << QDateTime{}
 								 << QDateTime{}
 								 << QDateTime{{2018, 1, 2}, cTime}
 								 << QDateTime{{2018, 2, 2}, cTime};
 	QTest::addRow("fence.from-until") << QStringLiteral("every 20 minutes on Tuesday from 2010 to 2020")
-									  << true
+									  << EventExpressionParser::NoError
 									  << QDateTime{{2000, 1, 2}, cTime}
 									  << QDateTime{{2010, 1, 1}, cTime}
 									  << QDateTime{{2000, 1, 2}, cTime}
@@ -1616,49 +1676,49 @@ void ParserTest::testExpressionLimiters_data()
 
 
 	QTest::addRow("invalid.noloop.from") << QStringLiteral("tomorrow from 7:00")
-										 << false
+										 << EventExpressionParser::UnexpectedLimiterError
 										 << QDateTime{}
 										 << QDateTime{}
 										 << QDateTime{}
 										 << QDateTime{};
 	QTest::addRow("invalid.noloop.until") << QStringLiteral("on 24.10. to 2020")
-										  << false
+										  << EventExpressionParser::UnexpectedLimiterError
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{};
 	QTest::addRow("invalid.double.from") << QStringLiteral("every day from 10. of June from 10:00")
-										 << false
+										 << EventExpressionParser::DuplicateFromLimiterError
 										 << QDateTime{}
 										 << QDateTime{}
 										 << QDateTime{}
 										 << QDateTime{};
-	QTest::addRow("invalid.double.until") << QStringLiteral("every Tuesday until 2020 to 17:15")
-										  << false
+	QTest::addRow("invalid.double.until") << QStringLiteral("every Tuesday until 2020 until 17:15")
+										  << EventExpressionParser::DuplicateUntilLimiterError
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{};
 	QTest::addRow("invalid.subloop.from") << QStringLiteral("every day from every month")
-										  << false
+										  << EventExpressionParser::LoopAsLimiterError
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{}
 										  << QDateTime{};
 	QTest::addRow("invalid.subloop.until") << QStringLiteral("every Tuesday until every Month")
-										   << false
+										   << EventExpressionParser::LoopAsLimiterError
 										   << QDateTime{}
 										   << QDateTime{}
 										   << QDateTime{}
 										   << QDateTime{};
 	QTest::addRow("invalid.fence.overlap") << QStringLiteral("on the 24th every minute until in 10 days")
-										   << false
+										   << EventExpressionParser::LimiterSmallerThanFenceError
 										   << QDateTime{}
 										   << QDateTime{}
 										   << QDateTime{}
 										   << QDateTime{};
 	QTest::addRow("invalid.fence.inverted") << QStringLiteral("on the 24th every minute until 10:30")
-											<< false
+											<< EventExpressionParser::LimiterSmallerThanFenceError
 											<< QDateTime{}
 											<< QDateTime{}
 											<< QDateTime{}
@@ -1668,37 +1728,41 @@ void ParserTest::testExpressionLimiters_data()
 void ParserTest::testExpressionLimiters()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, valid);
+	QFETCH(EventExpressionParser::ErrorType, errorType);
 	QFETCH(QDateTime, sinceFrom);
 	QFETCH(QDateTime, resultFrom);
 	QFETCH(QDateTime, sinceUntil);
 	QFETCH(QDateTime, resultUntil);
 
-	auto terms = parser->parseExpression(expression);
-	if(valid) {
-		QCOMPARE(terms.size(), 1);
-		auto &term = terms.first();
-		for(const auto &subTerm : term) {
-			if(subTerm->type == SubTerm::FromSubterm) {
-				QVERIFY2(sinceFrom.isValid(), "Found unexpected from term");
-				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
-				auto res = subTerm.staticCast<LimiterTerm>()->limitTerm().apply(sinceFrom);
-				QCOMPARE(res, resultFrom);
-				sinceFrom = QDateTime{};
+	try {
+		if(errorType == EventExpressionParser::NoError) {
+			auto terms = parser->parseExpression(expression);
+			QCOMPARE(terms.size(), 1);
+			auto &term = terms.first();
+			for(const auto &subTerm : term) {
+				if(subTerm->type == SubTerm::FromSubterm) {
+					QVERIFY2(sinceFrom.isValid(), "Found unexpected from term");
+					QVERIFY(subTerm.dynamicCast<LimiterTerm>());
+					auto res = subTerm.staticCast<LimiterTerm>()->limitTerm().apply(sinceFrom);
+					QCOMPARE(res, resultFrom);
+					sinceFrom = QDateTime{};
+				}
+				if(subTerm->type == SubTerm::UntilSubTerm) {
+					QVERIFY2(sinceUntil.isValid(), "Found unexpected until term");
+					QVERIFY(subTerm.dynamicCast<LimiterTerm>());
+					auto res = subTerm.staticCast<LimiterTerm>()->limitTerm().apply(sinceUntil);
+					QCOMPARE(res, resultUntil);
+					sinceUntil = QDateTime{};
+				}
 			}
-			if(subTerm->type == SubTerm::UntilSubTerm) {
-				QVERIFY2(sinceUntil.isValid(), "Found unexpected until term");
-				QVERIFY(subTerm.dynamicCast<LimiterTerm>());
-				auto res = subTerm.staticCast<LimiterTerm>()->limitTerm().apply(sinceUntil);
-				QCOMPARE(res, resultUntil);
-				sinceUntil = QDateTime{};
-			}
-		}
 
-		QVERIFY2(!sinceFrom.isValid(), "Expected from term but none was found");
-		QVERIFY2(!sinceUntil.isValid(), "Expected until term but none was found");
-	} else
-		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
+			QVERIFY2(!sinceFrom.isValid(), "Expected from term but none was found");
+			QVERIFY2(!sinceUntil.isValid(), "Expected until term but none was found");
+		} else
+			QVERIFY_PARSER_EXCEPTION(parser->parseExpression(expression), errorType);
+	} catch(QException &e) {
+		QFAIL(e.what());
+	}
 }
 
 void ParserTest::testTermSplitting_data()
@@ -1759,14 +1823,18 @@ void ParserTest::testTermSplitting()
 	QFETCH(int, fromSize);
 	QFETCH(int, untilSize);
 
-	auto terms = parser->parseExpression(expression);
-	QCOMPARE(terms.size(), 1);
-	Term loop, fence, from, until;
-	std::tie(loop, fence, from, until) = terms.first().splitLoop();
-	QCOMPARE(loop.size(), loopSize);
-	QCOMPARE(fence.size(), fenceSize);
-	QCOMPARE(from.size(), fromSize);
-	QCOMPARE(until.size(), untilSize);
+	try {
+		auto terms = parser->parseExpression(expression);
+		QCOMPARE(terms.size(), 1);
+		Term loop, fence, from, until;
+		std::tie(loop, fence, from, until) = terms.first().splitLoop();
+		QCOMPARE(loop.size(), loopSize);
+		QCOMPARE(fence.size(), fenceSize);
+		QCOMPARE(from.size(), fromSize);
+		QCOMPARE(until.size(), untilSize);
+	} catch(QException &e) {
+		QFAIL(e.what());
+	}
 }
 
 void ParserTest::testTermEvaluation_data()
@@ -1807,14 +1875,18 @@ void ParserTest::testTermEvaluation()
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
 
-	parser->_settings->scheduler.defaultTime = parserTime;
-	auto terms = parser->parseExpression(expression);
-	if(!since.isValid())
-		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
-	else {
-		QCOMPARE(terms.size(), 1);
-		auto res = parser->evaluteTerm(terms.first(), since);
-		QCOMPARE(res, result);
+	try {
+		parser->_settings->scheduler.defaultTime = parserTime;
+		auto terms = parser->parseExpression(expression);
+		if(!since.isValid())
+			QVERIFY(terms.isEmpty()); //TODO verify the correct error message
+		else {
+			QCOMPARE(terms.size(), 1);
+			auto res = parser->evaluteTerm(terms.first(), since);
+			QCOMPARE(res, result);
+		}
+	} catch(QException &e) {
+		QFAIL(e.what());
 	}
 }
 
@@ -1852,11 +1924,9 @@ void ParserTest::testSingularSchedules()
 	QFETCH(QDateTime, since);
 	QFETCH(QDateTime, result);
 
-	parser->_settings->scheduler.defaultTime = parserTime;
-	auto terms = parser->parseExpression(expression);
-	if(!since.isValid())
-		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
-	else {
+	try {
+		parser->_settings->scheduler.defaultTime = parserTime;
+		auto terms = parser->parseExpression(expression);
 		QCOMPARE(terms.size(), 1);
 		auto res = parser->createSchedule(terms.first(), since);
 		if(result.isValid()) {
@@ -1866,6 +1936,8 @@ void ParserTest::testSingularSchedules()
 			QVERIFY(!res->nextSchedule().isValid());
 		} else
 			QVERIFY(!res);
+	} catch(QException &e) {
+		QFAIL(e.what());
 	}
 }
 
@@ -2016,11 +2088,9 @@ void ParserTest::testRepeatedSchedules()
 	QFETCH(QDateTime, since);
 	QFETCH(QList<QDateTime>, results);
 
-	parser->_settings->scheduler.defaultTime = parserTime;
-	auto terms = parser->parseExpression(expression);
-	if(!since.isValid())
-		QVERIFY(terms.isEmpty()); //TODO verify the correct error message
-	else {
+	try {
+		parser->_settings->scheduler.defaultTime = parserTime;
+		auto terms = parser->parseExpression(expression);
 		QCOMPARE(terms.size(), 1);
 		auto res = parser->createSchedule(terms.first(), since);
 		if(!results.isEmpty()) {
@@ -2037,6 +2107,8 @@ void ParserTest::testRepeatedSchedules()
 			}
 		} else
 			QVERIFY(!res);
+	} catch(QException &e) {
+		QFAIL(e.what());
 	}
 }
 
