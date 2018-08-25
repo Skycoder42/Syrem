@@ -2056,7 +2056,7 @@ void ParserTest::testRepeatedSchedules_data()
 										  {},
 									  }
 								 << EventExpressionParser::NoError;
-	QTest::addRow("limits.close") << QStringLiteral("every Tuesday at 10 o'clock from the 28th to the 11th")
+	QTest::addRow("limits.close") << QStringLiteral("every Tuesday at 10 o'clock from the 28th to the 18th")
 								  << QTime{9, 0}
 								  << QDateTime{{2018, 8, 24}, cTime}
 								  << QList<QDateTime>{

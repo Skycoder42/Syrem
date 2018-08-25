@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += testlib
+QT += testlib mvvmcore datasync
 CONFIG += console
 CONFIG -= app_bundle
 

@@ -50,7 +50,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		QDateTime untilDate;
 		if(!until.isEmpty()) {
 			if(!until.hasTimeScope()) {
-				until.append(QSharedPointer<TimeTerm>::create(QTime{23, 59}));
+				until.append(QSharedPointer<TimeTerm>::create(QTime{0, 0}));
 				until.finalize();
 			}
 			untilDate = evaluteTerm(until, reference);
@@ -396,9 +396,11 @@ QString EventExpressionParser::createErrorMessage(EventExpressionParser::ErrorTy
 	case EventExpressionParser::UnknownError:
 		return tr("Unknown Error");
 	case EventExpressionParser::ParserError:
-		return tr("Unable to parse expression. Was able to parse until position %L1, "
-				  "but could not understand the part after this position.")
-				.arg(depthEnd);
+		return depthEnd == 0 ?
+					tr("Unable to parse expression. Could not understand beginning of the expression.") :
+					tr("Unable to parse expression. Was able to parse until position %L1, "
+					   "but could not understand the part after this position.")
+					.arg(depthEnd);
 
 	case EventExpressionParser::DuplicateScopeError:
 		return tr("Detected duplicate expression scope. Subterm \"%1\" conflicts with a previous subterm.")
