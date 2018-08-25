@@ -127,6 +127,41 @@ class REMINDMELIBSHARED_EXPORT EventExpressionParser : public QObject
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 
 public:
+	enum ErrorType {
+		NoError = 0,
+
+		ParserError = 1,
+		DuplicateScopeError,
+		DuplicateLoopError,
+		DuplicateSpanError,
+		DuplicateFromLimiterError,
+		DuplicateUntilLimiterError,
+		UnexpectedLimiterError,
+		UnexpectedAbsoluteSubTermError,
+		SpanAfterLoopError,
+		SpanAfterTimepointError,
+		LoopAsLimiterError,
+		LimiterSmallerThanFenceError,
+
+		UnknownError = -1
+	};
+	Q_ENUM(ErrorType)
+
+	struct ErrorInfo {
+		enum : quint32 {
+			NoneLevel = 0x00,
+			ParsingLevel = 0x01,
+			SubTermLevel = 0x02,
+			TermLevel = 0x03
+		} level = NoneLevel;
+		int depth = 0;
+
+		ErrorType type = NoError;
+		int subTermBegin = -1;
+
+		quint64 calcSignificance() const;
+	};
+
 	Q_INVOKABLE explicit EventExpressionParser(QObject *parent = nullptr);
 
 	Expressions::MultiTerm parseMultiExpression(const QString &expression);
@@ -137,35 +172,72 @@ public:
 
 Q_SIGNALS:
 	void termCompleted(QUuid termId, int termIndex, const Expressions::Term &term);
+	void errorOccured(QUuid termId, quint64 significance, const ErrorInfo &info);
 	void operationCompleted(QUuid doneId);
 
 private:
 	SyncedSettings *_settings = nullptr;
 
 	QReadWriteLock _taskLocker;
-	QHash<QUuid, QAtomicInt> _taskCounter;
+	QHash<QUuid, std::pair<QAtomicInt, QAtomicInteger<quint64>>> _taskCounter;
 
 	Expressions::MultiTerm parseExpressionImpl(const QString &expression, bool allowMulti);
 
 	// direct invokations
-	void parseTerm(QUuid id, const QStringRef &expression, const Expressions::Term &term, int termIndex, const Expressions::Term &rootTerm);
-	bool validatePartialTerm(const Expressions::Term &term);
-	bool validateFullTerm(Expressions::Term &term, Expressions::Term &rootTerm);
+	void parseTerm(QUuid id, const QStringRef &expression, const Expressions::Term &term, int termIndex, const Expressions::Term &rootTerm, int depth);
+	void validatePartialTerm(const Expressions::Term &term, int depth);
+	void validateFullTerm(Expressions::Term &term, Expressions::Term &rootTerm, int depth);
 	// async invokations
 	void parseMultiTerm(QUuid id, const QString *expression, Expressions::MultiTerm *terms);
+	struct TermParams {
+		QUuid id;
+		QStringRef expression;
+		Expressions::Term term;
+		int termIndex;
+		Expressions::Term rootTerm;
+		int depth;
+	};
 	template <typename TSubTerm>
-	void parseSubTerm(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm);
+	void parseSubTerm(TermParams params);
+	template <typename TSubTerm>
+	void parseSubTermImpl(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm, int depth);
 
 	void addTasks(QUuid id, int count);
+	void reportError(QUuid id, const ErrorInfo &info, bool autoComplete);
 	void completeTask(QUuid id);
+	void completeTask(QUuid id, QReadLocker &);
 };
 
+class REMINDMELIBSHARED_EXPORT EventExpressionParserException : public QException
+{
+public:
+	EventExpressionParserException(EventExpressionParser::ErrorType type, QString message);
+
+	QString message() const;
+	EventExpressionParser::ErrorType type() const;
+
+	QString qWhat() const;
+	const char *what() const noexcept override;
+	void raise() const override;
+	QException *clone() const override;
+
+protected:
+	EventExpressionParserException(const EventExpressionParserException * const other);
+
+	const EventExpressionParser::ErrorType _type;
+	const QString _message;
+	const QByteArray _what;
+};
+
+// stuff
+
 template <>
-REMINDMELIBSHARED_EXPORT void EventExpressionParser::parseSubTerm<Expressions::LimiterTerm>(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm);
+REMINDMELIBSHARED_EXPORT void EventExpressionParser::parseSubTermImpl<Expressions::LimiterTerm>(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm, int depth);
 
 Q_DECLARE_METATYPE(Expressions::Term)
 Q_DECLARE_METATYPE(Expressions::TermSelection)
 Q_DECLARE_METATYPE(Expressions::MultiTerm)
+Q_DECLARE_METATYPE(EventExpressionParser::ErrorInfo)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Expressions::SubTerm::Type)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Expressions::SubTerm::Scope)
 

@@ -96,10 +96,18 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 	// prepare eventloop with result signal handlers
 	const auto id = QUuid::createUuid();
 	MultiTerm terms;
+	ErrorInfo lastError; //TODO use...
 	QEventLoop loop;
 	connect(this, &EventExpressionParser::termCompleted, &loop, [&](QUuid termId, int termIndex, const Term &term){
 		if(termId == id)
 			terms[termIndex].append(term);
+	}, Qt::QueuedConnection);
+	connect(this, &EventExpressionParser::errorOccured, &loop, [&](QUuid termId, quint64 significance, const ErrorInfo &error){
+		if(termId == id) {
+			QReadLocker lock{&_taskLocker};
+			if(_taskCounter[id].second == significance)
+				lastError = error;
+		}
 	}, Qt::QueuedConnection);
 	connect(this, &EventExpressionParser::operationCompleted, &loop, [&](QUuid doneId){
 		if(doneId == id)
@@ -109,21 +117,21 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 	// start operations
 	{
 		QWriteLocker lock{&_taskLocker};
-		_taskCounter.insert(id, 1);
+		_taskCounter.insert(id, {1, 0});
 	}
 	if(allowMulti)
 		QtConcurrent::run(this, &EventExpressionParser::parseMultiTerm, id, &expression, &terms);
 	else {
 		terms.append(TermSelection{});
 		//parseTerm must be directly called. The manual call to complete is only needed here, as only the async methods do that
-		parseTerm(id, &expression, {}, 0, {});
+		parseTerm(id, &expression, {}, 0, {}, 0);
 		completeTask(id);
 	}
 
 	auto res = loop.exec();
 	{
 		QWriteLocker lock{&_taskLocker};
-		Q_ASSERT(_taskCounter.value(id) == 0);
+		Q_ASSERT(_taskCounter.value(id).first == 0);
 		_taskCounter.remove(id);
 	}
 	if(res == EXIT_SUCCESS)
@@ -132,26 +140,26 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 		return {};
 }
 
-void EventExpressionParser::parseTerm(QUuid id, const QStringRef &expression, const Term &term, int termIndex, const Term &rootTerm)
+void EventExpressionParser::parseTerm(QUuid id, const QStringRef &expression, const Term &term, int termIndex, const Term &rootTerm, int depth)
 {
 	// start parser-tasks for all the possible subterms
 	addTasks(id, 10);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<TimeTerm>, id, expression, term, termIndex, rootTerm);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<DateTerm>, id, expression, term, termIndex, rootTerm);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<InvertedTimeTerm>, id, expression, term, termIndex, rootTerm);
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<TimeTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<DateTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<InvertedTimeTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
 
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<MonthDayTerm>, id, expression, term, termIndex, rootTerm);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<WeekDayTerm>, id, expression, term, termIndex, rootTerm);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<MonthTerm>, id, expression, term, termIndex, rootTerm);
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<MonthDayTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<WeekDayTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<MonthTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
 
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<YearTerm>, id, expression, term, termIndex, rootTerm);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<SequenceTerm>, id, expression, term, termIndex, rootTerm);
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<KeywordTerm>, id, expression, term, termIndex, rootTerm);
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<YearTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<SequenceTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<KeywordTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
 
-	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<LimiterTerm>, id, expression, term, termIndex, rootTerm);
+	QtConcurrent::run(this, &EventExpressionParser::parseSubTerm<LimiterTerm>, TermParams{id, expression, term, termIndex, rootTerm, depth});
 }
 
-bool EventExpressionParser::validatePartialTerm(const Term &term)
+void EventExpressionParser::validatePartialTerm(const Term &term, int depth)
 {
 	/* Checks to perform after every subterm:
 	 *	1. All Scopes must be unique
@@ -167,45 +175,43 @@ bool EventExpressionParser::validatePartialTerm(const Term &term)
 	auto hasUntilLimiter = false;
 	for(const auto &subTerm : term) {
 		if((static_cast<int>(allScope) & static_cast<int>(subTerm->scope)) != 0) // (1)
-			return false;
+			throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateScopeError, -1};
 		allScope |= subTerm->scope;
 
 		// (2)
 		if(subTerm->type.testFlag(SubTerm::FlagLooped)) {
 			if(hasLoop)
-				return false;
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateLoopError, -1};
 			else
 				hasLoop = true;
 		}
 		// (3)
 		if(subTerm->type.testFlag(SubTerm::Timespan)) {
 			if(hasSpan)
-				return false;
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateSpanError, -1};
 			else
 				hasSpan = true;
 		}
 		// (4)
 		if(subTerm->type == SubTerm::FromSubterm) {
 			if(hasFromLimiter)
-				return false;
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateFromLimiterError, -1};
 			else
 				hasFromLimiter = true;
 		}
 		if(subTerm->type == SubTerm::UntilSubTerm) {
 			if(hasUntilLimiter)
-				return false;
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateUntilLimiterError, -1};
 			else
 				hasUntilLimiter = true;
 		}
 	}
 
 	if((hasFromLimiter || hasUntilLimiter) && !hasLoop) // (5)
-		return false;
-
-	return true;
+		throw ErrorInfo{ErrorInfo::SubTermLevel, depth, UnexpectedLimiterError, -1};
 }
 
-bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
+void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int depth)
 {
 	/* Checks to perform on the full term:
 	 *	1. Sort by scope
@@ -230,18 +236,18 @@ bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 		if(isFirst)
 			isFirst = false;
 		else if(subTerm->type.testFlag(SubTerm::FlagAbsolute))
-			return false;
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, UnexpectedAbsoluteSubTermError, -1};
 
 		// (3)
 		if(isLoop && subTerm->type.testFlag(SubTerm::Timespan))
-			return false;
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, SpanAfterLoopError, -1};
 		else if(subTerm->type.testFlag(SubTerm::FlagLooped))
 			isLoop = true;
 
 		// (4)
 		if(!isLoop) {
 			if(isPoint && subTerm->type.testFlag(SubTerm::Timespan))
-				return false;
+				throw ErrorInfo{ErrorInfo::TermLevel, depth, SpanAfterTimepointError, -1};
 			else if(subTerm->type.testFlag(SubTerm::Timepoint))
 				isPoint = true;
 		}
@@ -250,14 +256,14 @@ bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 
 	if(!rootTerm.isEmpty()) {
 		if(isLoop) // (4)
-			return false;
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, LoopAsLimiterError, -1};
 
 		// (6)
 		auto fence = std::get<1>(rootTerm.splitLoop());
 		if((static_cast<int>(fence.scope()) & static_cast<int>(term.scope())) != 0)
-			return false;
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError, -1};
 		if(term.scope() <= fence.scope())
-			return false;
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError, -1};
 
 		// (7)
 		auto limiter = rootTerm.last().dynamicCast<LimiterTerm>();
@@ -266,8 +272,6 @@ bool EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm)
 		swap(limiter->_limitTerm, term); //move term into the limiter
 		swap(term, rootTerm); //move the root to the actual term
 	}
-
-	return true;
 }
 
 void EventExpressionParser::parseMultiTerm(QUuid id, const QString *expression, MultiTerm *terms)
@@ -287,63 +291,109 @@ void EventExpressionParser::parseMultiTerm(QUuid id, const QString *expression, 
 	terms = nullptr;
 	auto counter = 0;
 	for(const auto &subExpr : subExpressions)
-		parseTerm(id, subExpr, {}, counter++, {});
+		parseTerm(id, subExpr, {}, counter++, {}, 0);
 
 	completeTask(id);
 }
 
 template<typename TSubTerm>
-void EventExpressionParser::parseSubTerm(QUuid id, const QStringRef &expression, Term term, int termIndex, Term rootTerm)
+void EventExpressionParser::parseSubTerm(EventExpressionParser::TermParams params)
+{
+	try {
+		parseSubTermImpl<TSubTerm>(params.id,
+								   params.expression,
+								   std::move(params.term),
+								   params.termIndex,
+								   std::move(params.rootTerm),
+								   params.depth);
+	} catch(ErrorInfo &info) {
+		info.subTermBegin = params.depth;
+		reportError(params.id, info, true);
+	}
+}
+
+template<typename TSubTerm>
+void EventExpressionParser::parseSubTermImpl(QUuid id, const QStringRef &expression, Term term, int termIndex, Term rootTerm, int depth)
 {
 	static_assert(std::is_base_of<SubTerm, TSubTerm>::value, "TSubTerm must implement SubTerm");
 	using ParseResult = std::pair<QSharedPointer<TSubTerm>, int>;
 	ParseResult result = TSubTerm::parse(expression);
 	if(result.first) {
+		depth += result.second;
 		term.append(result.first);
-		if(!validatePartialTerm(term))
-			; //TODO report errors
-		else if(result.second == expression.size()) {
-			if(validateFullTerm(term, rootTerm))
-				emit termCompleted(id, termIndex, term);
-			else
-				; //TODO report errors
+		validatePartialTerm(term, depth);
+		if(result.second == expression.size()) {
+			validateFullTerm(term, rootTerm, depth);
+			emit termCompleted(id, termIndex, term);
 		} else
-			parseTerm(id, expression.mid(result.second), term, termIndex, rootTerm);
-	}
+			parseTerm(id, expression.mid(result.second), term, termIndex, rootTerm, depth);
+	} else
+		throw ErrorInfo{ErrorInfo::ParsingLevel, depth, ParserError, -1};
+
 	completeTask(id);
 }
 
 template<>
-void EventExpressionParser::parseSubTerm<LimiterTerm>(QUuid id, const QStringRef &expression, Term term, int termIndex, Term rootTerm)
+void EventExpressionParser::parseSubTermImpl<LimiterTerm>(QUuid id, const QStringRef &expression, Term term, int termIndex, Term rootTerm, int depth)
 {
 	using ParseResult = std::pair<QSharedPointer<LimiterTerm>, int>;
 	ParseResult result = LimiterTerm::parse(expression);
 	if(result.first) {
+		depth += result.second;
 		if(!term.isEmpty()) {
-			if(validateFullTerm(term, rootTerm)) {
-				term.append(result.first);
-				if(validatePartialTerm(term))
-					parseTerm(id, expression.mid(result.second), {}, termIndex, term);
-				else
-					; //TODO report errors
-			} else
-				; //TODO report errors
+			validateFullTerm(term, rootTerm, depth);
+			term.append(result.first);
+			validatePartialTerm(term, depth);
+			parseTerm(id, expression.mid(result.second), {}, termIndex, term, depth);
 		}
-	}
+	} else
+		throw ErrorInfo{ErrorInfo::ParsingLevel, depth, ParserError, -1};
+
 	completeTask(id);
 }
 
 void EventExpressionParser::addTasks(QUuid id, int count)
 {
 	QReadLocker lock{&_taskLocker};
-	_taskCounter[id] += count;
+	_taskCounter[id].first += count;
+}
+
+void EventExpressionParser::reportError(QUuid id, const ErrorInfo &info, bool autoComplete)
+{
+	const auto sig = info.calcSignificance();
+	auto ok = false;
+	QReadLocker lock{&_taskLocker};
+	do { //try to set atomically. Needs 2 steps, first check if bigger, then set if unchanged
+		const quint64 oldSig = _taskCounter[id].second;
+		if(sig > oldSig) {
+			ok = _taskCounter[id].second.testAndSetOrdered(oldSig, sig);
+			if(ok)
+				emit errorOccured(id, sig, info);
+		} else
+			ok = true; //old sig is "bigger", thus more important. This one can be skipped
+	} while(!ok);
+
+	if(autoComplete)
+		completeTask(id, lock);
 }
 
 void EventExpressionParser::completeTask(QUuid id)
 {
 	QReadLocker lock{&_taskLocker};
-	if(--_taskCounter[id] == 0)
+	completeTask(id, lock);
+}
+
+void EventExpressionParser::completeTask(QUuid id, QReadLocker &)
+{
+	if(--_taskCounter[id].first == 0)
 		emit operationCompleted(id);
+}
+
+
+
+quint64 EventExpressionParser::ErrorInfo::calcSignificance() const
+{
+	return (static_cast<quint64>(level) << 32) | static_cast<quint64>(depth);
 }
 
 
@@ -464,4 +514,48 @@ void Term::finalize()
 		_looped = _looped || subTerm->type.testFlag(SubTerm::FlagLooped);
 		_absolute = _absolute || subTerm->type.testFlag(SubTerm::FlagAbsolute);
 	}
+}
+
+
+
+EventExpressionParserException::EventExpressionParserException(EventExpressionParser::ErrorType type, QString message) :
+	_type{type},
+	_message{std::move(message)},
+	_what{"Error " + QByteArray::number(_type) + ": " + _message.toUtf8()}
+{}
+
+QString EventExpressionParserException::message() const
+{
+	return _message;
+}
+
+EventExpressionParser::ErrorType EventExpressionParserException::type() const
+{
+	return _type;
+}
+
+EventExpressionParserException::EventExpressionParserException(const EventExpressionParserException * const other) :
+	_type{other->_type},
+	_message{other->_message},
+	_what{other->_what}
+{}
+
+QString EventExpressionParserException::qWhat() const
+{
+	return QString::fromUtf8(_what);
+}
+
+const char *EventExpressionParserException::what() const noexcept
+{
+	return _what.constData();
+}
+
+void EventExpressionParserException::raise() const
+{
+	throw *this;
+}
+
+QException *EventExpressionParserException::clone() const
+{
+	return new EventExpressionParserException{this};
 }
