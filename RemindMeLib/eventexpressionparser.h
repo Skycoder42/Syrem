@@ -180,6 +180,8 @@ Q_SIGNALS:
 	void operationCompleted(QUuid doneId);
 
 private:
+	friend class EventExpressionParserException;
+
 	SyncedSettings *_settings = nullptr;
 
 	QReadWriteLock _taskLocker;
@@ -210,12 +212,14 @@ private:
 	void reportError(QUuid id, const ErrorInfo &info, bool autoComplete);
 	void completeTask(QUuid id);
 	void completeTask(QUuid id, QReadLocker &);
+
+	static QString createErrorMessage(ErrorType type, int depthEnd = 0, const QStringRef &subTerm = {});
 };
 
 class REMINDMELIBSHARED_EXPORT EventExpressionParserException : public QException
 {
 public:
-	EventExpressionParserException(EventExpressionParser::ErrorType type, QString message);
+	EventExpressionParserException(EventExpressionParser::ErrorType type, int depthEnd = 0, const QStringRef &subTerm = {});
 
 	QString message() const;
 	EventExpressionParser::ErrorType type() const;

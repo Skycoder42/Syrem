@@ -41,7 +41,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 				from.append(QSharedPointer<TimeTerm>::create(QTime{0, 0}));
 				from.finalize();
 			}
-			fromDate = evaluteTerm(from, reference); //TODO test errors here and below
+			fromDate = evaluteTerm(from, reference);
 		}
 		if(!fromDate.isValid())
 			fromDate = reference;
@@ -57,14 +57,14 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		}
 
 		if(fromDate.isValid() && untilDate.isValid() && untilDate <= fromDate)
-			throw EventExpressionParserException{UntilIsSmallerThenPastError, {}}; //TODO msg
+			throw EventExpressionParserException{UntilIsSmallerThenPastError};
 
 		// create schedule and getNext once for the initial date
 		auto res = QSharedPointer<RepeatedSchedule>::create(loop, fence, fromDate, untilDate);
 		if(res->nextSchedule().isValid())
 			return res;
 		else
-			throw EventExpressionParserException{InitialLoopInvalidError, {}}; //TODO msg
+			throw EventExpressionParserException{InitialLoopInvalidError};
 	} else
 		return QSharedPointer<SingularSchedule>::create(evaluteTerm(term, reference)); // create a "pre-evaluated" one time schedule
 }
@@ -72,7 +72,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
 {
 	if(term.isLooped())
-		throw EventExpressionParserException{TermIsLoopError, {}}; //TODO msg
+		throw EventExpressionParserException{TermIsLoopError};
 
 	auto then = term.apply(reference);
 	if(!term.hasTimeScope()) {
@@ -83,7 +83,7 @@ QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &
 	if(reference < then)
 		return then;
 	else
-		throw EventExpressionParserException{EvaluatesToPastError, {}}; //TODO msg
+		throw EventExpressionParserException{EvaluatesToPastError};
 }
 
 MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, bool allowMulti)
@@ -131,12 +131,18 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 	}
 	if(res == EXIT_SUCCESS) {
 		for(const auto &term : terms) { // throw error for the first subterm that failed
-			if(term.isEmpty())
-				throw EventExpressionParserException{lastError.type, {}};//TODO generate message
+			if(term.isEmpty()) {
+				throw EventExpressionParserException{
+					lastError.type,
+					lastError.depth,
+					lastError.subTermBegin != -1 && lastError.subTermBegin < lastError.depth ?
+						expression.midRef(lastError.subTermBegin, lastError.depth - lastError.subTermBegin) :
+						QStringRef{}};
+			}
 		}
 		return terms;
 	} else
-		throw EventExpressionParserException{UnknownError, tr("Unknown error")};
+		throw EventExpressionParserException{UnknownError};
 }
 
 void EventExpressionParser::parseTerm(QUuid id, const QStringRef &expression, const Term &term, int termIndex, const Term &rootTerm, int depth)
@@ -383,6 +389,76 @@ void EventExpressionParser::completeTask(QUuid id, QReadLocker &)
 		emit operationCompleted(id);
 }
 
+QString EventExpressionParser::createErrorMessage(EventExpressionParser::ErrorType type, int depthEnd, const QStringRef &subTerm)
+{
+	switch (type) {
+	case EventExpressionParser::NoError:
+	case EventExpressionParser::UnknownError:
+		return tr("Unknown Error");
+	case EventExpressionParser::ParserError:
+		return tr("Unable to parse expression. Was able to parse until position %L1, "
+				  "but could not understand the part after this position.")
+				.arg(depthEnd);
+
+	case EventExpressionParser::DuplicateScopeError:
+		return tr("Detected duplicate expression scope. Subterm \"%1\" conflicts with a previous subterm.")
+				.arg(subTerm);
+	case EventExpressionParser::DuplicateLoopError:
+		return tr("Detected more then one loop expression. Subterm \"%1\" conflicts with a previous loop subterm.")
+				.arg(subTerm);
+	case EventExpressionParser::DuplicateSpanError:
+		return tr("Detected more then one timespan expression. Subterm \"%1\" conflicts with a previous timespan subterm.<br/>"
+				  "<b>Note:</b> You can specify multile timespans in one expression using something like \"in 2 hours and 20 minutes\".")
+				.arg(subTerm);
+	case EventExpressionParser::DuplicateFromLimiterError:
+		return tr("Detected more then one \"from\" limiter expression. Subterm \"%1\" conflicts with a previous \"from\" limiter subterm.")
+				.arg(subTerm);
+	case EventExpressionParser::DuplicateUntilLimiterError:
+		return tr("Detected more then one \"until\" limiter expression. Subterm \"%1\" conflicts with a previous \"until\" limiter subterm.")
+				.arg(subTerm);
+	case EventExpressionParser::UnexpectedLimiterError:
+		return tr("Detected unexpected limiter expression. Subterm \"%1\" can only be used if a loop expression was previously used.")
+				.arg(subTerm);
+
+	case EventExpressionParser::UnexpectedAbsoluteSubTermError:
+		return tr("Found an absolute subterm that is not the greatest scope. "
+				  "Detected after checking the subterm until %L1 for inconsistencies.")
+				.arg(depthEnd);
+	case EventExpressionParser::SpanAfterTimepointError:
+		return tr("Found a timespan expression of a logically smaller scope than a timepoint expression. This is not supported. "
+				  "Detected after checking the subterm until %L1 for inconsistencies.")
+				.arg(depthEnd);
+	case EventExpressionParser::LoopAsLimiterError:
+		return tr("Found a loop expression that is used as loop limiter. Limiters cannot be loops. "
+				  "Detected after checking the subterm until %L1 for inconsistencies.")
+				.arg(depthEnd);
+	case EventExpressionParser::LimiterSmallerThanFenceError:
+		return tr("Found a limiter expression of a logically smaller scope than the fencing part of a loop expression. "
+				  "This is currently not supported due to a too high complexity. "
+				  "Detected after checking the subterm until %L1 for inconsistencies.")
+				.arg(depthEnd);
+
+	case EventExpressionParser::TermIsLoopError:
+		return tr("Tried to use a looped expression to get a single date. "
+				  "You must use a normal, non-loop expression instead.");
+	case EventExpressionParser::EvaluatesToPastError:
+		return tr("The given expression, when applied to the current date, would evalute to the past. "
+				  "Expressions must always evalute to a timepoint in the future.");
+	case EventExpressionParser::UntilIsSmallerThenPastError:
+		return tr("From and until limiter of the given expression are valid, "
+				  "but from points to a timepoint further in the future than until. "
+				  "The until expression must always be further in the past than the from expression.");
+	case EventExpressionParser::InitialLoopInvalidError:
+		return tr("The given looped expression, when applied to the current date to get the first occurence date, "
+				  "did not return a valid date. This typically indicates that the application did not find any dates "
+				  "from the current date on that match the expression. Make shure your expression evalutes to at least "
+				  "one date in the future.");
+	default:
+		Q_UNREACHABLE();
+		return {};
+	}
+}
+
 
 
 quint64 EventExpressionParser::ErrorInfo::calcSignificance() const
@@ -512,9 +588,9 @@ void Term::finalize()
 
 
 
-EventExpressionParserException::EventExpressionParserException(EventExpressionParser::ErrorType type, QString message) :
+EventExpressionParserException::EventExpressionParserException(EventExpressionParser::ErrorType type, int depthEnd, const QStringRef &subTerm) :
 	_type{type},
-	_message{std::move(message)},
+	_message{EventExpressionParser::createErrorMessage(type, depthEnd, subTerm)},
 	_what{"Error " + QByteArray::number(_type) + ": " + _message.toUtf8()}
 {}
 

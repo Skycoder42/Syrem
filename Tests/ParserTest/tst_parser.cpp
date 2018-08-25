@@ -2101,16 +2101,26 @@ void ParserTest::testRepeatedSchedules_data()
 									   }
 								  << EventExpressionParser::NoError;
 
+	QTest::addRow("invalid.past.loop") << QStringLiteral("every 10 days in March 2015")
+									   << QTime{9, 0}
+									   << QDateTime{{2018, 8, 24}, cTime}
+									   << QList<QDateTime>{}
+									   << EventExpressionParser::InitialLoopInvalidError;
+	QTest::addRow("invalid.past.from") << QStringLiteral("every 24th from 2010")
+									   << QTime{9, 0}
+									   << QDateTime{{2018, 8, 24}, cTime}
+									   << QList<QDateTime>{}
+									   << EventExpressionParser::EvaluatesToPastError;
+	QTest::addRow("invalid.past.until") << QStringLiteral("every 24th until 2010")
+										<< QTime{9, 0}
+										<< QDateTime{{2018, 8, 24}, cTime}
+										<< QList<QDateTime>{}
+										<< EventExpressionParser::EvaluatesToPastError;
 	QTest::addRow("invalid.inverse") << QStringLiteral("every 10 minutes from in 1 month until tomorrow")
 									 << QTime{9, 0}
 									 << QDateTime{{2018, 8, 24}, cTime}
 									 << QList<QDateTime>{}
 									 << EventExpressionParser::UntilIsSmallerThenPastError;
-	QTest::addRow("invalid.past") << QStringLiteral("every 10 days in March 2015")
-									 << QTime{9, 0}
-									 << QDateTime{{2018, 8, 24}, cTime}
-									 << QList<QDateTime>{}
-									 << EventExpressionParser::InitialLoopInvalidError;
 }
 
 void ParserTest::testRepeatedSchedules()
