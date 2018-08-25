@@ -142,6 +142,11 @@ public:
 		LoopAsLimiterError,
 		LimiterSmallerThanFenceError,
 
+		TermIsLoopError,
+		EvaluatesToPastError,
+		UntilIsSmallerThenPastError,
+		InitialLoopInvalidError,
+
 		UnknownError = -1
 	};
 	Q_ENUM(ErrorType)

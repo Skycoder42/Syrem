@@ -41,7 +41,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 				from.append(QSharedPointer<TimeTerm>::create(QTime{0, 0}));
 				from.finalize();
 			}
-			fromDate = evaluteTerm(from, reference); //TODO errors here and below
+			fromDate = evaluteTerm(from, reference); //TODO test errors here and below
 		}
 		if(!fromDate.isValid())
 			fromDate = reference;
@@ -57,27 +57,22 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		}
 
 		if(fromDate.isValid() && untilDate.isValid() && untilDate <= fromDate)
-			return {}; //TODO error
+			throw EventExpressionParserException{UntilIsSmallerThenPastError, {}}; //TODO msg
 
 		// create schedule and getNext once for the initial date
 		auto res = QSharedPointer<RepeatedSchedule>::create(loop, fence, fromDate, untilDate);
 		if(res->nextSchedule().isValid())
 			return res;
 		else
-			return {};
-	} else {
-		const auto then = evaluteTerm(term, reference);
-		if(then.isValid())
-			return QSharedPointer<SingularSchedule>::create(then); // create a "pre-evaluated" one time schedule
-		else
-			return {};
-	}
+			throw EventExpressionParserException{InitialLoopInvalidError, {}}; //TODO msg
+	} else
+		return QSharedPointer<SingularSchedule>::create(evaluteTerm(term, reference)); // create a "pre-evaluated" one time schedule
 }
 
 QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
 {
 	if(term.isLooped())
-		return {};
+		throw EventExpressionParserException{TermIsLoopError, {}}; //TODO msg
 
 	auto then = term.apply(reference);
 	if(!term.hasTimeScope()) {
@@ -88,7 +83,7 @@ QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &
 	if(reference < then)
 		return then;
 	else
-		return {};
+		throw EventExpressionParserException{EvaluatesToPastError, {}}; //TODO msg
 }
 
 MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, bool allowMulti)
