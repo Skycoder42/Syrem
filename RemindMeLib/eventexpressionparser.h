@@ -23,7 +23,6 @@ class REMINDMELIBSHARED_EXPORT SubTerm : public QObject
 
 	Q_PROPERTY(Type type READ getType WRITE setType)
 	Q_PROPERTY(Scope scope READ getScope WRITE setScope)
-	Q_PROPERTY(bool certain MEMBER certain)
 
 public:
 	enum TypeFlag {
@@ -65,11 +64,10 @@ public:
 	Q_DECLARE_FLAGS(Scope, ScopeFlag)
 	Q_FLAG(Scope)
 
-	SubTerm(Type t = InvalidType, Scope s = InvalidScope, bool c = false);
+	SubTerm(Type t = InvalidType, Scope s = InvalidScope);
 
 	Type type;
 	Scope scope;
-	bool certain;
 
 	virtual void apply(QDateTime &datetime, bool applyRelative) const = 0;
 

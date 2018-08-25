@@ -63,7 +63,7 @@ class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm
 	Q_PROPERTY(QTime time MEMBER _time)
 
 public:
-	TimeTerm(QTime time, bool certain);
+	TimeTerm(QTime time);
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool keepOffset) const override;
 
@@ -79,7 +79,7 @@ class REMINDMELIBSHARED_EXPORT DateTerm : public SubTerm
 	Q_PROPERTY(QDate date MEMBER _date)
 
 public:
-	DateTerm(QDate date, bool hasYear, bool certain);
+	DateTerm(QDate date, bool hasYear);
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 
@@ -112,7 +112,7 @@ class REMINDMELIBSHARED_EXPORT MonthDayTerm : public SubTerm
 	Q_PROPERTY(int day MEMBER _day)
 
 public:
-	MonthDayTerm(int day, bool looped, bool certain);
+	MonthDayTerm(int day, bool looped);
 	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 
@@ -126,7 +126,7 @@ class REMINDMELIBSHARED_EXPORT WeekDayTerm : public SubTerm
 	Q_PROPERTY(int weekDay MEMBER _weekDay)
 
 public:
-	WeekDayTerm(int weekDay, bool looped, bool certain);
+	WeekDayTerm(int weekDay, bool looped);
 	static std::pair<QSharedPointer<WeekDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 
@@ -140,7 +140,7 @@ class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
 	Q_PROPERTY(int month MEMBER _month)
 
 public:
-	MonthTerm(int month, bool looped, bool certain);
+	MonthTerm(int month, bool looped);
 	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 
@@ -154,7 +154,7 @@ class REMINDMELIBSHARED_EXPORT YearTerm : public SubTerm
 	Q_PROPERTY(int year MEMBER _year)
 
 public:
-	YearTerm(int year, bool certain);
+	YearTerm(int year);
 	static std::pair<QSharedPointer<YearTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 
@@ -170,7 +170,7 @@ class REMINDMELIBSHARED_EXPORT SequenceTerm : public SubTerm
 
 public:
 	using Sequence = QMap<ScopeFlag, int>;
-	SequenceTerm(Sequence &&sequence, bool looped, bool certain);
+	SequenceTerm(Sequence &&sequence, bool looped);
 	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
 

@@ -30,7 +30,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		Term loop, fence, from, until;
 		std::tie(loop, fence, from, until) = term.splitLoop();
 		if(!loop.hasTimeScope()) {
-			loop.append(QSharedPointer<TimeTerm>::create(_settings->scheduler.defaultTime, true));
+			loop.append(QSharedPointer<TimeTerm>::create(_settings->scheduler.defaultTime));
 			loop.finalize();
 		}
 
@@ -38,7 +38,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		QDateTime fromDate;
 		if(!from.isEmpty()) {
 			if(!from.hasTimeScope()) {
-				from.append(QSharedPointer<TimeTerm>::create(QTime{0, 0}, true));
+				from.append(QSharedPointer<TimeTerm>::create(QTime{0, 0}));
 				from.finalize();
 			}
 			fromDate = evaluteTerm(from, reference); //TODO errors here and below
@@ -50,7 +50,7 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		QDateTime untilDate;
 		if(!until.isEmpty()) {
 			if(!until.hasTimeScope()) {
-				until.append(QSharedPointer<TimeTerm>::create(QTime{23, 59}, true));
+				until.append(QSharedPointer<TimeTerm>::create(QTime{23, 59}));
 				until.finalize();
 			}
 			untilDate = evaluteTerm(until, reference);
@@ -348,11 +348,10 @@ void EventExpressionParser::completeTask(QUuid id)
 
 
 
-SubTerm::SubTerm(Type t, Scope s, bool c) :
+SubTerm::SubTerm(Type t, Scope s) :
 	QObject{nullptr},
 	type{t},
-	scope{s},
-	certain{c}
+	scope{s}
 {}
 
 SubTerm::Type SubTerm::getType() const

@@ -3,16 +3,16 @@
 #include <QMetaEnum>
 using namespace Expressions;
 
-TimeTerm::TimeTerm(QTime time, bool certain) :
-	SubTerm{Timepoint, Hour | Minute, certain},
+TimeTerm::TimeTerm(QTime time) :
+	SubTerm{Timepoint, Hour | Minute},
 	_time{time}
 {}
 
 std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expression)
 {
 	const QLocale locale;
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(TimePrefix).join(QLatin1Char('|')));
-	const auto suffix = QStringLiteral("(%1)?").arg(trList(TimeSuffix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(TimePrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(TimeSuffix).join(QLatin1Char('|')));
 
 	for(const auto &pattern : trList(TimePattern, false)) {
 		QRegularExpression regex {
@@ -23,10 +23,10 @@ std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expre
 		};
 		auto match = regex.match(expression);
 		if(match.hasMatch()) {
-			auto time = locale.toTime(match.captured(2), pattern);
+			auto time = locale.toTime(match.captured(1), pattern);
 			if(time.isValid()) {
 				return {
-					QSharedPointer<TimeTerm>::create(time, match.capturedLength(1) > 0 || match.capturedLength(3) > 0),
+					QSharedPointer<TimeTerm>::create(time),
 					match.capturedLength(0)
 				};
 			}
@@ -65,18 +65,19 @@ QString TimeTerm::toRegex(QString pattern)
 
 
 
-DateTerm::DateTerm(QDate date, bool hasYear, bool certain) :
-	SubTerm{hasYear ? AbsoluteTimepoint : Timepoint,
-			(hasYear ? Year : InvalidScope) | Month | MonthDay,
-			certain},
+DateTerm::DateTerm(QDate date, bool hasYear) :
+	SubTerm{
+		hasYear ? AbsoluteTimepoint : Timepoint,
+		(hasYear ? Year : InvalidScope) | Month | MonthDay
+	},
 	_date{date}
 {}
 
 std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expression)
 {
 	const QLocale locale;
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(DatePrefix).join(QLatin1Char('|')));
-	const auto suffix = QStringLiteral("(%1)?").arg(trList(DateSuffix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(DatePrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(DateSuffix).join(QLatin1Char('|')));
 
 	for(const auto &pattern : trList(DatePattern, false)) {
 		bool hasYear = false;
@@ -88,12 +89,10 @@ std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expre
 		};
 		auto match = regex.match(expression);
 		if(match.hasMatch()) {
-			auto date = locale.toDate(match.captured(2), pattern);
+			auto date = locale.toDate(match.captured(1), pattern);
 			if(date.isValid()) {
 				return {
-					QSharedPointer<DateTerm>::create(date,
-													 hasYear,
-													 match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+					QSharedPointer<DateTerm>::create(date, hasYear),
 					match.capturedLength(0)
 				};
 			}
@@ -137,7 +136,7 @@ QString DateTerm::toRegex(QString pattern, bool &hasYear)
 
 
 InvertedTimeTerm::InvertedTimeTerm(QTime time) :
-	SubTerm{Timepoint, Hour | Minute, true},
+	SubTerm{Timepoint, Hour | Minute},
 	_time{time}
 {}
 
@@ -249,16 +248,16 @@ QString InvertedTimeTerm::minToRegex(QString pattern)
 
 
 
-MonthDayTerm::MonthDayTerm(int day, bool looped, bool certain) :
-	SubTerm{looped ? LoopedTimePoint : Timepoint, MonthDay, certain},
+MonthDayTerm::MonthDayTerm(int day, bool looped) :
+	SubTerm{looped ? LoopedTimePoint : Timepoint, MonthDay},
 	_day{day}
 {}
 
 std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRef &expression)
 {
 	// get and prepare standard *fixes and indicators
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(MonthDayPrefix).join(QLatin1Char('|')));
-	const auto suffix = QStringLiteral("(%1)?").arg(trList(MonthDaySuffix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(MonthDayPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(MonthDaySuffix).join(QLatin1Char('|')));
 	auto indicators = trList(MonthDayIndicator, false);
 	for(auto &indicator : indicators) {
 		const auto split = indicator.split(QLatin1Char('_'));
@@ -272,12 +271,12 @@ std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRe
 	{
 		const auto loopPrefix = trList(MonthDayLoopPrefix);
 		if(!loopPrefix.isEmpty())
-			exprCombos.append(std::make_tuple(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+			exprCombos.append(std::make_tuple(QStringLiteral("(?:%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
 	}
 	{
 		const auto loopSuffix = trList(MonthDayLoopSuffix);
 		if(!loopSuffix.isEmpty())
-			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(?:%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
 	}
 	exprCombos.append(std::make_tuple(prefix, suffix, false));
 
@@ -293,12 +292,11 @@ std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRe
 			auto match = regex.match(expression);
 			if(match.hasMatch()) {
 				bool ok = false;
-				auto day = match.captured(2).toInt(&ok);
+				auto day = match.captured(1).toInt(&ok);
 				if(ok && day >= 1 && day <= 31) {
 					auto isLoop = std::get<2>(loopCombo);
 					return {
-						QSharedPointer<MonthDayTerm>::create(day, isLoop,
-															 isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+						QSharedPointer<MonthDayTerm>::create(day, isLoop),
 						match.capturedLength(0)
 					};
 				}
@@ -323,8 +321,8 @@ void MonthDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
-WeekDayTerm::WeekDayTerm(int weekDay, bool looped, bool certain) :
-	SubTerm{looped ? LoopedTimePoint : Timepoint, WeekDay, certain},
+WeekDayTerm::WeekDayTerm(int weekDay, bool looped) :
+	SubTerm{looped ? LoopedTimePoint : Timepoint, WeekDay},
 	_weekDay{weekDay}
 {}
 
@@ -332,8 +330,8 @@ std::pair<QSharedPointer<WeekDayTerm>, int> WeekDayTerm::parse(const QStringRef 
 {
 	const QLocale locale;
 	// get and prepare standard *fixes and indicators
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(WeekDayPrefix).join(QLatin1Char('|')));
-	const auto suffix = QStringLiteral("(%1)?").arg(trList(WeekDaySuffix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(WeekDayPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(WeekDaySuffix).join(QLatin1Char('|')));
 	QString shortDays;
 	QString longDays;
 	{
@@ -359,12 +357,12 @@ std::pair<QSharedPointer<WeekDayTerm>, int> WeekDayTerm::parse(const QStringRef 
 	{
 		const auto loopPrefix = trList(WeekDayLoopPrefix);
 		if(!loopPrefix.isEmpty())
-			exprCombos.append(std::make_tuple(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+			exprCombos.append(std::make_tuple(QStringLiteral("(?:%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
 	}
 	{
 		const auto loopSuffix = trList(WeekDayLoopSuffix);
 		if(!loopSuffix.isEmpty())
-			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(?:%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
 	}
 	exprCombos.append(std::make_tuple(prefix, suffix, false));
 
@@ -384,13 +382,12 @@ std::pair<QSharedPointer<WeekDayTerm>, int> WeekDayTerm::parse(const QStringRef 
 			};
 			auto match = regex.match(expression);
 			if(match.hasMatch()) {
-				auto dayName = match.captured(2);
+				auto dayName = match.captured(1);
 				auto dDate = locale.toDate(dayName, dayType.second);
 				if(dDate.isValid()) {
 					auto isLoop = std::get<2>(loopCombo);
 					return {
-						QSharedPointer<WeekDayTerm>::create(dDate.dayOfWeek(), isLoop,
-															isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+						QSharedPointer<WeekDayTerm>::create(dDate.dayOfWeek(), isLoop),
 						match.capturedLength(0)
 					};
 				}
@@ -415,8 +412,8 @@ void WeekDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
-MonthTerm::MonthTerm(int month, bool looped, bool certain) :
-	SubTerm{looped ? LoopedTimePoint : Timepoint, Month, certain},
+MonthTerm::MonthTerm(int month, bool looped) :
+	SubTerm{looped ? LoopedTimePoint : Timepoint, Month},
 	_month{month}
 {}
 
@@ -424,8 +421,8 @@ std::pair<QSharedPointer<MonthTerm>, int> MonthTerm::parse(const QStringRef &exp
 {
 	const QLocale locale;
 	// get and prepare standard *fixes and indicators
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(MonthPrefix).join(QLatin1Char('|')));
-	const auto suffix = QStringLiteral("(%1)?").arg(trList(MonthSuffix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(MonthPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(MonthSuffix).join(QLatin1Char('|')));
 	QString shortMonths;
 	QString longMonths;
 	{
@@ -451,12 +448,12 @@ std::pair<QSharedPointer<MonthTerm>, int> MonthTerm::parse(const QStringRef &exp
 	{
 		const auto loopPrefix = trList(MonthLoopPrefix);
 		if(!loopPrefix.isEmpty())
-			exprCombos.append(std::make_tuple(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+			exprCombos.append(std::make_tuple(QStringLiteral("(?:%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
 	}
 	{
 		const auto loopSuffix = trList(MonthLoopSuffix);
 		if(!loopSuffix.isEmpty())
-			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(?:%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
 	}
 	exprCombos.append(std::make_tuple(prefix, suffix, false));
 
@@ -476,13 +473,12 @@ std::pair<QSharedPointer<MonthTerm>, int> MonthTerm::parse(const QStringRef &exp
 			};
 			auto match = regex.match(expression);
 			if(match.hasMatch()) {
-				auto monthName = match.captured(2);
+				auto monthName = match.captured(1);
 				auto mDate = locale.toDate(monthName, monthType.second);
 				if(mDate.isValid()) {
 					auto isLoop = std::get<2>(loopCombo);
 					return {
-						QSharedPointer<MonthTerm>::create(mDate.month(), isLoop,
-														  isLoop || match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+						QSharedPointer<MonthTerm>::create(mDate.month(), isLoop),
 						match.capturedLength(0)
 					};
 				}
@@ -507,15 +503,15 @@ void MonthTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
-YearTerm::YearTerm(int year, bool certain) :
-	SubTerm{AbsoluteTimepoint, Year, certain},
+YearTerm::YearTerm(int year) :
+	SubTerm{AbsoluteTimepoint, Year},
 	_year{year}
 {}
 
 std::pair<QSharedPointer<YearTerm>, int> YearTerm::parse(const QStringRef &expression)
 {
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(YearPrefix).join(QLatin1Char('|')));
-	const auto suffix = QStringLiteral("(%1)?").arg(trList(YearSuffix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(YearPrefix).join(QLatin1Char('|')));
+	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(YearSuffix).join(QLatin1Char('|')));
 
 	QRegularExpression regex {
 		QLatin1Char('^') + prefix + QStringLiteral("(-?\\d{4,})") + suffix + QStringLiteral("\\s*"),
@@ -526,10 +522,10 @@ std::pair<QSharedPointer<YearTerm>, int> YearTerm::parse(const QStringRef &expre
 	auto match = regex.match(expression);
 	if(match.hasMatch()) {
 		bool ok = false;
-		auto year = match.captured(2).toInt(&ok);
+		auto year = match.captured(1).toInt(&ok);
 		if(ok) {
 			return {
-				QSharedPointer<YearTerm>::create(year, match.capturedLength(1) > 0 || match.capturedLength(3) > 0 ),
+				QSharedPointer<YearTerm>::create(year),
 				match.capturedLength(0)
 			};
 		}
@@ -546,20 +542,20 @@ void YearTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 
-SequenceTerm::SequenceTerm(Sequence &&sequence, bool looped, bool certain) :
+SequenceTerm::SequenceTerm(Sequence &&sequence, bool looped) :
 	SubTerm{looped ? LoopedTimeSpan : Timespan, [&]() {
 		Scope scope = InvalidScope;
 		for(auto it = sequence.constBegin(); it != sequence.constEnd(); ++it)
 			scope |= it.key();
 		return scope;
-	}(), certain},
+	}()},
 	_sequence{std::move(sequence)}
 {}
 
 std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRef &expression)
 {
 	// get and prepare standard *fixes
-	const auto prefix = QStringLiteral("(%1)?").arg(trList(SpanPrefix).join(QLatin1Char('|')));
+	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(SpanPrefix).join(QLatin1Char('|')));
 	const auto suffix = QStringLiteral("(%1)").arg(trList(SpanSuffix).join(QLatin1Char('|')));
 	const auto conjunctors = QStringLiteral("(%1)").arg(trList(SpanConjuction).join(QLatin1Char('|')));
 	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
@@ -568,7 +564,7 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 	{
 		const auto loopPrefix = trList(SpanLoopPrefix);
 		if(!loopPrefix.isEmpty())
-			exprCombos.append(std::make_pair(QStringLiteral("(%1)").arg(loopPrefix.join(QLatin1Char('|'))), true));
+			exprCombos.append(std::make_pair(QStringLiteral("(?:%1)").arg(loopPrefix.join(QLatin1Char('|'))), true));
 	}
 	exprCombos.append(std::make_pair(prefix, false));
 
@@ -611,7 +607,6 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 		auto prefixMatch = prefixRegex.match(expression);
 		if(!prefixMatch.hasMatch())
 			continue;
-		auto hasPrefix = prefixMatch.capturedLength(1) > 0;
 
 		// iterate through all "and" expressions
 		auto offset = prefixMatch.capturedLength(0);
@@ -648,14 +643,11 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 
 				// check how to continue
 				if(match.capturedLength(3) > 0) {//has found conjunction
-					hasPrefix = true;
 					offset += match.capturedLength(0);
 					// continue in loop
 				} else {
 					return {
-						QSharedPointer<SequenceTerm>::create(std::move(sequence),
-															 loopCombo.second,
-															 hasPrefix || match.capturedLength(4) > 0 ),
+						QSharedPointer<SequenceTerm>::create(std::move(sequence), loopCombo.second),
 						offset + match.capturedLength(0)
 					};
 				}
@@ -720,7 +712,7 @@ void SequenceTerm::setSequence(const QMap<QString, int> &sequence)
 
 
 KeywordTerm::KeywordTerm(int days) :
-	SubTerm{Timespan, Day, true},
+	SubTerm{Timespan, Day},
 	_days{days}
 {}
 
@@ -756,7 +748,7 @@ void KeywordTerm::apply(QDateTime &datetime, bool applyRelative) const
 
 
 LimiterTerm::LimiterTerm(bool isFrom) :
-	SubTerm{isFrom ? FromSubterm : UntilSubTerm, InvalidScope, true}
+	SubTerm{isFrom ? FromSubterm : UntilSubTerm, InvalidScope}
 {}
 
 std::pair<QSharedPointer<LimiterTerm>, int> LimiterTerm::parse(const QStringRef &expression)
