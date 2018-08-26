@@ -1416,22 +1416,87 @@ void ParserTest::testExpressionParsing_data()
 
 	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
-	QTest::addRow("time") << QStringLiteral("14:00")
-						  << 1
-						  << SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
-						  << false
-						  << false
-						  << QDateTime{cDate, {10, 0}}
-						  << QDateTime{cDate, {14, 0}}
-						  << EventExpressionParser::NoError;
-	QTest::addRow("date") << QStringLiteral("March 24th")
-						  << 2
-						  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
-						  << false
-						  << false
-						  << QDateTime{{2018, 2, 10}, cTime}
-						  << QDateTime{{2018, 3, 24}, cTime}
-						  << EventExpressionParser::NoError;
+	QTest::addRow("time.future") << QStringLiteral("14:00")
+								 << 1
+								 << SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
+								 << false
+								 << false
+								 << QDateTime{cDate, {10, 0}}
+								 << QDateTime{cDate, {14, 0}}
+								 << EventExpressionParser::NoError;
+	QTest::addRow("time.past") << QStringLiteral("14:00")
+							   << 1
+							   << SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
+							   << false
+							   << false
+							   << QDateTime{cDate, {17, 0}}
+							   << QDateTime{cDate.addDays(1), {14, 0}}
+							   << EventExpressionParser::NoError;
+	QTest::addRow("date.numeric.future") << QStringLiteral("24.03.")
+										 << 1
+										 << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
+										 << false
+										 << false
+										 << QDateTime{{2018, 2, 10}, cTime}
+										 << QDateTime{{2018, 3, 24}, cTime}
+										 << EventExpressionParser::NoError;
+	QTest::addRow("date.numeric.close") << QStringLiteral("24.03.")
+										<< 1
+										<< SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
+										<< false
+										<< false
+										<< QDateTime{{2018, 3, 23}, cTime}
+										<< QDateTime{{2018, 3, 24}, cTime}
+										<< EventExpressionParser::NoError;
+	QTest::addRow("date.numeric.past") << QStringLiteral("24.03.")
+									   << 1
+									   << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
+									   << false
+									   << false
+									   << QDateTime{{2018, 7, 10}, cTime}
+									   << QDateTime{{2019, 3, 24}, cTime}
+									   << EventExpressionParser::NoError;
+	QTest::addRow("time.inverted.future") << QStringLiteral("quarter past 2 pm")
+										  << 1
+										  << SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
+										  << false
+										  << false
+										  << QDateTime{cDate, {10, 0}}
+										  << QDateTime{cDate, {14, 15}}
+										  << EventExpressionParser::NoError;
+	QTest::addRow("time.inverted.past") << QStringLiteral("quarter past 2 pm")
+										<< 1
+										<< SubTerm::Scope{SubTerm::Hour | SubTerm::Minute}
+										<< false
+										<< false
+										<< QDateTime{cDate, {17, 0}}
+										<< QDateTime{cDate.addDays(1), {14, 15}}
+										<< EventExpressionParser::NoError;
+	QTest::addRow("date.future") << QStringLiteral("March 24th")
+								 << 2
+								 << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
+								 << false
+								 << false
+								 << QDateTime{{2018, 2, 10}, cTime}
+								 << QDateTime{{2018, 3, 24}, cTime}
+								 << EventExpressionParser::NoError;
+	QTest::addRow("date.close") << QStringLiteral("March 24th")
+								<< 2
+								<< SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
+								<< false
+								<< false
+								<< QDateTime{{2018, 3, 23}, cTime}
+								<< QDateTime{{2018, 3, 24}, cTime}
+								<< EventExpressionParser::NoError;
+	QTest::addRow("date.past") << QStringLiteral("March 24th")
+							   << 2
+							   << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
+							   << false
+							   << false
+							   << QDateTime{{2018, 7, 10}, cTime}
+							   << QDateTime{{2019, 3, 24}, cTime}
+							   << EventExpressionParser::NoError;
+
 	QTest::addRow("datetime") << QStringLiteral("on March the 24th at 14:00")
 							  << 3
 							  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month | SubTerm::Hour | SubTerm::Minute}
