@@ -38,9 +38,13 @@ std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expre
 
 void TimeTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
-	if(applyRelative && _time <= datetime.time())
-		datetime = datetime.addDays(1);
+	Q_UNUSED(applyRelative)
 	datetime.setTime(_time);
+}
+
+void TimeTerm::fixup(QDateTime &datetime) const
+{
+	datetime = datetime.addDays(1);
 }
 
 QString TimeTerm::toRegex(QString pattern)
@@ -66,7 +70,7 @@ QString TimeTerm::toRegex(QString pattern)
 
 
 DateTerm::DateTerm(QDate date, bool hasYear) :
-	SubTerm{
+	SubTerm {
 		hasYear ? AbsoluteTimepoint : Timepoint,
 		(hasYear ? Year : InvalidScope) | Month | MonthDay
 	},
@@ -104,18 +108,22 @@ std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expre
 
 void DateTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
+	Q_UNUSED(applyRelative)
 	if(scope.testFlag(Year)) //set the whole date
 		datetime.setDate(_date);
 	else { // set only day and month, keep year
-		QDate newDate {
-			datetime.date().year(),
-			_date.month(),
-			_date.day()
-		};
-		if(applyRelative && datetime.date() >= newDate)
-			newDate = newDate.addYears(1);
-		datetime.setDate(newDate);
+		datetime.setDate({
+							 datetime.date().year(),
+							 _date.month(),
+							 _date.day()
+						 });
 	}
+}
+
+void DateTerm::fixup(QDateTime &datetime) const
+{
+	if(!scope.testFlag(Year))
+		datetime = datetime.addYears(1);
 }
 
 QString DateTerm::toRegex(QString pattern, bool &hasYear)
@@ -219,9 +227,13 @@ std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const Q
 
 void InvertedTimeTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
-	if(applyRelative && _time <= datetime.time())
-		datetime = datetime.addDays(1);
+	Q_UNUSED(applyRelative)
 	datetime.setTime(_time);
+}
+
+void InvertedTimeTerm::fixup(QDateTime &datetime) const
+{
+	datetime = datetime.addDays(1);
 }
 
 QString InvertedTimeTerm::hourToRegex(QString pattern)
@@ -309,14 +321,19 @@ std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRe
 
 void MonthDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
+	Q_UNUSED(applyRelative)
 	auto date = datetime.date();
-	if(applyRelative && date.day() >= std::min(_day, date.daysInMonth())) // compare with shortend date
-		date = date.addMonths(1);
 	datetime.setDate({
 		date.year(),
 		date.month(),
 		std::min(_day, date.daysInMonth()) // shorten day to target month
 	});
+}
+
+void MonthDayTerm::fixup(QDateTime &datetime) const
+{
+	datetime = datetime.addMonths(1);
+	apply(datetime, false); //apply again to fix the day for cases like "every 31st"
 }
 
 
@@ -400,14 +417,18 @@ std::pair<QSharedPointer<WeekDayTerm>, int> WeekDayTerm::parse(const QStringRef 
 
 void WeekDayTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
+	Q_UNUSED(applyRelative)
 	auto date = datetime.date();
 	// get the number of days to add to reach the target date
 	auto dayDiff = _weekDay - date.dayOfWeek();
-	if(applyRelative && dayDiff <= 0) //make days positive into the next week
-		dayDiff = 7 + dayDiff; // + because diff is already negative
 	date = date.addDays(dayDiff);
 	Q_ASSERT(date.dayOfWeek() == _weekDay);
 	datetime.setDate(date);
+}
+
+void WeekDayTerm::fixup(QDateTime &datetime) const
+{
+	datetime = datetime.addDays(7);
 }
 
 
@@ -491,14 +512,15 @@ std::pair<QSharedPointer<MonthTerm>, int> MonthTerm::parse(const QStringRef &exp
 
 void MonthTerm::apply(QDateTime &datetime, bool applyRelative) const
 {
+	Q_UNUSED(applyRelative)
 	auto date = datetime.date();
-	if(applyRelative && date.month() >= _month) // compare with shortend date
-		date = date.addYears(1);
-	datetime.setDate({
-		date.year(),
-		_month,
-		1 //always set to the first of the month. if a day was specified, that one is set after this
-	});
+	//always set to the first of the month. if a day was specified, that one is set after this
+	datetime.setDate({date.year(), _month, 1});
+}
+
+void MonthTerm::fixup(QDateTime &datetime) const
+{
+	datetime = datetime.addYears(1);
 }
 
 
@@ -659,7 +681,7 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 	return {};
 }
 
-void SequenceTerm::apply(QDateTime &datetime, bool applyRelative) const
+void SequenceTerm::apply(QDateTime &datetime, bool applyRelative) const //TODO change parameter name and fix application
 {
 	using namespace std::chrono;
 	for(auto it = _sequence.constBegin(); it != _sequence.constEnd(); ++it) {

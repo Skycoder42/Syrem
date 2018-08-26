@@ -66,6 +66,7 @@ public:
 	TimeTerm(QTime time);
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool keepOffset) const override;
+	void fixup(QDateTime &datetime) const override;
 
 private:
 	QTime _time;
@@ -82,6 +83,7 @@ public:
 	DateTerm(QDate date, bool hasYear);
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void fixup(QDateTime &datetime) const override;
 
 private:
 	QDate _date;
@@ -98,6 +100,7 @@ public:
 	InvertedTimeTerm(QTime time);
 	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void fixup(QDateTime &datetime) const override;
 
 private:
 	QTime _time;
@@ -115,6 +118,7 @@ public:
 	MonthDayTerm(int day, bool looped);
 	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void fixup(QDateTime &datetime) const override;
 
 private:
 	int _day;
@@ -129,6 +133,7 @@ public:
 	WeekDayTerm(int weekDay, bool looped);
 	static std::pair<QSharedPointer<WeekDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void fixup(QDateTime &datetime) const override;
 
 private:
 	int _weekDay;
@@ -143,6 +148,7 @@ public:
 	MonthTerm(int month, bool looped);
 	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void fixup(QDateTime &datetime) const override;
 
 private:
 	int _month;

@@ -142,7 +142,7 @@ void CoreReminderTest::testTimePointReminder_data()
 										<< QDateTime({2017, 10, 24}, {15, 30});
 	QTest::newRow("weekday.time.prefix") << QStringLiteral("on tuesday at 15:30")
 										 << QDateTime({2017, 10, 17}, {15, 00})
-										 << QDateTime({2017, 10, 24}, {15, 30});
+										 << QDateTime({2017, 10, 17}, {15, 30});
 
 	//timepoint.datum.day
 	QTest::newRow("day") << QStringLiteral("24.")
@@ -315,9 +315,6 @@ void CoreReminderTest::testTimePointReminder()
 				auto sched = parser->createSchedule(expressions.first(), since);
 				QVERIFY(sched);
 				QVERIFY(!sched->isRepeating());
-
-				//TODO fix...
-				QEXPECT_FAIL("monthday.time.prefix", "currently broken - needs a fix", Abort);
 
 				QCOMPARE(sched->current(), result);
 				QVERIFY(!sched->nextSchedule().isValid());
@@ -1140,6 +1137,7 @@ void CoreReminderTest::testLoopReminder_data()
 	QTest::newRow("loop.datum.from.datum.time") << QStringLiteral("every October on 25. at 15:30 from 25.")
 												<< QDateTime({2017, 10, 18}, {15, 00})
 												<< QList<QDateTime> {
+													  QDateTime({2017, 10, 25}, {15, 30}),
 													  QDateTime({2018, 10, 25}, {15, 30}),
 													  QDateTime({2019, 10, 25}, {15, 30}),
 													  QDateTime({2020, 10, 25}, {15, 30})
@@ -1264,6 +1262,7 @@ void CoreReminderTest::testLoopReminder_data()
 	QTest::newRow("loop.datum.until.time.datum") << QStringLiteral("every October on 25. until 25.10.2020 15:30")
 												 << QDateTime({2017, 10, 18}, {15, 00})
 												 << QList<QDateTime> {
+													   QDateTime({2017, 10, 25}),
 													   QDateTime({2018, 10, 25}),
 													   QDateTime({2019, 10, 25}),
 													   QDateTime({2020, 10, 25}),
@@ -1373,7 +1372,7 @@ void CoreReminderTest::testLoopReminder_data()
 	QTest::newRow("loop.datum.from.until.outscope") << QStringLiteral("every Friday from 25. October until 23.10.2017")
 													<< QDateTime({2017, 10, 20}, {22, 00})
 													<< QList<QDateTime>();
-	QTest::newRow("loop.datum.from.until.special") << QStringLiteral("every 24. October from 23.10.2016 until 2020")
+	QTest::newRow("loop.datum.from.until.special") << QStringLiteral("every 24.10. from 23.10.2016 until 2020")
 												   << QDateTime({2010, 10, 20})
 												   << QList<QDateTime> {
 														 QDateTime({2016, 10, 24}),
@@ -1382,7 +1381,7 @@ void CoreReminderTest::testLoopReminder_data()
 														 QDateTime({2019, 10, 24}),
 														 QDateTime()
 													  };
-	QTest::newRow("loop.datum.from.until.datum.minimal") << QStringLiteral("every October on 24. from 23.10.2016 until 2020")
+	QTest::newRow("loop.datum.from.until.datum.minimal") << QStringLiteral("every October on 24. from 23.10.2017 until 2020")
 														 << QDateTime({2010, 10, 20})
 														 << QList<QDateTime> {
 															   QDateTime({2017, 10, 24}),
@@ -1390,7 +1389,7 @@ void CoreReminderTest::testLoopReminder_data()
 															   QDateTime({2019, 10, 24}),
 															   QDateTime()
 															};
-	QTest::newRow("loop.datum.from.until.datum.full") << QStringLiteral("every October on 24. at 15:30 from 23.10.2016 at 17:00 until 2020 at 18:00")
+	QTest::newRow("loop.datum.from.until.datum.full") << QStringLiteral("every October on 24. at 15:30 from 23.10.2017 at 17:00 until 2020 at 18:00")
 													  << QDateTime({2010, 10, 20}, {15, 00})
 													  << QList<QDateTime> {
 															 QDateTime({2017, 10, 24}, {15, 30}),
@@ -1423,8 +1422,6 @@ void CoreReminderTest::testLoopReminder()
 					//TODO fix...
 					QEXPECT_FAIL("loop.month.datum.weekday", "currently broken - needs a fix", Abort);
 					QEXPECT_FAIL("loop.month.datum.weekday.time", "currently broken - needs a fix", Abort);
-					QEXPECT_FAIL("loop.span.from", "currently broken - needs a fix", Abort);
-					QEXPECT_FAIL("loop.datum.from", "currently broken - needs a fix", Abort);
 					QEXPECT_FAIL("loop.datum.from.time", "currently broken - needs a fix", Abort);
 
 					if(isFirst)

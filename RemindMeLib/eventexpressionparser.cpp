@@ -470,11 +470,16 @@ quint64 EventExpressionParser::ErrorInfo::calcSignificance() const
 
 
 
-SubTerm::SubTerm(Type t, Scope s) :
+SubTerm::SubTerm(Type type, Scope scope) :
 	QObject{nullptr},
-	type{t},
-	scope{s}
+	type{type},
+	scope{scope}
 {}
+
+void SubTerm::fixup(QDateTime &datetime) const
+{
+	Q_UNUSED(datetime)
+}
 
 SubTerm::Type SubTerm::getType() const
 {
@@ -495,7 +500,6 @@ void SubTerm::setScope(Scope value)
 {
 	scope = value;
 }
-
 
 
 Term::Term(std::initializer_list<QSharedPointer<SubTerm>> args) :
@@ -530,15 +534,20 @@ bool Term::hasTimeScope() const
 			_scope.testFlag(SubTerm::Minute);
 }
 
-QDateTime Term::apply(QDateTime datetime, bool applyRelative) const
+QDateTime Term::apply(const QDateTime &datetime, bool applyRelative) const
 {
+	auto appointment = datetime;
 	for(const auto &term : *this) {
 		if(term->type.testFlag(SubTerm::FlagLimiter)) // skip limiters when applying
 			continue;
-		term->apply(datetime, applyRelative);
+		term->apply(appointment, applyRelative);
 		applyRelative = false;
 	}
-	return datetime;
+
+	if(appointment <= datetime && !isEmpty())
+		first()->fixup(appointment); //fix by applying an offset specific to the first subterm. might do nothing
+
+	return appointment;
 }
 
 std::tuple<Term, Term, Term, Term> Term::splitLoop() const

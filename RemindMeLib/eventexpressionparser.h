@@ -64,12 +64,13 @@ public:
 	Q_DECLARE_FLAGS(Scope, ScopeFlag)
 	Q_FLAG(Scope)
 
-	SubTerm(Type t = InvalidType, Scope s = InvalidScope);
+	SubTerm(Type type = InvalidType, Scope scope = InvalidScope);
 
 	Type type;
 	Scope scope;
 
 	virtual void apply(QDateTime &datetime, bool applyRelative) const = 0;
+	virtual void fixup(QDateTime &datetime) const;
 
 private:
 	Type getType() const;
@@ -103,7 +104,7 @@ public:
 	bool isAbsolute() const;
 	bool hasTimeScope() const;
 
-	QDateTime apply(QDateTime datetime, bool applyRelative = true) const;
+	QDateTime apply(const QDateTime &datetime, bool applyRelative = true) const;
 	std::tuple<Term, Term, Term, Term> splitLoop() const; //(loop, fence, from, until)
 
 private:

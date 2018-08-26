@@ -204,7 +204,7 @@ void ParserTest::testDateRegexConversion()
 void ParserTest::testTimeExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<bool>("fixup");
 	QTest::addColumn<QTime>("time");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<QDateTime>("since");
@@ -253,30 +253,18 @@ void ParserTest::testTimeExpressions_data()
 						   << QDateTime{cDate, QTime{15, 00}};
 
 	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
-	QTest::addRow("offset.future.noKeep") << QStringLiteral("17:30")
-										  << false
-										  << QTime{17, 30}
-										  << 5
-										  << referenceTime
-										  << QDateTime{referenceTime.date(), {17, 30}};
-	QTest::addRow("offset.future.keep") << QStringLiteral("17:30")
-										<< true
-										<< QTime{17, 30}
-										<< 5
-										<< referenceTime
-										<< QDateTime{referenceTime.date(), {17, 30}};
-	QTest::addRow("offset.past.noKeep") << QStringLiteral("10:10")
-										<< false
-										<< QTime{10, 10}
-										<< 5
-										<< referenceTime
-										<< QDateTime{referenceTime.date(), {10, 10}};
-	QTest::addRow("offset.past.keep") << QStringLiteral("10:10")
-									  << true
-									  << QTime{10, 10}
-									  << 5
-									  << referenceTime
-									  << QDateTime{referenceTime.date().addDays(1), {10, 10}};
+	QTest::addRow("offset.noFix") << QStringLiteral("10:10")
+								  << false
+								  << QTime{10, 10}
+								  << 5
+								  << referenceTime
+								  << QDateTime{referenceTime.date(), {10, 10}};
+	QTest::addRow("offset.fix") << QStringLiteral("10:10")
+								<< true
+								<< QTime{10, 10}
+								<< 5
+								<< referenceTime
+								<< QDateTime{referenceTime.date().addDays(1), {10, 10}};
 
 	// invalid
 	QTest::addRow("partial") << QStringLiteral("14:30:25 pm")
@@ -302,7 +290,7 @@ void ParserTest::testTimeExpressions_data()
 void ParserTest::testTimeExpressions()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, applyRelative);
+	QFETCH(bool, fixup);
 	QFETCH(QTime, time);
 	QFETCH(int, offset);
 	QFETCH(QDateTime, since);
@@ -318,7 +306,9 @@ void ParserTest::testTimeExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, applyRelative);
+		res.first->apply(since, false);
+		if(fixup)
+			res.first->fixup(since);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -327,7 +317,7 @@ void ParserTest::testTimeExpressions()
 void ParserTest::testDateExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<bool>("fixup");
 	QTest::addColumn<QDate>("date");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<SubTerm::Type>("type");
@@ -398,38 +388,22 @@ void ParserTest::testDateExpressions_data()
 
 	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
 	cYear = referenceTime.date().year();
-	QTest::addRow("offset.future.noKeep") << QStringLiteral("13.12.")
-										  << false
-										  << QDate{1900, 12, 13}
-										  << 6
-										  << SubTerm::Type{SubTerm::Timepoint}
-										  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
-										  << referenceTime
-										  << QDateTime{QDate{cYear, 12, 13}, referenceTime.time()};
-	QTest::addRow("offset.future.keep") << QStringLiteral("13.12.")
-										<< true
-										<< QDate{1900, 12, 13}
-										<< 6
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
-										<< referenceTime
-										<< QDateTime{QDate{cYear, 12, 13}, referenceTime.time()};
-	QTest::addRow("offset.past.noKeep") << QStringLiteral("15.07.")
-										<< false
-										<< QDate{1900, 7, 15}
-										<< 6
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
-										<< referenceTime
-										<< QDateTime{QDate{cYear, 7, 15}, referenceTime.time()};
-	QTest::addRow("offset.past.keep") << QStringLiteral("15.07.")
-									  << true
-									  << QDate{1900, 7, 15}
-									  << 6
-									  << SubTerm::Type{SubTerm::Timepoint}
-									  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
-									  << referenceTime
-									  << QDateTime{QDate{cYear + 1, 7, 15}, referenceTime.time()};
+	QTest::addRow("offset.noFix") << QStringLiteral("15.07.")
+								  << false
+								  << QDate{1900, 7, 15}
+								  << 6
+								  << SubTerm::Type{SubTerm::Timepoint}
+								  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
+								  << referenceTime
+								  << QDateTime{QDate{cYear, 7, 15}, referenceTime.time()};
+	QTest::addRow("offset.fix") << QStringLiteral("15.07.")
+								<< true
+								<< QDate{1900, 7, 15}
+								<< 6
+								<< SubTerm::Type{SubTerm::Timepoint}
+								<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
+								<< referenceTime
+								<< QDateTime{QDate{cYear + 1, 7, 15}, referenceTime.time()};
 
 	// invalid
 	QTest::addRow("partial") << QStringLiteral("24. 12. 03.")
@@ -453,7 +427,7 @@ void ParserTest::testDateExpressions_data()
 void ParserTest::testDateExpressions()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, applyRelative);
+	QFETCH(bool, fixup);
 	QFETCH(QDate, date);
 	QFETCH(int, offset);
 	QFETCH(SubTerm::Type, type);
@@ -471,7 +445,9 @@ void ParserTest::testDateExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, applyRelative);
+		res.first->apply(since, false);
+		if(fixup)
+			res.first->fixup(since);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -480,7 +456,7 @@ void ParserTest::testDateExpressions()
 void ParserTest::testInvertedTimeExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<bool>("fixup");
 	QTest::addColumn<QTime>("time");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<QDateTime>("since");
@@ -520,30 +496,18 @@ void ParserTest::testInvertedTimeExpressions_data()
 							   << QDateTime{cDate, QTime{7, 30}};
 
 	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
-	QTest::addRow("offset.future.noKeep") << QStringLiteral("half past 5 pm")
-										  << false
-										  << QTime{17, 30}
-										  << 14
-										  << referenceTime
-										  << QDateTime{referenceTime.date(), {17, 30}};
-	QTest::addRow("offset.future.keep") << QStringLiteral("half past 5 pm")
-										<< true
-										<< QTime{17, 30}
-										<< 14
-										<< referenceTime
-										<< QDateTime{referenceTime.date(), {17, 30}};
-	QTest::addRow("offset.past.noKeep") << QStringLiteral("quarter past 10")
-										<< false
-										<< QTime{10, 15}
-										<< 15
-										<< referenceTime
-										<< QDateTime{referenceTime.date(), {10, 15}};
-	QTest::addRow("offset.past.keep") << QStringLiteral("quarter past 10")
-									  << true
-									  << QTime{10, 15}
-									  << 15
-									  << referenceTime
-									  << QDateTime{referenceTime.date().addDays(1), {10, 15}};
+	QTest::addRow("offset.noFix") << QStringLiteral("quarter past 10")
+								  << false
+								  << QTime{10, 15}
+								  << 15
+								  << referenceTime
+								  << QDateTime{referenceTime.date(), {10, 15}};
+	QTest::addRow("offset.fix") << QStringLiteral("quarter past 10")
+								<< false
+								<< QTime{10, 15}
+								<< 15
+								<< referenceTime
+								<< QDateTime{referenceTime.date(), {10, 15}};
 
 	QTest::addRow("substr") << QStringLiteral("at 4 past 14 am")
 							<< false
@@ -568,7 +532,7 @@ void ParserTest::testInvertedTimeExpressions_data()
 void ParserTest::testInvertedTimeExpressions()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, applyRelative);
+	QFETCH(bool, fixup);
 	QFETCH(QTime, time);
 	QFETCH(int, offset);
 	QFETCH(QDateTime, since);
@@ -584,7 +548,9 @@ void ParserTest::testInvertedTimeExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, applyRelative);
+		res.first->apply(since, false);
+		if(fixup)
+			res.first->fixup(since);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -593,7 +559,7 @@ void ParserTest::testInvertedTimeExpressions()
 void ParserTest::testMonthDayExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<bool>("fixup");
 	QTest::addColumn<int>("day");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<SubTerm::Type>("type");
@@ -663,34 +629,20 @@ void ParserTest::testMonthDayExpressions_data()
 										<< QDateTime{}
 										<< QDateTime{};
 
-	QTest::addRow("offset.future.noKeep") << QStringLiteral("14.")
-										  << false
-										  << 14
-										  << 3
-										  << SubTerm::Type{SubTerm::Timepoint}
-										  << QDateTime{QDate{cYear, cMonth, 10}, cTime}
-										  << QDateTime{QDate{cYear, cMonth, 14}, cTime};
-	QTest::addRow("offset.future.keep") << QStringLiteral("14.")
-										<< true
-										<< 14
-										<< 3
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< QDateTime{QDate{cYear, cMonth, 10}, cTime}
-										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
-	QTest::addRow("offset.past.noKeep") << QStringLiteral("14.")
-										<< false
-										<< 14
-										<< 3
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< QDateTime{QDate{cYear, cMonth, 20}, cTime}
-										<< QDateTime{QDate{cYear, cMonth, 14}, cTime};
-	QTest::addRow("offset.past.keep") << QStringLiteral("14.")
-									  << true
-									  << 14
-									  << 3
-									  << SubTerm::Type{SubTerm::Timepoint}
-									  << QDateTime{QDate{cYear, cMonth, 20}, cTime}
-									  << QDateTime{QDate{cYear, cMonth + 1, 14}, cTime};
+	QTest::addRow("offset.noFix") << QStringLiteral("14.")
+								  << false
+								  << 14
+								  << 3
+								  << SubTerm::Type{SubTerm::Timepoint}
+								  << QDateTime{QDate{cYear, cMonth, 20}, cTime}
+								  << QDateTime{QDate{cYear, cMonth, 14}, cTime};
+	QTest::addRow("offset.fix") << QStringLiteral("14.")
+								<< true
+								<< 14
+								<< 3
+								<< SubTerm::Type{SubTerm::Timepoint}
+								<< QDateTime{QDate{cYear, cMonth, 20}, cTime}
+								<< QDateTime{QDate{cYear, cMonth + 1, 14}, cTime};
 	QTest::addRow("offset.monthover.noKeep") << QStringLiteral("30.")
 											 << false
 											 << 30
@@ -747,7 +699,7 @@ void ParserTest::testMonthDayExpressions_data()
 void ParserTest::testMonthDayExpressions()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, applyRelative);
+	QFETCH(bool, fixup);
 	QFETCH(int, day);
 	QFETCH(int, offset);
 	QFETCH(SubTerm::Type, type);
@@ -764,7 +716,9 @@ void ParserTest::testMonthDayExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, applyRelative);
+		res.first->apply(since, false);
+		if(fixup)
+			res.first->fixup(since);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -773,7 +727,7 @@ void ParserTest::testMonthDayExpressions()
 void ParserTest::testWeekDayExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<bool>("fixup");
 	QTest::addColumn<int>("weekDay");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<SubTerm::Type>("type");
@@ -814,34 +768,20 @@ void ParserTest::testWeekDayExpressions_data()
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 17}, cTime};
 
-	QTest::addRow("offset.future.noKeep") << QStringLiteral("Sat")
-										  << false
-										  << 6
-										  << 3
-										  << SubTerm::Type{SubTerm::Timepoint}
-										  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
-										  << QDateTime{QDate{cYear, cMonth, 20}, cTime};
-	QTest::addRow("offset.future.keep") << QStringLiteral("Sunday")
-										<< true
-										<< 7
-										<< 6
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
-										<< QDateTime{QDate{cYear, cMonth, 21}, cTime};
-	QTest::addRow("offset.past.noKeep") << QStringLiteral("Monday")
-										<< false
-										<< 1
-										<< 6
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
-										<< QDateTime{QDate{cYear, cMonth, 15}, cTime};
-	QTest::addRow("offset.past.keep") << QStringLiteral("Tue")
-									  << true
-									  << 2
-									  << 3
-									  << SubTerm::Type{SubTerm::Timepoint}
-									  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
-									  << QDateTime{QDate{cYear, cMonth, 23}, cTime};
+	QTest::addRow("offset.noFix") << QStringLiteral("Monday")
+								  << false
+								  << 1
+								  << 6
+								  << SubTerm::Type{SubTerm::Timepoint}
+								  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
+								  << QDateTime{QDate{cYear, cMonth, 15}, cTime};
+	QTest::addRow("offset.fix") << QStringLiteral("Tue")
+								<< true
+								<< 2
+								<< 3
+								<< SubTerm::Type{SubTerm::Timepoint}
+								<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
+								<< QDateTime{QDate{cYear, cMonth, 23}, cTime};
 	QTest::addRow("offset.boundary.noKeep") << QStringLiteral("Wed")
 											<< false
 											<< 3
@@ -898,7 +838,7 @@ void ParserTest::testWeekDayExpressions_data()
 void ParserTest::testWeekDayExpressions()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, applyRelative);
+	QFETCH(bool, fixup);
 	QFETCH(int, weekDay);
 	QFETCH(int, offset);
 	QFETCH(SubTerm::Type, type);
@@ -915,7 +855,9 @@ void ParserTest::testWeekDayExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, applyRelative);
+		res.first->apply(since, false);
+		if(fixup)
+			res.first->fixup(since);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -924,7 +866,7 @@ void ParserTest::testWeekDayExpressions()
 void ParserTest::testMonthExpressions_data()
 {
 	QTest::addColumn<QString>("expression");
-	QTest::addColumn<bool>("applyRelative");
+	QTest::addColumn<bool>("fixup");
 	QTest::addColumn<int>("month");
 	QTest::addColumn<int>("offset");
 	QTest::addColumn<SubTerm::Type>("type");
@@ -964,34 +906,20 @@ void ParserTest::testMonthExpressions_data()
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, 6, 1}, cTime};
 
-	QTest::addRow("offset.future.noKeep") << QStringLiteral("April")
-										  << false
-										  << 4
-										  << 5
-										  << SubTerm::Type{SubTerm::Timepoint}
-										  << QDateTime{QDate{cYear, 2, 10}, cTime}
-										  << QDateTime{QDate{cYear, 4, 1}, cTime};
-	QTest::addRow("offset.future.keep") << QStringLiteral("July")
-										<< true
-										<< 7
-										<< 4
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< QDateTime{QDate{cYear, 5, 10}, cTime}
-										<< QDateTime{QDate{cYear, 7, 1}, cTime};
-	QTest::addRow("offset.past.noKeep") << QStringLiteral("Feb")
-										<< false
-										<< 2
-										<< 3
-										<< SubTerm::Type{SubTerm::Timepoint}
-										<< QDateTime{QDate{cYear, 7, 20}, cTime}
-										<< QDateTime{QDate{cYear, 2, 1}, cTime};
-	QTest::addRow("offset.past.keep") << QStringLiteral("March")
-									  << true
-									  << 3
-									  << 5
-									  << SubTerm::Type{SubTerm::Timepoint}
-									  << QDateTime{QDate{cYear, 7, 20}, cTime}
-									  << QDateTime{QDate{cYear + 1, 3, 1}, cTime};
+	QTest::addRow("offset.noFix") << QStringLiteral("Feb")
+								  << false
+								  << 2
+								  << 3
+								  << SubTerm::Type{SubTerm::Timepoint}
+								  << QDateTime{QDate{cYear, 7, 20}, cTime}
+								  << QDateTime{QDate{cYear, 2, 1}, cTime};
+	QTest::addRow("offset.fix") << QStringLiteral("March")
+								<< true
+								<< 3
+								<< 5
+								<< SubTerm::Type{SubTerm::Timepoint}
+								<< QDateTime{QDate{cYear, 7, 20}, cTime}
+								<< QDateTime{QDate{cYear + 1, 3, 1}, cTime};
 
 	QTest::addRow("loop.short") << QStringLiteral("every Nov")
 								<< false
@@ -1041,7 +969,7 @@ void ParserTest::testMonthExpressions_data()
 void ParserTest::testMonthExpressions()
 {
 	QFETCH(QString, expression);
-	QFETCH(bool, applyRelative);
+	QFETCH(bool, fixup);
 	QFETCH(int, month);
 	QFETCH(int, offset);
 	QFETCH(SubTerm::Type, type);
@@ -1058,7 +986,9 @@ void ParserTest::testMonthExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, applyRelative);
+		res.first->apply(since, false);
+		if(fixup)
+			res.first->fixup(since);
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -1472,6 +1402,63 @@ void ParserTest::testExpressionParsing_data()
 										<< QDateTime{cDate, {17, 0}}
 										<< QDateTime{cDate.addDays(1), {14, 15}}
 										<< EventExpressionParser::NoError;
+	QTest::addRow("day.future") << QStringLiteral("13th")
+								<< 1
+								<< SubTerm::Scope{SubTerm::MonthDay}
+								<< false
+								<< false
+								<< QDateTime{{2018, 2, 10}, cTime}
+								<< QDateTime{{2018, 2, 13}, cTime}
+								<< EventExpressionParser::NoError;
+	QTest::addRow("day.past") << QStringLiteral("13th")
+							  << 1
+							  << SubTerm::Scope{SubTerm::MonthDay}
+							  << false
+							  << false
+							  << QDateTime{{2018, 2, 20}, cTime}
+							  << QDateTime{{2018, 3, 13}, cTime}
+							  << EventExpressionParser::NoError;
+	QTest::addRow("weekday.future") << QStringLiteral("Saturday")
+									<< 1
+									<< SubTerm::Scope{SubTerm::WeekDay}
+									<< false
+									<< false
+									<< QDateTime{{2018, 8, 20}, cTime}
+									<< QDateTime{{2018, 8, 25}, cTime}
+									<< EventExpressionParser::NoError;
+	QTest::addRow("weekday.past") << QStringLiteral("Saturday")
+								  << 1
+								  << SubTerm::Scope{SubTerm::WeekDay}
+								  << false
+								  << false
+								  << QDateTime{{2018, 8, 26}, cTime}
+								  << QDateTime{{2018, 9, 1}, cTime}
+								  << EventExpressionParser::NoError;
+	QTest::addRow("month.future") << QStringLiteral("September")
+								  << 1
+								  << SubTerm::Scope{SubTerm::Month}
+								  << false
+								  << false
+								  << QDateTime{{2018, 4, 20}, cTime}
+								  << QDateTime{{2018, 9, 1}, cTime}
+								  << EventExpressionParser::NoError;
+	QTest::addRow("month.past") << QStringLiteral("September")
+								<< 1
+								<< SubTerm::Scope{SubTerm::Month}
+								<< false
+								<< false
+								<< QDateTime{{2018, 10, 2}, cTime}
+								<< QDateTime{{2019, 9, 1}, cTime}
+								<< EventExpressionParser::NoError;
+	QTest::addRow("year") << QStringLiteral("2020")
+						  << 1
+						  << SubTerm::Scope{SubTerm::Year}
+						  << false
+						  << true
+						  << QDateTime{{2018, 10, 2}, cTime}
+						  << QDateTime{{2020, 1, 1}, cTime}
+						  << EventExpressionParser::NoError;
+
 	QTest::addRow("date.future") << QStringLiteral("March 24th")
 								 << 2
 								 << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month}
@@ -1496,7 +1483,6 @@ void ParserTest::testExpressionParsing_data()
 							   << QDateTime{{2018, 7, 10}, cTime}
 							   << QDateTime{{2019, 3, 24}, cTime}
 							   << EventExpressionParser::NoError;
-
 	QTest::addRow("datetime") << QStringLiteral("on March the 24th at 14:00")
 							  << 3
 							  << SubTerm::Scope{SubTerm::MonthDay | SubTerm::Month | SubTerm::Hour | SubTerm::Minute}
@@ -2125,6 +2111,7 @@ void ParserTest::testRepeatedSchedules_data()
 								  << QTime{9, 0}
 								  << QDateTime{{2018, 8, 24}, cTime}
 								  << QList<QDateTime>{
+										   {{2018, 8, 28}, {10, 0}},
 										   {{2018, 9, 4}, {10, 0}},
 										   {{2018, 9, 11}, {10, 0}},
 										   {},
