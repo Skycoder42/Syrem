@@ -1112,9 +1112,9 @@ void CoreReminderTest::testLoopReminder_data()
 	QTest::newRow("loop.datum.from.time") << QStringLiteral("every Friday from 25. October at 15:30")
 										  << QDateTime({2017, 10, 18}, {15, 00})
 										  << QList<QDateTime> {
-												QDateTime({2017, 10, 27}, {15, 30}),
-												QDateTime({2017, 11, 3}, {15, 30}),
-												QDateTime({2017, 11, 10}, {15, 30})
+												QDateTime({2017, 10, 27}),
+												QDateTime({2017, 11, 3}),
+												QDateTime({2017, 11, 10})
 											 };
 	QTest::newRow("loop.datum.from.datum") << QStringLiteral("every October on 25. from 28.")
 										   << QDateTime({2017, 9, 18})
@@ -1416,9 +1416,6 @@ void CoreReminderTest::testLoopReminder()
 				QVERIFY(sched->isRepeating());
 				auto isFirst = true;
 				for(const auto &result : results) {
-					//TODO fix...
-					QEXPECT_FAIL("loop.datum.from.time", "currently broken - needs a fix", Abort);
-
 					if(isFirst)
 						isFirst = false;
 					else
