@@ -1420,8 +1420,6 @@ void CoreReminderTest::testLoopReminder()
 				auto isFirst = true;
 				for(const auto &result : results) {
 					//TODO fix...
-					QEXPECT_FAIL("loop.month.datum.weekday", "currently broken - needs a fix", Abort);
-					QEXPECT_FAIL("loop.month.datum.weekday.time", "currently broken - needs a fix", Abort);
 					QEXPECT_FAIL("loop.datum.from.time", "currently broken - needs a fix", Abort);
 
 					if(isFirst)

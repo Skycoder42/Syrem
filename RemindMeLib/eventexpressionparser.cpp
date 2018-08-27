@@ -481,6 +481,11 @@ void SubTerm::fixup(QDateTime &datetime) const
 	Q_UNUSED(datetime)
 }
 
+void SubTerm::fixupCleanup(QDateTime &datetime) const
+{
+	Q_UNUSED(datetime)
+}
+
 SubTerm::Type SubTerm::getType() const
 {
 	return type;
@@ -534,18 +539,24 @@ bool Term::hasTimeScope() const
 			_scope.testFlag(SubTerm::Minute);
 }
 
-QDateTime Term::apply(const QDateTime &datetime, bool applyRelative) const
+QDateTime Term::apply(const QDateTime &datetime, bool applyFenced) const
 {
 	auto appointment = datetime;
 	for(const auto &term : *this) {
 		if(term->type.testFlag(SubTerm::FlagLimiter)) // skip limiters when applying
 			continue;
-		term->apply(appointment, applyRelative);
-		applyRelative = false;
+		term->apply(appointment, applyFenced);
+		if(term->type.testFlag(SubTerm::Timepoint))
+			applyFenced = true;
 	}
 
-	if(appointment <= datetime && !isEmpty())
+	if(appointment <= datetime && !isEmpty()) {
 		first()->fixup(appointment); //fix by applying an offset specific to the first subterm. might do nothing
+		for(const auto &term : *this) {
+			if(term->type.testFlag(SubTerm::FlagNeedsFixupCleanup))
+				term->fixupCleanup(appointment);
+		}
+	}
 
 	return appointment;
 }

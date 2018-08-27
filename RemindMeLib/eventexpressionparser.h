@@ -35,6 +35,7 @@ public:
 		FlagAbsolute = 0x10,
 		FlagLooped = 0x20,
 		FlagLimiter = 0x40,
+		FlagNeedsFixupCleanup = 0x80,
 
 		AbsoluteTimepoint = Timepoint | FlagAbsolute,
 		LoopedTimePoint = Timepoint | FlagLooped,
@@ -69,8 +70,9 @@ public:
 	Type type;
 	Scope scope;
 
-	virtual void apply(QDateTime &datetime, bool applyRelative) const = 0;
+	virtual void apply(QDateTime &datetime, bool applyFenced) const = 0;
 	virtual void fixup(QDateTime &datetime) const;
+	virtual void fixupCleanup(QDateTime &datetime) const;
 
 private:
 	Type getType() const;
@@ -104,7 +106,7 @@ public:
 	bool isAbsolute() const;
 	bool hasTimeScope() const;
 
-	QDateTime apply(const QDateTime &datetime, bool applyRelative = true) const;
+	QDateTime apply(const QDateTime &datetime, bool applyFenced = false) const;
 	std::tuple<Term, Term, Term, Term> splitLoop() const; //(loop, fence, from, until)
 
 private:

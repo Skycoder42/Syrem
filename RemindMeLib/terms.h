@@ -82,7 +82,7 @@ class REMINDMELIBSHARED_EXPORT DateTerm : public SubTerm
 public:
 	DateTerm(QDate date, bool hasYear);
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 
 private:
@@ -99,7 +99,7 @@ class REMINDMELIBSHARED_EXPORT InvertedTimeTerm : public SubTerm
 public:
 	InvertedTimeTerm(QTime time);
 	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 
 private:
@@ -117,7 +117,7 @@ class REMINDMELIBSHARED_EXPORT MonthDayTerm : public SubTerm
 public:
 	MonthDayTerm(int day, bool looped);
 	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 
 private:
@@ -132,8 +132,9 @@ class REMINDMELIBSHARED_EXPORT WeekDayTerm : public SubTerm
 public:
 	WeekDayTerm(int weekDay, bool looped);
 	static std::pair<QSharedPointer<WeekDayTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+	void fixupCleanup(QDateTime &datetime) const override;
 
 private:
 	int _weekDay;
@@ -147,7 +148,7 @@ class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
 public:
 	MonthTerm(int month, bool looped);
 	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 
 private:
@@ -162,7 +163,7 @@ class REMINDMELIBSHARED_EXPORT YearTerm : public SubTerm
 public:
 	YearTerm(int year);
 	static std::pair<QSharedPointer<YearTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 private:
 	int _year;
@@ -178,7 +179,7 @@ public:
 	using Sequence = QMap<ScopeFlag, int>;
 	SequenceTerm(Sequence &&sequence, bool looped);
 	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 private:
 	Sequence _sequence;
@@ -195,7 +196,7 @@ class REMINDMELIBSHARED_EXPORT KeywordTerm : public SubTerm
 public:
 	KeywordTerm(int days);
 	static std::pair<QSharedPointer<KeywordTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 private:
 	int _days;
@@ -209,7 +210,7 @@ class REMINDMELIBSHARED_EXPORT LimiterTerm : public SubTerm
 public:
 	LimiterTerm(bool isFrom);
 	static std::pair<QSharedPointer<LimiterTerm>, int> parse(const QStringRef &expression);
-	void apply(QDateTime &datetime, bool applyRelative) const override;
+	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 	Term limitTerm() const;
 

@@ -743,28 +743,28 @@ void ParserTest::testWeekDayExpressions_data()
 								<< false
 								<< 4
 								<< 8
-								<< SubTerm::Type{SubTerm::Timepoint}
+								<< SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								<< QDateTime{cDate, cTime}
 								<< QDateTime{QDate{cYear, cMonth, 18}, cTime};
 	QTest::addRow("simple.short") << QStringLiteral("Fri")
 								  << false
 								  << 5
 								  << 3
-								  << SubTerm::Type{SubTerm::Timepoint}
+								  << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								  << QDateTime{cDate, cTime}
 								  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
 	QTest::addRow("simple.long") << QStringLiteral("Monday")
 								 << false
 								 << 1
 								 << 6
-								 << SubTerm::Type{SubTerm::Timepoint}
+								 << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 15}, cTime};
 	QTest::addRow("simple.prefix") << QStringLiteral("on Wed")
 								   << false
 								   << 3
 								   << 6
-								   << SubTerm::Type{SubTerm::Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 17}, cTime};
 
@@ -772,28 +772,28 @@ void ParserTest::testWeekDayExpressions_data()
 								  << false
 								  << 1
 								  << 6
-								  << SubTerm::Type{SubTerm::Timepoint}
+								  << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								  << QDateTime{QDate{cYear, cMonth, 17}, cTime}
 								  << QDateTime{QDate{cYear, cMonth, 15}, cTime};
 	QTest::addRow("offset.fix") << QStringLiteral("Tue")
 								<< true
 								<< 2
 								<< 3
-								<< SubTerm::Type{SubTerm::Timepoint}
+								<< SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								<< QDateTime{QDate{cYear, cMonth, 17}, cTime}
 								<< QDateTime{QDate{cYear, cMonth, 23}, cTime};
 	QTest::addRow("offset.boundary.noKeep") << QStringLiteral("Wed")
 											<< false
 											<< 3
 											<< 3
-											<< SubTerm::Type{SubTerm::Timepoint}
+											<< SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 											<< QDateTime{QDate{cYear, 12, 28}, cTime}
 											<< QDateTime{QDate{cYear, 12, 26}, cTime};
 	QTest::addRow("offset.boundary.keep") << QStringLiteral("Wed")
 										  << true
 										  << 3
 										  << 3
-										  << SubTerm::Type{SubTerm::Timepoint}
+										  << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 										  << QDateTime{QDate{cYear, 12, 28}, cTime}
 										  << QDateTime{QDate{cYear + 1, 1, 2}, cTime};
 
@@ -801,7 +801,7 @@ void ParserTest::testWeekDayExpressions_data()
 						  << false
 						  << 5
 						  << 12
-						  << SubTerm::Type{SubTerm::LoopedTimePoint}
+						  << SubTerm::Type{SubTerm::LoopedTimePoint | SubTerm::FlagNeedsFixupCleanup}
 						  << QDateTime{cDate, cTime}
 						  << QDateTime{QDate{cYear, cMonth, 19}, cTime};
 
@@ -809,21 +809,21 @@ void ParserTest::testWeekDayExpressions_data()
 								   << false
 								   << 1
 								   << 10
-								   << SubTerm::Type{SubTerm::Timepoint}
+								   << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								   << QDateTime{cDate, cTime}
 								   << QDateTime{QDate{cYear, cMonth, 15}, cTime};
 	QTest::addRow("substr.loop") << QStringLiteral("every Wed in June")
 								 << false
 								 << 3
 								 << 10
-								 << SubTerm::Type{SubTerm::LoopedTimePoint}
+								 << SubTerm::Type{SubTerm::LoopedTimePoint | SubTerm::FlagNeedsFixupCleanup}
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
 	QTest::addRow("substr.half") << QStringLiteral("on Weddingday")
 								 << false
 								 << 3
 								 << 6
-								 << SubTerm::Type{SubTerm::Timepoint}
+								 << SubTerm::Type{SubTerm::Timepoint | SubTerm::FlagNeedsFixupCleanup}
 								 << QDateTime{cDate, cTime}
 								 << QDateTime{QDate{cYear, cMonth, 17}, cTime};
 	QTest::addRow("invalid") << QStringLiteral("on Thorsday")
@@ -1276,7 +1276,7 @@ void ParserTest::testSequenceExpressions()
 		QCOMPARE(res.second, offset);
 
 		// second: test applying
-		res.first->apply(since, true);
+		res.first->apply(since, false); //TODO test both variants
 		QCOMPARE(since, result);
 	} else
 		QVERIFY(!res.first);
@@ -2034,6 +2034,18 @@ void ParserTest::testRepeatedSchedules_data()
 										   {{2021, 3, 21}, {9, 0}},
 									   }
 								  << EventExpressionParser::NoError;
+	QTest::addRow("simple.weekdaypoint") << QStringLiteral("every March on Tuesday")
+										 << QTime{9, 0}
+										 << QDateTime{{2018, 2, 3}, cTime}
+										 << QList<QDateTime>{
+												  {{2018, 3, 6}, {9, 0}},
+												  {{2019, 3, 5}, {9, 0}},
+												  {{2020, 3, 3}, {9, 0}},
+												  {{2021, 3, 2}, {9, 0}},
+												  {{2022, 3, 1}, {9, 0}},
+												  {{2023, 3, 7}, {9, 0}},
+											  }
+										 << EventExpressionParser::NoError;
 	QTest::addRow("simple.mixed") << QStringLiteral("every 2 months and 3 days at 17:30")
 								  << QTime{9, 0}
 								  << QDateTime{{2018, 7, 3}, cTime}
@@ -2055,6 +2067,36 @@ void ParserTest::testRepeatedSchedules_data()
 											  {{2018, 10, 4}, {10, 0}},
 										  }
 									 << EventExpressionParser::NoError;
+	QTest::addRow("fenced.weeked") << QStringLiteral("every Monday in August")
+								   << QTime{10, 0}
+								   << QDateTime{{2018, 7, 3}, cTime}
+								   << QList<QDateTime>{
+											{{2018, 8, 6}, {10, 0}},
+											{{2018, 8, 13}, {10, 0}},
+											{{2018, 8, 20}, {10, 0}},
+											{{2018, 8, 27}, {10, 0}},
+											{{2019, 8, 5}, {10, 0}},
+										}
+								   << EventExpressionParser::NoError;
+	QTest::addRow("fenced.year") << QStringLiteral("every 21st in 2020")
+								 << QTime{10, 0}
+								 << QDateTime{{2018, 7, 3}, cTime}
+								 << QList<QDateTime>{
+										  {{2020, 1, 21}, {10, 0}},
+										  {{2020, 2, 21}, {10, 0}},
+										  {{2020, 3, 21}, {10, 0}},
+										  {{2020, 4, 21}, {10, 0}},
+										  {{2020, 5, 21}, {10, 0}},
+										  {{2020, 6, 21}, {10, 0}},
+										  {{2020, 7, 21}, {10, 0}},
+										  {{2020, 8, 21}, {10, 0}},
+										  {{2020, 9, 21}, {10, 0}},
+										  {{2020, 10, 21}, {10, 0}},
+										  {{2020, 11, 21}, {10, 0}},
+										  {{2020, 12, 21}, {10, 0}},
+										  {},
+									  }
+								 << EventExpressionParser::NoError;
 	QTest::addRow("fenced.gaped") << QStringLiteral("every 2 Weeks in November")
 								  << QTime{9, 0}
 								  << QDateTime{{2018, 12, 3}, cTime}
