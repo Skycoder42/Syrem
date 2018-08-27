@@ -551,9 +551,6 @@ void CoreReminderTest::testTimeSpanReminder()
 				QVERIFY(sched);
 				QVERIFY(!sched->isRepeating());
 
-				//TODO fix...
-				QEXPECT_FAIL("timespan.multi.all", "currently broken - needs a fix", Abort);
-
 				QCOMPARE(sched->current(), result);
 				QVERIFY(!sched->nextSchedule().isValid());
 				sched->deleteLater();

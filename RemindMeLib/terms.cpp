@@ -722,7 +722,7 @@ std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRe
 	return {};
 }
 
-void SequenceTerm::apply(QDateTime &datetime, bool applyFenced) const //TODO change parameter name and fix application
+void SequenceTerm::apply(QDateTime &datetime, bool applyFenced) const
 {
 	using namespace std::chrono;
 	for(auto it = _sequence.constBegin(); it != _sequence.constEnd(); ++it) {

@@ -178,7 +178,32 @@ class REMINDMELIBSHARED_EXPORT SequenceTerm : public SubTerm
 	; //dummy for the parser...
 
 public:
-	using Sequence = QMap<ScopeFlag, int>;
+	class InverseScope : public Scope {
+	public:
+		inline InverseScope() = default;
+		inline InverseScope(Scope s) :
+			Scope{s}
+		{}
+		inline InverseScope(ScopeFlag s) :
+			Scope{s}
+		{}
+
+		inline friend bool operator<(InverseScope lhs, InverseScope rhs) {
+			return static_cast<Scope>(lhs) > static_cast<Scope>(rhs);
+		}
+		inline friend bool operator<=(InverseScope lhs, InverseScope rhs) {
+			return static_cast<Scope>(lhs) >= static_cast<Scope>(rhs);
+		}
+		inline friend bool operator>(InverseScope lhs, InverseScope rhs) {
+			return static_cast<Scope>(lhs) < static_cast<Scope>(rhs);
+		}
+		inline friend bool operator>=(InverseScope lhs, InverseScope rhs) {
+			return static_cast<Scope>(lhs) <= static_cast<Scope>(rhs);
+		}
+	};
+
+	using Sequence = QMap<InverseScope, int>;
+
 	SequenceTerm(Sequence &&sequence, bool looped);
 	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
