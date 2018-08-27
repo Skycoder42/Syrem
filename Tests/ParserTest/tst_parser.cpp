@@ -385,6 +385,14 @@ void ParserTest::testDateExpressions_data()
 							<< SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
 							<< QDateTime{cDate, cTime}
 							<< QDateTime{QDate{cYear, 12, 24}, cTime};
+	QTest::addRow("loop") << QStringLiteral("every 10.10.")
+						  << false
+						  << QDate{1900, 10, 10}
+						  << 12
+						  << SubTerm::Type{SubTerm::LoopedTimePoint}
+						  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
+						  << QDateTime{cDate, cTime}
+						  << QDateTime{QDate{cYear, 10, 10}, cTime};
 
 	QDateTime referenceTime{{2018, 10, 10}, {14, 0}};
 	cYear = referenceTime.date().year();
@@ -406,14 +414,22 @@ void ParserTest::testDateExpressions_data()
 								<< QDateTime{QDate{cYear + 1, 7, 15}, referenceTime.time()};
 
 	// invalid
-	QTest::addRow("partial") << QStringLiteral("24. 12. 03.")
-							 << false
-							 << QDate{1903, 12, 24}
-							 << 10
-							 << SubTerm::Type{SubTerm::AbsoluteTimepoint}
-							 << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay}
-							 << QDateTime{cDate, cTime}
-							 << QDateTime{QDate{1903, 12, 24}, cTime};
+	QTest::addRow("partial.half") << QStringLiteral("24. 12. 03.")
+								  << false
+								  << QDate{1903, 12, 24}
+								  << 10
+								  << SubTerm::Type{SubTerm::AbsoluteTimepoint}
+								  << SubTerm::Scope{SubTerm::Year | SubTerm::Month | SubTerm::MonthDay}
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{QDate{1903, 12, 24}, cTime};
+	QTest::addRow("partial.loop") << QStringLiteral("every 24.12.2020")
+								  << false
+								  << QDate{1900, 12, 24}
+								  << 12
+								  << SubTerm::Type{SubTerm::LoopedTimePoint}
+								  << SubTerm::Scope{SubTerm::Month | SubTerm::MonthDay}
+								  << QDateTime{cDate, cTime}
+								  << QDateTime{QDate{cYear, 12, 24}, cTime};
 	QTest::addRow("invalid") << QStringLiteral("10.")
 							 << false
 							 << QDate{}

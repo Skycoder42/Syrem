@@ -12,6 +12,8 @@ enum WordKey {
 
 	DatePrefix,
 	DateSuffix,
+	DateLoopPrefix,
+	DateLoopSuffix,
 	DatePattern,
 
 	InvTimeExprPattern,
@@ -80,7 +82,7 @@ class REMINDMELIBSHARED_EXPORT DateTerm : public SubTerm
 	Q_PROPERTY(QDate date MEMBER _date)
 
 public:
-	DateTerm(QDate date, bool hasYear);
+	DateTerm(QDate date, bool hasYear, bool isLooped);
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;

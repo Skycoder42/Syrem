@@ -69,36 +69,64 @@ QString TimeTerm::toRegex(QString pattern)
 
 
 
-DateTerm::DateTerm(QDate date, bool hasYear) :
+DateTerm::DateTerm(QDate date, bool hasYear, bool isLooped) :
 	SubTerm {
-		hasYear ? AbsoluteTimepoint : Timepoint,
+		hasYear ? AbsoluteTimepoint : (isLooped ? LoopedTimePoint : Timepoint),
 		(hasYear ? Year : InvalidScope) | Month | MonthDay
 	},
 	_date{date}
-{}
+{
+	Q_ASSERT(!(hasYear && isLooped));
+}
 
 std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expression)
 {
 	const QLocale locale;
 	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(DatePrefix).join(QLatin1Char('|')));
 	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(DateSuffix).join(QLatin1Char('|')));
-
-	for(const auto &pattern : trList(DatePattern, false)) {
+	QList<std::tuple<QString, QString, bool>> patterns;
+	for(auto &pattern : trList(DatePattern, false)) {
 		bool hasYear = false;
-		QRegularExpression regex {
-			QLatin1Char('^') + prefix + QLatin1Char('(') + toRegex(pattern, hasYear) + QLatin1Char(')') + suffix + QStringLiteral("\\s*"),
-			QRegularExpression::DontAutomaticallyOptimizeOption |
-			QRegularExpression::CaseInsensitiveOption |
-			QRegularExpression::UseUnicodePropertiesOption
-		};
-		auto match = regex.match(expression);
-		if(match.hasMatch()) {
-			auto date = locale.toDate(match.captured(1), pattern);
-			if(date.isValid()) {
-				return {
-					QSharedPointer<DateTerm>::create(date, hasYear),
-					match.capturedLength(0)
-				};
+		auto escaped = toRegex(pattern, hasYear);
+		patterns.append(std::make_tuple(std::move(escaped), std::move(pattern), hasYear));
+	}
+
+	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
+	QVector<std::tuple<QString, QString, bool>> exprCombos;
+	exprCombos.reserve(3);
+	{
+		const auto loopPrefix = trList(DateLoopPrefix);
+		if(!loopPrefix.isEmpty())
+			exprCombos.append(std::make_tuple(QStringLiteral("(?:%1)").arg(loopPrefix.join(QLatin1Char('|'))), suffix, true));
+	}
+	{
+		const auto loopSuffix = trList(DateLoopSuffix);
+		if(!loopSuffix.isEmpty())
+			exprCombos.append(std::make_tuple(prefix, QStringLiteral("(?:%1)").arg(loopSuffix.join(QLatin1Char('|'))), true));
+	}
+	exprCombos.append(std::make_tuple(prefix, suffix, false));
+
+	for(const auto &loopCombo : exprCombos) { // (prefix, suffix, isLooped)
+		for(const auto &patternInfo : patterns) { // (regex, pattern, isYear)
+			if(std::get<2>(loopCombo) && std::get<2>(patternInfo)) // skip year expressions for loops
+				continue;
+			QRegularExpression regex {
+				QLatin1Char('^') + std::get<0>(loopCombo) +
+				QLatin1Char('(') + std::get<0>(patternInfo) + QLatin1Char(')') +
+				std::get<1>(loopCombo) + QStringLiteral("\\s*"),
+				QRegularExpression::DontAutomaticallyOptimizeOption |
+				QRegularExpression::CaseInsensitiveOption |
+				QRegularExpression::UseUnicodePropertiesOption
+			};
+			auto match = regex.match(expression);
+			if(match.hasMatch()) {
+				auto date = locale.toDate(match.captured(1), std::get<1>(patternInfo));
+				if(date.isValid()) {
+					return {
+						QSharedPointer<DateTerm>::create(date, std::get<2>(patternInfo), std::get<2>(loopCombo)),
+						match.capturedLength(0)
+					};
+				}
 			}
 		}
 	}
@@ -842,6 +870,12 @@ QString Expressions::trWord(WordKey key, bool escape)
 	case DateSuffix:
 		word = EventExpressionParser::tr("", "DateSuffix");
 		break;
+	case DateLoopPrefix:
+		word = EventExpressionParser::tr("every |any |all", "DateLoopPrefix");
+		break;
+	case DateLoopSuffix:
+		word = EventExpressionParser::tr("", "DateLoopSuffix");
+		break;
 	case DatePattern:
 		word= EventExpressionParser::tr("dd.MM.yyyy|d.MM.yyyy|dd.M.yyyy|d.M.yyyy|"
 										"dd. MM. yyyy|d. MM. yyyy|dd. M. yyyy|d. M. yyyy|"
@@ -868,7 +902,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("quarter:15|half:30", "InvTimeKeywords");
 		break;
 	case MonthDayPrefix:
-		word = EventExpressionParser::tr("on |on the |the |next ", "MonthDayPrefix");
+		word = EventExpressionParser::tr("on |on the |the |next |on next |on the next", "MonthDayPrefix");
 		break;
 	case MonthDaySuffix:
 		word = EventExpressionParser::tr(" of", "MonthDaySuffix");
@@ -883,7 +917,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("_.|_th|_st|_nd|_rd", "MonthDayIndicator");
 		break;
 	case WeekDayPrefix:
-		word = EventExpressionParser::tr("on |next ", "WeekDayPrefix");
+		word = EventExpressionParser::tr("on |next |on next |on the next", "WeekDayPrefix");
 		break;
 	case WeekDaySuffix:
 		word = EventExpressionParser::tr("", "WeekDaySuffix");
@@ -895,7 +929,7 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("", "WeekDayLoopSuffix");
 		break;
 	case MonthPrefix:
-		word = EventExpressionParser::tr("in |on |next ", "MonthPrefix");
+		word = EventExpressionParser::tr("in |on |next |on next |on the next |in next |in the next", "MonthPrefix");
 		break;
 	case MonthSuffix:
 		word = EventExpressionParser::tr("", "MonthSuffix");

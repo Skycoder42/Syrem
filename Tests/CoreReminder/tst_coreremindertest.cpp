@@ -1432,10 +1432,6 @@ void CoreReminderTest::testLoopReminder()
 			}
 		}
 	} catch (QException &e) {
-		//TODO fix...
-		QEXPECT_FAIL("loop.monthday", "currently broken - needs a fix", Abort);
-		QEXPECT_FAIL("loop.monthday.time", "currently broken - needs a fix", Abort);
-		QEXPECT_FAIL("loop.datum.from.until.special", "currently broken - needs a fix", Abort);
 		QVERIFY2(false, e.what());
 	}
 }
