@@ -814,6 +814,11 @@ LimiterTerm::LimiterTerm(bool isFrom) :
 	SubTerm{isFrom ? FromSubterm : UntilSubTerm, InvalidScope}
 {}
 
+LimiterTerm::LimiterTerm(SubTerm::Type type, Term &&limitTerm) :
+	SubTerm{type, InvalidScope},
+	_limitTerm{std::move(limitTerm)}
+{}
+
 std::pair<QSharedPointer<LimiterTerm>, int> LimiterTerm::parse(const QStringRef &expression)
 {
 	for(const auto &type : {std::make_pair(LimiterFromPrefix, true), std::make_pair(LimiterUntilPrefix, false)}) {
@@ -844,6 +849,11 @@ void LimiterTerm::apply(QDateTime &datetime, bool applyFenced) const
 Term LimiterTerm::limitTerm() const
 {
 	return _limitTerm;
+}
+
+QSharedPointer<LimiterTerm> LimiterTerm::clone(Term limitTerm) const
+{
+	return QSharedPointer<LimiterTerm>{new LimiterTerm{type, std::move(limitTerm)}};
 }
 
 

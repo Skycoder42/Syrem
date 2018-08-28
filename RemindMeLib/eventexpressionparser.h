@@ -43,8 +43,6 @@ public:
 		FromSubterm = 0x04 | FlagLimiter,
 		UntilSubTerm = 0x08 | FlagLimiter,
 
-		// TODO ... and when in loops, use the timepoints as "from+until" restriction
-		// TODO add from/until for limitation of spans
 		// TODO add ISO(/RFC) date support
 	};
 	Q_DECLARE_FLAGS(Type, TypeFlag)

@@ -268,8 +268,9 @@ void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int dep
 		// (6)
 		auto limiter = rootTerm.last().dynamicCast<LimiterTerm>();
 		Q_ASSERT(limiter);
-		limiter->_limitTerm = Term {};
-		swap(limiter->_limitTerm, term); //move term into the limiter
+		limiter = limiter->clone(std::move(term));
+		Q_ASSERT(limiter);
+		rootTerm.last() = limiter;
 		swap(term, rootTerm); //move the root to the actual term
 	}
 }

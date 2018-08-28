@@ -82,6 +82,7 @@ private Q_SLOTS:
 	void testSingularSchedules();
 	void testRepeatedSchedules_data();
 	void testRepeatedSchedules();
+	void testMultiTermResult();
 
 private:
 	QTemporaryDir tDir;
@@ -1702,12 +1703,6 @@ void ParserTest::testExpressionLimiters_data()
 								 << QDateTime{}
 								 << QDateTime{{2018, 1, 2}, cTime}
 								 << QDateTime{{2020, 1, 1}, cTime};
-	//	QTest::addRow("limit.from-until") << QStringLiteral("every 20 minutes from 10 to 14")
-	//									 << EventExpressionParser::NoError
-	//									 << QDateTime{{2017, 10, 16}, cTime}
-	//									 << QDateTime{{2018, 6, 10}, cTime}
-	//									 << QDateTime{}
-	//									 << QDateTime{}; //TODO use to test for duplicates
 	QTest::addRow("limit.from-until") << QStringLiteral("every 20 minutes from 10:00 to 17:15")
 									  << EventExpressionParser::NoError
 									  << QDateTime{cDate, {8, 0}}
@@ -2261,6 +2256,57 @@ void ParserTest::testRepeatedSchedules()
 		} else
 			QVERIFY_PARSER_EXCEPTION(parser->createSchedule(terms.first(), since), errorType);
 	} catch(QException &e) {
+		QFAIL(e.what());
+	}
+}
+
+void ParserTest::testMultiTermResult()
+{
+	auto cDate = QDate::currentDate();
+	const QDateTime since{cDate, {17, 0}};
+
+	try {
+		parser->_settings->scheduler.defaultTime = QTime{9, 0};
+		auto terms = parser->parseExpression(QStringLiteral("every 20 minutes from 10 to 12"));
+		QCOMPARE(terms.size(), 2);
+		auto hasA = false;
+		auto hasB = false;
+		for(const auto &term : terms) {
+			if(term.size() == 2) {
+				hasA = true;
+				auto res = parser->createSchedule(term, since);
+				QList<QDateTime> dates {
+					{cDate.addDays(1), {12, 10}},
+					{cDate.addDays(1), {12, 30}},
+					{cDate.addDays(1), {12, 50}},
+					{cDate.addDays(1), {13, 10}},
+				};
+				do {
+					QCOMPARE(res->current(), dates.takeFirst());
+					res->nextSchedule();
+				} while(!dates.isEmpty());
+			} else if(term.size() == 3) {
+				hasB = true;
+				auto res = parser->createSchedule(term, since);
+				QList<QDateTime> dates {
+					{cDate.addDays(1), {10, 20}},
+					{cDate.addDays(1), {10, 40}},
+					{cDate.addDays(1), {11, 0}},
+					{cDate.addDays(1), {11, 20}},
+					{cDate.addDays(1), {11, 40}},
+					{cDate.addDays(1), {12, 00}},
+					{},
+				};
+				do {
+					QCOMPARE(res->current(), dates.takeFirst());
+					res->nextSchedule();
+				} while(!dates.isEmpty());
+			} else
+				QFAIL("Invalid term");
+		}
+		QVERIFY(hasA);
+		QVERIFY(hasB);
+	} catch (QException &e) {
 		QFAIL(e.what());
 	}
 }

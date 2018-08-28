@@ -240,10 +240,13 @@ public:
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 	Term limitTerm() const;
+	QSharedPointer<LimiterTerm> clone(Term limitTerm) const;
 
 private:
 	friend class ::EventExpressionParser;
 	Term _limitTerm;
+
+	LimiterTerm(Type type, Term &&limitTerm);
 };
 
 // general helper methods
