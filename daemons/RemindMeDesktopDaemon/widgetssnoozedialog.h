@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QToolBox>
 #include <reminder.h>
-#include <dateparser.h> //direct use ok here, as it's part of a daemon service...
+#include <eventexpressionparser.h>
 #include <syncedsettings.h>
 
 class WidgetsSnoozeDialog : public QDialog
@@ -13,7 +13,7 @@ class WidgetsSnoozeDialog : public QDialog
 
 public:
 	explicit WidgetsSnoozeDialog(SyncedSettings *settings,
-								 DateParser *parser,
+								 EventExpressionParser *parser,
 								 QWidget *parent = nullptr);
 
 	void addReminders(const QList<Reminder> &reminders);
@@ -31,9 +31,9 @@ private slots:
 
 private:
 	SyncedSettings *_settings;
-	DateParser *_parser;
+	EventExpressionParser *_parser;
 
-	QToolBox *_toolBox;
+	QToolBox *_toolBox = nullptr;
 
 	QHash<QWidget*, Reminder> _reminders;
 

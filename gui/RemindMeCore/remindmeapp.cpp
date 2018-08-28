@@ -13,6 +13,7 @@
 #endif
 
 #include <remindmelib.h>
+#include <eventexpressionparser.h>
 
 #include "mainviewmodel.h"
 #include "createreminderviewmodel.h"
@@ -146,13 +147,16 @@ int RemindMeApp::startApp(const QStringList &arguments)
 void RemindMeApp::createReminderInline(bool important, const QString &description, const QString &when)
 {
 	try {
-		auto parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
+		auto parser = QtMvvm::ServiceRegistry::instance()->service<EventExpressionParser>();
 		auto store = new ReminderStore{this};
+
+		auto terms = parser->parseMultiExpression(when);
+		//TODO select
 
 		Reminder reminder;
 		reminder.setImportant(important);
 		reminder.setDescription(description);
-		reminder.setSchedule(parser->parseSchedule(when));
+		reminder.setSchedule(parser->createMultiSchedule(terms));
 
 		connect(store, &QtDataSync::DataTypeStoreBase::dataChanged,
 				this, [reminder](const QString &id){
@@ -161,12 +165,13 @@ void RemindMeApp::createReminderInline(bool important, const QString &descriptio
 		});
 
 		store->save(reminder);
+		qInfo().noquote() << tr("Reminder-ID:") << reminder.id().toString(QUuid::WithBraces);
 		qInfo().noquote() << tr("Successfully created reminder. Next trigger at:")
 						  << reminder.current().toString(Qt::DefaultLocaleLongDate);
 
 		QTimer::singleShot(5000, qApp, &QCoreApplication::quit);
 		return;
-	} catch(DateParserException &e) {
+	} catch(EventExpressionParserException &e) {
 		qCritical().noquote() << tr("Invalid <when> date:") << e.what();
 	} catch(QException &e) {
 		qCritical().noquote() << tr("Failed to save reminder. Original error:")

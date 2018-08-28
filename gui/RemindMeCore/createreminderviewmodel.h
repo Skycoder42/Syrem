@@ -4,7 +4,7 @@
 #include <QtMvvmCore/ViewModel>
 #include <QtDataSync/DataTypeStore>
 
-#include <dateparser.h>
+#include <eventexpressionparser.h>
 #include <remindmelib.h>
 
 class CreateReminderViewModel : public QtMvvm::ViewModel
@@ -15,7 +15,7 @@ class CreateReminderViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(bool important READ important WRITE setImportant NOTIFY importantChanged)
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
-	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
+	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
 
 public:
 	Q_INVOKABLE explicit CreateReminderViewModel(QObject *parent = nullptr);
@@ -39,7 +39,7 @@ signals:
 	void expressionChanged(const QString &expression);
 
 private:
-	DateParser *_parser = nullptr;
+	EventExpressionParser *_parser = nullptr;
 	ReminderStore *_store;
 
 	QString _text;

@@ -3,7 +3,7 @@
 
 #include <QInputDialog>
 #include <remindmelib.h>
-#include <dateparser.h>
+#include <eventexpressionparser.h>
 #include <syncedsettings.h>
 
 class KdeSnoozeDialog : public QInputDialog
@@ -12,7 +12,7 @@ class KdeSnoozeDialog : public QInputDialog
 
 public:
 	explicit KdeSnoozeDialog(SyncedSettings *settings,
-							 DateParser *parser,
+							 EventExpressionParser *parser,
 							 const QString &description,
 							 QWidget *parent = nullptr);
 
@@ -22,7 +22,7 @@ signals:
 	void timeSelected(const QDateTime &time);
 
 private:
-	DateParser *_parser;
+	EventExpressionParser *_parser;
 };
 
 #endif // KDESNOOZEDIALOG_H

@@ -161,7 +161,12 @@ MultiSchedule::MultiSchedule(QDateTime since, QObject *parent) :
 void MultiSchedule::addSubSchedule(Schedule *schedule)
 {
 	Q_ASSERT_X(schedule, Q_FUNC_INFO, "schedule must not be null");
-	schedule->setParent(this);
+	schedule->setParent(nullptr);
+	addSubSchedule(QSharedPointer<Schedule>{schedule});
+}
+
+void MultiSchedule::addSubSchedule(const QSharedPointer<Schedule> &schedule)
+{
 	subSchedules.append(schedule);
 }
 

@@ -33,7 +33,7 @@ bool RemindmeService::startService()
 		RemindMe::setup(setup);
 		setup.create();
 
-		_parser = QtMvvm::ServiceRegistry::instance()->service<DateParser>();
+		_parser = QtMvvm::ServiceRegistry::instance()->service<EventExpressionParser>();
 
 		_store = new ReminderStore(this);
 		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
@@ -181,7 +181,9 @@ void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const Q
 	try {
 		auto reminder = _store->load(id);
 		try {
-			auto snooze  = _parser->snoozeParse(expression);
+			auto term = _parser->parseExpression(expression);
+			//TODO handle selection
+			auto snooze = _parser->evaluteTerm(term.first());
 
 			if(reminder.versionCode() != versionCode) {
 				qInfo() << "Skipping completing of changed reminder" << id;
@@ -189,7 +191,7 @@ void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const Q
 			}
 
 			reminder.performSnooze(_store->store(), snooze);
-		} catch (DateParserException &e) {
+		} catch (EventExpressionParserException &e) {
 			_notifier->showParserError(reminder, e.qWhat());
 		}
 	} catch(QtDataSync::NoDataException &e) {

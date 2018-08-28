@@ -6,19 +6,17 @@
 #include <dialogmaster.h>
 #include <snoozetimes.h>
 
-WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, DateParser *parser, QWidget *parent) :
-	QDialog(parent),
-	_settings(settings),
-	_parser(parser),
-	_toolBox(nullptr),
-	_reminders()
+WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, EventExpressionParser *parser, QWidget *parent) :
+	QDialog{parent},
+	_settings{settings},
+	_parser{parser}
 {
 	setupUi();
 }
 
 void WidgetsSnoozeDialog::addReminders(const QList<Reminder> &reminders)
 {
-	for(auto rem : reminders)
+	for(const auto &rem : reminders)
 		addReminder(rem);
 	resizeUi();
 }
@@ -51,7 +49,9 @@ void WidgetsSnoozeDialog::performSnooze()
 			return;
 
 		try {
-			auto when = _parser->snoozeParse(cBox->currentText());
+			auto term = _parser->parseExpression(cBox->currentText());
+			//TODO handle multiterm
+			auto when = _parser->evaluteTerm(term.first());
 
 			_toolBox->removeItem(_toolBox->currentIndex());
 			auto reminder = _reminders.take(remWidget);
@@ -59,7 +59,7 @@ void WidgetsSnoozeDialog::performSnooze()
 			emit reacted(reminder, false, when);
 			remWidget->deleteLater();
 			resizeUi();
-		} catch (DateParserException &e) {
+		} catch (EventExpressionParserException &e) {
 			DialogMaster::critical(this, e.qWhat(), tr("Snoozing failed!"));
 		}
 	}

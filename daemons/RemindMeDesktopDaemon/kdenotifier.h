@@ -5,7 +5,7 @@
 #include <QtMvvmCore/Injection>
 #include <KNotification>
 #include "inotifier.h"
-#include <dateparser.h>
+#include <eventexpressionparser.h>
 #include <syncedsettings.h>
 
 class KdeNotifier : public QObject, public INotifier
@@ -14,7 +14,7 @@ class KdeNotifier : public QObject, public INotifier
 	Q_INTERFACES(INotifier)
 
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
-	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
+	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
 
 public:
 	Q_INVOKABLE explicit KdeNotifier(QObject *parent = nullptr);
@@ -35,7 +35,7 @@ private slots:
 
 private:
 	SyncedSettings *_settings;
-	DateParser *_parser;
+	EventExpressionParser *_parser;
 	QHash<QUuid, KNotification*> _notifications;
 
 	bool removeNot(const QUuid &id, bool close = false);

@@ -69,6 +69,37 @@ QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term,
 		return QSharedPointer<SingularSchedule>::create(evaluteTerm(term, reference)); // create a "pre-evaluated" one time schedule
 }
 
+QSharedPointer<Schedule> EventExpressionParser::createMultiSchedule(MultiTerm terms, const QList<int> &selection, const QDateTime &reference)
+{
+#ifndef QT_NO_DEBUG
+	if(selection.isEmpty()) {
+		for(auto i = 0; i < terms.size(); i++) {
+			if(terms[i].size() != 1)
+				qFatal("MultiTerm without term selection has more then one possibility at index %i", i);
+		}
+	}
+#endif
+
+	if(!selection.isEmpty()) {
+		Q_ASSERT(selection.size() == terms.size());
+		// reduce the schedule to a single term per expression
+		for(auto i = 0; i < terms.size(); i++) {
+			auto sel = terms.takeAt(selection[i]);
+			terms.replace(i, {sel});
+		}
+	}
+
+	if(terms.size() == 1)
+		return createSchedule(terms.first().first(), reference);
+	else {
+		auto schedule = QSharedPointer<MultiSchedule>::create(reference);
+		for(const auto &term : terms)
+			schedule->addSubSchedule(createSchedule(term.first(), reference));
+		schedule->nextSchedule(); //call to "init" on the first sub schedule
+		return schedule;
+	}
+}
+
 QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
 {
 	if(term.isLooped())

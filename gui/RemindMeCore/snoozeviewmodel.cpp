@@ -45,10 +45,11 @@ bool SnoozeViewModel::snooze()
 		return false;
 
 	try {
-		auto nextTime = _parser->snoozeParse(_expression);
-		_reminder.performSnooze(_store->store(), nextTime);
+		auto term = _parser->parseExpression(_expression);
+		//TODO select
+		_reminder.performSnooze(_store->store(), _parser->evaluteTerm(term.first()));
 		return true;
-	} catch (DateParserException &e) {
+	} catch (EventExpressionParserException &e) {
 		QtMvvm::critical(tr("Snoozing failed!"), e.qWhat());
 	} catch (QException &e) {
 		qCritical() << "Failed to snooze reminder with error:" << e.what();

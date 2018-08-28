@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QtMvvmCore/Injection>
 #include <syncedsettings.h>
+#include <eventexpressionparser.h>
 #include "inotifier.h"
 #include "widgetssnoozedialog.h"
 
@@ -16,7 +17,7 @@ class WidgetsNotifier : public QObject, public INotifier
 	Q_INTERFACES(INotifier)
 
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
-	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
+	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
 
 public:
 	Q_INVOKABLE explicit WidgetsNotifier(QObject *parent = nullptr);
@@ -49,7 +50,7 @@ private:
 	const QIcon _errorIcon;
 
 	SyncedSettings *_settings;
-	DateParser *_parser;
+	EventExpressionParser *_parser;
 	QSystemTrayIcon *_trayIco;
 	QMenu *_trayMenu;
 	QTimer *_blinkTimer;

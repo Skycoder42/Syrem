@@ -2,9 +2,9 @@
 #include <dialogmaster.h>
 #include <localsettings.h>
 
-KdeSnoozeDialog::KdeSnoozeDialog(SyncedSettings *settings, DateParser *parser, const QString &description, QWidget *parent) :
-	QInputDialog(parent),
-	_parser(parser)
+KdeSnoozeDialog::KdeSnoozeDialog(SyncedSettings *settings, EventExpressionParser *parser, const QString &description, QWidget *parent) :
+	QInputDialog{parent},
+	_parser{parser}
 {
 	setWindowTitle(tr("Snooze Reminder"));
 	setLabelText(tr("Choose a snooze time for the reminder:<br/><i>%1</i>")
@@ -21,10 +21,12 @@ KdeSnoozeDialog::KdeSnoozeDialog(SyncedSettings *settings, DateParser *parser, c
 void KdeSnoozeDialog::accept()
 {
 	try {
-		auto nextTime = _parser->snoozeParse(textValue());
-		emit timeSelected(nextTime);
+		auto term = _parser->parseExpression(textValue());
+		// TODO handle selection
+
+		emit timeSelected(_parser->evaluteTerm(term.first()));
 		QDialog::accept();
-	} catch (DateParserException &e) {
+	} catch (EventExpressionParserException &e) {
 		DialogMaster::critical(this, e.qWhat(), tr("Snoozing failed!"));
 	}
 }

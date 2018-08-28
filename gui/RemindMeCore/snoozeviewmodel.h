@@ -6,7 +6,7 @@
 #include <QtMvvmCore/ViewModel>
 #include <QtMvvmCore/Injection>
 #include <remindmelib.h>
-#include <dateparser.h>
+#include <eventexpressionparser.h>
 #include <syncedsettings.h>
 
 class SnoozeViewModel : public QtMvvm::ViewModel
@@ -19,7 +19,7 @@ class SnoozeViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
-	QTMVVM_INJECT_PROP(DateParser*, parser, _parser)
+	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
 
 public:
 	const static QString paramReminder;
@@ -47,7 +47,7 @@ protected:
 
 private:
 	SyncedSettings *_settings = nullptr;
-	DateParser *_parser = nullptr;
+	EventExpressionParser *_parser = nullptr;
 	ReminderStore *_store;
 
 	Reminder _reminder;

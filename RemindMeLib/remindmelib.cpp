@@ -11,6 +11,7 @@
 #include "conflictresolver.h"
 #include "snoozetimes.h"
 #include "eventexpressionparser.h"
+#include "terms.h"
 #include "termconverter.h"
 
 #include <syncedsettings.h>
@@ -122,25 +123,35 @@ namespace {
 
 void setupRemindMeLib()
 {
-	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
-	qRegisterMetaType<ParserTypes::Datum*>();
-	qRegisterMetaType<ParserTypes::Type*>();
-	qRegisterMetaType<ParserTypes::TimePoint*>();
+	qRegisterMetaType<Expressions::SubTerm*>();
+	qRegisterMetaType<Expressions::TimeTerm*>();
+	qRegisterMetaType<Expressions::DateTerm*>();
+	qRegisterMetaType<Expressions::InvertedTimeTerm*>();
+	qRegisterMetaType<Expressions::MonthDayTerm*>();
+	qRegisterMetaType<Expressions::WeekDayTerm*>();
+	qRegisterMetaType<Expressions::MonthTerm*>();
+	qRegisterMetaType<Expressions::YearTerm*>();
+	qRegisterMetaType<Expressions::SequenceTerm*>();
+	qRegisterMetaType<Expressions::KeywordTerm*>();
+	qRegisterMetaType<Expressions::LimiterTerm*>();
+
 	qRegisterMetaType<Schedule*>();
-	qRegisterMetaType<OneTimeSchedule*>();
-	qRegisterMetaType<LoopSchedule*>();
+	qRegisterMetaType<SingularSchedule*>();
+	qRegisterMetaType<RepeatedSchedule*>();
 	qRegisterMetaType<MultiSchedule*>();
+
 	qRegisterMetaType<SnoozeTimes>();
 	qRegisterMetaTypeStreamOperators<SnoozeTimes>();
 
 	QJsonSerializer::registerAllConverters<Reminder>();
-	QJsonSerializer::registerPointerConverters<Schedule>();
+
 	QJsonSerializer::registerAllConverters<Schedule*>();
-	QJsonSerializer::registerPointerConverters<Expressions::SubTerm>();
+	QJsonSerializer::registerPointerConverters<Schedule>();
+	QJsonSerializer::registerAllConverters<QSharedPointer<Schedule>>();
+
 	QJsonSerializer::registerAllConverters<Expressions::SubTerm*>();
-	// old types
-	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
-	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
+	QJsonSerializer::registerPointerConverters<Expressions::SubTerm>();
+	QJsonSerializer::registerAllConverters<QSharedPointer<Expressions::SubTerm>>();
 
 	QMetaType::registerConverter<SnoozeTimes, QVariantList>([](const SnoozeTimes &list) -> QVariantList {
 		return list.toList();
@@ -152,7 +163,18 @@ void setupRemindMeLib()
 		return l;
 	});
 
-	QtMvvm::ServiceRegistry::instance()->registerObject<DateParser>();
+	// old types
+	qRegisterMetaType<QList<QPair<int, ParserTypes::Expression::Span>>>("QList<QPair<int,ParserTypes::Expression::Span>>");
+	qRegisterMetaType<ParserTypes::Datum*>();
+	qRegisterMetaType<ParserTypes::Type*>();
+	qRegisterMetaType<ParserTypes::TimePoint*>();
+	qRegisterMetaType<OneTimeSchedule*>();
+	qRegisterMetaType<LoopSchedule*>();
+	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
+	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
+
+	QtMvvm::ServiceRegistry::instance()->registerObject<DateParser>(); //TODO remove
+	QtMvvm::ServiceRegistry::instance()->registerObject<EventExpressionParser>();
 }
 
 }

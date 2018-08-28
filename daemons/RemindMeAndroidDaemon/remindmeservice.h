@@ -6,7 +6,7 @@
 #include <QMutex>
 #include <QtDataSync/SyncManager>
 #include <remindmelib.h>
-#include <dateparser.h>
+#include <eventexpressionparser.h>
 
 #include "androidscheduler.h"
 #include "androidnotifier.h"
@@ -50,7 +50,7 @@ private:
 
 	ReminderStore *_store;
 	QtDataSync::SyncManager *_manager;
-	DateParser *_parser;
+	EventExpressionParser *_parser;
 
 	AndroidScheduler *_scheduler;
 	AndroidNotifier *_notifier;

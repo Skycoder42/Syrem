@@ -90,13 +90,14 @@ class REMINDMELIBSHARED_EXPORT MultiSchedule : public Schedule
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QList<Schedule*> subSchedules MEMBER subSchedules)
+	Q_PROPERTY(QList<QSharedPointer<Schedule>> subSchedules MEMBER subSchedules)
 
 public:
 	Q_INVOKABLE MultiSchedule(QObject *parent = nullptr);
 	MultiSchedule(QDateTime since, QObject *parent = nullptr);
 
-	void addSubSchedule(Schedule *schedule);
+	void addSubSchedule(Schedule *schedule); //TODO remove
+	void addSubSchedule(const QSharedPointer<Schedule> &schedule);
 
 	bool isRepeating() const override;
 
@@ -104,7 +105,7 @@ protected:
 	QDateTime generateNextSchedule() override;
 
 private:
-	QList<Schedule*> subSchedules;
+	QList<QSharedPointer<Schedule>> subSchedules;
 };
 
 // historic schedules MAJOR convert and remove
@@ -177,8 +178,11 @@ private:
 };
 
 Q_DECLARE_METATYPE(Schedule*)
+Q_DECLARE_METATYPE(SingularSchedule*)
+Q_DECLARE_METATYPE(RepeatedSchedule*)
+Q_DECLARE_METATYPE(MultiSchedule*)
+// old types
 Q_DECLARE_METATYPE(OneTimeSchedule*)
 Q_DECLARE_METATYPE(LoopSchedule*)
-Q_DECLARE_METATYPE(MultiSchedule*)
 
 #endif // SCHEDULE_H

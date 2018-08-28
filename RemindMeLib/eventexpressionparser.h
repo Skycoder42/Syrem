@@ -178,6 +178,9 @@ public:
 	Expressions::TermSelection parseExpression(const QString &expression);
 
 	QSharedPointer<Schedule> createSchedule(const Expressions::Term &term, const QDateTime &reference = QDateTime::currentDateTime());
+	QSharedPointer<Schedule> createMultiSchedule(Expressions::MultiTerm terms,
+												 const QList<int> &selection = {},
+												 const QDateTime &reference = QDateTime::currentDateTime());
 	QDateTime evaluteTerm(const Expressions::Term &term, const QDateTime &reference = QDateTime::currentDateTime());
 
 Q_SIGNALS:

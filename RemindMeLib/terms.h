@@ -66,6 +66,7 @@ class REMINDMELIBSHARED_EXPORT TimeTerm : public SubTerm
 
 public:
 	TimeTerm(QTime time);
+	Q_INVOKABLE explicit TimeTerm(QObject *parent);
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool keepOffset) const override;
 	void fixup(QDateTime &datetime) const override;
@@ -73,7 +74,6 @@ public:
 private:
 	QTime _time;
 
-	Q_INVOKABLE explicit TimeTerm(QObject *parent);
 	static QString toRegex(QString pattern);
 };
 
@@ -84,6 +84,7 @@ class REMINDMELIBSHARED_EXPORT DateTerm : public SubTerm
 
 public:
 	DateTerm(QDate date, bool hasYear, bool isLooped);
+	Q_INVOKABLE explicit DateTerm(QObject *parent);
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
@@ -91,7 +92,6 @@ public:
 private:
 	QDate _date;
 
-	Q_INVOKABLE explicit DateTerm(QObject *parent);
 	static QString toRegex(QString pattern, bool &hasYear);
 };
 
@@ -102,6 +102,7 @@ class REMINDMELIBSHARED_EXPORT InvertedTimeTerm : public SubTerm
 
 public:
 	InvertedTimeTerm(QTime time);
+	Q_INVOKABLE explicit InvertedTimeTerm(QObject *parent);
 	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
@@ -109,7 +110,6 @@ public:
 private:
 	QTime _time;
 
-	Q_INVOKABLE explicit InvertedTimeTerm(QObject *parent);
 	static QString hourToRegex(QString pattern);
 	static QString minToRegex(QString pattern);
 };
@@ -121,14 +121,13 @@ class REMINDMELIBSHARED_EXPORT MonthDayTerm : public SubTerm
 
 public:
 	MonthDayTerm(int day, bool looped);
+	Q_INVOKABLE explicit MonthDayTerm(QObject *parent);
 	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 
 private:
 	int _day;
-
-	Q_INVOKABLE explicit MonthDayTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT WeekDayTerm : public SubTerm
@@ -138,6 +137,7 @@ class REMINDMELIBSHARED_EXPORT WeekDayTerm : public SubTerm
 
 public:
 	WeekDayTerm(int weekDay, bool looped);
+	Q_INVOKABLE explicit WeekDayTerm(QObject *parent);
 	static std::pair<QSharedPointer<WeekDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
@@ -145,8 +145,6 @@ public:
 
 private:
 	int _weekDay;
-
-	Q_INVOKABLE explicit WeekDayTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
@@ -156,14 +154,13 @@ class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
 
 public:
 	MonthTerm(int month, bool looped);
+	Q_INVOKABLE explicit MonthTerm(QObject *parent);
 	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 
 private:
 	int _month;
-
-	Q_INVOKABLE explicit MonthTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT YearTerm : public SubTerm
@@ -173,13 +170,12 @@ class REMINDMELIBSHARED_EXPORT YearTerm : public SubTerm
 
 public:
 	YearTerm(int year);
+	Q_INVOKABLE explicit YearTerm(QObject *parent);
 	static std::pair<QSharedPointer<YearTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 private:
 	int _year;
-
-	Q_INVOKABLE explicit YearTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT SequenceTerm : public SubTerm
@@ -216,13 +212,12 @@ public:
 	using Sequence = QMap<InverseScope, int>;
 
 	SequenceTerm(Sequence &&sequence, bool looped);
+	Q_INVOKABLE explicit SequenceTerm(QObject *parent);
 	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 private:
 	Sequence _sequence;
-
-	Q_INVOKABLE explicit SequenceTerm(QObject *parent);
 	QMap<QString, int> getSequence() const;
 	void setSequence(const QMap<QString, int> &sequence);
 };
@@ -234,13 +229,13 @@ class REMINDMELIBSHARED_EXPORT KeywordTerm : public SubTerm
 
 public:
 	KeywordTerm(int days);
+	Q_INVOKABLE explicit KeywordTerm(QObject *parent);
 	static std::pair<QSharedPointer<KeywordTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 
 private:
 	int _days;
 
-	Q_INVOKABLE explicit KeywordTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT LimiterTerm : public SubTerm
@@ -250,6 +245,7 @@ class REMINDMELIBSHARED_EXPORT LimiterTerm : public SubTerm
 
 public:
 	LimiterTerm(bool isFrom);
+	Q_INVOKABLE explicit LimiterTerm(QObject *parent);
 	static std::pair<QSharedPointer<LimiterTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 
@@ -260,7 +256,6 @@ private:
 	friend class ::EventExpressionParser;
 	Term _limitTerm;
 
-	Q_INVOKABLE explicit LimiterTerm(QObject *parent);
 	LimiterTerm(Type type, Term &&limitTerm);
 };
 

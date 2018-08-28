@@ -25,10 +25,13 @@ QString CreateReminderViewModel::expression() const
 bool CreateReminderViewModel::create()
 {
 	try {
+		auto terms = _parser->parseMultiExpression(_expression);
+		//TODO term selection
+
 		Reminder rem;
 		rem.setDescription(_text);
 		rem.setImportant(_important);
-		rem.setSchedule(_parser->parseSchedule(_expression));
+		rem.setSchedule(_parser->createMultiSchedule(terms));
 
 		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
 				this, [this, rem](const QString &key){
@@ -39,7 +42,7 @@ bool CreateReminderViewModel::create()
 		_store->save(rem);
 		QTimer::singleShot(5000, this, &CreateReminderViewModel::close);
 		return true;
-	} catch(DateParserException &e) {
+	} catch(EventExpressionParserException &e) {
 		QtMvvm::critical(tr("Failed to create reminder"), e.qWhat());
 	} catch(QException &e) {
 		qCritical() << "Failed to save reminder with error:" << e.what();
