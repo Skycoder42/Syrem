@@ -10,6 +10,8 @@
 #include "reminder.h"
 #include "conflictresolver.h"
 #include "snoozetimes.h"
+#include "eventexpressionparser.h"
+#include "termconverter.h"
 
 #include <syncedsettings.h>
 
@@ -31,10 +33,17 @@ void RemindMe::prepareTranslations(const QString &tsName)
 
 void RemindMe::setup(QtDataSync::Setup &setup)
 {
+#ifdef QT_NO_DEBUG
 	setup.setRemoteObjectHost(QStringLiteral("local:de.skycoder42.remindme.daemon"))
-			.setSyncPolicy(QtDataSync::Setup::PreferDeleted)
-			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")})
-			.setConflictResolver(new ConflictResolver());
+			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")});
+#else
+	setup.setLocalDir(QStringLiteral(".debug"))
+			.setRemoteObjectHost(QStringLiteral("local:de.skycoder42.remindme.daemon.debug"))
+			.setRemoteConfiguration({QStringLiteral("ws://localhost:14242")});
+#endif
+	setup.setSyncPolicy(QtDataSync::Setup::PreferDeleted)
+			.setConflictResolver(new ConflictResolver{})
+			.serializer()->addJsonTypeConverter<TermConverter>();
 }
 
 QString RemindMe::whenExpressionHelp()
@@ -127,6 +136,9 @@ void setupRemindMeLib()
 	QJsonSerializer::registerAllConverters<Reminder>();
 	QJsonSerializer::registerPointerConverters<Schedule>();
 	QJsonSerializer::registerAllConverters<Schedule*>();
+	QJsonSerializer::registerPointerConverters<Expressions::SubTerm>();
+	QJsonSerializer::registerAllConverters<Expressions::SubTerm*>();
+	// old types
 	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
 	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
 

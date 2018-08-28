@@ -73,6 +73,7 @@ public:
 private:
 	QTime _time;
 
+	Q_INVOKABLE explicit TimeTerm(QObject *parent);
 	static QString toRegex(QString pattern);
 };
 
@@ -90,6 +91,7 @@ public:
 private:
 	QDate _date;
 
+	Q_INVOKABLE explicit DateTerm(QObject *parent);
 	static QString toRegex(QString pattern, bool &hasYear);
 };
 
@@ -107,6 +109,7 @@ public:
 private:
 	QTime _time;
 
+	Q_INVOKABLE explicit InvertedTimeTerm(QObject *parent);
 	static QString hourToRegex(QString pattern);
 	static QString minToRegex(QString pattern);
 };
@@ -124,6 +127,8 @@ public:
 
 private:
 	int _day;
+
+	Q_INVOKABLE explicit MonthDayTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT WeekDayTerm : public SubTerm
@@ -140,6 +145,8 @@ public:
 
 private:
 	int _weekDay;
+
+	Q_INVOKABLE explicit WeekDayTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT MonthTerm : public SubTerm
@@ -155,6 +162,8 @@ public:
 
 private:
 	int _month;
+
+	Q_INVOKABLE explicit MonthTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT YearTerm : public SubTerm
@@ -169,6 +178,8 @@ public:
 
 private:
 	int _year;
+
+	Q_INVOKABLE explicit YearTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT SequenceTerm : public SubTerm
@@ -211,6 +222,7 @@ public:
 private:
 	Sequence _sequence;
 
+	Q_INVOKABLE explicit SequenceTerm(QObject *parent);
 	QMap<QString, int> getSequence() const;
 	void setSequence(const QMap<QString, int> &sequence);
 };
@@ -227,6 +239,8 @@ public:
 
 private:
 	int _days;
+
+	Q_INVOKABLE explicit KeywordTerm(QObject *parent);
 };
 
 class REMINDMELIBSHARED_EXPORT LimiterTerm : public SubTerm
@@ -246,6 +260,7 @@ private:
 	friend class ::EventExpressionParser;
 	Term _limitTerm;
 
+	Q_INVOKABLE explicit LimiterTerm(QObject *parent);
 	LimiterTerm(Type type, Term &&limitTerm);
 };
 

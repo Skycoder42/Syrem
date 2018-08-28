@@ -59,7 +59,7 @@ class REMINDMELIBSHARED_EXPORT RepeatedSchedule : public Schedule
 {
 	Q_OBJECT
 
-	Q_PROPERTY(Expressions::Term loopTerm MEMBER loopTerm) //TODO add json serializer converter
+	Q_PROPERTY(Expressions::Term loopTerm MEMBER loopTerm)
 	Q_PROPERTY(Expressions::Term fenceTerm MEMBER fenceTerm)
 	Q_PROPERTY(QDateTime until MEMBER until)
 	Q_PROPERTY(QDateTime fenceEnd MEMBER fenceEnd)

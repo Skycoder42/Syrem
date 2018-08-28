@@ -477,6 +477,10 @@ SubTerm::SubTerm(Type type, Scope scope) :
 	scope{scope}
 {}
 
+SubTerm::SubTerm(QObject *parent) :
+	QObject{parent}
+{}
+
 void SubTerm::fixup(QDateTime &datetime) const
 {
 	Q_UNUSED(datetime)

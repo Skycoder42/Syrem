@@ -12,6 +12,7 @@
 
 class Schedule;
 class EventExpressionParser;
+class TermConverter;
 
 namespace Expressions {
 
@@ -72,6 +73,9 @@ public:
 	virtual void fixup(QDateTime &datetime) const;
 	virtual void fixupCleanup(QDateTime &datetime) const;
 
+protected:
+	Q_INVOKABLE explicit SubTerm(QObject *parent);
+
 private:
 	Type getType() const;
 	void setType(Type value);
@@ -109,6 +113,7 @@ public:
 
 private:
 	friend class ::EventExpressionParser;
+	friend class ::TermConverter;
 	void finalize();
 
 	SubTerm::Scope _scope = SubTerm::InvalidScope;
@@ -243,11 +248,13 @@ protected:
 template <>
 REMINDMELIBSHARED_EXPORT void EventExpressionParser::parseSubTermImpl<Expressions::LimiterTerm>(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm, int depth);
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(Expressions::SubTerm::Type)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Expressions::SubTerm::Scope)
+
+Q_DECLARE_METATYPE(Expressions::SubTerm*)
 Q_DECLARE_METATYPE(Expressions::Term)
 Q_DECLARE_METATYPE(Expressions::TermSelection)
 Q_DECLARE_METATYPE(Expressions::MultiTerm)
 Q_DECLARE_METATYPE(EventExpressionParser::ErrorInfo)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Expressions::SubTerm::Type)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Expressions::SubTerm::Scope)
 
 #endif // EVENTEXPRESSIONPARSER_H

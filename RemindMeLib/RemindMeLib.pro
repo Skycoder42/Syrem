@@ -16,7 +16,8 @@ HEADERS += \
 	remindmelib.h \
 	snoozetimes.h \
 	eventexpressionparser.h \
-    terms.h
+    terms.h \
+    termconverter.h
 
 SOURCES += \
 	dateparser.cpp \
@@ -26,7 +27,8 @@ SOURCES += \
 	remindmelib.cpp \
 	snoozetimes.cpp \
 	eventexpressionparser.cpp \
-    terms.cpp
+    terms.cpp \
+    termconverter.cpp
 
 SETTINGS_DEFINITIONS += \
 	localsettings.xml \

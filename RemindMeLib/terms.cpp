@@ -8,6 +8,10 @@ TimeTerm::TimeTerm(QTime time) :
 	_time{time}
 {}
 
+TimeTerm::TimeTerm(QObject *parent) :
+	SubTerm{parent}
+{}
+
 std::pair<QSharedPointer<TimeTerm>, int> TimeTerm::parse(const QStringRef &expression)
 {
 	const QLocale locale;
@@ -78,6 +82,10 @@ DateTerm::DateTerm(QDate date, bool hasYear, bool isLooped) :
 {
 	Q_ASSERT(!(hasYear && isLooped));
 }
+
+DateTerm::DateTerm(QObject *parent) :
+	SubTerm{parent}
+{}
 
 std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expression)
 {
@@ -174,6 +182,10 @@ QString DateTerm::toRegex(QString pattern, bool &hasYear)
 InvertedTimeTerm::InvertedTimeTerm(QTime time) :
 	SubTerm{Timepoint, Hour | Minute},
 	_time{time}
+{}
+
+InvertedTimeTerm::InvertedTimeTerm(QObject *parent) :
+	SubTerm{parent}
 {}
 
 std::pair<QSharedPointer<InvertedTimeTerm>, int> InvertedTimeTerm::parse(const QStringRef &expression)
@@ -293,6 +305,10 @@ MonthDayTerm::MonthDayTerm(int day, bool looped) :
 	_day{day}
 {}
 
+MonthDayTerm::MonthDayTerm(QObject *parent) :
+	SubTerm{parent}
+{}
+
 std::pair<QSharedPointer<MonthDayTerm>, int> MonthDayTerm::parse(const QStringRef &expression)
 {
 	// get and prepare standard *fixes and indicators
@@ -369,6 +385,10 @@ void MonthDayTerm::fixup(QDateTime &datetime) const
 WeekDayTerm::WeekDayTerm(int weekDay, bool looped) :
 	SubTerm{(looped ? LoopedTimePoint : Timepoint) | FlagNeedsFixupCleanup, WeekDay},
 	_weekDay{weekDay}
+{}
+
+WeekDayTerm::WeekDayTerm(QObject *parent) :
+	SubTerm{parent}
 {}
 
 std::pair<QSharedPointer<WeekDayTerm>, int> WeekDayTerm::parse(const QStringRef &expression)
@@ -479,6 +499,10 @@ MonthTerm::MonthTerm(int month, bool looped) :
 	_month{month}
 {}
 
+MonthTerm::MonthTerm(QObject *parent) :
+	SubTerm{parent}
+{}
+
 std::pair<QSharedPointer<MonthTerm>, int> MonthTerm::parse(const QStringRef &expression)
 {
 	const QLocale locale;
@@ -571,6 +595,10 @@ YearTerm::YearTerm(int year) :
 	_year{year}
 {}
 
+YearTerm::YearTerm(QObject *parent) :
+	SubTerm{parent}
+{}
+
 std::pair<QSharedPointer<YearTerm>, int> YearTerm::parse(const QStringRef &expression)
 {
 	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(YearPrefix).join(QLatin1Char('|')));
@@ -613,6 +641,10 @@ SequenceTerm::SequenceTerm(Sequence &&sequence, bool looped) :
 		return scope;
 	}()},
 	_sequence{std::move(sequence)}
+{}
+
+SequenceTerm::SequenceTerm(QObject *parent) :
+	SubTerm{parent}
 {}
 
 std::pair<QSharedPointer<SequenceTerm>, int> SequenceTerm::parse(const QStringRef &expression)
@@ -779,6 +811,10 @@ KeywordTerm::KeywordTerm(int days) :
 	_days{days}
 {}
 
+KeywordTerm::KeywordTerm(QObject *parent) :
+	SubTerm{parent}
+{}
+
 std::pair<QSharedPointer<KeywordTerm>, int> KeywordTerm::parse(const QStringRef &expression)
 {
 	for(const auto &info : trList(KeywordDayspan, false)) {
@@ -812,6 +848,10 @@ void KeywordTerm::apply(QDateTime &datetime, bool applyFenced) const
 
 LimiterTerm::LimiterTerm(bool isFrom) :
 	SubTerm{isFrom ? FromSubterm : UntilSubTerm, InvalidScope}
+{}
+
+LimiterTerm::LimiterTerm(QObject *parent) :
+	SubTerm{parent}
 {}
 
 LimiterTerm::LimiterTerm(SubTerm::Type type, Term &&limitTerm) :
