@@ -9,6 +9,7 @@
 #include <createreminderviewmodel.h>
 #include <snoozeviewmodel.h>
 #include <snoozetimes.h>
+#include <termselectionviewmodel.h>
 #include <qml_syncedsettings.h>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
 	qmlRegisterUncreatableType<MainViewModel>("de.skycoder42.remindme", 1, 0, "MainViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<CreateReminderViewModel>("de.skycoder42.remindme", 1, 0, "CreateReminderViewModel", QStringLiteral("ViewModels cannot be created!"));
 	qmlRegisterUncreatableType<SnoozeViewModel>("de.skycoder42.remindme", 1, 0, "SnoozeViewModel", QStringLiteral("ViewModels cannot be created!"));
+	qmlRegisterUncreatableType<TermSelectionViewModel>("de.skycoder42.remindme", 1, 0, "TermSelectionViewModel", QStringLiteral("ViewModels cannot be created!"));
 
 	QtMvvm::registerDataSyncQuick();
 	QtMvvm::QuickPresenter::getInputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qtmvvm/inputs/SnoozeTimesEdit.qml"));

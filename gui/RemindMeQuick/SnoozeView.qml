@@ -43,10 +43,22 @@ AlertDialog {
 		}
 	}
 
-	standardButtons: viewModel.valid ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
 
-	onAccepted: {
-		if(!viewModel.snooze())
-			snoozeDialog.visible = true;
+	footer: Item {
+		implicitWidth: _btnBox.implicitWidth
+		implicitHeight: _btnBox.implicitHeight
+
+		DialogButtonBox {
+			id: _btnBox
+			anchors.fill: parent
+
+			standardButtons: viewModel.valid ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
+
+			onAccepted: {
+				if(viewModel.snooze())
+					snoozeDialog.accept();
+			}
+			onRejected: snoozeDialog.reject()
+		}
 	}
 }

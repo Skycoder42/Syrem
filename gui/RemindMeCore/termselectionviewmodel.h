@@ -10,6 +10,7 @@ class TermSelectionViewModel : public QtMvvm::ViewModel
 
 	Q_PROPERTY(bool multi READ multi NOTIFY multiChanged)
 	Q_PROPERTY(QList<int> terms READ terms NOTIFY termsChanged)
+	Q_PROPERTY(QVariantList varTerms READ varTerms NOTIFY termsChanged)
 	Q_PROPERTY(bool allHandled READ allHandled NOTIFY allHandledChanged)
 
 public:
@@ -27,6 +28,7 @@ public:
 
 	bool multi() const;
 	QList<int> terms() const;
+	QVariantList varTerms() const;
 	bool allHandled() const;
 
 	Q_INVOKABLE QStringList describeChoices(int termIndex) const;
@@ -37,7 +39,7 @@ public slots:
 
 signals:
 	void multiChanged(bool multi);
-	void termsChanged(QList<int> terms);
+	void termsChanged();
 	void allHandledChanged(bool allHandled);
 
 protected:

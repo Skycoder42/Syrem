@@ -58,6 +58,14 @@ QList<int> TermSelectionViewModel::terms() const
 	return _indices;
 }
 
+QVariantList TermSelectionViewModel::varTerms() const
+{
+	QVariantList res;
+	for(auto i : _indices)
+		res.append(i);
+	return res;
+}
+
 bool TermSelectionViewModel::allHandled() const
 {
 	for(auto index : _indices) {
@@ -114,7 +122,7 @@ void TermSelectionViewModel::onInit(const QVariantHash &params)
 			_indices.append(i);
 	}
 
-	emit termsChanged(_indices);
+	emit termsChanged();
 	emit multiChanged(_multi);
 	emit allHandledChanged(allHandled());
 }

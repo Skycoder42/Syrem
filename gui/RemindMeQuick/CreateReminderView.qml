@@ -9,6 +9,7 @@ AlertDialog {
 	id: createDialog
 	title: qsTr("Create Reminder")
 	property CreateReminderViewModel viewModel: null
+	enabled: !viewModel.blocked
 
 	Connections {
 		target: viewModel
@@ -65,16 +66,22 @@ AlertDialog {
 		}
 	}
 
-	standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
+	footer: Item {
+		implicitWidth: _btnBox.implicitWidth
+		implicitHeight: _btnBox.implicitHeight
 
-	onAccepted: {
-		if(viewModel.create())
-			createDialog.enabled = false;
-		createDialog.visible = true;
-	}
+		DialogButtonBox {
+			id: _btnBox
+			anchors.fill: parent
 
-	onRejected: {
-		if(coreApp.isCreateOnly())
-			Qt.quit();
+			standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
+
+			onAccepted: viewModel.create()
+			onRejected: {
+				createDialog.reject();
+				if(coreApp.isCreateOnly())
+					Qt.quit();
+			}
+		}
 	}
 }
