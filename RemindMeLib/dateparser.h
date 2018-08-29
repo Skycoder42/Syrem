@@ -13,8 +13,6 @@
 
 namespace ParserTypes {
 
-class TimePoint;
-
 class REMINDMELIBSHARED_EXPORT Expression : public QObject
 {
 	Q_OBJECT
@@ -30,14 +28,6 @@ public:
 		YearSpan
 	};
 	Q_ENUM(Span)
-
-	Expression(QObject *parent = nullptr);
-	virtual inline ~Expression() = default;
-
-	virtual Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) = 0;
-
-protected:
-	static QDateTime calcTpoint(const QDateTime &since, const TimePoint *tPoint, const QTime &time, bool notToday = true);
 };
 
 // ------------- Basic Types -------------
@@ -119,152 +109,7 @@ public:
 	Datum *datum;
 };
 
-// ------------- Expressions -------------
-
-class REMINDMELIBSHARED_EXPORT Conjunction : public Expression
-{
-	Q_OBJECT
-
-public:
-	Conjunction(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
-
-	QList<Expression*> expressions;
-};
-
-class REMINDMELIBSHARED_EXPORT TimeSpan : public Expression
-{
-	Q_OBJECT
-
-public:
-	TimeSpan(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
-
-	Sequence sequence;
-	Datum *datum;
-	QTime time;
-};
-
-class REMINDMELIBSHARED_EXPORT Loop : public Expression
-{
-	Q_OBJECT
-
-public:
-	Loop(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
-
-	Type *type;
-	Datum *datum;
-	QTime time;
-	TimePoint *from;
-	QTime fromTime;
-	TimePoint *until;
-	QTime untilTime;
-};
-
-class REMINDMELIBSHARED_EXPORT Point : public Expression
-{
-	Q_OBJECT
-
-public:
-	Point(QObject *parent = nullptr);
-	Schedule *createSchedule(const QDateTime &since, QTime defaultTime, QObject *parent = nullptr) override;
-
-	TimePoint *date;
-	QTime time;
-};
-
 } //ParserTypes
-
-class REMINDMELIBSHARED_EXPORT DateParserException : public QException
-{
-public:
-	DateParserException(const QString &error);
-
-	QString qWhat() const noexcept;
-	const char *what() const noexcept override;
-	void raise() const override;
-	QException *clone() const override;
-
-protected:
-	DateParserException(const DateParserException * const other);
-
-	const QByteArray _what;
-};
-
-class REMINDMELIBSHARED_EXPORT DateParser : public QObject
-{
-	Q_OBJECT
-
-	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
-
-public:
-	enum WordKey {
-		TimeRegexKey,
-		TimeKey,
-		DateKey,
-		MonthDayKey,
-		TodayKey,
-		TomorrowKey,
-
-		SpanMinuteKey,
-		SpanHourKey,
-		SpanDayKey,
-		SpanWeekKey,
-		SpanMonthKey,
-		SpanYearKey,
-		AllSpans,
-
-		DatumKey,
-		SequenceKey,
-
-		ConjunctionKey,
-		TimeSpanKey,
-		LoopKey,
-		FromKey,
-		UntilKey,
-		PointKey
-	};
-	Q_ENUM(WordKey)
-
-	Q_INVOKABLE explicit DateParser(QObject *parent = nullptr);
-
-	QSharedPointer<ParserTypes::Expression> parse(const QString &expression);
-
-	QSharedPointer<Schedule> parseSchedule(const QString &expression);
-	QDateTime snoozeParse(const QString &expression);
-
-private:
-	SyncedSettings *_settings;
-
-	static QString word(WordKey key);
-	static QString timeRegex();
-	static QString sequenceRegex();
-
-	ParserTypes::Expression *parseExpression(const QString &data, QObject *parent);
-	ParserTypes::Conjunction *tryParseConjunction(const QString &data, QObject *parent);
-	ParserTypes::TimeSpan *tryParseTimeSpan(const QString &data, QObject *parent);
-	ParserTypes::Loop *tryParseLoop(const QString &data, QObject *parent);
-	ParserTypes::Point *tryParsePoint(const QString &data, QObject *parent);
-
-	ParserTypes::Datum *parseDatum(const QString &data, QObject *parent);
-	ParserTypes::Type *parseType(const QString &data, QObject *parent);
-	ParserTypes::TimePoint *parseTimePoint(const QString &data, QObject *parent);
-	QPair<ParserTypes::TimePoint*, QTime> parseExtendedTimePoint(const QString &data, QObject *parent);
-
-	QDate parseMonthDay(const QString &data, bool noThrow = false);
-	QDate parseDate(const QString &data, bool noThrow = false);
-	QTime parseTime(const QString &data);
-	ParserTypes::Expression::Span parseSpan(const QString &data);
-	ParserTypes::Sequence parseSequence(const QString &data);
-
-	void validateDatumDatum(ParserTypes::Datum *datum, const ParserTypes::Datum *extraDatum);
-	void validateSequenceDatum(const ParserTypes::Sequence &sequence, const ParserTypes::Datum *datum, const QTime &time);
-	void validateSpanDatum(ParserTypes::Expression::Span span, const ParserTypes::Datum *datum, const QTime &time);
-
-	static QMap<QString, int> readWeekDays();
-	static QMap<QString, int> readMonths();
-};
 
 Q_DECLARE_METATYPE(ParserTypes::Datum*)
 Q_DECLARE_METATYPE(ParserTypes::Type*)

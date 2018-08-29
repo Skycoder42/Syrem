@@ -96,7 +96,6 @@ public:
 	Q_INVOKABLE MultiSchedule(QObject *parent = nullptr);
 	MultiSchedule(QDateTime since, QObject *parent = nullptr);
 
-	void addSubSchedule(Schedule *schedule); //TODO remove
 	void addSubSchedule(const QSharedPointer<Schedule> &schedule);
 
 	bool isRepeating() const override;

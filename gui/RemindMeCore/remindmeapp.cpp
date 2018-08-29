@@ -151,7 +151,19 @@ void RemindMeApp::createReminderInline(bool important, const QString &descriptio
 		auto store = new ReminderStore{this};
 
 		auto terms = parser->parseMultiExpression(when);
-		//TODO select
+		if(parser->needsSelection(terms)) {
+			for(const auto &term : qAsConst(terms)) {
+				if(parser->needsSelection(term)) {
+					qCritical().noquote() << "Expression has more than one interpretation. This is currently not supported for the command line API.\n"
+										  << "Possible interpretations are:";
+					for(const auto &sTerm : term)
+						qCritical().noquote() << "\t- " << sTerm.describe();
+				}
+			}
+
+			qApp->exit(EXIT_FAILURE);
+			return;
+		}
 
 		Reminder reminder;
 		reminder.setImportant(important);

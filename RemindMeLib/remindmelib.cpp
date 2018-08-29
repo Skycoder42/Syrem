@@ -173,7 +173,6 @@ void setupRemindMeLib()
 	QJsonSerializer::registerPairConverters<int, ParserTypes::Expression::Span>();
 	QJsonSerializer::registerAllConverters<QPair<int, ParserTypes::Expression::Span>>();
 
-	QtMvvm::ServiceRegistry::instance()->registerObject<DateParser>(); //TODO remove
 	QtMvvm::ServiceRegistry::instance()->registerObject<EventExpressionParser>();
 }
 
