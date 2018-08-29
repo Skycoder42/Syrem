@@ -4,7 +4,6 @@
 #include <QtMvvmCore>
 #include <QtDataSync>
 
-#include <dateparser.h>
 #include <schedule.h>
 #include <eventexpressionparser.h>
 
@@ -31,7 +30,6 @@ private Q_SLOTS:
 private:
 	QTemporaryDir tDir;
 	EventExpressionParser *parser;
-	DateParser *oldParser;
 };
 
 void CoreReminderTest::initTestCase()
@@ -44,12 +42,10 @@ void CoreReminderTest::initTestCase()
 
 	SyncedSettings::instance()->scheduler.defaultTime = QTime{};
 	parser = QtMvvm::ServiceRegistry::instance()->constructInjected<EventExpressionParser>(this);
-	oldParser = new DateParser(this);
 }
 
 void CoreReminderTest::cleanupTestCase()
 {
-	oldParser->deleteLater();
 	delete parser;
 }
 
@@ -1453,12 +1449,11 @@ void CoreReminderTest::testConjunctionReminder_data()
 										   QDateTime({2017, 10, 29}),
 										   QDateTime({2017, 11, 11}),
 										   QDateTime({2017, 11, 13}, {13, 13}),
-										   QDateTime({2017, 12, 24}, {15, 30}),
+										   QDateTime({2017, 12, 1}, {15, 30}),
 										   QDateTime({2018, 4, 1}),
-										   QDateTime({2018, 4, 24}),
 										   QDateTime({2018, 7, 4}, {17, 00}),
-										   QDateTime({2020, 10, 24}),
-										   QDateTime({2020, 10, 24}, {20, 20}),
+										   QDateTime({2020, 1, 1}),
+										   QDateTime({2020, 1, 1}, {20, 20}),
 										   QDateTime()
 									   };
 	QTest::newRow("conj.timespan") << QStringLiteral("in 1 hours and 20 minutes;"
@@ -1507,7 +1502,7 @@ void CoreReminderTest::testConjunctionReminder_data()
 	//conj.multi
 	QTest::newRow("conj.multi") << QStringLiteral("on 11.11.2017 at 11:11;"
 												  "in 2 Months on 7.;"
-												  "every 2 years at 13. August at 15:30 until 2022")
+												  "every 2 years on 13. August at 15:30 until 2022")
 								   << QDateTime({2017, 10, 24}, {15, 00})
 								   << QList<QDateTime> {
 										  QDateTime({2017, 11, 11}, {11, 11}),
@@ -1524,25 +1519,33 @@ void CoreReminderTest::testConjunctionReminder()
 	QFETCH(QDateTime, since);
 	QFETCH(QList<QDateTime>, results);
 
-	// TODO migrate as well
+
 	try {
-		auto expr = oldParser->parse(query);
-		QVERIFY(expr);
-		QVERIFY2(since.isValid(), "Invalid query produced valid expression!");
-		auto sched = expr->createSchedule(since, QTime(), this);
-		if(!results.isEmpty()) {
-			QVERIFY(sched);
-			QVERIFY(sched->isRepeating());
-			while(!results.isEmpty()) {
-				auto goal = results.takeFirst();
-				auto next = sched->nextSchedule();
-				QCOMPARE(next, goal);
+		if(!since.isValid())
+			QVERIFY_EXCEPTION_THROWN(parser->parseMultiExpression(query), EventExpressionParserException);
+		else {
+			auto expressions = parser->parseMultiExpression(query);
+			for(const auto &exprs : expressions)
+				QCOMPARE(exprs.size(), 1);
+			if(results.isEmpty())
+				QVERIFY_EXCEPTION_THROWN(parser->createMultiSchedule(expressions, {}, since), EventExpressionParserException);
+			else {
+				auto sched = parser->createMultiSchedule(expressions, {}, since);
+				QVERIFY(sched);
+				QVERIFY(sched->isRepeating());
+				auto isFirst = true;
+				for(const auto &result : results) {
+					if(isFirst)
+						isFirst = false;
+					else
+						QCOMPARE(sched->nextSchedule(), result);
+					QCOMPARE(sched->current(), result);
+				}
+				sched->deleteLater();
 			}
-			sched->deleteLater();
-		} else
-			QVERIFY(!sched);
+		}
 	} catch (QException &e) {
-		QVERIFY2(!since.isValid(), e.what());
+		QVERIFY2(false, e.what());
 	}
 }
 
