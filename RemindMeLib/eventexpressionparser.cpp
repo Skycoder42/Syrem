@@ -84,7 +84,7 @@ QSharedPointer<Schedule> EventExpressionParser::createMultiSchedule(MultiTerm te
 		Q_ASSERT(selection.size() == terms.size());
 		// reduce the schedule to a single term per expression
 		for(auto i = 0; i < terms.size(); i++) {
-			auto sel = terms.takeAt(selection[i]);
+			auto sel = terms[i].takeAt(selection[i]);
 			terms.replace(i, {sel});
 		}
 	}

@@ -82,6 +82,8 @@ private Q_SLOTS:
 	void testSingularSchedules();
 	void testRepeatedSchedules_data();
 	void testRepeatedSchedules();
+	void testMultiSchedules_data();
+	void testMultiSchedules();
 	void testMultiTermResult();
 
 private:
@@ -2301,6 +2303,89 @@ void ParserTest::testRepeatedSchedules()
 	}
 }
 
+void ParserTest::testMultiSchedules_data()
+{
+	QTest::addColumn<QString>("expression");
+	QTest::addColumn<QTime>("parserTime");
+	QTest::addColumn<QDateTime>("since");
+	QTest::addColumn<QList<QDateTime>>("results");
+	QTest::addColumn<EventExpressionParser::ErrorType>("errorType");
+
+	const auto cDate = QDate::currentDate();
+	const auto cTime = QTime::currentTime();
+	QTest::addRow("single") << QStringLiteral("on 14th")
+							<< QTime{9, 0}
+							<< QDateTime{{2018, 7, 20}, cTime}
+							<< QList<QDateTime>{
+									 {{2018, 8, 14}, {9, 0}},
+								 }
+							<< EventExpressionParser::NoError;
+	QTest::addRow("multi") << QStringLiteral("on 14th; in 10 days; in April")
+						   << QTime{9, 0}
+						   << QDateTime{{2018, 7, 20}, cTime}
+						   << QList<QDateTime>{
+									{{2018, 7, 30}, {9, 0}},
+									{{2018, 8, 14}, {9, 0}},
+									{{2019, 4, 1}, {9, 0}},
+								}
+						   << EventExpressionParser::NoError;
+	QTest::addRow("loops.serial") << QStringLiteral("every April; every 10 days until August")
+						   << QTime{9, 0}
+						   << QDateTime{{2018, 7, 5}, cTime}
+						   << QList<QDateTime>{
+									{{2018, 7, 15}, {9, 0}},
+									{{2018, 7, 25}, {9, 0}},
+									{{2019, 4, 1}, {9, 0}},
+									{{2020, 4, 1}, {9, 0}},
+								}
+						   << EventExpressionParser::NoError;
+	QTest::addRow("loops.parallel") << QStringLiteral("every 25th; every 30 days")
+						   << QTime{9, 0}
+						   << QDateTime{{2018, 7, 5}, cTime}
+						   << QList<QDateTime>{
+									{{2018, 7, 25}, {9, 0}},
+									{{2018, 8, 4}, {9, 0}},
+									{{2018, 8, 25}, {9, 0}},
+									{{2018, 9, 3}, {9, 0}},
+									{{2018, 9, 25}, {9, 0}},
+									{{2018, 10, 3}, {9, 0}},
+								}
+						   << EventExpressionParser::NoError;
+}
+
+void ParserTest::testMultiSchedules()
+{
+	QFETCH(QString, expression);
+	QFETCH(QTime, parserTime);
+	QFETCH(QDateTime, since);
+	QFETCH(QList<QDateTime>, results);
+	QFETCH(EventExpressionParser::ErrorType, errorType);
+
+	try {
+		parser->_settings->scheduler.defaultTime = parserTime;
+		auto terms = parser->parseMultiExpression(expression);
+		for(const auto &term : terms)
+			QCOMPARE(term.size(), 1);
+		if(errorType == EventExpressionParser::NoError) {
+			auto res = parser->createMultiSchedule(terms, {}, since);
+			QVERIFY(res);
+			QCOMPARE(res->isRepeating(), results.size() != 1);
+
+			auto isFirst = true;
+			for(const auto &result : results) {
+				if(isFirst)
+					isFirst = false;
+				else
+					QCOMPARE(res->nextSchedule(), result);
+				QCOMPARE(res->current(), result);
+			}
+		} else
+			QVERIFY_PARSER_EXCEPTION(parser->createMultiSchedule(terms, {}, since), errorType);
+	} catch(QException &e) {
+		QFAIL(e.what());
+	}
+}
+
 void ParserTest::testMultiTermResult()
 {
 	auto cDate = QDate::currentDate();
@@ -2347,6 +2432,32 @@ void ParserTest::testMultiTermResult()
 		}
 		QVERIFY(hasA);
 		QVERIFY(hasB);
+	} catch (QException &e) {
+		QFAIL(e.what());
+	}
+
+	try {
+		parser->_settings->scheduler.defaultTime = QTime{9, 0};
+		auto terms = parser->parseMultiExpression(QStringLiteral("every 20 minutes from 10 to 12; every 20 minutes from 10 to 12"));
+		for(const auto &term : terms)
+			QCOMPARE(term.size(), 2);
+		auto res = parser->createMultiSchedule(terms, {0, 1}, since);
+		QList<QDateTime> dates {
+			{cDate.addDays(1), {10, 20}},
+			{cDate.addDays(1), {10, 40}},
+			{cDate.addDays(1), {11, 0}},
+			{cDate.addDays(1), {11, 20}},
+			{cDate.addDays(1), {11, 40}},
+			{cDate.addDays(1), {12, 00}},
+			{cDate.addDays(1), {12, 10}},
+			{cDate.addDays(1), {12, 30}},
+			{cDate.addDays(1), {12, 50}},
+			{cDate.addDays(1), {13, 10}},
+		};
+		do {
+			QCOMPARE(res->current(), dates.takeFirst());
+			res->nextSchedule();
+		} while(!dates.isEmpty());
 	} catch (QException &e) {
 		QFAIL(e.what());
 	}
