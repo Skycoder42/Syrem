@@ -51,6 +51,11 @@ void TimeTerm::fixup(QDateTime &datetime) const
 	datetime = datetime.addDays(1);
 }
 
+QString TimeTerm::describe() const
+{
+	return QLocale().toString(_time, tr("hh:mm"));
+}
+
 QString TimeTerm::toRegex(QString pattern)
 {
 	const QLocale locale;
@@ -160,6 +165,11 @@ void DateTerm::fixup(QDateTime &datetime) const
 {
 	if(!scope.testFlag(Year))
 		datetime = datetime.addYears(1);
+}
+
+QString DateTerm::describe() const
+{
+	return QLocale().toString(_date, scope.testFlag(Year) ?  tr("yyyy-MM-dd") : tr("MM-dd"));
 }
 
 QString DateTerm::toRegex(QString pattern, bool &hasYear)
@@ -276,6 +286,11 @@ void InvertedTimeTerm::fixup(QDateTime &datetime) const
 	datetime = datetime.addDays(1);
 }
 
+QString InvertedTimeTerm::describe() const
+{
+	return QLocale().toString(_time, tr("hh:mm"));
+}
+
 QString InvertedTimeTerm::hourToRegex(QString pattern)
 {
 	const QLocale locale;
@@ -378,6 +393,11 @@ void MonthDayTerm::fixup(QDateTime &datetime) const
 {
 	datetime = datetime.addMonths(1);
 	apply(datetime, false); //apply again to fix the day for cases like "every 31st"
+}
+
+QString MonthDayTerm::describe() const
+{
+	return tr("%1.").arg(_day);
 }
 
 
@@ -492,6 +512,11 @@ void WeekDayTerm::fixupCleanup(QDateTime &datetime) const
 		apply(datetime, true);
 }
 
+QString WeekDayTerm::describe() const
+{
+	return QLocale().standaloneDayName(_weekDay, QLocale::LongFormat);
+}
+
 
 
 MonthTerm::MonthTerm(int month, bool looped) :
@@ -588,6 +613,11 @@ void MonthTerm::fixup(QDateTime &datetime) const
 	datetime = datetime.addYears(1);
 }
 
+QString MonthTerm::describe() const
+{
+	return QLocale().standaloneMonthName(_month, QLocale::LongFormat);
+}
+
 
 
 YearTerm::YearTerm(int year) :
@@ -629,6 +659,11 @@ void YearTerm::apply(QDateTime &datetime, bool applyFenced) const
 {
 	Q_UNUSED(applyFenced)
 	datetime.setDate({_year, 1, 1}); //set the year and reset month/date. They will be specified as needed
+}
+
+QString YearTerm::describe() const
+{
+	return QStringLiteral("%1").arg(_year, 4, 10, QLatin1Char('0'));
 }
 
 
@@ -785,6 +820,38 @@ void SequenceTerm::apply(QDateTime &datetime, bool applyFenced) const
 	}
 }
 
+QString SequenceTerm::describe() const
+{
+	QStringList subTerms;
+	for(auto it = _sequence.constBegin(); it != _sequence.constEnd(); ++it) {
+		switch(it.key()) {
+		case Minute:
+			subTerms.append(tr("%n minute(s)", "", *it));
+			break;
+		case Hour:
+			subTerms.append(tr("%n hour(s)", "", *it));
+			break;
+		case Day:
+			subTerms.append(tr("%n day(s)", "", *it));
+			break;
+		case Week:
+			subTerms.append(tr("%n week(s)", "", *it));
+			break;
+		case Month:
+			subTerms.append(tr("%n month(s)", "", *it));
+			break;
+		case Year:
+			subTerms.append(tr("%n year(s)", "", *it));
+			break;
+		default:
+			Q_UNREACHABLE();
+			break;
+		}
+	}
+
+	return tr("in %1").arg(subTerms.join(QStringLiteral(", ")));
+}
+
 QMap<QString, int> SequenceTerm::getSequence() const
 {
 	QMap<QString, int> res;
@@ -844,6 +911,11 @@ void KeywordTerm::apply(QDateTime &datetime, bool applyFenced) const
 	datetime = datetime.addDays(_days);
 }
 
+QString KeywordTerm::describe() const
+{
+	return tr("in %n day(s)", "", _days);
+}
+
 
 
 LimiterTerm::LimiterTerm(bool isFrom) :
@@ -884,6 +956,11 @@ void LimiterTerm::apply(QDateTime &datetime, bool applyFenced) const
 {
 	Q_UNUSED(applyFenced)
 	Q_UNUSED(datetime)
+}
+
+QString LimiterTerm::describe() const
+{
+	return {};
 }
 
 Term LimiterTerm::limitTerm() const

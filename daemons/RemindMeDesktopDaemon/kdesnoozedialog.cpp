@@ -27,6 +27,6 @@ void KdeSnoozeDialog::accept()
 		emit timeSelected(_parser->evaluteTerm(term.first()));
 		QDialog::accept();
 	} catch (EventExpressionParserException &e) {
-		DialogMaster::critical(this, e.qWhat(), tr("Snoozing failed!"));
+		DialogMaster::critical(this, e.message(), tr("Snoozing failed!"));
 	}
 }

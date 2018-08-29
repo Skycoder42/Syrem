@@ -70,6 +70,7 @@ public:
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool keepOffset) const override;
 	void fixup(QDateTime &datetime) const override;
+	QString describe() const override;
 
 private:
 	QTime _time;
@@ -88,6 +89,7 @@ public:
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+	QString describe() const override;
 
 private:
 	QDate _date;
@@ -106,6 +108,7 @@ public:
 	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+	QString describe() const override;
 
 private:
 	QTime _time;
@@ -125,6 +128,7 @@ public:
 	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+	QString describe() const override;
 
 private:
 	int _day;
@@ -142,6 +146,7 @@ public:
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 	void fixupCleanup(QDateTime &datetime) const override;
+	QString describe() const override;
 
 private:
 	int _weekDay;
@@ -158,6 +163,7 @@ public:
 	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+	QString describe() const override;
 
 private:
 	int _month;
@@ -173,6 +179,7 @@ public:
 	Q_INVOKABLE explicit YearTerm(QObject *parent);
 	static std::pair<QSharedPointer<YearTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+	QString describe() const override;
 
 private:
 	int _year;
@@ -215,6 +222,7 @@ public:
 	Q_INVOKABLE explicit SequenceTerm(QObject *parent);
 	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+	QString describe() const override;
 
 private:
 	Sequence _sequence;
@@ -232,6 +240,7 @@ public:
 	Q_INVOKABLE explicit KeywordTerm(QObject *parent);
 	static std::pair<QSharedPointer<KeywordTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+	QString describe() const override;
 
 private:
 	int _days;
@@ -248,6 +257,7 @@ public:
 	Q_INVOKABLE explicit LimiterTerm(QObject *parent);
 	static std::pair<QSharedPointer<LimiterTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+	QString describe() const override;
 
 	Term limitTerm() const;
 	QSharedPointer<LimiterTerm> clone(Term limitTerm) const;

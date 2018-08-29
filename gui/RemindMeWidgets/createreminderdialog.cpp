@@ -25,6 +25,8 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	QtMvvm::bind(_viewModel, "important",
 				 _ui->importantCheckBox, "checked",
 				 QtMvvm::Binding::OneWayToViewModel);
+	connect(_viewModel, &CreateReminderViewModel::blockedChanged,
+			this, &CreateReminderDialog::setDisabled);
 	connect(_viewModel, &CreateReminderViewModel::close,
 			this, [this](){
 		QDialog::accept();
@@ -43,11 +45,7 @@ CreateReminderDialog::~CreateReminderDialog()
 
 void CreateReminderDialog::accept()
 {
-	_ui->buttonBox->setEnabled(false);
-	if(_viewModel->create())
-		setEnabled(false);
-	else
-		_ui->buttonBox->setEnabled(true);
+	_viewModel->create();
 }
 
 void CreateReminderDialog::on_actionExpression_Syntax_triggered()

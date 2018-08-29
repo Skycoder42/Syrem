@@ -13,13 +13,15 @@ HEADERS += \
 	remindmeapp.h \
 	mainviewmodel.h \
 	createreminderviewmodel.h \
-	snoozeviewmodel.h
+	snoozeviewmodel.h \
+    termselectionviewmodel.h
 
 SOURCES += \
 	remindmeapp.cpp \
 	mainviewmodel.cpp \
 	createreminderviewmodel.cpp \
-	snoozeviewmodel.cpp
+	snoozeviewmodel.cpp \
+    termselectionviewmodel.cpp
 
 !android {
 	HEADERS +=

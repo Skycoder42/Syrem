@@ -192,7 +192,7 @@ void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const Q
 
 			reminder.performSnooze(_store->store(), snooze);
 		} catch (EventExpressionParserException &e) {
-			_notifier->showParserError(reminder, e.qWhat());
+			_notifier->showParserError(reminder, e.message());
 		}
 	} catch(QtDataSync::NoDataException &e) {
 		Q_UNUSED(e)

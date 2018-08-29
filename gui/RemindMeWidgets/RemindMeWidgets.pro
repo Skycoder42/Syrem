@@ -10,17 +10,20 @@ DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 HEADERS += mainwindow.h \
 	createreminderdialog.h \
 	snoozedialog.h \
-	snoozetimesedit.h
+	snoozetimesedit.h \
+    termselectiondialog.h
 
 SOURCES += main.cpp \
 	mainwindow.cpp \
 	createreminderdialog.cpp \
 	snoozedialog.cpp \
-	snoozetimesedit.cpp
+	snoozetimesedit.cpp \
+    termselectiondialog.cpp
 
 FORMS += mainwindow.ui \
 	createreminderdialog.ui \
-	snoozetimesedit.ui
+	snoozetimesedit.ui \
+    termselectiondialog.ui
 
 RESOURCES += \
 	remindmewidgets.qrc

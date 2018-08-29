@@ -50,7 +50,7 @@ bool SnoozeViewModel::snooze()
 		_reminder.performSnooze(_store->store(), _parser->evaluteTerm(term.first()));
 		return true;
 	} catch (EventExpressionParserException &e) {
-		QtMvvm::critical(tr("Snoozing failed!"), e.qWhat());
+		QtMvvm::critical(tr("Snoozing failed!"), e.message());
 	} catch (QException &e) {
 		qCritical() << "Failed to snooze reminder with error:" << e.what();
 		QtMvvm::critical(tr("Snoozing failed!"),

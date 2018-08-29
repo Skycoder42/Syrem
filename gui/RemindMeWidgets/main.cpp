@@ -7,6 +7,7 @@
 #include "createreminderdialog.h"
 #include "snoozedialog.h"
 #include "snoozetimesedit.h"
+#include "termselectiondialog.h"
 
 // Register the core app
 QTMVVM_REGISTER_CORE_APP(RemindMeApp)
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
 	QtMvvm::WidgetsPresenter::registerView<MainWindow>();
 	QtMvvm::WidgetsPresenter::registerView<CreateReminderDialog>();
 	QtMvvm::WidgetsPresenter::registerView<SnoozeDialog>();
+	QtMvvm::WidgetsPresenter::registerView<TermSelectionDialog>();
 	QtMvvm::WidgetsPresenter::getInputWidgetFactory()->addSimpleWidget<SnoozeTimes, SnoozeTimesEdit>();
 
 	return a.exec();

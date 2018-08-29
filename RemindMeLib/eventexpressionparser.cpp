@@ -24,6 +24,21 @@ TermSelection EventExpressionParser::parseExpression(const QString &expression)
 	return std::move(resList.first());
 }
 
+bool EventExpressionParser::needsSelection(const TermSelection &term) const
+{
+	return term.size() > 1;
+}
+
+bool EventExpressionParser::needsSelection(const MultiTerm &term) const
+{
+	for(const auto &selTerm : term) {
+		if(selTerm.size() > 1)
+			return true;
+	}
+
+	return false;
+}
+
 QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term, const QDateTime &reference)
 {
 	if(term.isLooped()) {
@@ -629,7 +644,25 @@ std::tuple<Term, Term, Term, Term> Term::splitLoop() const
 		splitIndex != -1 ? Term{mid(0, splitIndex)} : Term{},
 		fromIndex != -1 ? at(fromIndex).staticCast<LimiterTerm>()->limitTerm() : Term{},
 		toIndex != -1 ? at(toIndex).staticCast<LimiterTerm>()->limitTerm() : Term{}
-	);
+						);
+}
+
+QString Term::describe() const
+{
+	if(isLooped()) {
+		Term loop, fence, from, until;
+		std::tie(loop, fence, from, until) = splitLoop();
+		QString res;
+		if(!fence.isEmpty())
+			res += EventExpressionParser::tr("within {%1} ").arg(fence.describeImpl());
+		res += EventExpressionParser::tr("every {%1}").arg(loop.describeImpl());
+		if(!from.isEmpty())
+			res += EventExpressionParser::tr(" from {%1}").arg(from.describeImpl());
+		if(!until.isEmpty())
+			res += EventExpressionParser::tr(" until {%1}").arg(until.describeImpl());
+		return res;
+	} else
+		return describeImpl();
 }
 
 void Term::finalize()
@@ -642,6 +675,14 @@ void Term::finalize()
 		_looped = _looped || subTerm->type.testFlag(SubTerm::FlagLooped);
 		_absolute = _absolute || subTerm->type.testFlag(SubTerm::FlagAbsolute);
 	}
+}
+
+QString Term::describeImpl() const
+{
+	QStringList subDesc;
+	for(const auto &term : *this)
+		subDesc.append(term->describe());
+	return subDesc.join(QStringLiteral("; "));
 }
 
 

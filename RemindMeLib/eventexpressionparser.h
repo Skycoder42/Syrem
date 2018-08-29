@@ -72,6 +72,7 @@ public:
 	virtual void apply(QDateTime &datetime, bool applyFenced) const = 0;
 	virtual void fixup(QDateTime &datetime) const;
 	virtual void fixupCleanup(QDateTime &datetime) const;
+	virtual QString describe() const = 0;
 
 protected:
 	Q_INVOKABLE explicit SubTerm(QObject *parent);
@@ -111,10 +112,14 @@ public:
 	QDateTime apply(const QDateTime &datetime, bool applyFenced = false) const;
 	std::tuple<Term, Term, Term, Term> splitLoop() const; //(loop, fence, from, until)
 
+	QString describe() const;
+
 private:
 	friend class ::EventExpressionParser;
 	friend class ::TermConverter;
+
 	void finalize();
+	QString describeImpl() const;
 
 	SubTerm::Scope _scope = SubTerm::InvalidScope;
 	bool _looped = false;
@@ -176,6 +181,9 @@ public:
 
 	Expressions::MultiTerm parseMultiExpression(const QString &expression);
 	Expressions::TermSelection parseExpression(const QString &expression);
+
+	bool needsSelection(const Expressions::TermSelection &term) const;
+	bool needsSelection(const Expressions::MultiTerm &term) const;
 
 	QSharedPointer<Schedule> createSchedule(const Expressions::Term &term, const QDateTime &reference = QDateTime::currentDateTime());
 	QSharedPointer<Schedule> createMultiSchedule(Expressions::MultiTerm terms,

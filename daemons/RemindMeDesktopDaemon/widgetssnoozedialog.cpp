@@ -60,7 +60,7 @@ void WidgetsSnoozeDialog::performSnooze()
 			remWidget->deleteLater();
 			resizeUi();
 		} catch (EventExpressionParserException &e) {
-			DialogMaster::critical(this, e.qWhat(), tr("Snoozing failed!"));
+			DialogMaster::critical(this, e.message(), tr("Snoozing failed!"));
 		}
 	}
 }
