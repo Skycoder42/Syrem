@@ -9,6 +9,12 @@ AlertDialog {
 	id: snoozeDialog
 	title: qsTr("Snooze Reminder")
 	property SnoozeViewModel viewModel: null
+	enabled: !viewModel.blocked
+
+	Connections {
+		target: viewModel
+		onClose: snoozeDialog.close()
+	}
 
 	ColumnLayout {
 		width: parent.width
@@ -54,10 +60,7 @@ AlertDialog {
 
 			standardButtons: viewModel.valid ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
 
-			onAccepted: {
-				if(viewModel.snooze())
-					snoozeDialog.accept();
-			}
+			onAccepted: viewModel.snooze();
 			onRejected: snoozeDialog.reject()
 		}
 	}

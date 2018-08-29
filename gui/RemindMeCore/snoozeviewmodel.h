@@ -17,6 +17,7 @@ class SnoozeViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(QString description READ description NOTIFY reminderLoaded)
 	Q_PROPERTY(QStringList snoozeTimes READ snoozeTimes NOTIFY reminderLoaded)
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
+	Q_PROPERTY(bool blocked READ isBlocked NOTIFY blockedChanged)
 
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
@@ -32,20 +33,26 @@ public:
 	QString description() const;
 	QStringList snoozeTimes() const;
 	QString expression() const;
-
-	Q_INVOKABLE bool snooze();
+	bool isBlocked() const;
 
 public slots:
+	void snooze();
 	void setExpression(const QString &expression);
 
 signals:
 	void reminderLoaded();
+	void close();
+
 	void expressionChanged(const QString &expression);
+	void blockedChanged(bool blocked);
 
 protected:
 	void onInit(const QVariantHash &params) override;
+	void onResult(quint32 requestCode, const QVariant &result) override;
 
 private:
+	static constexpr int TermSelectCode = 20;
+
 	SyncedSettings *_settings = nullptr;
 	EventExpressionParser *_parser = nullptr;
 	ReminderStore *_store;
@@ -53,6 +60,10 @@ private:
 	Reminder _reminder;
 	QStringList _snoozeTimes;
 	QString _expression;
+	bool _blocked = false;
+
+	void finishSnooze(const Expressions::Term &term);
+	void setBlocked(bool blocked);
 };
 
 #endif // SNOOZECONTROL_H

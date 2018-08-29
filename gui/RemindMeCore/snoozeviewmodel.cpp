@@ -1,4 +1,5 @@
 #include "snoozeviewmodel.h"
+#include "termselectionviewmodel.h"
 #include <QtMvvmCore/Messages>
 #include <snoozetimes.h>
 #include <syncedsettings.h>
@@ -39,25 +40,26 @@ QString SnoozeViewModel::expression() const
 	return _expression;
 }
 
-bool SnoozeViewModel::snooze()
+bool SnoozeViewModel::isBlocked() const
+{
+	return _blocked;
+}
+
+void SnoozeViewModel::snooze()
 {
 	if(!isValid())
-		return false;
+		return;
 
 	try {
 		auto term = _parser->parseExpression(_expression);
-		//TODO select
-		_reminder.performSnooze(_store->store(), _parser->evaluteTerm(term.first()));
-		return true;
+		if(_parser->needsSelection(term)) {
+			setBlocked(true);
+			showForResult<TermSelectionViewModel>(TermSelectCode, TermSelectionViewModel::showParams(term));
+		} else
+			finishSnooze(term.first());
 	} catch (EventExpressionParserException &e) {
 		QtMvvm::critical(tr("Snoozing failed!"), e.message());
-	} catch (QException &e) {
-		qCritical() << "Failed to snooze reminder with error:" << e.what();
-		QtMvvm::critical(tr("Snoozing failed!"),
-						 tr("Unable update reminder in data store. Snooze not performed."));
 	}
-
-	return false;
 }
 
 void SnoozeViewModel::setExpression(const QString &expression)
@@ -76,4 +78,40 @@ void SnoozeViewModel::onInit(const QVariantHash &params)
 	_snoozeTimes = _settings->scheduler.snoozetimes;
 	_reminder = params.value(paramReminder).value<Reminder>();
 	emit reminderLoaded();
+}
+
+void SnoozeViewModel::onResult(quint32 requestCode, const QVariant &result)
+{
+	if(requestCode == TermSelectCode) {
+		auto res = TermSelectionViewModel::readSingleResult(result);
+		if(!res.isEmpty())
+			finishSnooze(res);
+		else
+			setBlocked(false);
+	}
+}
+
+void SnoozeViewModel::finishSnooze(const Expressions::Term &term)
+{
+	try {
+		_reminder.performSnooze(_store->store(), _parser->evaluteTerm(term));
+		emit close();
+	} catch (EventExpressionParserException &e) {
+		QtMvvm::critical(tr("Snoozing failed!"), e.message());
+		setBlocked(false);
+	} catch (QException &e) {
+		qCritical() << "Failed to snooze reminder with error:" << e.what();
+		QtMvvm::critical(tr("Snoozing failed!"),
+						 tr("Unable update reminder in data store. Snooze not performed."));
+		setBlocked(false);
+	}
+}
+
+void SnoozeViewModel::setBlocked(bool blocked)
+{
+	if(blocked == _blocked)
+		return;
+
+	_blocked = blocked;
+	emit blockedChanged(_blocked);
 }

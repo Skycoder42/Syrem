@@ -28,6 +28,8 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 			this, [this]() {
 		setTextValue(comboBoxItems().isEmpty() ? QString{} : comboBoxItems().first());
 	});
+	connect(_viewModel, &SnoozeViewModel::close,
+			this, &SnoozeDialog::close);
 
 	if(LocalSettings::instance()->gui.snoozedialog.size.isSet())
 		resize(LocalSettings::instance()->gui.snoozedialog.size);
@@ -41,6 +43,5 @@ SnoozeDialog::~SnoozeDialog()
 void SnoozeDialog::accept()
 {
 	_viewModel->setExpression(textValue());
-	if(_viewModel->snooze())
-		QDialog::accept();
+	_viewModel->snooze();
 }
