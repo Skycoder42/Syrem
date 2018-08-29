@@ -52,6 +52,11 @@ MainViewModel::MainViewModel(QObject *parent) :
 	_sortedModel->setSourceModel(_reminderModel);
 	_sortedModel->setSortRole(SortRole);
 	_sortedModel->sort(1);
+
+	connect(_reminderModel, &QtDataSync::DataStoreModel::storeError,
+			this, [](const QException &error){
+		qCritical() << error.what();
+	});
 }
 
 QVariantHash MainViewModel::showParams(const QUuid &reminderId)

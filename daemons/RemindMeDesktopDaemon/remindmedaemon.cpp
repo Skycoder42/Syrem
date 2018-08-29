@@ -11,13 +11,32 @@
 using namespace QtDataSync;
 
 RemindMeDaemon::RemindMeDaemon(QObject *parent) :
-	QObject(parent),
-	_notManager(nullptr)
+	CoreApp{parent}
 {}
 
-bool RemindMeDaemon::startDaemon(bool systemdLog)
+int RemindMeDaemon::startApp(const QStringList &arguments)
 {
-	if(systemdLog) {
+	QCommandLineParser parser;
+	parser.setApplicationDescription(QStringLiteral("The notification scheduler service for the Remind-Me application"));
+
+	parser.addHelpOption();
+	parser.addVersionOption();
+	parser.addOption({
+						 QStringLiteral("systemd-log"),
+						 QStringLiteral("Log in a format that systemd can easily interpret without redundant information")
+					 });
+
+	if(!parser.parse(arguments)) {
+		qCritical().noquote() << parser.errorText();
+		return EXIT_FAILURE;
+	}
+	if(parser.isSet(QStringLiteral("help"))) {
+		qInfo().noquote() << parser.helpText();
+		return -1;
+	}
+
+
+	if(parser.isSet(QStringLiteral("systemd-log"))) {
 #if !QT_CONFIG(journald) && !QT_CONFIG(syslog)
 		qSetMessagePattern(QStringLiteral("%{if-fatal}<0>%{endif}"
 										  "%{if-critical}<2>%{endif}"
@@ -47,13 +66,12 @@ bool RemindMeDaemon::startDaemon(bool systemdLog)
 		setup.create();
 
 		_notManager = QtMvvm::ServiceRegistry::instance()->constructInjected<NotificationManager>(this);
-		_notManager->init();
 
 		qInfo() << "daemon successfully started";
-		return true;
+		return EXIT_SUCCESS;
 	} catch(QException &e) {
 		qCritical() << e.what();
-		return false;
+		return EXIT_FAILURE;
 	}
 }
 

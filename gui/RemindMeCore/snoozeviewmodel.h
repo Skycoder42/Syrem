@@ -24,8 +24,10 @@ class SnoozeViewModel : public QtMvvm::ViewModel
 
 public:
 	const static QString paramReminder;
+	const static QString paramReminderId;
 
 	static QVariantHash showParams(const Reminder &reminder);
+	static QVariantHash showParams(QUuid reminderId);
 
 	Q_INVOKABLE explicit SnoozeViewModel(QObject *parent = nullptr);
 

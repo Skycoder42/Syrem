@@ -5,6 +5,7 @@
 #include <syncedsettings.h>
 
 const QString SnoozeViewModel::paramReminder{QStringLiteral("reminder")};
+const QString SnoozeViewModel::paramReminderId{QStringLiteral("id")};
 
 SnoozeViewModel::SnoozeViewModel(QObject *parent) :
 	ViewModel{parent},
@@ -15,6 +16,13 @@ QVariantHash SnoozeViewModel::showParams(const Reminder &reminder)
 {
 	return {
 		{paramReminder, QVariant::fromValue<Reminder>(reminder)}
+	};
+}
+
+QVariantHash SnoozeViewModel::showParams(QUuid reminderId)
+{
+	return {
+		{paramReminderId, reminderId}
 	};
 }
 
@@ -73,10 +81,20 @@ void SnoozeViewModel::setExpression(const QString &expression)
 
 void SnoozeViewModel::onInit(const QVariantHash &params)
 {
-	Q_ASSERT_X(params.contains(paramReminder), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
+	if(params.contains(paramReminderId)) {
+		try {
+			_reminder = _store->load(params.value(paramReminderId).toUuid());
+		} catch(QException &e) {
+			qCritical() << "Failed to load reminder to snooze it with error:" << e.what();
+			QtMvvm::critical(tr("Snoozing failed!"),
+							 tr("Unable loard reminder from data store. Unable to snooze."));
+		}
+	} else {
+		Q_ASSERT_X(params.contains(paramReminder), Q_FUNC_INFO, "SnoozeViewModel must always have at least the id parameter");
+		_reminder = params.value(paramReminder).value<Reminder>();
+	}
 
 	_snoozeTimes = _settings->scheduler.snoozetimes;
-	_reminder = params.value(paramReminder).value<Reminder>();
 	emit reminderLoaded();
 }
 

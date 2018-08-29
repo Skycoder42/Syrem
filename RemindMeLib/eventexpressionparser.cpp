@@ -693,6 +693,12 @@ EventExpressionParserException::EventExpressionParserException(EventExpressionPa
 	_what{"Error " + QByteArray::number(_type) + ": " + _message.toUtf8()}
 {}
 
+EventExpressionParserException::EventExpressionParserException(QString message) :
+	_type{EventExpressionParser::UnknownError},
+	_message{std::move(message)},
+	_what{"Error " + QByteArray::number(_type) + ": " + _message.toUtf8()}
+{}
+
 QString EventExpressionParserException::message() const
 {
 	return _message;

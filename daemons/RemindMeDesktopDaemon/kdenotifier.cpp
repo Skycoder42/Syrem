@@ -1,8 +1,9 @@
 #include "kdenotifier.h"
 
 #include <QApplication>
+#include <QtMvvmCore/CoreApp>
 #include <dialogmaster.h>
-#include "kdesnoozedialog.h"
+#include <snoozeviewmodel.h>
 
 #ifndef QT_NO_DEBUG
 #include <QIcon>
@@ -58,15 +59,9 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 		if(removeNot(remId))
 			emit messageCompleted(remId, vCode);
 	});
-	connect(notification, &KNotification::action2Activated, this, [this, remId, vCode, description](){
-		if(removeNot(remId)) {
-			auto dialog = new KdeSnoozeDialog(_settings, _parser, description);
-			connect(dialog, &KdeSnoozeDialog::timeSelected,
-					this, [this, remId, vCode](const QDateTime &time){
-				emit messageDelayed(remId, vCode, time);
-			});
-			dialog->open();
-		}
+	connect(notification, &KNotification::action2Activated, this, [this, remId](){
+		if(removeNot(remId))
+			QtMvvm::CoreApp::show<SnoozeViewModel>(SnoozeViewModel::showParams(remId));
 	});
 	connect(notification, &KNotification::closed, this, [this, remId, vCode](){
 		removeNot(remId);

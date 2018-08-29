@@ -44,7 +44,7 @@ protected:
 
 private:
 	SyncedSettings *_settings = nullptr;
-	QtDataSync::DataStoreModel *_reminderModel; //TODO react to error signals
+	QtDataSync::DataStoreModel *_reminderModel;
 	QSortFilterProxyModel *_sortedModel;
 };
 

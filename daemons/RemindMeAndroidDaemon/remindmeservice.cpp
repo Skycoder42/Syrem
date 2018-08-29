@@ -182,7 +182,10 @@ void RemindmeService::actionSnooze(const QUuid &id, quint32 versionCode, const Q
 		auto reminder = _store->load(id);
 		try {
 			auto term = _parser->parseExpression(expression);
-			//TODO handle selection
+			if(_parser->needsSelection(term)) {
+				throw EventExpressionParserException{tr("Entered expression has multiple interpretations. "
+														"Use the app to handle this or enter a unique expression")};
+			}
 			auto snooze = _parser->evaluteTerm(term.first());
 
 			if(reminder.versionCode() != versionCode) {

@@ -5,7 +5,7 @@ TARGET = remind-med
 QMAKE_TARGET_PRODUCT = "Remind-Me Daemon"
 DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\""
 
-QT += widgets mvvmcore core-private
+QT += widgets mvvmcore mvvmwidgets core-private
 
 !no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
 
@@ -19,26 +19,26 @@ HEADERS += \
 	remindmedaemon.h \
 	notificationmanager.h \
 	timerscheduler.h \
-	inotifier.h
+	inotifier.h \
+	widgetssnoozedialog.h
 
 SOURCES += main.cpp \
 	remindmedaemon.cpp \
 	notificationmanager.cpp \
-	timerscheduler.cpp
+	timerscheduler.cpp \
+	widgetssnoozedialog.cpp
 
 RESOURCES += \
 	remindmedesktopdaemon.qrc
 
+include(widgets-include.pri))
+
 kde_notifier {
-	HEADERS += kdenotifier.h \
-		kdesnoozedialog.h
-	SOURCES += kdenotifier.cpp \
-		kdesnoozedialog.cpp
+	HEADERS += kdenotifier.h
+	SOURCES += kdenotifier.cpp
 } else {
-	HEADERS += widgetsnotifier.h \
-		widgetssnoozedialog.h
-	SOURCES += widgetsnotifier.cpp \
-		widgetssnoozedialog.cpp
+	HEADERS += widgetsnotifier.h
+	SOURCES += widgetsnotifier.cpp
 }
 
 TRANSLATIONS += remindme_daemon_de.ts \

@@ -1,10 +1,10 @@
 #ifndef REMINDMEDAEMON_H
 #define REMINDMEDAEMON_H
 
-#include <QObject>
+#include <QtMvvmCore/CoreApp>
 class NotificationManager;
 
-class RemindMeDaemon : public QObject
+class RemindMeDaemon : public QtMvvm::CoreApp
 {
 	Q_OBJECT
 
@@ -13,11 +13,14 @@ public:
 
 	bool startDaemon(bool systemdLog);
 
+protected:
+	int startApp(const QStringList &arguments) override;
+
 private slots:
 	void signalTriggered(int sig);
 
 private:
-	NotificationManager *_notManager;
+	NotificationManager *_notManager = nullptr;
 };
 
 #endif // REMINDMEDAEMON_H

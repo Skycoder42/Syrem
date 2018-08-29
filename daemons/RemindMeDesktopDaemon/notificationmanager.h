@@ -21,7 +21,7 @@ public:
 	Q_INVOKABLE explicit NotificationManager(QObject *parent = nullptr);
 
 public slots:
-	void init();
+	void qtmvvm_init();
 	void triggerSync();
 
 private slots:

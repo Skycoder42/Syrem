@@ -26,7 +26,7 @@ NotificationManager::NotificationManager(QObject *parent) :
 			_taskbar->parent(), &QObject::deleteLater);
 }
 
-void NotificationManager::init()
+void NotificationManager::qtmvvm_init()
 {
 	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral("remind-me.desktop"));
 
@@ -110,9 +110,6 @@ void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, Q
 {
 	if(!nextTrigger.isValid())
 		return;
-
-	if(QDateTime::currentDateTime().secsTo(nextTrigger) < 60)
-		nextTrigger = QDateTime::currentDateTime().addSecs(60);
 
 	try {
 		auto rem = _store->load(id);

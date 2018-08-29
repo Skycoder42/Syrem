@@ -237,6 +237,7 @@ class REMINDMELIBSHARED_EXPORT EventExpressionParserException : public QExceptio
 {
 public:
 	EventExpressionParserException(EventExpressionParser::ErrorType type, int depthEnd = 0, const QStringRef &subTerm = {});
+	EventExpressionParserException(QString message);
 
 	QString message() const;
 	EventExpressionParser::ErrorType type() const;
