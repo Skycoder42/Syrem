@@ -99,11 +99,13 @@ void MainViewModel::addReminder()
 	show<CreateReminderViewModel>();
 }
 
-void MainViewModel::completeReminder(const QUuid &id)
+void MainViewModel::completeReminder(QUuid id)
 {
 	try {
 		auto rem = _reminderModel->store()->load<Reminder>(id);
 		rem.nextSchedule(_reminderModel->store(), QDateTime::currentDateTime());
+		if(_settings->scheduler.urlOpen)
+			rem.openUrls();
 	} catch(QtDataSync::NoDataException &e) {
 		qDebug() << "Skipping completing of deleted reminder" << id
 				 << "with reason" << e.what();
@@ -114,7 +116,7 @@ void MainViewModel::completeReminder(const QUuid &id)
 	}
 }
 
-void MainViewModel::deleteReminder(const QUuid &id)
+void MainViewModel::deleteReminder(QUuid id)
 {
 	try {
 		if(!_reminderModel->store()->remove<Reminder>(id))
@@ -126,7 +128,7 @@ void MainViewModel::deleteReminder(const QUuid &id)
 	}
 }
 
-void MainViewModel::snoozeReminder(const QUuid &id)
+void MainViewModel::snoozeReminder(QUuid id)
 {
 	if(id.isNull())
 		return;
@@ -142,6 +144,21 @@ void MainViewModel::snoozeReminder(const QUuid &id)
 		qCritical() << "Failed to load reminder with error:" << e.what();
 		QtMvvm::critical(tr("Failed to snooze reminder"),
 						 tr("Unable to load the reminder that should be snoozed!"));
+	}
+}
+
+void MainViewModel::openReminderUrls(QUuid id)
+{
+	if(id.isNull())
+		return;
+
+	try {
+		auto rem = _reminderModel->store()->load<Reminder>(id);
+		rem.openUrls();
+	} catch (QException &e) {
+		qCritical() << "Failed to load reminder with error:" << e.what();
+		QtMvvm::critical(tr("Failed to open reminder urls"),
+						 tr("Unable to load the reminder to open its urls!"));
 	}
 }
 

@@ -13,9 +13,10 @@ SwipeDelegate {
 	text: description
 	highlighted: important ? important == "true" : false
 
-	signal reminderCompleted
-	signal reminderDeleted
-	signal reminderActivated
+	signal reminderCompleted()
+	signal reminderDeleted()
+	signal reminderActivated()
+	signal reminderOpenUrl()
 
 	function redColor() {
 		if(QuickPresenter.currentStyle === "Material")
@@ -105,6 +106,7 @@ SwipeDelegate {
 	}
 
 	onClicked: reminderActivated()
+	onPressAndHold: reminderOpenUrl()
 
 	swipe.right: Rectangle {
 		readonly property bool isTriggered: triggerState == Reminder.Triggered || triggerState == Reminder.Snoozed

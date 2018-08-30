@@ -61,6 +61,13 @@ void TraySnoozeViewModel::performSnooze(QUuid id, const QString &expression)
 	}
 }
 
+void TraySnoozeViewModel::openUrls(QUuid id)
+{
+	auto rem = _reminders.value(id);
+	if(!rem.id().isNull())
+		rem.openUrls();
+}
+
 void TraySnoozeViewModel::onInit(const QVariantHash &params)
 {
 	_notifier = params.value(paramNotifier).value<INotifier*>();

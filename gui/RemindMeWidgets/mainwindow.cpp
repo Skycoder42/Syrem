@@ -27,14 +27,18 @@ MainWindow::MainWindow(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 	connect(_ui->action_Add_Reminder, &QAction::triggered,
 			_viewModel, &MainViewModel::addReminder);
 
-	auto sep = new QAction(this);
-	sep->setSeparator(true);
+	auto sep1 = new QAction(this);
+	sep1->setSeparator(true);
+	auto sep2 = new QAction(this);
+	sep2->setSeparator(true);
 	_ui->treeView->addActions({
 								  _ui->action_Add_Reminder,
 								  _ui->action_Delete_Reminder,
-								  sep,
+								  sep1,
 								  _ui->action_Complete_Reminder,
-								  _ui->action_Snooze_Reminder
+								  _ui->action_Snooze_Reminder,
+								  sep2,
+								  _ui->actionOpen_URLs,
 							  });
 
 	_proxyModel->setSourceModel(_viewModel->sortedModel());
@@ -92,6 +96,11 @@ void MainWindow::on_action_Snooze_Reminder_triggered()
 	_viewModel->snoozeReminder(reminderAt(_ui->treeView->currentIndex()).id());
 }
 
+void MainWindow::on_actionOpen_URLs_triggered()
+{
+	reminderAt(_ui->treeView->currentIndex()).openUrls();
+}
+
 void MainWindow::on_treeView_activated(const QModelIndex &index)
 {
 	_viewModel->snoozeReminder(reminderAt(index).id());
@@ -106,9 +115,11 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 		auto isReady = (canSnooze || state == Reminder::Snoozed);
 		_ui->action_Complete_Reminder->setEnabled(isReady);
 		_ui->action_Snooze_Reminder->setEnabled(canSnooze);
+		_ui->actionOpen_URLs->setVisible(reminder.hasUrls());
 	} else {
 		_ui->action_Complete_Reminder->setEnabled(false);
 		_ui->action_Snooze_Reminder->setEnabled(false);
+		_ui->actionOpen_URLs->setVisible(false);
 	}
 }
 

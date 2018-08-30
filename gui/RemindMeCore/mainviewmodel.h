@@ -32,9 +32,10 @@ public slots:
 	void showAbout();
 
 	void addReminder();
-	void completeReminder(const QUuid &id);
-	void deleteReminder(const QUuid &id);
-	void snoozeReminder(const QUuid &id);
+	void completeReminder(QUuid id);
+	void deleteReminder(QUuid id);
+	void snoozeReminder(QUuid id);
+	void openReminderUrls(QUuid id);
 
 signals:
 	void select(int row);

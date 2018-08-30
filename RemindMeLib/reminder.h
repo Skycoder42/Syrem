@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QSharedDataPointer>
 #include <QSharedPointer>
+#include <QUrl>
 #include <QUuid>
 #include <QtDataSync/DataTypeStore>
 
@@ -23,12 +24,17 @@ class REMINDMELIBSHARED_EXPORT Reminder
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(bool important READ isImportant WRITE setImportant)
 
+	Q_PROPERTY(QString htmlDescription READ htmlDescription STORED false)
+	Q_PROPERTY(bool hasUrls READ hasUrls STORED false)
+
 	Q_PROPERTY(QDateTime current READ current STORED false)
 	Q_PROPERTY(bool repeating READ isRepeating STORED false)
 	Q_PROPERTY(State triggerState READ triggerState STORED false)
 	Q_PROPERTY(QSharedPointer<Schedule> schedule READ getSchedule WRITE setSchedule)
 
 	Q_PROPERTY(QDateTime snooze READ snooze WRITE setSnooze)
+
+	Q_PROPERTY(QString expression READ expression WRITE setExpression)
 
 public:
 	enum State {
@@ -41,7 +47,9 @@ public:
 
 	Reminder();
 	Reminder(const Reminder &rhs);
+	Reminder(Reminder &&rhs) noexcept;
 	Reminder &operator=(const Reminder &rhs);
+	Reminder &operator=(Reminder &&rhs) noexcept;
 	~Reminder();
 
 	QUuid id() const;
@@ -54,19 +62,29 @@ public:
 	State triggerState() const;
 	QSharedPointer<const Schedule> schedule() const;
 	QDateTime snooze() const;
+	QString expression() const;
+
+	QList<QUrl> extractUrls() const;
+	QString htmlDescription() const;
+	bool hasUrls() const;
 
 	void nextSchedule(QtDataSync::DataStore *store, const QDateTime &current);
 	void performSnooze(QtDataSync::DataStore *store, const QDateTime &snooze);
 
-public slots:
-	void setId(const QUuid &id);
-	void setDescription(const QString &description);
+	Q_INVOKABLE void openUrls() const;
+
+	void setId(QUuid id);
+	void setDescription(QString description);
 	void setImportant(bool important);
-	void setSchedule(const QSharedPointer<Schedule> &schedule);
-	void setSchedule(Schedule *schedule);
+	void setSchedule(QSharedPointer<Schedule> schedule);
+	void setExpression(QString expression);
 
 private:
 	QSharedDataPointer<ReminderData> _data;
+	mutable struct {
+		bool set = false;
+		QList<QUrl> urls;
+	} _urlCache;
 
 	void setVersionCode(quint32 versionCode);
 	QSharedPointer<Schedule> getSchedule() const;

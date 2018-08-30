@@ -59,6 +59,7 @@ Page {
 				onReminderActivated: viewModel.snoozeReminder(id)
 				onReminderCompleted: viewModel.completeReminder(id)
 				onReminderDeleted: viewModel.deleteReminder(id)
+				onReminderOpenUrl: viewModel.openReminderUrls(id);
 			}
 		}
 	}

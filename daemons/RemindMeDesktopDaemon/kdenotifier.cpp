@@ -40,17 +40,19 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 						   .arg(QApplication::applicationDisplayName()));
 	notification->setText(reminder.description());
 	notification->setNotifyIcon(Icon);
-	notification->setDefaultAction(tr("Open GUI"));
-	notification->setActions({
-								 tr("Complete"),
-								 tr("Snooze")
-							 });
+	notification->setDefaultAction(tr("Open GUI")); //TODO allow change in settings to open URL instead (or both)
+	QStringList actions {
+		tr("Complete"),
+		tr("Snooze")
+	};
+	if(reminder.hasUrls())
+		actions.append(tr("Open URLs"));
+	notification->setActions(actions);
 	if(important)
 		notification->setFlags(notification->flags() | KNotification::LoopSound);
 
 	auto remId = reminder.id();
 	auto vCode = reminder.versionCode();
-	auto description = reminder.description();
 	connect(notification, QOverload<>::of(&KNotification::activated), this, [this, remId](){
 		if(removeNot(remId))
 			emit messageActivated(remId);
@@ -63,7 +65,11 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 		if(removeNot(remId))
 			QtMvvm::CoreApp::show<SnoozeViewModel>(SnoozeViewModel::showParams(remId));
 	});
-	connect(notification, &KNotification::closed, this, [this, remId, vCode](){
+	connect(notification, &KNotification::action3Activated, this, [this, remId](){
+		if(removeNot(remId))
+			emit messageOpenUrls(remId);
+	});
+	connect(notification, &KNotification::closed, this, [this, remId](){
 		removeNot(remId);
 	});
 

@@ -30,6 +30,7 @@ private slots:
 	void messageCompleted(QUuid id, quint32 versionCode);
 	void messageDelayed(QUuid id, quint32 versionCode, const QDateTime &nextTrigger);
 	void messageActivated(QUuid id);
+	void messageOpenUrls(QUuid id);
 
 	void dataChanged(const QString &key, const QVariant &value);
 	void dataResetted();

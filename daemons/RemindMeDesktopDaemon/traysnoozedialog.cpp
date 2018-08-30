@@ -41,6 +41,13 @@ void TraySnoozeDialog::performSnooze()
 	}
 }
 
+void TraySnoozeDialog::performUrlOpen()
+{
+	auto remWidget = _toolBox->currentWidget();
+	if(remWidget)
+		_viewModel->openUrls(_reminders.value(remWidget));
+}
+
 void TraySnoozeDialog::reloadReminders(const QList<Reminder> &reminders)
 {
 	while(_toolBox->count() > 0) {
@@ -88,48 +95,58 @@ void TraySnoozeDialog::resizeUi()
 
 void TraySnoozeDialog::addReminder(const Reminder &reminder)
 {
-	auto remWidet = new QWidget(_toolBox);
-	auto remLayout = new QHBoxLayout(remWidet);
+	auto remWidget = new QWidget{_toolBox};
+	auto remLayout = new QHBoxLayout{remWidget};
 
 	// snooze combobox
-	auto cBox = new QComboBox(remWidet);
+	auto cBox = new QComboBox{remWidget};
 	cBox->setEditable(true);
 	cBox->addItems(_viewModel->settings()->scheduler.snoozetimes);
+	remLayout->addWidget(cBox);
 
 	//snooze button
-	auto sButton = new QPushButton(remWidet);
-	sButton->setText(tr("&Snooze"));
+	auto sButton = new QPushButton{tr("&Snooze"), remWidget};
 	sButton->setAutoDefault(false);
 	sButton->setDefault(false);
 	connect(sButton, &QPushButton::clicked,
 			this, &TraySnoozeDialog::performSnooze);
+	remLayout->addWidget(sButton);
 
 	// complete button
-	auto cButton = new QPushButton(remWidet);
-	cButton->setText(tr("&Complete"));
+	auto cButton = new QPushButton{tr("&Complete"), remWidget};
 	cButton->setAutoDefault(false);
 	cButton->setDefault(false);
 	connect(cButton, &QPushButton::clicked,
 			this, &TraySnoozeDialog::performComplete);
-	connect(_toolBox, &QToolBox::currentChanged, cButton, [this, remWidet, cButton](int index){
+	connect(_toolBox, &QToolBox::currentChanged, cButton, [this, remWidget, cButton](int index){
 		auto w = _toolBox->widget(index);
-		if(w == remWidet)
+		if(w == remWidget)
 			cButton->setDefault(true);
 		else
 			cButton->setDefault(false);
 	});
-
-	remLayout->addWidget(cBox);
-	remLayout->addWidget(sButton);
 	remLayout->addWidget(cButton);
+
+	// open urls button
+	if(reminder.hasUrls()) {
+		auto uButton = new QPushButton{tr("Open &URLs"), remWidget};
+		uButton->setAutoDefault(false);
+		uButton->setDefault(false);
+		connect(uButton, &QPushButton::clicked,
+				this, &TraySnoozeDialog::performUrlOpen);
+		remLayout->addWidget(uButton);
+	}
+
 	remLayout->setStretch(0, 1);
 	remLayout->setStretch(1, 0);
 	remLayout->setStretch(2, 0);
+	if(reminder.hasUrls())
+		remLayout->setStretch(3, 0);
 
 	QIcon icon;
 	if(reminder.isImportant())
 		icon = QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
-	_toolBox->addItem(remWidet, icon, reminder.description());
+	_toolBox->addItem(remWidget, icon, reminder.description());
 
-	_reminders.insert(remWidet, reminder.id());
+	_reminders.insert(remWidget, reminder.id());
 }

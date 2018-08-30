@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
-    <height>364</height>
+    <width>728</width>
+    <height>432</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>624</width>
+     <width>728</width>
      <height>23</height>
     </rect>
    </property>
@@ -119,6 +119,8 @@
    <addaction name="separator"/>
    <addaction name="action_Complete_Reminder"/>
    <addaction name="action_Snooze_Reminder"/>
+   <addaction name="separator"/>
+   <addaction name="actionOpen_URLs"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Add_Reminder">
@@ -135,6 +137,9 @@
    <property name="shortcut">
     <string notr="true">Ctrl+Ins</string>
    </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="action_Delete_Reminder">
    <property name="icon">
@@ -149,6 +154,9 @@
    </property>
    <property name="shortcut">
     <string notr="true">Del</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="action_Settings">
@@ -165,6 +173,9 @@
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+S</string>
    </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="action_Close">
    <property name="icon">
@@ -180,6 +191,9 @@
    <property name="shortcut">
     <string notr="true">Alt+F4</string>
    </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="action_About">
    <property name="icon">
@@ -188,6 +202,9 @@
    </property>
    <property name="text">
     <string>&amp;About</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="action_Complete_Reminder">
@@ -206,6 +223,9 @@
    </property>
    <property name="shortcut">
     <string notr="true">Del</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="action_Snooze_Reminder">
@@ -228,6 +248,9 @@
    <property name="shortcutContext">
     <enum>Qt::WidgetShortcut</enum>
    </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="actionS_ynchronization">
    <property name="icon">
@@ -236,6 +259,27 @@
    </property>
    <property name="text">
     <string>S&amp;ynchronization</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionOpen_URLs">
+   <property name="icon">
+    <iconset theme="internet-web-browser" resource="remindmewidgets.qrc">
+     <normaloff>:/icons/openUrl.ico</normaloff>:/icons/openUrl.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Open &amp;URLs</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+O</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

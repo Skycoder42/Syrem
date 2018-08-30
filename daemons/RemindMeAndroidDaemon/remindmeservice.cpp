@@ -167,6 +167,9 @@ void RemindmeService::actionComplete(const QUuid &id, quint32 versionCode)
 			return;
 		}
 		reminder.nextSchedule(_store->store(), QDateTime::currentDateTime());
+		// TODO
+//		if(_settings->scheduler.urlOpen)
+//			rem.openUrls();
 	} catch(QtDataSync::NoDataException &e) {
 		Q_UNUSED(e)
 		qInfo() << "Skipping completing of deleted reminder" << id;

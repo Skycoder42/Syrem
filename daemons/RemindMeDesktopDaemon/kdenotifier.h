@@ -29,6 +29,7 @@ signals:
 	void messageCompleted(QUuid id, quint32 versionCode) final;
 	void messageDelayed(QUuid id, quint32 versionCode, const QDateTime &nextTrigger) final;
 	void messageActivated(QUuid id) final;
+	void messageOpenUrls(QUuid id) final;
 
 private slots:
 	void qtmvvm_init();

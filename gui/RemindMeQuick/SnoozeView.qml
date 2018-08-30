@@ -50,13 +50,24 @@ AlertDialog {
 	}
 
 
-	footer: Item {
-		implicitWidth: _btnBox.implicitWidth
+	footer: RowLayout {
 		implicitHeight: _btnBox.implicitHeight
+
+		Button {
+			visible: viewModel.reminder.hasUrls
+			flat: true
+			highlighted: true
+			text: qsTr("Open URLs")
+			Layout.leftMargin: _btnBox.leftPadding
+			onClicked: {
+				viewModel.reminder.openUrls();
+				snoozeDialog.reject();
+			}
+		}
 
 		DialogButtonBox {
 			id: _btnBox
-			anchors.fill: parent
+			Layout.fillWidth: true
 
 			standardButtons: viewModel.valid ? (DialogButtonBox.Ok | DialogButtonBox.Cancel) : DialogButtonBox.Cancel
 

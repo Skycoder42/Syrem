@@ -87,6 +87,7 @@ void CreateReminderViewModel::finishCreate(const Expressions::MultiTerm &term, c
 		rem.setDescription(_text);
 		rem.setImportant(_important);
 		rem.setSchedule(_parser->createMultiSchedule(term, choices));
+		rem.setExpression(_expression);
 
 		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
 				this, [this, rem](const QString &key){

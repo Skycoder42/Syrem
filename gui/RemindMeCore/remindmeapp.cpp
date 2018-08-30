@@ -169,6 +169,7 @@ void RemindMeApp::createReminderInline(bool important, const QString &descriptio
 		reminder.setImportant(important);
 		reminder.setDescription(description);
 		reminder.setSchedule(parser->createMultiSchedule(terms));
+		reminder.setExpression(when);
 
 		connect(store, &QtDataSync::DataTypeStoreBase::dataChanged,
 				this, [reminder](const QString &id){

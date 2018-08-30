@@ -57,6 +57,12 @@
 				   tsdefault="true">
 				<Property key="qtmvvm_preview" type="string" tr="true">Currently set to: %1</Property>
 			</Entry>
+			<Entry key="scheduler/urlOpen"
+				   type="bool"
+				   title="Open &amp;URLs when completing"
+				   tooltip="If enabled, all detected URLs are opened in the systems default browser as soon as you complete a reminder."
+				   default="true">
+			</Entry>
 			<Entry key="scheduler/snoozetimes"
 				   type="SnoozeTimes"
 				   title="&amp;Predefined snooze times"

@@ -39,6 +39,8 @@ void NotificationManager::qtmvvm_init()
 			this, SLOT(messageDelayed(QUuid,quint32,QDateTime)));
 	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageActivated(QUuid)),
 			this, SLOT(messageActivated(QUuid)));
+	connect(dynamic_cast<QObject*>(_notifier), SIGNAL(messageOpenUrls(QUuid)),
+			this, SLOT(messageOpenUrls(QUuid)));
 
 	auto runFn = [this](){
 		_manager->runOnSynchronized([this](SyncManager::SyncState state) {
@@ -94,6 +96,8 @@ void NotificationManager::messageCompleted(QUuid id, quint32 versionCode)
 		auto rem = _store->load(id);
 		if(rem.versionCode() == versionCode) {
 			rem.nextSchedule(_store->store(), QDateTime::currentDateTime());
+			if(_settings->scheduler.urlOpen)
+				rem.openUrls();
 			qCInfo(manager) << "Completed reminder with id" << id;
 		}
 		removeNotify(id);
@@ -142,6 +146,20 @@ void NotificationManager::messageActivated(QUuid id)
 		qCDebug(manager) << "Successfully launched" << program;
 	else
 		qCWarning(manager) << "Failed to launch" << program;
+}
+
+void NotificationManager::messageOpenUrls(QUuid id)
+{
+	try {
+		auto rem = _store->load(id);
+		rem.openUrls();
+	} catch(QtDataSync::NoDataException &e) {
+		qCDebug(manager) << "Skipping showing of URLs of deleted reminder" << id
+						 << "with reason" << e.what();
+	} catch(QException &e) {
+		qCCritical(manager) << "Failed to load reminder to open URLs with id" << id
+							<< "with error:" << e.what();
+	}
 }
 
 void NotificationManager::dataChanged(const QString &key, const QVariant &value)

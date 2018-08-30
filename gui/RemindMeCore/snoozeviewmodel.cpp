@@ -53,6 +53,11 @@ bool SnoozeViewModel::isBlocked() const
 	return _blocked;
 }
 
+Reminder SnoozeViewModel::reminder() const
+{
+	return _reminder;
+}
+
 void SnoozeViewModel::snooze()
 {
 	if(!isValid())

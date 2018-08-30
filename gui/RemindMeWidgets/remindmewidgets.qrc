@@ -14,5 +14,6 @@
         <file alias="complete.ico">icons/tick.ico</file>
         <file alias="close.ico">icons/cross.ico</file>
         <file alias="sync.ico">icons/arrow_refresh.ico</file>
+        <file alias="openUrl.ico">icons/world_go.ico</file>
     </qresource>
 </RCC>

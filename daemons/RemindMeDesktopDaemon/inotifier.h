@@ -23,6 +23,7 @@ signals:
 	virtual void messageCompleted(QUuid id, quint32 versionCode) = 0;
 	virtual void messageDelayed(QUuid id, quint32 versionCode, const QDateTime &nextTrigger) = 0;
 	virtual void messageActivated(QUuid id) = 0;
+	virtual void messageOpenUrls(QUuid id) = 0;
 };
 
 #define INotifier_iid "de.skycoder42.remindme.daemon.INotifier"

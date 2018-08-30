@@ -31,6 +31,7 @@ public:
 public slots:
 	void performComplete(QUuid id);
 	void performSnooze(QUuid id, const QString &expression);
+	void openUrls(QUuid id);
 
 signals:
 	void remindersChanged(const QList<Reminder> &reminders);

@@ -18,6 +18,7 @@ public slots:
 private slots:
 	void performComplete();
 	void performSnooze();
+	void performUrlOpen();
 
 	void reloadReminders(const QList<Reminder> &reminders);
 

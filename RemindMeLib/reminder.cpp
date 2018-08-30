@@ -1,37 +1,36 @@
 #include "reminder.h"
 
 #include <QRegularExpression>
+#include <QDesktopServices>
 
 using namespace QtDataSync;
 
 class ReminderData : public QSharedData
 {
 public:
-	ReminderData();
-	ReminderData(const ReminderData &other);
+	ReminderData() = default;
+	ReminderData(const ReminderData &other) = default;
 
-	QUuid id;
-	quint32 versionCode;
+	QUuid id = QUuid::createUuid();
+	quint32 versionCode = 1;
 	QString text;
-	bool important;
+	bool important = false;
 	QSharedPointer<Schedule> schedule;
 	QDateTime snooze;
+	QString expression;
 };
 
 Reminder::Reminder() :
 	_data(new ReminderData)
 {}
 
-Reminder::Reminder(const Reminder &rhs) :
-	_data(rhs._data)
-{}
+Reminder::Reminder(const Reminder &rhs) = default;
 
-Reminder &Reminder::operator=(const Reminder &rhs)
-{
-	if (this != &rhs)
-		_data.operator=(rhs._data);
-	return *this;
-}
+Reminder::Reminder(Reminder &&rhs) noexcept = default;
+
+Reminder &Reminder::operator=(const Reminder &rhs) = default;
+
+Reminder &Reminder::operator=(Reminder &&rhs) noexcept = default;
 
 Reminder::~Reminder() = default;
 
@@ -96,6 +95,41 @@ QDateTime Reminder::snooze() const
 	return _data->snooze;
 }
 
+QString Reminder::expression() const
+{
+	return _data->expression;
+}
+
+QList<QUrl> Reminder::extractUrls() const
+{
+	if(!_urlCache.set) {
+		_urlCache.urls.clear();
+		QRegularExpression regex {QStringLiteral(R"__((?:\w+):\/\/\S+)__")};
+		auto matchIter = regex.globalMatch(_data->text);
+		while(matchIter.hasNext()) {
+			auto match = matchIter.next();
+			QUrl url{match.captured(0)};
+			if(url.isValid() && !url.isRelative())
+				_urlCache.urls.append(url);
+		}
+		_urlCache.set = true;
+	}
+
+	return _urlCache.urls;
+}
+
+QString Reminder::htmlDescription() const
+{
+	QRegularExpression regex {QStringLiteral(R"__(((?:\w+):\/\/\S+))__")};
+	auto text = _data->text;
+	return text.replace(regex, QStringLiteral(R"__(<a href=\"\1\">\1</a>)__"));
+}
+
+bool Reminder::hasUrls() const
+{
+	return !extractUrls().isEmpty();
+}
+
 void Reminder::nextSchedule(DataStore *store, const QDateTime &current)
 {
 	Q_ASSERT_X(_data->schedule, Q_FUNC_INFO, "cannot call next schedule without an assigned schedule");
@@ -120,14 +154,21 @@ void Reminder::performSnooze(DataStore *store, const QDateTime &snooze)
 	store->save(*this);
 }
 
-void Reminder::setId(const QUuid &id)
+void Reminder::openUrls() const
+{
+	for(const auto &url : extractUrls())
+		QDesktopServices::openUrl(url);
+}
+
+void Reminder::setId(QUuid id)
 {
 	_data->id = id;
 }
 
-void Reminder::setDescription(const QString &text)
+void Reminder::setDescription(QString text)
 {
-	_data->text = text;
+	_data->text = std::move(text);
+	_urlCache = {false, {}};
 }
 
 void Reminder::setImportant(bool important)
@@ -135,14 +176,14 @@ void Reminder::setImportant(bool important)
 	_data->important = important;
 }
 
-void Reminder::setSchedule(const QSharedPointer<Schedule> &schedule)
+void Reminder::setSchedule(QSharedPointer<Schedule> schedule)
 {
-	_data->schedule = schedule;
+	_data->schedule = std::move(schedule);
 }
 
-void Reminder::setSchedule(Schedule *schedule)
+void Reminder::setExpression(QString expression)
 {
-	_data->schedule = QSharedPointer<Schedule>(schedule);
+	_data->expression = std::move(expression);
 }
 
 void Reminder::setVersionCode(quint32 versionCode)
@@ -157,27 +198,5 @@ QSharedPointer<Schedule> Reminder::getSchedule() const
 
 void Reminder::setSnooze(QDateTime snooze)
 {
-	_data->snooze = snooze;
+	_data->snooze = std::move(snooze);
 }
-
-
-
-ReminderData::ReminderData() :
-	QSharedData(),
-	id(QUuid::createUuid()),
-	versionCode(1),
-	text(),
-	important(false),
-	schedule(nullptr),
-	snooze()
-{}
-
-ReminderData::ReminderData(const ReminderData &other):
-	QSharedData(other),
-	id(other.id),
-	versionCode(other.versionCode),
-	text(other.text),
-	important(other.important),
-	schedule(other.schedule),
-	snooze(other.snooze)
-{}
