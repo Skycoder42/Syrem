@@ -149,6 +149,8 @@ void Reminder::nextSchedule(DataStore *store, const QDateTime &current)
 
 void Reminder::performSnooze(DataStore *store, const QDateTime &snooze)
 {
+	if(_data->schedule && snooze <= _data->schedule->current())
+		throw EventExpressionParserException{EventExpressionParser::tr("The snooze time must be in the future of the normal reminder time and not in the past of it.")};
 	_data->snooze = snooze;
 	_data->versionCode++;
 	store->save(*this);

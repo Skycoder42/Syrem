@@ -18,24 +18,6 @@ SwipeDelegate {
 	signal reminderActivated()
 	signal reminderOpenUrl()
 
-	function redColor() {
-		if(QuickPresenter.currentStyle === "Material")
-			return Material.color(Material.Red);
-		else if(QuickPresenter.currentStyle === "Universal")
-			return Universal.color(Universal.Red);
-		else
-			return "#FF0000";
-	}
-
-	function accentColor() {
-		if(QuickPresenter.currentStyle === "Material")
-			return Material.accent;
-		else if(QuickPresenter.currentStyle === "Universal")
-			return Universal.accent;
-		else
-			return "#00FFFF";
-	}
-
 	contentItem: RowLayout {
 		Material.foreground: delegate.highlighted ? Material.accent : Material.foreground
 
@@ -108,26 +90,62 @@ SwipeDelegate {
 	onClicked: reminderActivated()
 	onPressAndHold: reminderOpenUrl()
 
-	swipe.right: Rectangle {
-		readonly property bool isTriggered: triggerState == Reminder.Triggered || triggerState == Reminder.Snoozed
+	ColorHelper {
+		id: helper
+	}
+
+	swipe.left: Rectangle {
 		anchors.fill: parent
-		color: isTriggered ? accentColor() : redColor()
+		color: {
+			if(QuickPresenter.currentStyle === "Material")
+				return Material.color(Material.Red);
+			else if(QuickPresenter.currentStyle === "Universal")
+				return Universal.color(Universal.Red);
+			else
+				return "#FF0000";
+		}
 
 		MouseArea {
 			anchors.fill: parent
 
 			ActionButton {
-				anchors.centerIn: parent
-				icon.name: isTriggered ? "gtk-apply" : "user-trash"
-				icon.source: isTriggered ? "qrc:/icons/ic_check.svg" : "qrc:/icons/ic_delete_forever.svg"
-				text: isTriggered ? qsTr("Complete Reminder") : qsTr("Delete Reminder")
+				anchors.fill: parent //TODO test on mobile or keep centerIn
+				icon.name: "user-trash"
+				icon.source: "qrc:/icons/ic_delete_forever.svg"
+				display: ActionButton.TextBesideIcon
+				text: qsTr("Delete Reminder")
 
 				Material.foreground: "white"
 				Universal.foreground: "white"
 
 				onClicked: {
 					delegate.swipe.close();
-					isTriggered ? reminderCompleted() : reminderDeleted();
+					reminderDeleted();
+				}
+			}
+		}
+	}
+
+	swipe.right: Rectangle {
+		anchors.fill: parent
+		color: helper.highlight
+
+		MouseArea {
+			anchors.fill: parent
+
+			ActionButton {
+				anchors.fill: parent //TODO test on mobile or keep centerIn
+				icon.name: "gtk-apply"
+				icon.source: "qrc:/icons/ic_check.svg"
+				display: ActionButton.TextBesideIcon
+				text: qsTr("Complete Reminder")
+
+				Material.foreground: "white"
+				Universal.foreground: "white"
+
+				onClicked: {
+					delegate.swipe.close();
+					reminderCompleted();
 				}
 			}
 		}

@@ -208,9 +208,6 @@
    </property>
   </action>
   <action name="action_Complete_Reminder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="icon">
     <iconset theme="dialog-ok-apply" resource="remindmewidgets.qrc">
      <normaloff>:/icons/complete.ico</normaloff>:/icons/complete.ico</iconset>
@@ -229,9 +226,6 @@
    </property>
   </action>
   <action name="action_Snooze_Reminder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="icon">
     <iconset theme="alarm-symbolic" resource="remindmewidgets.qrc">
      <normaloff>:/icons/snooze.ico</normaloff>:/icons/snooze.ico</iconset>

@@ -135,8 +135,7 @@ void MainViewModel::snoozeReminder(QUuid id)
 
 	try {
 		auto rem = _reminderModel->store()->load<Reminder>(id);
-		if(rem.triggerState() == Reminder::Triggered)
-			show<SnoozeViewModel>(SnoozeViewModel::showParams(rem));
+		show<SnoozeViewModel>(SnoozeViewModel::showParams(rem));
 	} catch(QtDataSync::NoDataException &e) {
 		qDebug() << "Skipping completing of deleted reminder" << id
 				 << "with reason" << e.what();

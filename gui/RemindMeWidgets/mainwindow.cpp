@@ -110,15 +110,8 @@ void MainWindow::updateCurrent(const QModelIndex &index)
 {
 	if(index.isValid()) {
 		auto reminder = reminderAt(index);
-		auto state = reminder.triggerState();
-		auto canSnooze = state == Reminder::Triggered;
-		auto isReady = (canSnooze || state == Reminder::Snoozed);
-		_ui->action_Complete_Reminder->setEnabled(isReady);
-		_ui->action_Snooze_Reminder->setEnabled(canSnooze);
 		_ui->actionOpen_URLs->setVisible(reminder.hasUrls());
 	} else {
-		_ui->action_Complete_Reminder->setEnabled(false);
-		_ui->action_Snooze_Reminder->setEnabled(false);
 		_ui->actionOpen_URLs->setVisible(false);
 	}
 }
