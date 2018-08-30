@@ -9,6 +9,7 @@
 #include <syncedsettings.h>
 #include "timerscheduler.h"
 #include "inotifier.h"
+#include "remindmelib.h"
 
 class NotificationManager : public QObject
 {
@@ -42,7 +43,7 @@ private:
 	SyncedSettings *_settings;
 
 	QtDataSync::SyncManager *_manager;
-	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
+	ReminderStore *_store;
 	QSet<QUuid> _activeIds;
 
 	void addNotify(QUuid id);

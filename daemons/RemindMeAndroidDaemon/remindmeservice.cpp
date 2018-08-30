@@ -78,6 +78,8 @@ void RemindmeService::dataResetted()
 {
 	// Android alarms cannot be easily canceled -> just let them be, they will do nothing as the corresponding reminders are deleted
 	_notifier->cleanNotifications();
+	LocalSettings::instance()->service.badgeActive.reset();
+	updateNotificationCount(0);
 }
 
 void RemindmeService::dataChanged(const QString &key, const QVariant &value)

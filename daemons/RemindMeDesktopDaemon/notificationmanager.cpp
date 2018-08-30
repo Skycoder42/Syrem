@@ -19,7 +19,7 @@ NotificationManager::NotificationManager(QObject *parent) :
 	_notifier(nullptr),
 	_settings(nullptr),
 	_manager(new SyncManager(this)),
-	_store(new DataTypeStore<Reminder, QUuid>(this)),
+	_store(new ReminderStore(this)),
 	_activeIds()
 {
 	connect(this, &NotificationManager::destroyed,
@@ -179,6 +179,8 @@ void NotificationManager::dataResetted()
 {
 	_scheduler->cancelAll();
 	_notifier->cancelAll();
+	_activeIds.clear();
+	updateNotificationCount();
 }
 
 void NotificationManager::addNotify(QUuid id)
