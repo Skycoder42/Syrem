@@ -71,7 +71,7 @@ void NotificationManager::triggerSync()
 	_manager->reconnect();
 }
 
-void NotificationManager::scheduleTriggered(const QUuid &id)
+void NotificationManager::scheduleTriggered(QUuid id)
 {
 	try {
 		auto rem = _store->load(id);
@@ -88,7 +88,7 @@ void NotificationManager::scheduleTriggered(const QUuid &id)
 	}
 }
 
-void NotificationManager::messageCompleted(const QUuid &id, quint32 versionCode)
+void NotificationManager::messageCompleted(QUuid id, quint32 versionCode)
 {
 	try {
 		auto rem = _store->load(id);
@@ -106,7 +106,7 @@ void NotificationManager::messageCompleted(const QUuid &id, quint32 versionCode)
 	}
 }
 
-void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, QDateTime nextTrigger)
+void NotificationManager::messageDelayed(QUuid id, quint32 versionCode, const QDateTime &nextTrigger)
 {
 	if(!nextTrigger.isValid())
 		return;
@@ -127,7 +127,7 @@ void NotificationManager::messageDelayed(const QUuid &id, quint32 versionCode, Q
 	}
 }
 
-void NotificationManager::messageActivated(const QUuid &id)
+void NotificationManager::messageActivated(QUuid id)
 {
 	auto program = QStandardPaths::findExecutable(QStringLiteral("remind-me"));
 	if(program.isEmpty()) {
@@ -148,13 +148,11 @@ void NotificationManager::dataChanged(const QString &key, const QVariant &value)
 {
 	if(value.isValid()) {
 		auto reminder = value.value<Reminder>();
-		_notifier->removeNotification(reminder.id());
 		removeNotify(reminder.id());
 		_scheduler->scheduleReminder(reminder);
 	} else {
 		QUuid id(key);
 		_scheduler->cancleReminder(id);
-		_notifier->removeNotification(id);
 		removeNotify(id);
 	}
 }
@@ -165,7 +163,7 @@ void NotificationManager::dataResetted()
 	_notifier->cancelAll();
 }
 
-void NotificationManager::addNotify(const QUuid &id)
+void NotificationManager::addNotify(QUuid id)
 {
 	if(!_activeIds.contains(id)) {
 		_activeIds.insert(id);
@@ -173,8 +171,9 @@ void NotificationManager::addNotify(const QUuid &id)
 	}
 }
 
-void NotificationManager::removeNotify(const QUuid &id)
+void NotificationManager::removeNotify(QUuid id)
 {
+	_notifier->removeNotification(id);
 	if(_activeIds.remove(id))
 		updateNotificationCount();
 }

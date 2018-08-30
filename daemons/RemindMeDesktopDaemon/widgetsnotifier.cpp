@@ -3,7 +3,9 @@
 #include <QApplication>
 #include <QSettings>
 #include <QTimer>
+#include <QtMvvmCore/CoreApp>
 #include <dialogmaster.h>
+#include "traysnoozeviewmodel.h"
 
 WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 	QObject(parent),
@@ -38,7 +40,7 @@ void WidgetsNotifier::showNotification(const Reminder &reminder)
 	qCDebug(notifier) << "Showed notification for reminder with id" << reminder.id();
 }
 
-void WidgetsNotifier::removeNotification(const QUuid &id)
+void WidgetsNotifier::removeNotification(QUuid id)
 {
 	if(_notifications.remove(id) > 0) {
 		qCDebug(notifier) << "Removed notification for reminder with id" << id;
@@ -66,10 +68,12 @@ void WidgetsNotifier::cancelAll()
 
 void WidgetsNotifier::qtmvvm_init()
 {
-	_trayMenu->addAction(tr("Snooze/Complete Reminder"), this, &WidgetsNotifier::trigger);
-	_trayMenu->addAction(tr("Dismiss all"), this, &WidgetsNotifier::dismiss);
+	_trayMenu->addAction(tr("Snooze/Complete Reminders"), this, &WidgetsNotifier::trigger);
+	_trayMenu->addAction(tr("Dismiss all"), this, &WidgetsNotifier::cancelAll);
 	_trayMenu->addSeparator();
-	_trayMenu->addAction(tr("Open Remind-Me"), this, &WidgetsNotifier::showMainApp);
+	_trayMenu->addAction(tr("Open Remind-Me"), this, [this](){
+		messageActivated();
+	});
 
 	_trayIco->setToolTip(QApplication::applicationDisplayName());
 	_trayIco->setContextMenu(_trayMenu);
@@ -90,7 +94,7 @@ void WidgetsNotifier::activated(QSystemTrayIcon::ActivationReason reason)
 		trigger();
 		break;
 	case QSystemTrayIcon::MiddleClick:
-		dismiss();
+		cancelAll();
 		break;
 	default:
 		break;
@@ -106,33 +110,9 @@ void WidgetsNotifier::trigger()
 
 		DialogMaster::critical(nullptr, error, tr("An error occured!"));
 	} else if(!_notifications.isEmpty()) {
-		auto dialog = new WidgetsSnoozeDialog(_settings, _parser);
-		dialog->setAttribute(Qt::WA_DeleteOnClose);
-
-		connect(dialog, &WidgetsSnoozeDialog::reacted,
-				this, &WidgetsNotifier::snoozeAction);
-		connect(dialog, &WidgetsSnoozeDialog::completed,
-				this, &WidgetsNotifier::snoozeDone);
-
-		dialog->addReminders(_notifications.values());
-		_notifications.clear();
-
-		dialog->open();
-		updateIcon();
+		QtMvvm::CoreApp::show<TraySnoozeViewModel>(TraySnoozeViewModel::showParams(this, _notifications.values()));
 		qCDebug(notifier) << "Showing snooze dialog";
 	}
-}
-
-void WidgetsNotifier::dismiss()
-{
-	_notifications.clear();
-	updateIcon();
-	qCDebug(notifier) << "Dismissed all active notifications without handling them";
-}
-
-void WidgetsNotifier::showMainApp()
-{
-	emit messageActivated();
 }
 
 void WidgetsNotifier::invert()
@@ -147,24 +127,6 @@ void WidgetsNotifier::invert()
 			_trayIco->setIcon(_errorIcon);
 		_inverted = true;
 	}
-}
-
-void WidgetsNotifier::snoozeAction(Reminder reminder, bool completed, const QDateTime &snoozeTime)
-{
-	qCDebug(notifier) << "Completed notification for" << reminder.id()
-					  << "by" << (completed ? "completing" : "snoozing");
-	if(completed)
-		emit messageCompleted(reminder.id(), reminder.versionCode());
-	else
-		emit messageDelayed(reminder.id(), reminder.versionCode(), snoozeTime);
-}
-
-void WidgetsNotifier::snoozeDone(const QList<Reminder> &remainingReminders)
-{
-	qCDebug(notifier) << "Snooze dialog done. Remaining reminders:" << remainingReminders.size();
-	for(auto rem : remainingReminders)
-		_notifications.insert(rem.id(), rem);
-	updateIcon();
 }
 
 void WidgetsNotifier::updateIcon()
@@ -186,7 +148,7 @@ void WidgetsNotifier::updateIcon()
 		}
 
 		if(!important) {
-			for(auto rem : _notifications) {
+			for(const auto &rem : qAsConst(_notifications)) {
 				if(rem.isImportant()) {
 					important = true;
 					break;

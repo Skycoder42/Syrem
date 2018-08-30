@@ -20,13 +20,15 @@ HEADERS += \
 	notificationmanager.h \
 	timerscheduler.h \
 	inotifier.h \
-	widgetssnoozedialog.h
+    traysnoozeviewmodel.h \
+    traysnoozedialog.h
 
 SOURCES += main.cpp \
 	remindmedaemon.cpp \
 	notificationmanager.cpp \
 	timerscheduler.cpp \
-	widgetssnoozedialog.cpp
+    traysnoozeviewmodel.cpp \
+    traysnoozedialog.cpp
 
 RESOURCES += \
 	remindmedesktopdaemon.qrc

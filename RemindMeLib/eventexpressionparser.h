@@ -43,8 +43,6 @@ public:
 		LoopedTimeSpan = Timespan | FlagLooped,
 		FromSubterm = 0x04 | FlagLimiter,
 		UntilSubTerm = 0x08 | FlagLimiter,
-
-		// TODO add ISO(/RFC) date support
 	};
 	Q_DECLARE_FLAGS(Type, TypeFlag)
 	Q_FLAG(Type)

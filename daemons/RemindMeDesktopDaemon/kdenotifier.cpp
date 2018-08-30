@@ -70,7 +70,7 @@ void KdeNotifier::showNotification(const Reminder &reminder)
 	notification->sendEvent();
 }
 
-void KdeNotifier::removeNotification(const QUuid &id)
+void KdeNotifier::removeNotification(QUuid id)
 {
 	removeNot(id, true);
 }
@@ -110,7 +110,7 @@ void KdeNotifier::qtmvvm_init()
 	});
 }
 
-bool KdeNotifier::removeNot(const QUuid &id, bool close)
+bool KdeNotifier::removeNot(QUuid id, bool close)
 {
 	auto notification = _notifications.take(id);
 	if(notification) {

@@ -2311,7 +2311,6 @@ void ParserTest::testMultiSchedules_data()
 	QTest::addColumn<QList<QDateTime>>("results");
 	QTest::addColumn<EventExpressionParser::ErrorType>("errorType");
 
-	const auto cDate = QDate::currentDate();
 	const auto cTime = QTime::currentTime();
 	QTest::addRow("single") << QStringLiteral("on 14th")
 							<< QTime{9, 0}

@@ -12,6 +12,7 @@
 #include "remindmedaemon.h"
 #include "../../gui/RemindMeWidgets/snoozedialog.h"
 #include "../../gui/RemindMeWidgets/termselectiondialog.h"
+#include "traysnoozedialog.h"
 
 // Register the core app
 QTMVVM_REGISTER_CORE_APP(RemindMeDaemon)
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
 	QtMvvm::registerInterfaceConverter<INotifier>();
 	QtMvvm::WidgetsPresenter::registerView<SnoozeDialog>();
 	QtMvvm::WidgetsPresenter::registerView<TermSelectionDialog>();
+	QtMvvm::WidgetsPresenter::registerView<TraySnoozeDialog>();
 
 #ifdef USE_KDE_NOTIFIER
 	QtMvvm::ServiceRegistry::instance()->registerInterface<INotifier, KdeNotifier>();

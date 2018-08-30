@@ -25,11 +25,11 @@ public slots:
 	void triggerSync();
 
 private slots:
-	void scheduleTriggered(const QUuid &id);
+	void scheduleTriggered(QUuid id);
 
-	void messageCompleted(const QUuid &id, quint32 versionCode);
-	void messageDelayed(const QUuid &id, quint32 versionCode, QDateTime nextTrigger);
-	void messageActivated(const QUuid &id);
+	void messageCompleted(QUuid id, quint32 versionCode);
+	void messageDelayed(QUuid id, quint32 versionCode, const QDateTime &nextTrigger);
+	void messageActivated(QUuid id);
 
 	void dataChanged(const QString &key, const QVariant &value);
 	void dataResetted();
@@ -44,8 +44,8 @@ private:
 	QtDataSync::DataTypeStore<Reminder, QUuid> *_store;
 	QSet<QUuid> _activeIds;
 
-	void addNotify(const QUuid &id);
-	void removeNotify(const QUuid &id);
+	void addNotify(QUuid id);
+	void removeNotify(QUuid id);
 	void updateNotificationCount();
 };
 

@@ -1,71 +1,61 @@
-#include "widgetssnoozedialog.h"
+#include "traysnoozedialog.h"
 #include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QtMvvmCore/Binding>
 #include <dialogmaster.h>
 #include <snoozetimes.h>
 
-WidgetsSnoozeDialog::WidgetsSnoozeDialog(SyncedSettings *settings, EventExpressionParser *parser, QWidget *parent) :
+TraySnoozeDialog::TraySnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent):
 	QDialog{parent},
-	_settings{settings},
-	_parser{parser}
+	_viewModel{static_cast<TraySnoozeViewModel*>(viewModel)}
 {
 	setupUi();
+	connect(_viewModel, &TraySnoozeViewModel::remindersChanged,
+			this, &TraySnoozeDialog::reloadReminders);
+	connect(_viewModel, &TraySnoozeViewModel::blockedChanged,
+			this, &TraySnoozeDialog::setDisabled);
 }
 
-void WidgetsSnoozeDialog::addReminders(const QList<Reminder> &reminders)
+void TraySnoozeDialog::reject()
 {
-	for(const auto &rem : reminders)
-		addReminder(rem);
-	resizeUi();
-}
-
-void WidgetsSnoozeDialog::reject()
-{
-	emit completed(_reminders.values());
 	QDialog::accept();
 }
 
-void WidgetsSnoozeDialog::performComplete()
+void TraySnoozeDialog::performComplete()
 {
 	auto remWidget = _toolBox->currentWidget();
-	if(remWidget) {
-		_toolBox->removeItem(_toolBox->currentIndex());
-		auto reminder = _reminders.take(remWidget);
-
-		emit reacted(reminder, true);
-		remWidget->deleteLater();
-		resizeUi();
-	}
+	if(remWidget)
+		_viewModel->performComplete(_reminders.value(remWidget));
 }
 
-void WidgetsSnoozeDialog::performSnooze()
+void TraySnoozeDialog::performSnooze()
 {
 	auto remWidget = _toolBox->currentWidget();
 	if(remWidget) {
 		auto cBox = remWidget->findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
 		if(!cBox)
 			return;
-
-		try {
-			auto term = _parser->parseExpression(cBox->currentText());
-			//TODO handle multiterm
-			auto when = _parser->evaluteTerm(term.first());
-
-			_toolBox->removeItem(_toolBox->currentIndex());
-			auto reminder = _reminders.take(remWidget);
-
-			emit reacted(reminder, false, when);
-			remWidget->deleteLater();
-			resizeUi();
-		} catch (EventExpressionParserException &e) {
-			DialogMaster::critical(this, e.message(), tr("Snoozing failed!"));
-		}
+		_viewModel->performSnooze(_reminders.value(remWidget), cBox->currentText());
 	}
 }
 
-void WidgetsSnoozeDialog::setupUi()
+void TraySnoozeDialog::reloadReminders(const QList<Reminder> &reminders)
+{
+	while(_toolBox->count() > 0) {
+		auto w = _toolBox->widget(0);
+		_toolBox->removeItem(0);
+		w->deleteLater();
+	}
+
+	_reminders.clear();
+	for(const auto &rem : reminders)
+		addReminder(rem);
+	resizeUi();
+}
+
+void TraySnoozeDialog::setupUi()
 {
 	setWindowTitle(tr("Triggered Reminders"));
 
@@ -84,7 +74,7 @@ void WidgetsSnoozeDialog::setupUi()
 	DialogMaster::masterDialog(this, true);
 }
 
-void WidgetsSnoozeDialog::resizeUi()
+void TraySnoozeDialog::resizeUi()
 {
 	if(_toolBox->count() == 0)
 		close();
@@ -96,7 +86,7 @@ void WidgetsSnoozeDialog::resizeUi()
 	}
 }
 
-void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
+void TraySnoozeDialog::addReminder(const Reminder &reminder)
 {
 	auto remWidet = new QWidget(_toolBox);
 	auto remLayout = new QHBoxLayout(remWidet);
@@ -104,7 +94,7 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	// snooze combobox
 	auto cBox = new QComboBox(remWidet);
 	cBox->setEditable(true);
-	cBox->addItems(_settings->scheduler.snoozetimes);
+	cBox->addItems(_viewModel->settings()->scheduler.snoozetimes);
 
 	//snooze button
 	auto sButton = new QPushButton(remWidet);
@@ -112,7 +102,7 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	sButton->setAutoDefault(false);
 	sButton->setDefault(false);
 	connect(sButton, &QPushButton::clicked,
-			this, &WidgetsSnoozeDialog::performSnooze);
+			this, &TraySnoozeDialog::performSnooze);
 
 	// complete button
 	auto cButton = new QPushButton(remWidet);
@@ -120,7 +110,7 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 	cButton->setAutoDefault(false);
 	cButton->setDefault(false);
 	connect(cButton, &QPushButton::clicked,
-			this, &WidgetsSnoozeDialog::performComplete);
+			this, &TraySnoozeDialog::performComplete);
 	connect(_toolBox, &QToolBox::currentChanged, cButton, [this, remWidet, cButton](int index){
 		auto w = _toolBox->widget(index);
 		if(w == remWidet)
@@ -141,5 +131,5 @@ void WidgetsSnoozeDialog::addReminder(const Reminder reminder)
 		icon = QIcon::fromTheme(QStringLiteral("emblem-important-symbolic"), QIcon(QStringLiteral(":/icons/important.ico")));
 	_toolBox->addItem(remWidet, icon, reminder.description());
 
-	_reminders.insert(remWidet, reminder);
+	_reminders.insert(remWidet, reminder.id());
 }
