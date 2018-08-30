@@ -68,6 +68,17 @@ void SnoozeViewModel::snooze()
 		if(_parser->needsSelection(term)) {
 			setBlocked(true);
 			showForResult<TermSelectionViewModel>(TermSelectCode, TermSelectionViewModel::showParams(term));
+		} else if(_settings->scheduler.confirmTerms) {
+			setBlocked(true);
+			QtMvvm::question(tr("Confirm parse result"),
+							 tr("<p>Accept the following interpretation?</p><p><i>%1</i></p>")
+							 .arg(term.first().describe().toHtmlEscaped()),
+							 this, [this, term](bool accept) {
+				if(accept)
+					finishSnooze(term.first());
+				else
+					setBlocked(false);
+			});
 		} else
 			finishSnooze(term.first());
 	} catch (EventExpressionParserException &e) {

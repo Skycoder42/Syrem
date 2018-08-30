@@ -127,6 +127,8 @@ private:
 using TermSelection = QList<Term>;
 using MultiTerm = QVector<TermSelection>;
 
+REMINDMELIBSHARED_EXPORT QString describeMultiTerm(const MultiTerm &term, bool asHtml = false);
+
 }
 
 class REMINDMELIBSHARED_EXPORT EventExpressionParser : public QObject

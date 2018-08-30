@@ -685,6 +685,20 @@ QString Term::describeImpl() const
 	return subDesc.join(QStringLiteral("; "));
 }
 
+QString Expressions::describeMultiTerm(const MultiTerm &term, bool asHtml)
+{
+	QStringList descs;
+	descs.reserve(term.size());
+	for(const auto &termSel : term) {
+		Q_ASSERT(termSel.size() == 1);
+		if(asHtml)
+			descs.append(termSel.first().describe().toHtmlEscaped());
+		else
+			descs.append(termSel.first().describe());
+	}
+	return descs.join(asHtml ? QStringLiteral("<br/>") : QStringLiteral("\n"));
+}
+
 
 
 EventExpressionParserException::EventExpressionParserException(EventExpressionParser::ErrorType type, int depthEnd, const QStringRef &subTerm) :

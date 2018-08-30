@@ -6,7 +6,7 @@
 			<Entry key="gui/dateformat"
 				   type="list"
 				   title="&amp;Date Format"
-				   tooltip="Select the format to display dates as"
+				   tooltip="Select the format to display dates as."
 				   default="1">
 				<Property key="qtmvvm_preview" type="string" tr="true">Current format: %1</Property>
 				<Property key="listElements" type="list">
@@ -30,7 +30,7 @@
 			<Entry key="gui/notifications/blinkinterval"
 				   type="int"
 				   title="Tray Blink &amp;interval"
-				   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Not for KDE Notifications)"
+				   tooltip="Choose a blink interval for the tray icon in case of an important reminder (Ignored for KDE Notifications)."
 				   default="750">
 				<Property key="qtmvvm_preview" type="string" tr="true">Blink every %L1 milliseconds</Property>
 				<Property key="minimum" type="int">100</Property>
@@ -47,26 +47,35 @@
 		</Group>
 	</Section>
 	<Section title="Reminders"
-			 tooltip="Settings regarding the creation and snoozing of reminders">
+			 tooltip="Settings regarding the creation and snoozing of reminders.">
 		<Group>
-			<Entry key="scheduler/defaultTime"
-				   type="QTime"
-				   title="Default &amp;Time"
-				   tooltip="The time to be used as default for new reminders/snoozing, in case the reminder is date-oriented and no time has been set. Set to &lt;b&gt;00:00&lt;/b&gt; to not set the time"
-				   default="09:00"
-				   tsdefault="true">
-				<Property key="qtmvvm_preview" type="string" tr="true">Currently set to: %1</Property>
-			</Entry>
 			<Entry key="scheduler/urlOpen"
 				   type="bool"
 				   title="Open &amp;URLs when completing"
 				   tooltip="If enabled, all detected URLs are opened in the systems default browser as soon as you complete a reminder."
 				   default="true">
+				<Property key="qtmvvm_preview" type="string" tr="true">Opens URLs of completed reminders in your browser</Property>
+			</Entry>
+			<Entry key="scheduler/confirmTerms"
+				   type="bool"
+				   title="&amp;Confirm expressions"
+				   tooltip="&lt;p&gt;If enabled, the application will always present you the interpretation of your entered expressions and lets your confirm it before saving the reminder.&lt;/p&gt;&lt;p&gt;If disable, this is only shown for cases where more than one possible interpretations have been found.&lt;/p&gt;"
+				   default="false">
+				   <Property key="qtmvvm_preview" type="string" tr="true">Ask for confirmation of expressions</Property>
+			</Entry>
+			<Entry key="scheduler/defaultTime"
+				   type="QTime"
+				   title="Default &amp;Time"
+				   tooltip="The time to be used as default for new reminders/snoozing, in case the reminder is date-oriented and no time has been set. Set to &lt;b&gt;00:00&lt;/b&gt; to not set the time."
+				   default="09:00"
+				   tsdefault="true">
+				<Property key="qtmvvm_preview" type="string" tr="true">Currently set to: %1</Property>
+				<Property key="specialValueText" type="string" tr="true">Don't set time</Property>
 			</Entry>
 			<Entry key="scheduler/snoozetimes"
 				   type="SnoozeTimes"
 				   title="&amp;Predefined snooze times"
-				   tooltip="Create custom standard snooze times for fast selection from the combo box">
+				   tooltip="Create custom standard snooze times for fast selection from the combo box.">
 				<Property key="times" type="list">
 					<Element type="string" ts="true">in 20 minutes</Element>
 					<Element type="string" ts="true">in 1 hour</Element>
@@ -78,12 +87,12 @@
 			</Entry>
 		</Group>
 		<Group title="Mobile Scheduling delays"
-			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
+			   tooltip="Extras delays added to scheduled notifications. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled."
 			   frontends="quick">
 			<Entry key="scheduler/delay/normal"
 				   type="int"
 				   title="&amp;Normal Reminders"
-				   tooltip="Enter a delay (in minutes) to use as delay for normal Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
+				   tooltip="&lt;p&gt;Enter a delay (in minutes) to use as delay for normal Reminders. Extras delays are added to target time of the reminder.&lt;/p&gt;&lt;p&gt;5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled.&lt;/p&gt;"
 				   default="5">
 				<Property key="qtmvvm_preview" type="string" tr="true">Delay for %L1 minutes</Property>
 				<Property key="minimum" type="int">0</Property>
@@ -96,7 +105,7 @@
 			<Entry key="scheduler/delay/important"
 				   type="int"
 				   title="&amp;Important Reminders"
-				   tooltip="Enter a delay (in minutes) to use as delay for important Reminders. Extras delays are added to target time of the reminder. 5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled"
+				   tooltip="&lt;p&gt;Enter a delay (in minutes) to use as delay for important Reminders. Extras delays are added to target time of the reminder.&lt;/p&gt;&lt;p&gt;5 Minutes for example would mean notifications get shown 5 minutes after the actual time they have been scheduled.&lt;/p&gt;"
 				   default="2">
 				<Property key="qtmvvm_preview" type="string" tr="true">Delay for %L1 minutes</Property>
 				<Property key="minimum" type="int">0</Property>

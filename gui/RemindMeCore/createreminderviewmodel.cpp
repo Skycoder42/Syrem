@@ -35,6 +35,17 @@ void CreateReminderViewModel::create()
 		if(_parser->needsSelection(terms)) {
 			setBlocked(true);
 			showForResult<TermSelectionViewModel>(TermSelectCode, TermSelectionViewModel::showParams(terms));
+		} else if(_settings->scheduler.confirmTerms) {
+			setBlocked(true);
+			QtMvvm::question(tr("Confirm parse result"),
+							 tr("<p>Accept the following interpretation?</p><p><i>%1</i></p>")
+							 .arg(Expressions::describeMultiTerm(terms, true)),
+							 this, [this, terms](bool accept) {
+				if(accept)
+					finishCreate(terms);
+				else
+					setBlocked(false);
+			});
 		} else
 			finishCreate(terms);
 	} catch(EventExpressionParserException &e) {

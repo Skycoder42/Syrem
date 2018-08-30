@@ -17,6 +17,7 @@ class CreateReminderViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(bool blocked READ isBlocked NOTIFY blockedChanged)
 
 	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 
 public:
 	Q_INVOKABLE explicit CreateReminderViewModel(QObject *parent = nullptr);
@@ -48,6 +49,7 @@ private:
 	static constexpr int TermSelectCode = 10;
 
 	EventExpressionParser *_parser = nullptr;
+	SyncedSettings *_settings = nullptr;
 	ReminderStore *_store;
 
 	QString _text;
