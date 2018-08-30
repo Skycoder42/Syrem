@@ -11,6 +11,7 @@
 #include <snoozetimes.h>
 #include <termselectionviewmodel.h>
 #include <qml_syncedsettings.h>
+#include "snoozetimesformatter.h"
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
@@ -73,6 +74,7 @@ int main(int argc, char *argv[])
 
 	QtMvvm::registerDataSyncQuick();
 	QtMvvm::QuickPresenter::getInputViewFactory()->addSimpleInput<SnoozeTimes>(QStringLiteral("qrc:/qtmvvm/inputs/SnoozeTimesEdit.qml"));
+	QtMvvm::QuickPresenter::getInputViewFactory()->addFormatter<SnoozeTimes>(new SnoozeTimesFormatter{});
 
 	QQmlApplicationEngine engine;
 	engine.rootContext()->setContextProperty(QStringLiteral("coreApp"), coreApp);

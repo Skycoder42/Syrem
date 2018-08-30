@@ -83,7 +83,8 @@
 					<Element type="string" ts="true">tomorrow</Element>
 					<Element type="string" ts="true">in 1 week on Monday</Element>
 				</Property>
-				<Property key="qtmvvm_preview" type="string" tr="true">Currently set to: %1</Property><!-- TODO implement -->
+				<Property key="qtmvvm_preview" type="string" ztr="true">Currently has %n suggestion(s)</Property>
+				<Property key="tr_context" type="string">settings.xml</Property>
 			</Entry>
 		</Group>
 		<Group title="Mobile Scheduling delays"
