@@ -226,7 +226,7 @@ private:
 	void parseSubTermImpl(QUuid id, const QStringRef &expression, Expressions::Term term, int termIndex, Expressions::Term rootTerm, int depth);
 
 	void addTasks(QUuid id, int count);
-	void reportError(QUuid id, const ErrorInfo &info, bool autoComplete);
+	void reportError(QUuid id, EventExpressionParser::ErrorInfo info, bool autoComplete);
 	void completeTask(QUuid id);
 	void completeTask(QUuid id, QReadLocker &);
 

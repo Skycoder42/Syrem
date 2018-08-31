@@ -171,7 +171,7 @@ bool MultiSchedule::isRepeating() const
 QDateTime MultiSchedule::generateNextSchedule()
 {
 	QDateTime closest;
-	for(auto schedule : qAsConst(subSchedules)) {
+	for(const auto& schedule : qAsConst(subSchedules)) {
 		auto next = schedule->current();
 		while(next.isValid() && next <= current())
 			next = schedule->nextSchedule();

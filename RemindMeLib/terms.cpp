@@ -97,13 +97,17 @@ std::pair<QSharedPointer<DateTerm>, int> DateTerm::parse(const QStringRef &expre
 	const QLocale locale;
 	const auto prefix = QStringLiteral("(?:%1)?").arg(trList(DatePrefix).join(QLatin1Char('|')));
 	const auto suffix = QStringLiteral("(?:%1)?").arg(trList(DateSuffix).join(QLatin1Char('|')));
-	QList<std::tuple<QString, QString, bool>> patterns;
-	for(auto &pattern : trList(DatePattern, false)) {
-		bool hasYear = false;
-		auto escaped = toRegex(pattern, hasYear);
-		patterns.append(std::make_tuple(std::move(escaped), std::move(pattern), hasYear));
-	}
+	QVector<std::tuple<QString, QString, bool>> patterns;
+	{
+		auto pList = trList(DatePattern, false);
+		patterns.reserve(pList.size());
+		for(auto &pattern : pList) {
+			bool hasYear = false;
+			auto escaped = toRegex(pattern, hasYear);
+			patterns.append(std::make_tuple(std::move(escaped), std::move(pattern), hasYear));
+		}
 
+	}
 	// prepare list of combos to try. can be {loop, suffix}, {prefix, loop} or {prefix, suffix}, but the first two only if a loop*fix is defined
 	QVector<std::tuple<QString, QString, bool>> exprCombos;
 	exprCombos.reserve(3);

@@ -108,7 +108,7 @@ QSharedPointer<Schedule> EventExpressionParser::createMultiSchedule(MultiTerm te
 		return createSchedule(terms.first().first(), reference);
 	else {
 		auto schedule = QSharedPointer<MultiSchedule>::create(reference);
-		for(const auto &term : terms)
+		for(const auto &term : qAsConst(terms))
 			schedule->addSubSchedule(createSchedule(term.first(), reference));
 		schedule->nextSchedule(); //call to "init" on the first sub schedule
 		return schedule;
@@ -143,7 +143,7 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 		if(termId == id)
 			terms[termIndex].append(term);
 	}, Qt::QueuedConnection);
-	connect(this, &EventExpressionParser::errorOccured, &loop, [&](QUuid termId, quint64 significance, const ErrorInfo &error){
+	connect(this, &EventExpressionParser::errorOccured, &loop, [&](QUuid termId, quint64 significance, EventExpressionParser::ErrorInfo error){
 		if(termId == id) {
 			QReadLocker lock{&_taskLocker};
 			if(_taskCounter[id].second == significance)
@@ -176,7 +176,7 @@ MultiTerm EventExpressionParser::parseExpressionImpl(const QString &expression, 
 		_taskCounter.remove(id);
 	}
 	if(res == EXIT_SUCCESS) {
-		for(const auto &term : terms) { // throw error for the first subterm that failed
+		for(const auto &term : qAsConst(terms)) { // throw error for the first subterm that failed
 			if(term.isEmpty()) {
 				throw EventExpressionParserException{
 					lastError.type,
@@ -405,7 +405,7 @@ void EventExpressionParser::addTasks(QUuid id, int count)
 	_taskCounter[id].first += count;
 }
 
-void EventExpressionParser::reportError(QUuid id, const ErrorInfo &info, bool autoComplete)
+void EventExpressionParser::reportError(QUuid id, EventExpressionParser::ErrorInfo info, bool autoComplete)
 {
 	const auto sig = info.calcSignificance();
 	auto ok = false;
@@ -680,6 +680,7 @@ void Term::finalize()
 QString Term::describeImpl() const
 {
 	QStringList subDesc;
+	subDesc.reserve(size());
 	for(const auto &term : *this)
 		subDesc.append(term->describe());
 	return subDesc.join(QStringLiteral("; "));

@@ -31,6 +31,7 @@ SnoozeTimesEdit::~SnoozeTimesEdit()
 SnoozeTimes SnoozeTimesEdit::times() const
 {
 	QStringList times;
+	times.reserve(_ui->listWidget->count());
 	for(auto i = 0; i < _ui->listWidget->count(); i++)
 		times.append(_ui->listWidget->item(i)->text());
 	return times;

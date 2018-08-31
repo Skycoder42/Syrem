@@ -61,6 +61,7 @@ QList<int> TermSelectionViewModel::terms() const
 QVariantList TermSelectionViewModel::varTerms() const
 {
 	QVariantList res;
+	res.reserve(_indices.size());
 	for(auto i : _indices)
 		res.append(i);
 	return res;

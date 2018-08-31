@@ -1,14 +1,15 @@
 #include "snoozetimes.h"
 #include <QDataStream>
 
-SnoozeTimes::SnoozeTimes(const std::initializer_list<QString> &args) :
+SnoozeTimes::SnoozeTimes(std::initializer_list<QString> args) :
 	QStringList(args)
 {}
 
 QVariantList SnoozeTimes::toList() const
 {
 	QVariantList l;
-	for(auto v : *this)
+	l.reserve(size());
+	for(const auto& v : *this)
 		l.append(QVariant::fromValue(v));
 	return l;
 }

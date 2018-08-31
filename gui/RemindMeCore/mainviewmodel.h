@@ -21,7 +21,7 @@ public:
 
 	Q_INVOKABLE explicit MainViewModel(QObject *parent = nullptr);
 
-	static QVariantHash showParams(const QUuid &reminderId);
+	static QVariantHash showParams(QUuid reminderId);
 
 	QtDataSync::DataStoreModel* reminderModel() const;
 	QSortFilterProxyModel* sortedModel() const;

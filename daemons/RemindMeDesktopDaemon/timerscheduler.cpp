@@ -18,7 +18,7 @@ TimerScheduler::TimerScheduler(QObject *parent) :
 
 void TimerScheduler::initialize(const QList<Reminder> &allReminders)
 {
-	for(auto rem : allReminders)
+	for(const auto& rem : allReminders)
 		scheduleReminder(rem);
 }
 
@@ -42,7 +42,7 @@ void TimerScheduler::scheduleReminder(const Reminder &reminder)
 	return;
 }
 
-void TimerScheduler::cancleReminder(const QUuid &id)
+void TimerScheduler::cancleReminder(QUuid id)
 {
 	auto tInfo = _schedules.take(id);
 	if(tInfo.date.isValid() && tInfo.timerId != 0) {
@@ -53,7 +53,7 @@ void TimerScheduler::cancleReminder(const QUuid &id)
 
 void TimerScheduler::cancelAll()
 {
-	for(auto sched : _schedules)
+	for(const auto &sched : qAsConst(_schedules))
 		killTimer(sched.timerId);
 	_schedules.clear();
 	qCDebug(scheduler) << "Cleared all active schedules";
@@ -104,7 +104,7 @@ void TimerScheduler::reschedule()
 	}
 }
 
-int TimerScheduler::trySchedule(const QDateTime &target, const QUuid &id)
+int TimerScheduler::trySchedule(const QDateTime &target, QUuid id)
 {
 	auto secs = QDateTime::currentDateTime().secsTo(target);
 	if(secs <= 0) {

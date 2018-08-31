@@ -36,8 +36,10 @@ QVariant TermConverter::deserialize(int propertyType, const QJsonValue &value, Q
 		throw QJsonDeserializationException{"Unsupported property type. Must be Expressions::Term"};
 
 	auto index = 0;
+	auto array = value.toArray();
 	Term term;
-	for(auto val : value.toArray()) {
+	term.reserve(array.size());
+	for(auto val : array) {
 		auto subTerm = helper->deserializeSubtype(qMetaTypeId<SubTerm*>(),
 												  val,
 												  nullptr,

@@ -101,7 +101,7 @@ void KdeNotifier::showErrorMessage(const QString &error)
 
 void KdeNotifier::cancelAll()
 {
-	for(auto notification : _notifications) {
+	for(auto notification : qAsConst(_notifications)) {
 		notification->close();
 		notification->deleteLater();
 	}
@@ -111,7 +111,7 @@ void KdeNotifier::cancelAll()
 void KdeNotifier::qtmvvm_init()
 {
 	connect(qApp, &QApplication::aboutToQuit, this, [this](){
-		for(auto notification : _notifications)
+		for(auto notification : qAsConst(_notifications))
 			notification->close();
 	});
 }

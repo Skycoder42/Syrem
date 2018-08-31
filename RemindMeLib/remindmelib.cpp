@@ -158,6 +158,7 @@ void setupRemindMeLib()
 	});
 	QMetaType::registerConverter<QVariantList, SnoozeTimes>([](const QVariantList &list) -> SnoozeTimes {
 		SnoozeTimes l;
+		l.reserve(list.size());
 		for(const auto& v : list)
 			l.append(v.toString());
 		return l;

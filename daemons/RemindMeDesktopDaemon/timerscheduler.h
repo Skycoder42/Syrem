@@ -15,7 +15,7 @@ public:
 public slots:
 	void initialize(const QList<Reminder> &allReminders);
 	void scheduleReminder(const Reminder &reminder);
-	void cancleReminder(const QUuid &id);
+	void cancleReminder(QUuid id);
 
 	void cancelAll();
 
@@ -36,7 +36,7 @@ private:
 	int _loopTimerId;
 
 	void reschedule();
-	int trySchedule(const QDateTime &target, const QUuid &id);
+	int trySchedule(const QDateTime &target, QUuid id);
 };
 
 #endif // WIDGETSSCHEDULER_H

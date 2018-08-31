@@ -14,7 +14,7 @@ class REMINDMELIBSHARED_EXPORT SnoozeTimes : public QStringList
 
 public:
 	inline SnoozeTimes() = default;
-	SnoozeTimes(const std::initializer_list<QString> &args);
+	SnoozeTimes(std::initializer_list<QString> args);
 	template <typename... Args>
 	inline SnoozeTimes(Args... args) :
 		QStringList(args...)

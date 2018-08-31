@@ -26,7 +26,7 @@ SnoozeDialog::SnoozeDialog(QtMvvm::ViewModel *viewModel, QWidget *parent) :
 				 QtMvvm::Binding::OneWayToView);
 	connect(_viewModel, &SnoozeViewModel::reminderLoaded,
 			this, [this]() {
-		setTextValue(comboBoxItems().isEmpty() ? QString{} : comboBoxItems().first());
+		setTextValue(comboBoxItems().isEmpty() ? QString{} : comboBoxItems().value(0));
 	});
 	connect(_viewModel, &SnoozeViewModel::close,
 			this, &SnoozeDialog::close);

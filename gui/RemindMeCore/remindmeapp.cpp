@@ -126,8 +126,8 @@ int RemindMeApp::startApp(const QStringList &arguments)
 		}
 
 		createReminderInline(parser.isSet(QStringLiteral("important")),
-							 parser.positionalArguments()[0],
-							 parser.positionalArguments()[1]);
+							 parser.positionalArguments().value(0),
+							 parser.positionalArguments().value(1));
 	} else if(parser.isSet(QStringLiteral("create")) || forceCreate) {
 		_createOnly = true;
 		show<CreateReminderViewModel>();

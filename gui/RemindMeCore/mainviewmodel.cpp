@@ -59,7 +59,7 @@ MainViewModel::MainViewModel(QObject *parent) :
 	});
 }
 
-QVariantHash MainViewModel::showParams(const QUuid &reminderId)
+QVariantHash MainViewModel::showParams(QUuid reminderId)
 {
 	return {
 		{paramRemId, reminderId}
