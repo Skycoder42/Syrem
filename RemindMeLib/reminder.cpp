@@ -170,7 +170,8 @@ void Reminder::setId(QUuid id)
 void Reminder::setDescription(QString text)
 {
 	_data->text = std::move(text);
-	_urlCache = {false, {}};
+	_urlCache.urls.clear();
+	_urlCache.set = false;
 }
 
 void Reminder::setImportant(bool important)

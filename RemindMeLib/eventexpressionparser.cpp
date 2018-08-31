@@ -226,40 +226,40 @@ void EventExpressionParser::validatePartialTerm(const Term &term, int depth)
 	auto hasUntilLimiter = false;
 	for(const auto &subTerm : term) {
 		if((static_cast<int>(allScope) & static_cast<int>(subTerm->scope)) != 0) // (1)
-			throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateScopeError, -1};
+			throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateScopeError};
 		allScope |= subTerm->scope;
 
 		// (2)
 		if(subTerm->type.testFlag(SubTerm::FlagLooped)) {
 			if(hasLoop)
-				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateLoopError, -1};
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateLoopError};
 			else
 				hasLoop = true;
 		}
 		// (3)
 		if(subTerm->type.testFlag(SubTerm::Timespan)) {
 			if(hasSpan)
-				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateSpanError, -1};
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateSpanError};
 			else
 				hasSpan = true;
 		}
 		// (4)
 		if(subTerm->type == SubTerm::FromSubterm) {
 			if(hasFromLimiter)
-				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateFromLimiterError, -1};
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateFromLimiterError};
 			else
 				hasFromLimiter = true;
 		}
 		if(subTerm->type == SubTerm::UntilSubTerm) {
 			if(hasUntilLimiter)
-				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateUntilLimiterError, -1};
+				throw ErrorInfo{ErrorInfo::SubTermLevel, depth, DuplicateUntilLimiterError};
 			else
 				hasUntilLimiter = true;
 		}
 	}
 
 	if((hasFromLimiter || hasUntilLimiter) && !hasLoop) // (5)
-		throw ErrorInfo{ErrorInfo::SubTermLevel, depth, UnexpectedLimiterError, -1};
+		throw ErrorInfo{ErrorInfo::SubTermLevel, depth, UnexpectedLimiterError};
 }
 
 void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int depth)
@@ -286,14 +286,14 @@ void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int dep
 		if(isFirst)
 			isFirst = false;
 		else if(subTerm->type.testFlag(SubTerm::FlagAbsolute))
-			throw ErrorInfo{ErrorInfo::TermLevel, depth, UnexpectedAbsoluteSubTermError, -1};
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, UnexpectedAbsoluteSubTermError};
 
 		// (3)
 		if(!isLoop) {
 			if(subTerm->type.testFlag(SubTerm::FlagLooped))
 				isLoop = true;
 			else if(isPoint && subTerm->type.testFlag(SubTerm::Timespan))
-				throw ErrorInfo{ErrorInfo::TermLevel, depth, SpanAfterTimepointError, -1};
+				throw ErrorInfo{ErrorInfo::TermLevel, depth, SpanAfterTimepointError};
 			else if(subTerm->type.testFlag(SubTerm::Timepoint))
 				isPoint = true;
 		}
@@ -302,14 +302,14 @@ void EventExpressionParser::validateFullTerm(Term &term, Term &rootTerm, int dep
 
 	if(!rootTerm.isEmpty()) {
 		if(isLoop) // (4)
-			throw ErrorInfo{ErrorInfo::TermLevel, depth, LoopAsLimiterError, -1};
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, LoopAsLimiterError};
 
 		// (5)
 		auto fence = std::get<1>(rootTerm.splitLoop());
 		if((static_cast<int>(fence.scope()) & static_cast<int>(term.scope())) != 0)
-			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError, -1};
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError};
 		if(term.scope() <= fence.scope())
-			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError, -1};
+			throw ErrorInfo{ErrorInfo::TermLevel, depth, LimiterSmallerThanFenceError};
 
 		// (6)
 		auto limiter = rootTerm.last().dynamicCast<LimiterTerm>();
@@ -375,7 +375,7 @@ void EventExpressionParser::parseSubTermImpl(QUuid id, const QStringRef &express
 		} else
 			parseTerm(id, expression.mid(result.second), term, termIndex, rootTerm, depth);
 	} else
-		throw ErrorInfo{ErrorInfo::ParsingLevel, depth, ParserError, -1};
+		throw ErrorInfo{ErrorInfo::ParsingLevel, depth, ParserError};
 
 	completeTask(id);
 }
@@ -394,7 +394,7 @@ void EventExpressionParser::parseSubTermImpl<LimiterTerm>(QUuid id, const QStrin
 			parseTerm(id, expression.mid(result.second), {}, termIndex, term, depth);
 		}
 	} else
-		throw ErrorInfo{ErrorInfo::ParsingLevel, depth, ParserError, -1};
+		throw ErrorInfo{ErrorInfo::ParsingLevel, depth, ParserError};
 
 	completeTask(id);
 }
@@ -509,6 +509,13 @@ QString EventExpressionParser::createErrorMessage(EventExpressionParser::ErrorTy
 }
 
 
+
+EventExpressionParser::ErrorInfo::ErrorInfo(EventExpressionParser::ErrorInfo::ErrorLevel level, int depth, EventExpressionParser::ErrorType type, int subTermBegin) :
+	level{level},
+	depth{depth},
+	type{type},
+	subTermBegin{subTermBegin}
+{}
 
 quint64 EventExpressionParser::ErrorInfo::calcSignificance() const
 {

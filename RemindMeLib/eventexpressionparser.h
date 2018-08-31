@@ -163,17 +163,18 @@ public:
 	Q_ENUM(ErrorType)
 
 	struct ErrorInfo {
-		enum : quint32 {
+		enum ErrorLevel : quint32 {
 			NoneLevel = 0x00,
 			ParsingLevel = 0x01,
 			SubTermLevel = 0x02,
 			TermLevel = 0x03
-		} level = NoneLevel;
-		int depth = 0;
+		} level ;
+		int depth;
 
-		ErrorType type = NoError;
-		int subTermBegin = -1;
+		ErrorType type;
+		int subTermBegin;
 
+		ErrorInfo(ErrorLevel level = NoneLevel, int depth = 0, ErrorType type = NoError, int subTermBegin = -1);
 		quint64 calcSignificance() const;
 	};
 
