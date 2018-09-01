@@ -1,4 +1,4 @@
-# RemindMe
+# Syrem - Synchronized Reminders
 A simple reminder application for desktop and mobile, with synchronized reminders
 
 [![Travis Build Status](https://travis-ci.org/Skycoder42/RemindMe.svg?branch=master)](https://travis-ci.org/Skycoder42/RemindMe)
@@ -7,7 +7,6 @@ A simple reminder application for desktop and mobile, with synchronized reminder
 [![AUR](https://img.shields.io/aur/version/remind-me.svg)](https://aur.archlinux.org/packages/remind-me/)
 
 ## Icon Sources
-- Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
 - Icons made by <a href="https://www.flaticon.com/authors/roundicons" title="Roundicons">Roundicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
 - http://www.fatcow.com/free-icons
 - https://material.io/icons/

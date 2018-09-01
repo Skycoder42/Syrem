@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
-android: SUBDIRS += RemindMeAndroidDaemon
-else: SUBDIRS += RemindMeDesktopDaemon
+android: SUBDIRS += android
+else: SUBDIRS += desktop
 
 prepareRecursiveTarget(lrelease)
 QMAKE_EXTRA_TARGETS += lrelease

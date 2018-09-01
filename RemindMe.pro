@@ -1,14 +1,14 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-	RemindMeLib \
+	lib \
 	daemons \
 	gui \
 	Tests
 
-gui.depends += RemindMeLib
-daemons.depends += RemindMeLib
-Tests.depends += RemindMeLib
+gui.depends += lib
+daemons.depends += lib
+Tests.depends += lib
 
 Tests.CONFIG += no_lrelease_target
 android: SUBDIRS -= Tests

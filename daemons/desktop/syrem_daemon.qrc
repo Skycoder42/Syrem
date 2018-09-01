@@ -1,0 +1,12 @@
+<RCC>
+	<qresource prefix="/icons">
+		<file alias="important.ico">icons/exclamation.ico</file>
+		<file alias="main.ico">icons/syrem.ico</file>
+	</qresource>
+	<qresource prefix="/icons/tray">
+		<file alias="main.ico">icons/syrem.ico</file>
+		<file alias="inverse.ico">icons/syrem-inverted.ico</file>
+		<file alias="error.ico">icons/syrem-error.ico</file>
+	</qresource>
+	<qresource prefix="/etc"/>
+</RCC>

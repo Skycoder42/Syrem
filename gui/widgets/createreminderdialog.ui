@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CreateReminderDialog</class>
+ <widget class="QDialog" name="CreateReminderDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>370</width>
+    <height>132</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Create Reminder</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="textLabel">
+     <property name="text">
+      <string>&amp;Text:</string>
+     </property>
+     <property name="buddy">
+      <cstring>textLineEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="textLineEdit">
+     <property name="toolTip">
+      <string>Enter a description of what to be reminded</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="whenLabel">
+     <property name="text">
+      <string>&amp;When:</string>
+     </property>
+     <property name="buddy">
+      <cstring>whenLineEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="whenLineEdit">
+     <property name="toolTip">
+      <string>Expression to describe when the reminder should be triggered</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="importantLabel">
+     <property name="text">
+      <string>&amp;Important:</string>
+     </property>
+     <property name="buddy">
+      <cstring>importantCheckBox</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="importantCheckBox">
+     <property name="toolTip">
+      <string>Important reminders will show up with additional visual and audio signals to be seens easier</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>23</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionExpression_Syntax">
+   <property name="icon">
+    <iconset theme="help-whatsthis" resource="syrem_widgets.qrc">
+     <normaloff>:/icons/help.ico</normaloff>:/icons/help.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Expression &amp;Syntax</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the expression syntax</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>textLineEdit</tabstop>
+  <tabstop>whenLineEdit</tabstop>
+  <tabstop>importantCheckBox</tabstop>
+ </tabstops>
+ <resources>
+  <include location="syrem_widgets.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>CreateReminderDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>CreateReminderDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

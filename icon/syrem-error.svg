@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="512"
+   height="512"
+   viewBox="0 0 135.46666 135.46667"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="syrem-error.svg"
+   inkscape:version="0.92.2 2405546, 2018-03-11"
+   inkscape:export-filename="/home/sky/Programming/QtProjects/RemindMe/icon/pngs/syrem-error/syrem-error_512.png"
+   inkscape:export-xdpi="96.000008"
+   inkscape:export-ydpi="96.000008">
+  <title
+     id="title844">Syrem Error Icon</title>
+  <defs
+     id="defs2">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter5980"
+       x="-0.17999998"
+       width="1.36"
+       y="-0.18000002"
+       height="1.36">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.9687497"
+         id="feGaussianBlur5982" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="242.60197"
+     inkscape:cy="256.39787"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1006"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:lockguides="false"
+     showguides="true" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Syrem Error Icon</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Skycoder42</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/4.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-161.53328)">
+    <ellipse
+       inkscape:transform-center-y="-2.0407455"
+       inkscape:transform-center-x="0.84073877"
+       style="fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:0.23975188;stroke-opacity:1;filter:url(#filter5980)"
+       id="ellipse5726"
+       cx="67.733337"
+       cy="236.67496"
+       rx="26.458334"
+       ry="26.458328"
+       transform="matrix(1.1974931,0,0,1.1974931,-13.542036,-47.09191)" />
+    <ellipse
+       ry="25.640535"
+       rx="25.640541"
+       cy="236.71396"
+       cx="67.728523"
+       id="ellipse5526"
+       style="fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:0.23234145;stroke-opacity:1"
+       inkscape:transform-center-x="0.68038368"
+       inkscape:transform-center-y="-1.6515051" />
+    <path
+       style="fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:0.32207584;stroke-opacity:1"
+       inkscape:transform-center-x="36.560472"
+       inkscape:transform-center-y="-36.871581"
+       d="M 57.985115,227.22694 C 45.938669,212.44969 39.564794,204.6246 32.60222,197.74348 25.860865,191.08099 6.7298475,173.81437 5.0392886,174.95734 c -1.690559,1.14296 2.6364019,17.23319 3.9054076,21.08258 1.2690058,3.84939 6.6340298,15.86473 9.0364348,18.07301 2.402407,2.20827 14.597736,6.6517 18.674345,7.92355 4.07661,1.27183 10.437073,2.78732 21.329639,5.19046 z"
+       id="path5578"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cszzzzc" />
+    <path
+       style="fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:0.27139044;stroke-opacity:1"
+       inkscape:transform-center-x="21.503722"
+       inkscape:transform-center-y="18.793729"
+       d="m 54.483223,251.35696 c 0,0 -1.434221,16.5531 -6.175875,18.97781 -4.741654,2.42467 -19.345886,-8.28943 -17.307351,-12.17356 2.038536,-3.88412 23.483226,-6.80425 23.483226,-6.80425 z"
+       id="path5585"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="czzc" />
+    <path
+       sodipodi:nodetypes="czzc"
+       inkscape:connector-curvature="0"
+       id="path5724"
+       d="m 81.061602,251.35696 c 0,0 1.43422,16.5531 6.175874,18.97781 4.741654,2.42467 19.345884,-8.28943 17.307354,-12.17356 -2.03854,-3.88412 -23.483228,-6.80425 -23.483228,-6.80425 z"
+       inkscape:transform-center-y="25.020717"
+       inkscape:transform-center-x="-24.617219"
+       style="fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:0.27139044;stroke-opacity:1" />
+    <g
+       id="g6058"
+       transform="matrix(0.08779857,0,0,0.08779857,45.813999,213.0734)">
+      <path
+         id="path5984"
+         d="m 180.8,476 c 13.6,11.2 43.2,23.2 68.8,23.2 25.6,0 56,-11.2 68.8,-23.2 z"
+         style="fill:#ff7900"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m 449.6,420 h -19.2 c 0,-8 -1.6,-4.8 -1.6,-6.4 0,-72 -51.2,0.8 -67.2,-172 v -31.2 c 0,-63.2 -48.8,-115.2 -112,-115.2 -63.2,0 -112,51.2 -112,115.2 v 31.2 c -16,173.6 -67.2,100 -67.2,172.8 0,1.6 -1.6,-1.6 -1.6,6.4 H 49.6 c -9.6,0 -16,4 -16,13.6 v 12 c 0,8.8 6.4,13.6 16,13.6 h 400 c 9.6,0 16,-4.8 16,-14.4 v -12 c 0,-9.6 -6.4,-13.6 -16,-13.6 z"
+         style="fill:#ffb000"
+         id="SVGCleanerId_0"
+         inkscape:connector-curvature="0" />
+      <g
+         id="g5988">
+        <path
+           d="m 449.6,420 h -19.2 c 0,-8 -1.6,-4.8 -1.6,-6.4 0,-72 -51.2,0.8 -67.2,-172 v -31.2 c 0,-63.2 -48.8,-115.2 -112,-115.2 -63.2,0 -112,51.2 -112,115.2 v 31.2 c -16,173.6 -67.2,100 -67.2,172.8 0,1.6 -1.6,-1.6 -1.6,6.4 H 49.6 c -9.6,0 -16,4 -16,13.6 v 12 c 0,8.8 6.4,13.6 16,13.6 h 400 c 9.6,0 16,-4.8 16,-14.4 v -12 c 0,-9.6 -6.4,-13.6 -16,-13.6 z"
+           style="fill:#ffb000"
+           id="SVGCleanerId_0_1_"
+           inkscape:connector-curvature="0" />
+      </g>
+      <path
+         id="path5990"
+         d="M 249.6,118.4 C 216.8,118.4 190.4,92 190.4,59.2 190.4,26.4 216.8,0 249.6,0 c 32.8,0 59.2,26.4 59.2,59.2 0,32.8 -26.4,59.2 -59.2,59.2 z m 0,-94.4 c -19.2,0 -35.2,16 -35.2,35.2 0,19.2 16,35.2 35.2,35.2 19.2,0 35.2,-16 35.2,-35.2 C 284.8,40 268.8,24 249.6,24 Z"
+         style="fill:#ffb000"
+         inkscape:connector-curvature="0" />
+      <g
+         id="g5996">
+        <path
+           id="path5992"
+           d="m 137.6,241.6 c -16,134.4 -44.8,119.2 -60,140 116,-6.4 202.4,-92.8 207.2,-198.4 1.6,-29.6 1.6,-57.6 0,-83.2 -11.2,-3.2 -21.6,-5.6 -33.6,-5.6 -63.2,0 -113.6,51.2 -113.6,115.2 z"
+           style="fill:#ffc200"
+           inkscape:connector-curvature="0" />
+        <path
+           id="path5994"
+           d="M 307.2,47.2 C 301.6,20 277.6,0 249.6,0 c -32.8,0 -59.2,26.4 -59.2,59.2 0,24.8 15.2,45.6 36,54.4 38.4,-4 69.6,-30.4 80.8,-66.4 z M 249.6,24 c 19.2,0 35.2,16 35.2,35.2 0,19.2 -16,35.2 -35.2,35.2 -19.2,0 -35.2,-16 -35.2,-35.2 0,-19.2 16,-35.2 35.2,-35.2 z"
+           style="fill:#ffc200"
+           inkscape:connector-curvature="0" />
+      </g>
+      <g
+         id="g5998" />
+      <g
+         id="g6000" />
+      <g
+         id="g6002" />
+      <g
+         id="g6004" />
+      <g
+         id="g6006" />
+      <g
+         id="g6008" />
+      <g
+         id="g6010" />
+      <g
+         id="g6012" />
+      <g
+         id="g6014" />
+      <g
+         id="g6016" />
+      <g
+         id="g6018" />
+      <g
+         id="g6020" />
+      <g
+         id="g6022" />
+      <g
+         id="g6024" />
+      <g
+         id="g6026" />
+    </g>
+    <path
+       sodipodi:nodetypes="cszzzzc"
+       inkscape:connector-curvature="0"
+       id="path865"
+       d="m 77.471926,227.22694 c 12.046446,-14.77725 18.420321,-22.60234 25.382894,-29.48346 6.74136,-6.66249 25.87237,-23.92911 27.56293,-22.78614 1.69056,1.14296 -2.6364,17.23319 -3.90541,21.08258 -1.269,3.84939 -6.63402,15.86473 -9.03642,18.07301 -2.40241,2.20827 -14.59774,6.6517 -18.674356,7.92355 -4.076609,1.27183 -10.437072,2.78732 -21.329638,5.19046 z"
+       inkscape:transform-center-y="-36.871581"
+       inkscape:transform-center-x="-36.560469"
+       style="fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:0.32207584;stroke-opacity:1" />
+  </g>
+</svg>

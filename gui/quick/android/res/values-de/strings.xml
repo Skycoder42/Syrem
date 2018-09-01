@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Syrem</string>
+
+	<string name="svc_name">Syrem Dienst</string>
+	<string name="svc_desc">Synchronisiere Erinnerungen…</string>
+
+	<string name="shortcut_label_short">Erinnerung erstellen</string>
+	<string name="shortcut_label_long">Erstellen Sie einen neue Erinnerung</string>
+
+	<string name="not_nrm_name">Erinnerung</string>
+	<string name="not_imp_name">Wichtige Erinnerung</string>
+	<string name="not_err_name">Syrem Fehler</string>
+	<string name="not_complete">Abschließen</string>
+	<string name="not_snooze">Verschieben</string>
+	<string name="not_snooze_label">Geben Sie einen Zeitausdruck zum verschieben ein</string>
+
+	<string name="channel_nrm_name">Normale Erinnerungen</string>
+	<string name="channel_nrm_desc">Benachrichtigungen für normale Erinnerungen</string>
+	<string name="channel_imp_name">Wichtige Erinnerungen</string>
+	<string name="channel_imp_desc">Benachrichtigungen für wichtige Erinnerungen</string>
+	<string name="channel_err_name">Fehlermeldungen</string>
+	<string name="channel_err_desc">Benachrichtigungen für Fehler beim Anzeigen von Erinnerungen</string>
+	<string name="channel_svc_name">Dienst-Status</string>
+	<string name="channel_svc_desc">Status-Benachrichtigung während Erinnerungen synchronisiert werden</string>
+</resources>

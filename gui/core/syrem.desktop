@@ -1,0 +1,17 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=Syrem
+GenericName=Reminder Scheduler
+Comment=A simple reminder application for desktop and mobile, with synchronized reminders
+Categories=Utility;Qt;
+Exec=syrem
+Icon=syrem
+Terminal=false
+Actions=CreateReminder;
+
+[Desktop Action CreateReminder]
+Exec=syrem --create
+Name=Create a Reminder
+Icon=list-add

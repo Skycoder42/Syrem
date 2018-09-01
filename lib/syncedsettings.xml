@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Settings name="SyncedSettings"
+		  prefix="LIB_SYREM_EXPORT"
+		  scope="DestroyOnAppQuit">
+	<Include>libsyrem_global.h</Include>
+	<Include>QtMvvmDataSyncCore/DataSyncSettingsAccessor</Include>
+	<Include>QKeySequence</Include>
+	<Include>QTime</Include>
+	<Include>snoozetimes.h</Include>
+
+	<Backend class="QtMvvm::DataSyncSettingsAccessor"/>
+
+	<TypeMapping key="list" type="int"/>
+
+	<Import>../gui/core/settings.xml</Import>
+	<Entry key="snoozetimes_fallback" type="bool">
+		<Code> <!-- VERY dirty trick to get the defaults into the snoozetimes -->
+			[&amp;](){
+				scheduler.snoozetimes.setup(QStringLiteral("scheduler/snoozetimes"), _accessor, QVariant::fromValue(SnoozeTimes {
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "tomorrow"),
+					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 week on Monday")
+				}));
+				return false;
+			}()
+		</Code>
+	</Entry>
+</Settings>
