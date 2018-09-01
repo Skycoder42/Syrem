@@ -72,7 +72,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+10"/>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>&amp;Add Reminder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -82,7 +87,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Delete Reminder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -92,7 +97,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -102,7 +107,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -112,7 +117,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -137,25 +142,20 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+18"/>
         <source>S&amp;ynchronization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Open &amp;URLs</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ReminderProxyModel</name>
     <message>
-        <location filename="mainwindow.cpp" line="+138"/>
-        <source>Reminder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Due on</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+20"/>
+        <location filename="mainwindow.cpp" line="+158"/>
         <source>&lt;br/&gt;&lt;i&gt;This is an important reminder&lt;/i&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -206,6 +206,24 @@ Reminder has been triggered and needs a reaction!</source>
     <message>
         <location line="+15"/>
         <source>Move &amp;Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TermSelectionDialog</name>
+    <message>
+        <location filename="termselectiondialog.ui" line="+14"/>
+        <source>Select an interpretation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>More than a single possible interpretation was found for the expression you entered. Please select the correct ones from below:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="termselectiondialog.cpp" line="+77"/>
+        <source>Subterm %L1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -4,7 +4,7 @@
 <context>
     <name>KdeNotifier</name>
     <message>
-        <location filename="kdenotifier.cpp" line="+37"/>
+        <location filename="kdenotifier.cpp" line="+38"/>
         <source>%1 — Important Reminder</source>
         <translation>%1 — Wichtige Erinnerung</translation>
     </message>
@@ -29,7 +29,12 @@
         <translation>Verschieben</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+3"/>
+        <source>Open URLs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <source>%1 — Error</source>
         <translation>%1 — Fehler</translation>
     </message>
@@ -37,25 +42,22 @@
 <context>
     <name>KdeSnoozeDialog</name>
     <message>
-        <location filename="kdesnoozedialog.cpp" line="+9"/>
         <source>Snooze Reminder</source>
-        <translation>Erninnerung verschieben</translation>
+        <translation type="vanished">Erninnerung verschieben</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Choose a snooze time for the reminder:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</source>
-        <translation>Wählen Sie einen neuen Zeitpunkt für die Erinnerung:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</translation>
+        <translation type="vanished">Wählen Sie einen neuen Zeitpunkt für die Erinnerung:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Snoozing failed!</source>
-        <translation>Verschieben fehlgeschlagen!</translation>
+        <translation type="vanished">Verschieben fehlgeschlagen!</translation>
     </message>
 </context>
 <context>
     <name>NotificationManager</name>
     <message>
-        <location filename="notificationmanager.cpp" line="+55"/>
+        <location filename="notificationmanager.cpp" line="+57"/>
         <source>Failed to load any reminders!</source>
         <translation>Konnte keinerlei Erinnerungen laden!</translation>
     </message>
@@ -66,9 +68,123 @@
     </message>
 </context>
 <context>
+    <name>SnoozeDialog</name>
+    <message>
+        <location filename="../../gui/widgets/snoozedialog.cpp" line="+11"/>
+        <source>Snooze Reminder</source>
+        <translation type="unfinished">Erninnerung verschieben</translation>
+    </message>
+</context>
+<context>
+    <name>SnoozeViewModel</name>
+    <message>
+        <location filename="../../gui/core/snoozeviewmodel.cpp" line="+37"/>
+        <source>Choose a snooze time for the reminder:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</source>
+        <translation type="unfinished">Wählen Sie einen neuen Zeitpunkt für die Erinnerung:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;i&gt;Loading Reminder, please wait…&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Confirm parse result</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;p&gt;Accept the following interpretation?&lt;/p&gt;&lt;p&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+20"/>
+        <location line="+29"/>
+        <location line="+4"/>
+        <source>Snoozing failed!</source>
+        <translation type="unfinished">Verschieben fehlgeschlagen!</translation>
+    </message>
+    <message>
+        <location line="-32"/>
+        <source>Unable loard reminder from data store. Unable to snooze.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Unable update reminder in data store. Snooze not performed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TermSelectionDialog</name>
+    <message>
+        <location filename="../../gui/widgets/termselectiondialog.ui" line="+14"/>
+        <source>Select an interpretation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>More than a single possible interpretation was found for the expression you entered. Please select the correct ones from below:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../gui/widgets/termselectiondialog.cpp" line="+77"/>
+        <source>Subterm %L1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TraySnoozeDialog</name>
+    <message>
+        <location filename="traysnoozedialog.cpp" line="+67"/>
+        <source>Triggered Reminders</source>
+        <translation type="unfinished">Ausgelößte Erinnerungen</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Please select an action for each of your triggered reminders:</source>
+        <translation type="unfinished">Bitte wählen Sie einen Aktion für jede der ausgelösten Erinnerungen:</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>&amp;Snooze</source>
+        <translation type="unfinished">&amp;Verschieben</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>&amp;Complete</source>
+        <translation type="unfinished">&amp;Abschließen</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Open &amp;URLs</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TraySnoozeViewModel</name>
+    <message>
+        <location filename="traysnoozeviewmodel.cpp" line="+59"/>
+        <source>Confirm parse result</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;p&gt;Accept the following interpretation?&lt;/p&gt;&lt;p&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+44"/>
+        <source>Snoozing failed!</source>
+        <translation type="unfinished">Verschieben fehlgeschlagen!</translation>
+    </message>
+</context>
+<context>
     <name>WidgetsNotifier</name>
     <message>
-        <location filename="widgetsnotifier.cpp" line="+33"/>
+        <location filename="widgetsnotifier.cpp" line="+35"/>
         <source>%1 — Important Reminder</source>
         <translation>%1 — Wichtige Erinnerung</translation>
     </message>
@@ -84,26 +200,34 @@
     </message>
     <message>
         <location line="+15"/>
-        <source>Snooze/Complete Reminder</source>
-        <translation>Erninnerung verschieben/abschließen</translation>
+        <source>Snooze/Complete Reminders</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
+        <source>Open Syrem</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snooze/Complete Reminder</source>
+        <translation type="vanished">Erninnerung verschieben/abschließen</translation>
+    </message>
+    <message>
+        <location line="-2"/>
         <source>Dismiss all</source>
         <translation>Alle verwerfen</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Open Remind-Me</source>
-        <translation>Remind-Me öffnen</translation>
+        <translation type="vanished">Remind-Me öffnen</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+39"/>
         <source>An error occured!</source>
         <translation>Ein Fehler ist aufgetreten!</translation>
     </message>
     <message numerus="yes">
-        <location line="+73"/>
+        <location line="+31"/>
         <source>%1 — %n active reminder(s)</source>
         <translation>
             <numerusform>%1 — %n aktive Erinnerung</numerusform>
@@ -119,29 +243,24 @@
 <context>
     <name>WidgetsSnoozeDialog</name>
     <message>
-        <location filename="widgetssnoozedialog.cpp" line="+63"/>
         <source>Snoozing failed!</source>
-        <translation>Verschieben fehlgeschlagen!</translation>
+        <translation type="vanished">Verschieben fehlgeschlagen!</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Triggered Reminders</source>
-        <translation>Ausgelößte Erinnerungen</translation>
+        <translation type="vanished">Ausgelößte Erinnerungen</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Please select an action for each of your triggered reminders:</source>
-        <translation>Bitte wählen Sie einen Aktion für jede der ausgelösten Erinnerungen:</translation>
+        <translation type="vanished">Bitte wählen Sie einen Aktion für jede der ausgelösten Erinnerungen:</translation>
     </message>
     <message>
-        <location line="+36"/>
         <source>&amp;Snooze</source>
-        <translation>&amp;Verschieben</translation>
+        <translation type="vanished">&amp;Verschieben</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>&amp;Complete</source>
-        <translation>&amp;Abschließen</translation>
+        <translation type="vanished">&amp;Abschließen</translation>
     </message>
 </context>
 </TS>

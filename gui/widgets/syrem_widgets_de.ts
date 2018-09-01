@@ -72,7 +72,12 @@
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+10"/>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>&amp;Add Reminder</source>
         <translation>&amp;Erinnerung hinzufügen</translation>
     </message>
@@ -82,7 +87,7 @@
         <translation>Neue Erinnerung erstellen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Delete Reminder</source>
         <translation>Erinnerung &amp;löschen</translation>
     </message>
@@ -92,7 +97,7 @@
         <translation>Löscht die Ausgewählte Erinnerung</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Settings</source>
         <translation>&amp;Einstellungen</translation>
     </message>
@@ -102,7 +107,7 @@
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Close</source>
         <translation>&amp;Schließen</translation>
     </message>
@@ -112,7 +117,7 @@
         <translation>Schließen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;About</source>
         <translation>&amp;Über</translation>
     </message>
@@ -137,25 +142,28 @@
         <translation>Verschiebt die Erinnerung auf einen späteren Zeitpunkt</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+18"/>
         <source>S&amp;ynchronization</source>
         <translation>S&amp;ynchronisation</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Open &amp;URLs</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ReminderProxyModel</name>
     <message>
-        <location filename="mainwindow.cpp" line="+138"/>
         <source>Reminder</source>
-        <translation>Erinnerung</translation>
+        <translation type="vanished">Erinnerung</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Due on</source>
-        <translation>Fällig am</translation>
+        <translation type="vanished">Fällig am</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location filename="mainwindow.cpp" line="+158"/>
         <source>&lt;br/&gt;&lt;i&gt;This is an important reminder&lt;/i&gt;</source>
         <translation>&lt;br/&gt;&lt;i&gt;Dies ist einen wichtige Erinnerung&lt;/i&gt;</translation>
     </message>
@@ -210,6 +218,24 @@ Erinnerung wurde ausgelöst und braucht eine Reaktion!</translation>
         <location line="+15"/>
         <source>Move &amp;Down</source>
         <translation>Her&amp;unterbewegen</translation>
+    </message>
+</context>
+<context>
+    <name>TermSelectionDialog</name>
+    <message>
+        <location filename="termselectiondialog.ui" line="+14"/>
+        <source>Select an interpretation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>More than a single possible interpretation was found for the expression you entered. Please select the correct ones from below:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="termselectiondialog.cpp" line="+77"/>
+        <source>Subterm %L1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

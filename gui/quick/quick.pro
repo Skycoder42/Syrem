@@ -15,6 +15,8 @@ HEADERS += \
 SOURCES += main.cpp \
 	snoozetimesformatter.cpp
 
+lupdate_never_true: SOURCES += *.qml
+
 QML_SETTINGS_DEFINITIONS += \
 	../../lib/syncedsettings.xml
 

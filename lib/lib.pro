@@ -46,6 +46,7 @@ else: include($$OUT_PWD/qpmx_generated.pri)
 # actual install
 target.path = $$INSTALL_LIBS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
+lupdate_fix: isEmpty(QSETTINGSGENERATOR_DIR): QSETTINGSGENERATOR_DIR = .
 header_install.files = $$HEADERS $$QSETTINGSGENERATOR_DIR/localsettings.h $$QSETTINGSGENERATOR_DIR/syncedsettings.h
 header_install.path = $$INSTALL_HEADERS/$$PROJECT_TARGET
 INSTALLS += target qpmx_ts_target

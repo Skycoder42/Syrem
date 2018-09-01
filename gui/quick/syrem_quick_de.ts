@@ -5,8 +5,8 @@
     <name>App</name>
     <message>
         <location filename="App.qml" line="+6"/>
-        <source>Remind-Me</source>
-        <translation></translation>
+        <source>Syrem</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17,29 +17,31 @@
         <translation>Erinnerung erstellen</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Text:</source>
-        <translation>Text:</translation>
+        <location line="+48"/>
+        <source>Important</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <source>Text:</source>
+        <translation type="vanished">Text:</translation>
+    </message>
+    <message>
+        <location line="-29"/>
         <source>Reminder description</source>
         <translation>Erinnerungsbeschreibung</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>When:</source>
-        <translation>Wann:</translation>
+        <translation type="vanished">Wann:</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+15"/>
         <source>When expression</source>
         <translation>Wann-Ausdruck</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Important:</source>
-        <translation>Wichtig:</translation>
+        <translation type="vanished">Wichtig:</translation>
     </message>
 </context>
 <context>
@@ -65,7 +67,7 @@
         <translation>Über</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+35"/>
         <source>Add Reminder</source>
         <translation>Erinnerung hinzufügen</translation>
     </message>
@@ -73,12 +75,12 @@
 <context>
     <name>ReminderDelegate</name>
     <message>
-        <location filename="ReminderDelegate.qml" line="+121"/>
+        <location filename="ReminderDelegate.qml" line="+141"/>
         <source>Complete Reminder</source>
         <translation>Erinnerung abschließen</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="-25"/>
         <source>Delete Reminder</source>
         <translation>Erinnerung löschen</translation>
     </message>
@@ -86,7 +88,7 @@
 <context>
     <name>SnoozeEdit</name>
     <message>
-        <location filename="SnoozeEdit.qml" line="+14"/>
+        <location filename="SnoozeEdit.qml" line="+25"/>
         <source>Edit snooze time…</source>
         <translation>Zeit bearbeiten…</translation>
     </message>
@@ -96,7 +98,7 @@
         <translation>Zeit hinzufügen…</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+14"/>
         <source>Update snooze time…</source>
         <translation>Zeit aktualisieren…</translation>
     </message>
@@ -112,6 +114,24 @@
         <location filename="SnoozeView.qml" line="+10"/>
         <source>Snooze Reminder</source>
         <translation>Erinnerung verschieben</translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>Open URLs</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TermSelectionView</name>
+    <message>
+        <location filename="TermSelectionView.qml" line="+9"/>
+        <source>Select interpretation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>SubTerm %L1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
