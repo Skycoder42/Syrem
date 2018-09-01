@@ -1,5 +1,5 @@
 # link against main lib
-QT += datasync
+QT += datasync concurrent
 
 RMLIB_DIR = $$shadowed($$PWD/RemindMeLib)
 win32:CONFIG(release, debug|release): LIBS += -L$$RMLIB_DIR/release/ -lremind-me
