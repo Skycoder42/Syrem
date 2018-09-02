@@ -30,8 +30,6 @@ public:
 
 	explicit SyremService(int &argc, char **argv);
 
-	static void handleIntent(const Intent &intent); //TODO make private, non static
-
 private slots:
 	void dataResetted();
 	void dataChanged(const QString &key, const QVariant &value);
@@ -62,9 +60,8 @@ private:
 	AndroidScheduler *_scheduler = nullptr;
 	AndroidNotifier *_notifier = nullptr;
 
-	static QMutex _runMutex;
-	static QPointer<SyremService> _runInstance;
-	static QList<Intent> _currentIntents;
+	QMutex _runMutex;
+	QList<Intent> _currentIntents;
 
 	void doSchedule(const Reminder &reminder);
 

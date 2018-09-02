@@ -11,10 +11,6 @@ const QString SyremService::ActionSnooze { QStringLiteral("de.skycoder42.syrem.A
 const QString SyremService::ActionRefresh { QStringLiteral("de.skycoder42.syrem.Action.Refresh") };
 const QString SyremService::ActionSetup { QStringLiteral("de.skycoder42.syrem.Action.Setup") };
 
-QMutex SyremService::_runMutex;
-QPointer<SyremService> SyremService::_runInstance = nullptr;
-QList<SyremService::Intent> SyremService::_currentIntents;
-
 SyremService::SyremService(int &argc, char **argv) :
 	Service{argc, argv}
 {
@@ -26,16 +22,6 @@ SyremService::SyremService(int &argc, char **argv) :
 	qRegisterMetaTypeStreamOperators<QSet<QUuid>>();
 
 	addCallback("onStartCommand", &SyremService::onStartCommand);
-}
-
-void SyremService::handleIntent(const Intent &intent)
-{
-	QMutexLocker locker(&_runMutex);
-	_currentIntents.append(intent);
-	if(_runInstance) {
-		QMetaObject::invokeMethod(_runInstance, "handleAllIntents", Qt::QueuedConnection);
-		_runInstance = nullptr;//set to null again, this way only 1 queued invokation is done
-	}
 }
 
 void SyremService::dataResetted()
@@ -61,10 +47,7 @@ void SyremService::dataChanged(const QString &key, const QVariant &value)
 
 void SyremService::handleAllIntents()
 {
-	QMutexLocker locker(&_runMutex);
-	//Set self as instance to accept further intents
-	_runInstance = this;
-
+	QMutexLocker locker{&_runMutex};
 	if(_currentIntents.isEmpty())
 		return;
 
@@ -89,7 +72,7 @@ void SyremService::handleAllIntents()
 
 void SyremService::tryQuit()
 {
-	_manager->runOnSynchronized([](QtDataSync::SyncManager::SyncState state){
+	_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
 		//if new intents have been added - postpone the quitting
 		QMutexLocker locker(&_runMutex);
 		if(!_currentIntents.isEmpty())
@@ -283,12 +266,15 @@ int SyremService::onStartCommand(const QAndroidIntent &intent, int flags, int st
 															QAndroidJniObject::fromString(QStringLiteral("versionCode")).object());
 		auto resExtra = QtAndroid::androidService().callObjectMethod("handleIntent", "(Landroid/content/Intent;)Ljava/lang/String;",
 																   intent.handle().object());
-		SyremService::handleIntent({
-									   action,
-									   remId,
-									   static_cast<quint32>(versionCode),
-									   resExtra.isValid() ? resExtra.toString() : QString{}
-								   });
+
+		QMutexLocker locker{&_runMutex};
+		_currentIntents.append({
+								   action,
+								   remId,
+								   static_cast<quint32>(versionCode),
+								   resExtra.isValid() ? resExtra.toString() : QString{}
+							   });
+		QMetaObject::invokeMethod(this, "handleAllIntents", Qt::QueuedConnection);
 	}
 
 	//TODO use startId and return START_REDELIVER_INTENT

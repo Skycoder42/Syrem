@@ -19,7 +19,7 @@
 <context>
     <name>SyremService</name>
     <message>
-        <location filename="syremservice.cpp" line="+123"/>
+        <location filename="syremservice.cpp" line="+106"/>
         <source>Failed to load details of triggered reminder!</source>
         <translation type="unfinished">Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
     </message>
