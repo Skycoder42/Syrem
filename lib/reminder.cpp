@@ -122,7 +122,7 @@ QString Reminder::htmlDescription() const
 {
 	QRegularExpression regex {QStringLiteral(R"__(((?:\w+):\/\/\S+))__")};
 	auto text = _data->text;
-	return text.replace(regex, QStringLiteral(R"__(<a href=\"\1\">\1</a>)__"));
+	return text.toHtmlEscaped().replace(regex, QStringLiteral(R"__(<a href=\"\1\">\1</a>)__"));
 }
 
 bool Reminder::hasUrls() const

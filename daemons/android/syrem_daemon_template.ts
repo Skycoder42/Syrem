@@ -17,7 +17,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+31"/>
         <source>Entered expression has multiple interpretations. Use the app to handle this or enter a unique expression</source>
         <translation type="unfinished"></translation>
     </message>

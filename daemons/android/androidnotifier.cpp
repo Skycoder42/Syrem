@@ -19,7 +19,7 @@ void AndroidNotifier::showNotification(const Reminder &reminder)
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
 								(jint)reminder.versionCode(),
 								(jboolean)reminder.isImportant(),
-								QAndroidJniObject::fromString(reminder.description()).object(),
+								toAndroidHtml(reminder.htmlDescription()).object(),
 								choices.object());
 }
 
@@ -31,18 +31,13 @@ void AndroidNotifier::showParserError(const Reminder &reminder, const QString &e
 
 	auto choices = createSnoozeArray(env);
 	auto text = tr("<p>%1</p>%2")
-				.arg(reminder.description().toHtmlEscaped())
+				.arg(reminder.htmlDescription())
 				.arg(errorText);
-	auto htmlText = QAndroidJniObject::callStaticObjectMethod("android/text/Html", "fromHtml",
-															  "(Ljava/lang/String;I)Landroid/text/Spanned;",
-															  QAndroidJniObject::fromString(text).object(),
-															  (jint)0);
-
 	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;Z)V",
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
 								(jint)reminder.versionCode(),
 								(jboolean)reminder.isImportant(),
-								htmlText.object(),
+								toAndroidHtml(text).object(),
 								choices.object(),
 								(jboolean)true);
 }
@@ -77,4 +72,13 @@ QAndroidJniObject AndroidNotifier::createSnoozeArray(QAndroidJniEnvironment &env
 		env->SetObjectArrayElement(choices.object<jobjectArray>(), i, str.object());
 	}
 	return choices;
+}
+
+QAndroidJniObject AndroidNotifier::toAndroidHtml(const QString &text) const
+{
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
+	return QAndroidJniObject::callStaticObjectMethod("android/text/Html", "fromHtml",
+													 "(Ljava/lang/String;I)Landroid/text/Spanned;",
+													 QAndroidJniObject::fromString(text).object(),
+													 static_cast<jint>(0));
 }

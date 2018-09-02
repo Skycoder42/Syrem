@@ -133,9 +133,8 @@ void SyremService::actionComplete(const QUuid &id, quint32 versionCode)
 			return;
 		}
 		reminder.nextSchedule(_store->store(), QDateTime::currentDateTime());
-		// TODO
-//		if(_settings->scheduler.urlOpen)
-//			rem.openUrls();
+		if(_settings->scheduler.urlOpen)
+			reminder.openUrls(); //TODO use android native stuff
 	} catch(QtDataSync::NoDataException &e) {
 		Q_UNUSED(e)
 		qInfo() << "Skipping completing of deleted reminder" << id;
@@ -197,9 +196,9 @@ QtService::Service::CommandMode SyremService::onStart()
 		Syrem::setup(setup);
 		setup.create();
 
+		QtMvvm::ServiceRegistry::instance()->injectServices(this);
 		_scheduler = new AndroidScheduler{this};
 		_notifier = new AndroidNotifier{this};
-		_parser = QtMvvm::ServiceRegistry::instance()->service<EventExpressionParser>();
 
 		_store = new ReminderStore{this};
 		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,

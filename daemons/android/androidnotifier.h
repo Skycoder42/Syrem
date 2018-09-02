@@ -25,6 +25,7 @@ private:
 	QAndroidJniObject _jNotifier;
 
 	QAndroidJniObject createSnoozeArray(QAndroidJniEnvironment &env);
+	QAndroidJniObject toAndroidHtml(const QString &text) const;
 };
 
 #endif // ANDROIDNOTIFIER_H

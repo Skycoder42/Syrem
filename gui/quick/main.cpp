@@ -26,7 +26,7 @@ QObject *create_snooze_times_generator(QQmlEngine *qmlEngine, QJSEngine *jsEngin
 	return new SnoozeTimesGenerator(qmlEngine);
 }
 
-void setStatusBarColor(QColor color)
+void setStatusBarColor(const QColor &color)
 {
 #ifdef Q_OS_ANDROID
 	if(QtAndroid::androidSdkVersion() >= 21) {

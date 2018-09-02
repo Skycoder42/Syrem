@@ -13,9 +13,12 @@
 #include "androidscheduler.h"
 #include "androidnotifier.h"
 
-class SyremService : public QtService::Service //TODO use service registry more?
+class SyremService : public QtService::Service
 {
 	Q_OBJECT
+
+	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
+	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 
 public:
 	struct Intent {
@@ -54,6 +57,7 @@ private:
 	ReminderStore *_store = nullptr;
 	QtDataSync::SyncManager *_manager = nullptr;
 	EventExpressionParser *_parser = nullptr;
+	SyncedSettings *_settings = nullptr;
 
 	AndroidScheduler *_scheduler = nullptr;
 	AndroidNotifier *_notifier = nullptr;
