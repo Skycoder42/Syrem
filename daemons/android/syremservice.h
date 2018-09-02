@@ -32,6 +32,8 @@ public:
 
 	explicit SyremService(int &argc, char **argv);
 
+	void openUrls(const Reminder &reminder) const;
+
 private slots:
 	void dataResetted();
 	void dataChanged(const QString &key, const QVariant &value);

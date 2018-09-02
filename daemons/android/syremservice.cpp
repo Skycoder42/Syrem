@@ -24,6 +24,28 @@ SyremService::SyremService(int &argc, char **argv) :
 	addCallback("onStartCommand", &SyremService::onStartCommand);
 }
 
+void SyremService::openUrls(const Reminder &reminder) const
+{
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
+	static const auto ACTION_VIEW = QAndroidJniObject::getStaticObjectField("android/content/Intent",
+																			"ACTION_VIEW", "Ljava/lang/String;")
+									.toString();
+	static const auto FLAG_ACTIVITY_NEW_TASK = QAndroidJniObject::getStaticField<jint>("android/content/Intent", "FLAG_ACTIVITY_NEW_TASK");
+
+	for(const auto &url : reminder.extractUrls()) {
+		QAndroidIntent intent{ACTION_VIEW};
+		auto uri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri",
+															 "parse", "(Ljava/lang/String;)Landroid/net/Uri;",
+															 QAndroidJniObject::fromString(url.toString(QUrl::FullyEncoded)).object());
+		intent.handle().callObjectMethod("setData", "(Landroid/net/Uri;)Landroid/content/Intent;",
+										 uri.object());
+		intent.handle().callObjectMethod("addFlags", "(I)Landroid/content/Intent;",
+										FLAG_ACTIVITY_NEW_TASK);
+		QtAndroid::androidContext().callMethod<void>("startActivity", "(Landroid/content/Intent;)V",
+													 intent.handle().object());
+	}
+}
+
 void SyremService::dataResetted()
 {
 	// Android alarms cannot be easily canceled -> just let them be, they will do nothing as the corresponding reminders are deleted
@@ -116,7 +138,7 @@ void SyremService::actionComplete(const QUuid &id, quint32 versionCode)
 		}
 		reminder.nextSchedule(_store->store(), QDateTime::currentDateTime());
 		if(_settings->scheduler.urlOpen)
-			reminder.openUrls(); //TODO use android native stuff
+			openUrls(reminder);
 	} catch(QtDataSync::NoDataException &e) {
 		Q_UNUSED(e)
 		qInfo() << "Skipping completing of deleted reminder" << id;
@@ -207,7 +229,7 @@ QtService::Service::CommandMode SyremService::onStart()
 		return Synchronous;
 	} catch(QException &e) {
 		qCritical() << e.what();
-		qApp->exit(EXIT_FAILURE); //TODO correct way
+		QMetaObject::invokeMethod(this, "quit", Qt::QueuedConnection);
 		return Synchronous;
 	}
 }
@@ -276,5 +298,5 @@ int SyremService::onStartCommand(const QAndroidIntent &intent, int flags, int st
 		QMetaObject::invokeMethod(this, "handleAllIntents", Qt::QueuedConnection);
 	}
 
-	return 0x00000003; //START_REDELIVER_INTENT
+	return 0x00000003; //TODO START_REDELIVER_INTENT
 }

@@ -12,7 +12,7 @@
 <context>
     <name>SyremService</name>
     <message>
-        <location filename="syremservice.cpp" line="+105"/>
+        <location filename="syremservice.cpp" line="+127"/>
         <source>Failed to load details of triggered reminder!</source>
         <translation type="unfinished"></translation>
     </message>
