@@ -34,9 +34,9 @@ public class SyremService extends AndroidService {
 		return result;
 	}
 
-	public void completeAction() {
-		stopForeground(true);
-		stopService(new Intent(this, SyremService.class));//Stop myself
+	public void completeAction(int startId) {
+		if(stopSelfResult(startId))
+			stopForeground(true);
 	}
 
 	public String handleIntent(Intent intent) {

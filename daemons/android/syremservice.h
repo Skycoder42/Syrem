@@ -9,6 +9,7 @@
 #include <libsyrem.h>
 #include <eventexpressionparser.h>
 #include <QAndroidIntent>
+#include <QQueue>
 
 #include "androidscheduler.h"
 #include "androidnotifier.h"
@@ -26,6 +27,7 @@ public:
 		QUuid reminderId;
 		quint32 versionCode;
 		QString result;
+		int startId;
 	};
 
 	explicit SyremService(int &argc, char **argv);
@@ -35,7 +37,6 @@ private slots:
 	void dataChanged(const QString &key, const QVariant &value);
 
 	void handleAllIntents();
-	void tryQuit();
 
 	void actionSchedule(const QUuid &id, quint32 versionCode);
 	void actionComplete(const QUuid &id, quint32 versionCode);
@@ -62,6 +63,7 @@ private:
 
 	QMutex _runMutex;
 	QList<Intent> _currentIntents;
+	QQueue<QList<int>> _doneStartIds;
 
 	void doSchedule(const Reminder &reminder);
 

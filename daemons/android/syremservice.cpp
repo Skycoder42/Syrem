@@ -50,8 +50,12 @@ void SyremService::handleAllIntents()
 	QMutexLocker locker{&_runMutex};
 	if(_currentIntents.isEmpty())
 		return;
+	const auto intents = std::move(_currentIntents);
+	_currentIntents = {};
+	locker.unlock();
 
-	for(auto intent : _currentIntents) {
+	QList<int> startIds;
+	for(const auto &intent : intents) {
 		if(intent.action == ActionScheduler)
 			actionSchedule(intent.reminderId, intent.versionCode);
 		else if(intent.action == ActionComplete)
@@ -64,26 +68,21 @@ void SyremService::handleAllIntents()
 			actionSetup();
 		else
 			qWarning() << "Received unknown intent action:" << intent.action;
+		startIds.append(intent.startId);
 	}
-	_currentIntents.clear();
+	_doneStartIds.enqueue(startIds);
 
-	QMetaObject::invokeMethod(this, "tryQuit", Qt::QueuedConnection);
-}
-
-void SyremService::tryQuit()
-{
 	_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
 		//if new intents have been added - postpone the quitting
-		QMutexLocker locker(&_runMutex);
-		if(!_currentIntents.isEmpty())
-			return;
-
 		LocalSettings::instance()->accessor()->sync();
-
-		qDebug() << "Synchronization result right before stopping service:" << state;
+		qDebug() << "Synchronization result right before completing" << _doneStartIds.size() << "service intents:" << state;
 		auto service = QtAndroid::androidService();
-		service.callMethod<void>("completeAction");
-	});
+		Q_ASSERT(!_doneStartIds.isEmpty());
+		for(const auto &startId : _doneStartIds.dequeue()) {
+			service.callMethod<void>("completeAction", "(I)V",
+									 static_cast<jint>(startId));
+		}
+	}, true);
 }
 
 void SyremService::actionSchedule(const QUuid &id, quint32 versionCode)
@@ -255,7 +254,6 @@ void SyremService::updateNotificationCount(int count)
 int SyremService::onStartCommand(const QAndroidIntent &intent, int flags, int startId)
 {
 	Q_UNUSED(flags)
-	Q_UNUSED(startId)
 
 	if(intent.handle().isValid()) {
 		QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
@@ -272,11 +270,11 @@ int SyremService::onStartCommand(const QAndroidIntent &intent, int flags, int st
 								   action,
 								   remId,
 								   static_cast<quint32>(versionCode),
-								   resExtra.isValid() ? resExtra.toString() : QString{}
+								   resExtra.isValid() ? resExtra.toString() : QString{},
+								   startId
 							   });
 		QMetaObject::invokeMethod(this, "handleAllIntents", Qt::QueuedConnection);
 	}
 
-	//TODO use startId and return START_REDELIVER_INTENT
-	return 0x00000002; //START_NOT_STICKY
+	return 0x00000003; //START_REDELIVER_INTENT
 }
