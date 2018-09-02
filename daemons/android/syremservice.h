@@ -43,6 +43,7 @@ private slots:
 	void actionSchedule(const QUuid &id, quint32 versionCode);
 	void actionComplete(const QUuid &id, quint32 versionCode);
 	void actionSnooze(const QUuid &id, quint32 versionCode, const QString &expression);
+	void actionOpenUrls(const QUuid &id);
 	void actionSetup();
 
 protected:
@@ -54,6 +55,7 @@ private:
 	static const QString ActionSnooze;
 	static const QString ActionRefresh;
 	static const QString ActionSetup;
+	static const QString ActionOpenUrls;
 
 	static const QString ExtraId;
 	static const QString ExtraVersion;

@@ -13,6 +13,7 @@
 	<string name="not_err_name">Syrem Fehler</string>
 	<string name="not_complete">Abschließen</string>
 	<string name="not_snooze">Verschieben</string>
+	<string name="not_open_url">URLs öffnen</string>
 	<string name="not_snooze_label">Geben Sie einen Zeitausdruck zum verschieben ein</string>
 
 	<string name="channel_nrm_name">Normale Erinnerungen</string>

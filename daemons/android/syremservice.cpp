@@ -10,6 +10,7 @@ const QString SyremService::ActionComplete { QStringLiteral("de.skycoder42.syrem
 const QString SyremService::ActionSnooze { QStringLiteral("de.skycoder42.syrem.Action.Snooze") };
 const QString SyremService::ActionRefresh { QStringLiteral("de.skycoder42.syrem.Action.Refresh") };
 const QString SyremService::ActionSetup { QStringLiteral("de.skycoder42.syrem.Action.Setup") };
+const QString SyremService::ActionOpenUrls { QStringLiteral("de.skycoder42.syrem.Action.OpenUrls") };
 const QString SyremService::ExtraId { QStringLiteral("id") };
 const QString SyremService::ExtraVersion { QStringLiteral("versionCode") };
 
@@ -88,6 +89,8 @@ void SyremService::handleAllIntents()
 			actionComplete(intent.reminderId, intent.versionCode);
 		else if(intent.action == ActionSnooze)
 			actionSnooze(intent.reminderId, intent.versionCode, intent.result);
+		else if(intent.action == ActionOpenUrls)
+			actionOpenUrls(intent.reminderId);
 		else if(intent.action == ActionRefresh)
 			qDebug() << "Completed datasync synchronization";
 		else if(intent.action == ActionSetup)
@@ -179,6 +182,17 @@ void SyremService::actionSnooze(const QUuid &id, quint32 versionCode, const QStr
 	} catch(QException &e) {
 		qCritical() << "Failed to load reminder with id" << id
 					<< "to complete it with error:" << e.what();
+	}
+}
+
+void SyremService::actionOpenUrls(const QUuid &id)
+{
+	try {
+		auto reminder = _store->load(id);
+		openUrls(reminder);
+	} catch(QException &e) {
+		qCritical() << "Failed to load reminder with id" << id
+					<< "to open its urls with error:" << e.what();
 	}
 }
 

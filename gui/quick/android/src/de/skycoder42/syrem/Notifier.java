@@ -20,10 +20,10 @@ public class Notifier {
 		this.context = context;
 	}
 
-	public void notify(String remId, int versionCode, boolean important, CharSequence text, String[] choices) {
-		notify(remId, versionCode, important, text, choices, false);
+	public void notify(String remId, int versionCode, boolean important, CharSequence text, boolean hasUrls, String[] choices) {
+		notify(remId, versionCode, important, text, hasUrls, choices, false);
 	}
-	public void notify(String remId, int versionCode, boolean important, CharSequence text, String[] choices, boolean isError) {
+	public void notify(String remId, int versionCode, boolean important, CharSequence text, boolean hasUrls, String[] choices, boolean isError) {
 		NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		Intent activityIntent = new Intent(context, SyremActivity.class);
@@ -68,6 +68,12 @@ public class Notifier {
 						activityPending)
 					.setShowsUserInterface(true)
 					.build());
+		}
+
+		if(hasUrls) {
+			builder.addAction(R.drawable.ic_open_in_browser,
+						context.getString(R.string.not_open_url),
+						Globals.createPending(context, Globals.Actions.ActionOpenUrls, remId, versionCode));
 		}
 
 		Notification notification = builder.build();

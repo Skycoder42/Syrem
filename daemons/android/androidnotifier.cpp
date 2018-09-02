@@ -15,11 +15,12 @@ void AndroidNotifier::showNotification(const Reminder &reminder)
 	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	auto choices = createSnoozeArray(env);
 
-	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;)V",
+	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;Z[Ljava/lang/String;)V",
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
-								(jint)reminder.versionCode(),
-								(jboolean)reminder.isImportant(),
+								static_cast<jint>(reminder.versionCode()),
+								static_cast<jboolean>(reminder.isImportant()),
 								toAndroidHtml(reminder.htmlDescription()).object(),
+								static_cast<jboolean>(reminder.hasUrls()),
 								choices.object());
 }
 
@@ -33,13 +34,14 @@ void AndroidNotifier::showParserError(const Reminder &reminder, const QString &e
 	auto text = tr("<p>%1</p>%2")
 				.arg(reminder.htmlDescription())
 				.arg(errorText);
-	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;Z)V",
+	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;Z[Ljava/lang/String;Z)V",
 								QAndroidJniObject::fromString(reminder.id().toString()).object(),
-								(jint)reminder.versionCode(),
-								(jboolean)reminder.isImportant(),
+								static_cast<jint>(reminder.versionCode()),
+								static_cast<jboolean>(reminder.isImportant()),
 								toAndroidHtml(text).object(),
+								static_cast<jboolean>(reminder.hasUrls()),
 								choices.object(),
-								(jboolean)true);
+								static_cast<jboolean>(true));
 }
 
 void AndroidNotifier::removeNotification(const QUuid &id)
@@ -66,7 +68,7 @@ QAndroidJniObject AndroidNotifier::createSnoozeArray(QAndroidJniEnvironment &env
 {
 	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	SnoozeTimes times = SyncedSettings::instance()->scheduler.snoozetimes;
-	auto choices = QAndroidJniObject::fromLocalRef(env->NewObjectArray((jint)times.size(), env->FindClass("java/lang/String"), NULL));
+	auto choices = QAndroidJniObject::fromLocalRef(env->NewObjectArray(static_cast<jint>(times.size()), env->FindClass("java/lang/String"), nullptr));
 	for(auto i = 0; i < times.size(); i++) {
 		auto str = QAndroidJniObject::fromString(times.value(i));
 		env->SetObjectArrayElement(choices.object<jobjectArray>(), i, str.object());

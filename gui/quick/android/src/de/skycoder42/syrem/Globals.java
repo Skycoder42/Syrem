@@ -18,7 +18,8 @@ public class Globals {
 		ActionSnooze(23, "de.skycoder42.syrem.Action.Snooze"),
 		ActionRefresh(24, "de.skycoder42.syrem.Action.Refresh"),
 		ActionSetup(25, "de.skycoder42.syrem.Action.Setup"),
-		ActionCreate(26, "de.skycoder42.syrem.Action.Create");
+		ActionCreate(26, "de.skycoder42.syrem.Action.Create"),
+		ActionOpenUrls(27, "de.skycoder42.syrem.Action.OpenUrls");
 
 		private int id;
 		private String action;
