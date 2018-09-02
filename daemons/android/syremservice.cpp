@@ -10,6 +10,8 @@ const QString SyremService::ActionComplete { QStringLiteral("de.skycoder42.syrem
 const QString SyremService::ActionSnooze { QStringLiteral("de.skycoder42.syrem.Action.Snooze") };
 const QString SyremService::ActionRefresh { QStringLiteral("de.skycoder42.syrem.Action.Refresh") };
 const QString SyremService::ActionSetup { QStringLiteral("de.skycoder42.syrem.Action.Setup") };
+const QString SyremService::ExtraId { QStringLiteral("id") };
+const QString SyremService::ExtraVersion { QStringLiteral("versionCode") };
 
 SyremService::SyremService(int &argc, char **argv) :
 	Service{argc, argv}
@@ -57,10 +59,12 @@ void SyremService::dataResetted()
 void SyremService::dataChanged(const QString &key, const QVariant &value)
 {
 	if(value.isValid()) {
+		qDebug() << "Data change event for reminder" << key;
 		auto reminder = value.value<Reminder>();
 		doSchedule(reminder);
 	} else {
-		QUuid id(key);
+		qDebug() << "Data removed event for reminder" << key;
+		QUuid id{key};
 		_scheduler->cancleReminder(id);
 		_notifier->removeNotification(id);
 		removeNotify(id);
@@ -277,13 +281,15 @@ int SyremService::onStartCommand(const QAndroidIntent &intent, int flags, int st
 {
 	Q_UNUSED(flags)
 
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
+	static const auto START_REDELIVER_INTENT = QAndroidJniObject::getStaticField<jint>("android/app/Service", "START_REDELIVER_INTENT");
+
 	if(intent.handle().isValid()) {
-		QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 		auto action = intent.handle().callObjectMethod("getAction", "()Ljava/lang/String;").toString();
 		auto remId = intent.handle().callObjectMethod("getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;",
-													   QAndroidJniObject::fromString(QStringLiteral("id")).object()).toString();
+													   QAndroidJniObject::fromString(ExtraId).object()).toString();
 		auto versionCode = intent.handle().callMethod<jint>("getIntExtra", "(Ljava/lang/String;I)I",
-															QAndroidJniObject::fromString(QStringLiteral("versionCode")).object());
+															QAndroidJniObject::fromString(ExtraVersion).object());
 		auto resExtra = QtAndroid::androidService().callObjectMethod("handleIntent", "(Landroid/content/Intent;)Ljava/lang/String;",
 																   intent.handle().object());
 
@@ -298,5 +304,5 @@ int SyremService::onStartCommand(const QAndroidIntent &intent, int flags, int st
 		QMetaObject::invokeMethod(this, "handleAllIntents", Qt::QueuedConnection);
 	}
 
-	return 0x00000003; //TODO START_REDELIVER_INTENT
+	return START_REDELIVER_INTENT;
 }

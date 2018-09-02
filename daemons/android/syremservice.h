@@ -55,6 +55,9 @@ private:
 	static const QString ActionRefresh;
 	static const QString ActionSetup;
 
+	static const QString ExtraId;
+	static const QString ExtraVersion;
+
 	ReminderStore *_store = nullptr;
 	QtDataSync::SyncManager *_manager = nullptr;
 	EventExpressionParser *_parser = nullptr;
