@@ -612,7 +612,7 @@
 <context>
     <name>qtmvvm_settings_xml</name>
     <message>
-        <location filename="../../build-RemindMe-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+35"/>
+        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+35"/>
         <source>in 20 minutes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -634,6 +634,14 @@
     <message>
         <location line="+1"/>
         <source>in 1 week on Monday</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>settings.xml</name>
+    <message>
+        <location line="-10"/>
+        <source>09:00</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
