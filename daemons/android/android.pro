@@ -4,7 +4,7 @@ TARGET = $${PROJECT_TARGET}_service
 
 QMAKE_TARGET_PRODUCT = "Syrem Service"
 
-QT += androidextras mvvmcore
+QT += androidextras mvvmcore service
 
 HEADERS += \
 	syremservice.h \

@@ -414,7 +414,7 @@
 <context>
     <name>qtmvvm_settings_xml</name>
     <message>
-        <location filename="../../build-RemindMe-Desktop_Qt_5_11_1_GCC_64bit-Debug/lib/syncedsettings.cpp" line="+35"/>
+        <location filename="../../build-RemindMe-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+35"/>
         <source>in 20 minutes</source>
         <translation type="unfinished"></translation>
     </message>

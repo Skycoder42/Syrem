@@ -14,54 +14,15 @@ QMutex SyremService::_runMutex;
 QPointer<SyremService> SyremService::_runInstance = nullptr;
 QList<SyremService::Intent> SyremService::_currentIntents;
 
-SyremService::SyremService(QObject *parent) :
-	QObject(parent),
-	_store(nullptr),
-	_manager(nullptr),
-	_parser(nullptr),
-	_scheduler(new AndroidScheduler(this)),
-	_notifier(new AndroidNotifier(this))
-{}
-
-bool SyremService::startService()
+SyremService::SyremService(int &argc, char **argv) :
+	Service{argc, argv}
 {
-	//load translations
-	Syrem::prepareTranslations(QStringLiteral("syremd"));
+	QCoreApplication::setApplicationName(QStringLiteral(PROJECT_TARGET));
+	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
+	QCoreApplication::setOrganizationName(QStringLiteral(COMPANY));
+	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 
-	try {
-		QtDataSync::Setup setup;
-		Syrem::setup(setup);
-		setup.create();
-
-		_parser = QtMvvm::ServiceRegistry::instance()->service<EventExpressionParser>();
-
-		_store = new ReminderStore(this);
-		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
-				this, &SyremService::dataChanged);
-		connect(_store, &QtDataSync::DataTypeStoreBase::dataResetted,
-				this, &SyremService::dataResetted);
-
-		_manager = new QtDataSync::SyncManager(this);
-		auto runFn = [this](){
-			_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
-				qDebug() << "Synchronization completed in state" << state;
-				handleAllIntents();
-			});
-		};
-
-		if(_manager->replica()->isInitialized())
-			runFn();
-		else {
-			connect(_manager->replica(), &QRemoteObjectReplica::initialized,
-					this, runFn);
-		}
-
-		qInfo() << "service successfully started";
-		return true;
-	} catch(QException &e) {
-		qCritical() << e.what();
-		return false;
-	}
+	qRegisterMetaTypeStreamOperators<QSet<QUuid>>();
 }
 
 void SyremService::handleIntent(const Intent &intent)
@@ -216,10 +177,54 @@ void SyremService::actionSetup()
 	try {
 		LocalSettings::instance()->service.badgeActive.reset();
 		auto reminders = _store->loadAll();
-		for(auto reminder : reminders)
+		for(const auto &reminder : reminders)
 			doSchedule(reminder);
 	} catch(QException &e) {
 		qCritical() << "Failed to initially load reminders for setup with error:" << e.what();
+	}
+}
+
+QtService::Service::CommandMode SyremService::onStart()
+{
+	//load translations
+	Syrem::prepareTranslations(QStringLiteral("syremd"));
+
+	try {
+		QtDataSync::Setup setup;
+		Syrem::setup(setup);
+		setup.create();
+
+		_scheduler = new AndroidScheduler{this};
+		_notifier = new AndroidNotifier{this};
+		_parser = QtMvvm::ServiceRegistry::instance()->service<EventExpressionParser>();
+
+		_store = new ReminderStore{this};
+		connect(_store, &QtDataSync::DataTypeStoreBase::dataChanged,
+				this, &SyremService::dataChanged);
+		connect(_store, &QtDataSync::DataTypeStoreBase::dataResetted,
+				this, &SyremService::dataResetted);
+
+		_manager = new QtDataSync::SyncManager{this};
+		auto runFn = [this](){
+			_manager->runOnSynchronized([this](QtDataSync::SyncManager::SyncState state){
+				qDebug() << "Synchronization completed in state" << state;
+				handleAllIntents();
+			});
+		};
+
+		if(_manager->replica()->isInitialized())
+			runFn();
+		else {
+			connect(_manager->replica(), &QRemoteObjectReplica::initialized,
+					this, runFn);
+		}
+
+		qInfo() << "service successfully started";
+		return Synchronous;
+	} catch(QException &e) {
+		qCritical() << e.what();
+		qApp->exit(EXIT_FAILURE); //TODO correct way
+		return Synchronous;
 	}
 }
 
@@ -259,7 +264,7 @@ void SyremService::updateNotificationCount(int count)
 	QAndroidJniObject::callStaticMethod<jboolean>("me/leolin/shortcutbadger/ShortcutBadger", "applyCount",
 												  "(Landroid/content/Context;I)Z",
 												  QtAndroid::androidContext().object(),
-												  (jint)count);
+												  static_cast<jint>(count));
 }
 
 extern "C" {
@@ -267,11 +272,11 @@ extern "C" {
 JNIEXPORT void JNICALL Java_de_skycoder42_syrem_SyremService_handleIntent(JNIEnv */*env*/, jobject /*obj*/, jstring action, jstring id, jint versionCode, jstring resultExtra)
 {
 	SyremService::handleIntent({
-									  QAndroidJniObject(action).toString(),
-									  QUuid(QAndroidJniObject(id).toString()),
-									  (quint32)versionCode,
-									  QAndroidJniObject(resultExtra).toString()
-								  });
+								   QAndroidJniObject{action}.toString(),
+								   QUuid{QAndroidJniObject{id}.toString()},
+								   static_cast<quint32>(versionCode),
+								   QAndroidJniObject{resultExtra}.toString()
+							   });
 }
 
 }

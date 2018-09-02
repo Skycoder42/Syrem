@@ -50,6 +50,7 @@
 		<service android:process=":syrem_service" android:name=".SyremService">
 			<!-- Application to launch -->
 			<meta-data android:name="android.app.lib_name" android:value="syrem_service"/>
+			<meta-data android:name="android.app.arguments" android:value="--backend android"/>
 			<!-- Ministro -->
 			<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
 			<meta-data android:name="android.app.repository" android:value="default"/>

@@ -9,16 +9,9 @@ import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 
-import org.qtproject.qt5.android.bindings.QtService;
+import de.skycoder42.qtservice.AndroidService;
 
-public class SyremService extends QtService {
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		// explicitly exit to prevent the process from beeing cached
-		System.exit(0);
-	}
-
+public class SyremService extends AndroidService {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		int result = super.onStartCommand(intent, flags, startId);

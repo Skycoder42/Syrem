@@ -10,10 +10,15 @@
     </message>
 </context>
 <context>
-    <name>RemindmeService</name>
+    <name>SyremService</name>
     <message>
-        <location filename="remindmeservice.cpp" line="+157"/>
+        <location filename="syremservice.cpp" line="+120"/>
         <source>Failed to load details of triggered reminder!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Entered expression has multiple interpretations. Use the app to handle this or enter a unique expression</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

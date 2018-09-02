@@ -12,9 +12,21 @@
 <context>
     <name>RemindmeService</name>
     <message>
-        <location filename="remindmeservice.cpp" line="+157"/>
         <source>Failed to load details of triggered reminder!</source>
-        <translation>Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
+        <translation type="vanished">Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
+    </message>
+</context>
+<context>
+    <name>SyremService</name>
+    <message>
+        <location filename="syremservice.cpp" line="+120"/>
+        <source>Failed to load details of triggered reminder!</source>
+        <translation type="unfinished">Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Entered expression has multiple interpretations. Use the app to handle this or enter a unique expression</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
