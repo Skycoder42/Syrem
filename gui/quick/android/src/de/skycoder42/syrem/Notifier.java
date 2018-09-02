@@ -66,7 +66,7 @@ public class Notifier {
 				.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_snooze,
 						context.getString(R.string.not_snooze),
 						activityPending)
-//TODO					.setShowsUserInterface(true)
+					.setShowsUserInterface(true)
 					.build());
 		}
 

@@ -22,8 +22,8 @@ apply plugin: 'com.android.application'
 
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
-	compile "com.android.support:support-compat:27.1.0"
-	compile "me.leolin:ShortcutBadger:1.1.21@aar"
+	compile "com.android.support:support-compat:+"
+	compile "me.leolin:ShortcutBadger:+@aar"
 }
 
 android {

@@ -31,9 +31,6 @@ public class SyremService extends AndroidService {
 			builder.setPriority(NotificationCompat.PRIORITY_MIN);
 
 		startForeground(Globals.ForegroundId, builder.build());
-		if(intent != null)
-			handleIntent(intent);
-
 		return result;
 	}
 
@@ -42,23 +39,20 @@ public class SyremService extends AndroidService {
 		stopService(new Intent(this, SyremService.class));//Stop myself
 	}
 
-	private static native void handleIntent(String action, String remId, int versionCode, String resultExtra);
-
-	private void handleIntent(Intent intent) {
-		String remId = intent.getStringExtra(Globals.ExtraId);
-		int versionCode = intent.getIntExtra(Globals.ExtraVersion, 0);
-
+	public String handleIntent(Intent intent) {
 		// cancel complete notifications early for a smoother experience
-		if(intent.getAction() == Globals.Actions.ActionComplete.getAction())
+		if(intent.getAction() == Globals.Actions.ActionComplete.getAction()) {
+			String remId = intent.getStringExtra(Globals.ExtraId);
 			Notifier.cancelExplicitly(this, remId);
+		}
 
+		// extract the snooze string from the intent if set
 		String resultExtra = null;
 		if(intent.getAction() == Globals.Actions.ActionSnooze.getAction()) {
 			Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
 			if(remoteInput != null)
 				resultExtra = remoteInput.getCharSequence(Globals.ExtraSnoozeTime).toString();
 		}
-
-		handleIntent(intent.getAction(), remId, versionCode, resultExtra);
+		return resultExtra;
 	}
 }

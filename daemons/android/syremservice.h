@@ -8,6 +8,7 @@
 #include <QtService/Service>
 #include <libsyrem.h>
 #include <eventexpressionparser.h>
+#include <QAndroidIntent>
 
 #include "androidscheduler.h"
 #include "androidnotifier.h"
@@ -26,7 +27,7 @@ public:
 
 	explicit SyremService(int &argc, char **argv);
 
-	static void handleIntent(const Intent &intent);
+	static void handleIntent(const Intent &intent); //TODO make private, non static
 
 private slots:
 	void dataResetted();
@@ -66,6 +67,10 @@ private:
 	void addNotify(const QUuid &id);
 	void removeNotify(const QUuid &id);
 	void updateNotificationCount(int count);
+
+	int onStartCommand(const QAndroidIntent &intent, int flags, int startId);
 };
+
+Q_DECLARE_METATYPE(QAndroidIntent)
 
 #endif // SYREMSERVICE_H

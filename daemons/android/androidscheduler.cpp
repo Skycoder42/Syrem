@@ -1,6 +1,7 @@
 #include "androidscheduler.h"
 #include <QtAndroid>
 #include <QtMvvmCore/ServiceRegistry>
+#include <QAndroidJniExceptionCleaner>
 #include <chrono>
 #include <syncedsettings.h>
 
@@ -12,6 +13,8 @@ AndroidScheduler::AndroidScheduler(QObject *parent) :
 
 bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 {
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
+
 	using namespace std::chrono;
 	if(!reminder.current().isValid())
 		return true;
@@ -41,6 +44,7 @@ bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 
 void AndroidScheduler::cancleReminder(const QUuid &id)
 {
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	_jScheduler.callMethod<void>("cancelSchedule", "(Ljava/lang/String;)V",
 								 QAndroidJniObject::fromString(id.toString()).object<jstring>());
 }

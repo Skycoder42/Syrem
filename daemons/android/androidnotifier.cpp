@@ -12,6 +12,7 @@ void AndroidNotifier::showNotification(const Reminder &reminder)
 {
 	//build the choices
 	QAndroidJniEnvironment env;
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	auto choices = createSnoozeArray(env);
 
 	_jNotifier.callMethod<void>("notify", "(Ljava/lang/String;IZLjava/lang/CharSequence;[Ljava/lang/String;)V",
@@ -26,6 +27,8 @@ void AndroidNotifier::showParserError(const Reminder &reminder, const QString &e
 {
 	//build the choices
 	QAndroidJniEnvironment env;
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
+
 	auto choices = createSnoozeArray(env);
 	auto text = tr("<p>%1</p>%2")
 				.arg(reminder.description().toHtmlEscaped())
@@ -46,23 +49,27 @@ void AndroidNotifier::showParserError(const Reminder &reminder, const QString &e
 
 void AndroidNotifier::removeNotification(const QUuid &id)
 {
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	_jNotifier.callMethod<void>("cancel", "(Ljava/lang/String;)V",
 								QAndroidJniObject::fromString(id.toString()).object());
 }
 
 void AndroidNotifier::showErrorMessage(const QString &error)
 {
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	_jNotifier.callMethod<void>("notifyError", "(Ljava/lang/String;)V",
 								QAndroidJniObject::fromString(error).object());
 }
 
 void AndroidNotifier::cleanNotifications()
 {
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	_jNotifier.callMethod<void>("cancelAll");
 }
 
 QAndroidJniObject AndroidNotifier::createSnoozeArray(QAndroidJniEnvironment &env)
 {
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
 	SnoozeTimes times = SyncedSettings::instance()->scheduler.snoozetimes;
 	auto choices = QAndroidJniObject::fromLocalRef(env->NewObjectArray((jint)times.size(), env->FindClass("java/lang/String"), NULL));
 	for(auto i = 0; i < times.size(); i++) {

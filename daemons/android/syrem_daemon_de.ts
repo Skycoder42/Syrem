@@ -4,7 +4,7 @@
 <context>
     <name>AndroidNotifier</name>
     <message>
-        <location filename="androidnotifier.cpp" line="+30"/>
+        <location filename="androidnotifier.cpp" line="+33"/>
         <source>&lt;p&gt;%1&lt;/p&gt;%2</source>
         <translation>&lt;p&gt;%1&lt;/p&gt;%2</translation>
     </message>
@@ -19,7 +19,7 @@
 <context>
     <name>SyremService</name>
     <message>
-        <location filename="syremservice.cpp" line="+120"/>
+        <location filename="syremservice.cpp" line="+123"/>
         <source>Failed to load details of triggered reminder!</source>
         <translation type="unfinished">Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
     </message>
