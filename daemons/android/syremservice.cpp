@@ -273,8 +273,10 @@ QtService::Service::CommandMode SyremService::onStop(int &exitCode)
 
 void SyremService::doSchedule(const Reminder &reminder)
 {
-	_notifier->removeNotification(reminder.id());
-	if(!_scheduler->scheduleReminder(reminder)) {
+	if(_scheduler->scheduleReminder(reminder)) {
+		_notifier->removeNotification(reminder.id());
+		removeNotify(reminder.id());
+	} else {
 		_notifier->showNotification(reminder);
 		addNotify(reminder.id());
 	}
