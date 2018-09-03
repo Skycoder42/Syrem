@@ -16,6 +16,8 @@ SOURCES += main.cpp \
 	androidscheduler.cpp \
 	androidnotifier.cpp
 
+RESOURCES += ../../gui/quick/syrem_quick_android.qrc
+
 TRANSLATIONS += syrem_daemon_de.ts \
 	syrem_daemon_template.ts
 

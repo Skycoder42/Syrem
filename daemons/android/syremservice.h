@@ -48,6 +48,7 @@ private slots:
 
 protected:
 	CommandMode onStart() override;
+	CommandMode onStop(int &exitCode) override;
 
 private:
 	static const QString ActionScheduler;

@@ -17,11 +17,11 @@
 		<Code> <!-- VERY dirty trick to get the defaults into the snoozetimes -->
 			[&amp;](){
 				scheduler.snoozetimes.setup(QStringLiteral("scheduler/snoozetimes"), _accessor, QVariant::fromValue(SnoozeTimes {
-					QCoreApplication::translate("qtmvvm_settings_xml", "in 20 minutes"),
-					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 hour"),
-					QCoreApplication::translate("qtmvvm_settings_xml", "in 3 hours"),
-					QCoreApplication::translate("qtmvvm_settings_xml", "tomorrow"),
-					QCoreApplication::translate("qtmvvm_settings_xml", "in 1 week on Monday")
+					QCoreApplication::translate("settings.xml", "in 20 minutes"),
+					QCoreApplication::translate("settings.xml", "in 1 hour"),
+					QCoreApplication::translate("settings.xml", "in 3 hours"),
+					QCoreApplication::translate("settings.xml", "tomorrow"),
+					QCoreApplication::translate("settings.xml", "in 1 week on Monday")
 				}));
 				return false;
 			}()

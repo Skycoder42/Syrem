@@ -210,6 +210,15 @@ void SyremService::actionSetup()
 
 QtService::Service::CommandMode SyremService::onStart()
 {
+	// NOTE set locale via android until QTBUG-70337 was resolved
+	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
+	auto locale = QAndroidJniObject::callStaticObjectMethod("java/util/Locale",
+															"getDefault", "()Ljava/util/Locale;");
+	auto bcp47Name = locale.callObjectMethod("toLanguageTag", "()Ljava/lang/String;").toString();
+	QLocale androidLocale{bcp47Name};
+	qInfo() << "Detected Android locale as" << bcp47Name << "and constructed Qt locale as" << androidLocale;
+	QLocale::setDefault(androidLocale);
+
 	//load translations
 	Syrem::prepareTranslations(QStringLiteral("syremd"));
 
@@ -250,6 +259,16 @@ QtService::Service::CommandMode SyremService::onStart()
 		QMetaObject::invokeMethod(this, "quit", Qt::QueuedConnection);
 		return Synchronous;
 	}
+}
+
+QtService::Service::CommandMode SyremService::onStop(int &exitCode)
+{
+	delete _manager;
+	_manager = nullptr;
+	delete _store;
+	_store = nullptr;
+	exitCode = EXIT_SUCCESS;
+	return Synchronous;
 }
 
 void SyremService::doSchedule(const Reminder &reminder)
