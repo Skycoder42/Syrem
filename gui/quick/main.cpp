@@ -15,6 +15,7 @@
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
+// NOTE undo settings trick
 
 QTMVVM_REGISTER_CORE_APP(SyremApp)
 
