@@ -103,7 +103,7 @@ int SyremApp::startApp(const QStringList &arguments)
 									 false);
 	QtDataSync::Setup setup;
 	Syrem::setup(setup);
-	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 5000);
+	auto warn = !setup.createPassive(QtDataSync::DefaultSetup, 30000);
 	progress->close();
 
 #ifdef Q_OS_ANDROID
