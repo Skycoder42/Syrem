@@ -190,52 +190,52 @@
     <message>
         <location filename="eventexpressionparser.cpp" line="+444"/>
         <source>Unknown Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Unable to parse expression. Could not understand beginning of the expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Ausdruck nicht auswerten. Es konnte keine Interpretation für den Anfang des Ausdrucks gefunden werden.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Unable to parse expression. Was able to parse until position %L1, but could not understand the part after this position.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Ausdruck nicht auswerten. Bis Position %L1 konnte erfolgreich ausgewertet werden, aber für den Teil nach dieser konnte keine Interpretation gefunden werden.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Detected duplicate expression scope. Subterm &quot;%1&quot; conflicts with a previous subterm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konflikt zwischen Unterausdrücken festgestellt. Der Ausdruck &quot;%1&quot; steht mit einem vorherigen Unterausdruck im Konflikt.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Detected more then one loop expression. Subterm &quot;%1&quot; conflicts with a previous loop subterm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als ein wiederholender Unterausdruck entdeckt. Der Ausdruck &quot;%1&quot; steht mit einem vorherigen Wiederholungsausdruck im Konflikt.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Detected more then one timespan expression. Subterm &quot;%1&quot; conflicts with a previous timespan subterm.&lt;br/&gt;&lt;b&gt;Note:&lt;/b&gt; You can specify multile timespans in one expression using something like &quot;in 2 hours and 20 minutes&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als ein Zeitspannen-Unterausdruck entdeckt. Der Ausdruck &quot;%1&quot; steht mit einem vorherigen Zeitspannen-Unterausdruck im Konflikt.&lt;br/&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Es können mehrere Zeitspannen in einem Ausdruck zusammengefasst werden, z.B. &quot;in 2 Stunden und 20 Minuten&quot;.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Detected more then one &quot;from&quot; limiter expression. Subterm &quot;%1&quot; conflicts with a previous &quot;from&quot; limiter subterm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als ein &quot;von&quot;-Begrenzer-Ausdruck gefunden. Der Ausdruck &quot;%1&quot; steht im Konflikt mit einem vorherigen &quot;von&quot;-Unterausdruck.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Detected more then one &quot;until&quot; limiter expression. Subterm &quot;%1&quot; conflicts with a previous &quot;until&quot; limiter subterm.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als ein &quot;bis&quot;-Begrenzer-Ausdruck gefunden. Der Ausdruck &quot;%1&quot; steht im Konflikt mit einem vorherigen &quot;bis&quot;-Unterausdruck.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Detected unexpected limiter expression. Subterm &quot;%1&quot; can only be used if a loop expression was previously used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwarteter Begrenzer-Ausdruck &quot;%1&quot;. Begrenzer-Ausdrücke können nur nach einem vorherigen wiederholendem Ausdruck verwendet werden.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Found an absolute subterm that is not the greatest scope. Detected after checking the subterm until %L1 for inconsistencies.</source>
-        <translation type="unfinished"></translation>
+        <translation>Absoluten Unterausdruck gefunden, der nicht der größte Zeit-Typ ist. Wurde bei der Validierungs des Ausdrucks bis Position %L1 entdeckt.</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -495,12 +495,12 @@
     <message>
         <location line="-944"/>
         <source>yyyy-MM-dd</source>
-        <translation type="unfinished"></translation>
+        <translation>dd.MM.yyyy</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>MM-dd</source>
-        <translation type="unfinished"></translation>
+        <translation>dd.MM.</translation>
     </message>
 </context>
 <context>
@@ -508,7 +508,7 @@
     <message>
         <location line="+119"/>
         <source>hh:mm</source>
-        <translation type="unfinished"></translation>
+        <translation>hh:mm</translation>
     </message>
 </context>
 <context>
@@ -516,9 +516,9 @@
     <message numerus="yes">
         <location line="+625"/>
         <source>in %n day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>in %n Tag</numerusform>
+            <numerusform>in %n Tagen</numerusform>
         </translation>
     </message>
 </context>
@@ -527,7 +527,7 @@
     <message>
         <location line="-516"/>
         <source>%1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1.</translation>
     </message>
 </context>
 <context>
@@ -535,55 +535,55 @@
     <message numerus="yes">
         <location line="+429"/>
         <source>%n minute(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Minute</numerusform>
+            <numerusform>%n Minuten</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+3"/>
         <source>%n hour(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Stunde</numerusform>
+            <numerusform>%n Stunden</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+3"/>
         <source>%n day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Tag</numerusform>
+            <numerusform>%n Tagen</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+3"/>
         <source>%n week(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Woche</numerusform>
+            <numerusform>%n Wochen</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+3"/>
         <source>%n month(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Monat</numerusform>
+            <numerusform>%n Monaten</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+3"/>
         <source>%n year(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Jahr</numerusform>
+            <numerusform>%n Jahren</numerusform>
         </translation>
     </message>
     <message>
         <location line="+8"/>
         <source>in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>in %1</translation>
     </message>
 </context>
 <context>
@@ -591,7 +591,7 @@
     <message>
         <location line="-800"/>
         <source>hh:mm</source>
-        <translation type="unfinished"></translation>
+        <translation>hh:mm</translation>
     </message>
 </context>
 <context>
@@ -612,37 +612,45 @@
 <context>
     <name>qtmvvm_settings_xml</name>
     <message>
-        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+35"/>
         <source>in 20 minutes</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">In 20 Minuten</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>in 1 hour</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>in 3 hours</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>tomorrow</source>
-        <translation type="unfinished">morgen</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>in 1 week on Monday</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">morgen</translation>
     </message>
 </context>
 <context>
     <name>settings.xml</name>
     <message>
-        <location line="-10"/>
+        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+29"/>
         <source>09:00</source>
-        <translation type="unfinished"></translation>
+        <translation>09:00</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>in 20 minutes</source>
+        <translation>In 20 Minuten</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>in 1 hour</source>
+        <translation>In 1 Stunde</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>in 3 hours</source>
+        <translation>In 3 Stunden</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>tomorrow</source>
+        <translation>Morgen</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>in 1 week on Monday</source>
+        <translation>In 1 Woche am Montag</translation>
     </message>
 </context>
 </TS>

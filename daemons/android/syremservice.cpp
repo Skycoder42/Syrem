@@ -285,7 +285,6 @@ void SyremService::doSchedule(const Reminder &reminder)
 void SyremService::addNotify(const QUuid &id)
 {
 	QSet<QUuid> active = LocalSettings::instance()->service.badgeActive;
-	qDebug() << active;
 	if(!active.contains(id)) {
 		active.insert(id);
 		LocalSettings::instance()->service.badgeActive = active;
@@ -296,7 +295,6 @@ void SyremService::addNotify(const QUuid &id)
 void SyremService::removeNotify(const QUuid &id)
 {
 	QSet<QUuid> active = LocalSettings::instance()->service.badgeActive;
-	qDebug() << active;
 	if(active.remove(id)) {
 		LocalSettings::instance()->service.badgeActive = active;
 		updateNotificationCount(active.size());
