@@ -55,7 +55,9 @@ int SyremDaemon::startApp(const QStringList &arguments)
 	QCtrlSignalHandler::instance()->setAutoQuitActive(true);
 	connect(QCtrlSignalHandler::instance(), &QCtrlSignalHandler::ctrlSignal,
 			this, &SyremDaemon::signalTriggered);
+#ifdef Q_OS_UNIX
 	QCtrlSignalHandler::instance()->registerForSignal(SIGHUP);
+#endif
 
 	//load translations
 	Syrem::prepareTranslations(QStringLiteral("syremd"));
@@ -78,9 +80,11 @@ int SyremDaemon::startApp(const QStringList &arguments)
 void SyremDaemon::signalTriggered(int sig)
 {
 	switch (sig) {
+#ifdef Q_OS_UNIX
 	case SIGHUP:
 		_notManager->triggerSync();
 		break;
+#endif
 	default:
 		break;
 	}
