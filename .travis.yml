@@ -11,29 +11,56 @@ env:
   global:
     - QPMX_CACHE_DIR=$HOME/.qpmx-cache
     - QT_VER=5.11.1
-    - EXTRA_MODULES=".qtremoteobjects .skycoder42.datasync .skycoder42.service .skycoder42.mvvm"
+    - OPENSSL_VERSION=1.0.2p
+    - EXTRA_MODULES=".skycoder42"
     - DOCKER_IMAGE=full
+    - NO_TESTS=true
 
 matrix:
   include:
     - os: linux
       env:
         - PLATFORM=gcc_64
-#    - os: osx
-#      env:
-#        - PLATFORM=clang_64
+    - os: linux
+      env:
+        - PLATFORM=android_armv7
+    - os: linux
+      env:
+        - PLATFORM=android_x86
+    - os: osx
+      env:
+        - PLATFORM=clang_64
 
 before_install:
   - git clone https://github.com/Skycoder42/QtModules.git ./qtmodules-travis
   - travis_wait 40 ./qtmodules-travis/ci/$TRAVIS_OS_NAME/setup.sh
 
 script:
+  - ./ci/travis_init.sh
   - ./qtmodules-travis/ci/$TRAVIS_OS_NAME/build.sh
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./ci/travis_postbuild.sh; fi
+
+#before_deploy:
+  #- ./ci/travis_deploy.sh
+#deploy:
+  #provider: releases
+  #skip_cleanup: true
+  #api_key:
+    #secure: <key>
+  #file_glob: true
+  #file:
+    #- ./install/repository_*.tar.xz
+    #- ./install/Syrem Installer.*
+    #- ./install/*.apk
+  #on:
+    #repo: Skycoder42/Syrem
+    #tags: true
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-  - rm -fr $QPMX_CACHE_DIR/locks
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -rf $QPMX_CACHE_DIR/locks
+  - rm -rf $QPMX_CACHE_DIR/tmp
 cache:
   directories:
     - $HOME/.gradle/caches/
