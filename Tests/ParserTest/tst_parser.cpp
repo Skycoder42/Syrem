@@ -43,10 +43,12 @@ private Q_SLOTS:
 	void initTestCase();
 	void cleanupTestCase();
 
+#ifndef Q_OS_WIN
 	void testTimeRegexConversion_data();
 	void testTimeRegexConversion();
 	void testDateRegexConversion_data();
 	void testDateRegexConversion();
+#endif
 
 	void testTimeExpressions_data();
 	void testTimeExpressions();
@@ -107,6 +109,7 @@ void ParserTest::cleanupTestCase()
 	delete parser;
 }
 
+#ifndef Q_OS_WIN
 void ParserTest::testTimeRegexConversion_data()
 {
 	QTest::addColumn<QString>("pattern");
@@ -203,6 +206,7 @@ void ParserTest::testDateRegexConversion()
 	QCOMPARE(DateTerm::toRegex(pattern, year), regex);
 	QCOMPARE(year, hasYear);
 }
+#endif
 
 void ParserTest::testTimeExpressions_data()
 {

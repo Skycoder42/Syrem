@@ -2,6 +2,7 @@ TEMPLATE = lib
 
 QT -= gui
 QT += datasync mvvmcore mvvmdatasynccore remoteobjects concurrent
+CONFIG += skip_target_version_ext
 
 TARGET = $$PROJECT_TARGET
 

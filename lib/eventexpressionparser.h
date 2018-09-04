@@ -8,7 +8,7 @@
 #include <QtMvvmCore/Injection>
 
 #include "libsyrem_global.h"
-#include <syncedsettings.h>
+#include "syncedsettings.h"
 
 class Schedule;
 class EventExpressionParser;
