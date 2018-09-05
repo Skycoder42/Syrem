@@ -252,6 +252,11 @@ QtService::Service::CommandMode SyremService::onStart()
 					this, runFn);
 		}
 
+		_scheduler->setupAutoCheck(_settings->scheduler.interval);
+		_settings->scheduler.interval.addChangeCallback(this, [this](int interval) {
+			qInfo() << "Synchronization interval changed to" << interval << "- updating alarm";
+			_scheduler->setupAutoCheck(interval);
+		});
 		qInfo() << "service successfully started";
 		return Synchronous;
 	} catch(QException &e) {

@@ -9,7 +9,7 @@
 				   tooltip="Select the format to display dates as."
 				   default="1">
 				<Property key="qtmvvm_preview" type="string" tr="true">Current format: %1</Property>
-				<Property key="listElementr" type="list">
+				<Property key="listElements" type="list">
 				   <Element type="object">
 					   <Property key="name" type="string" tr="true">Long</Property>
 					   <Property key="value" type="int">0</Property>
@@ -24,9 +24,47 @@
 				   </Element>
 				</Property>
 			</Entry>
+			<Entry key="scheduler/interval"
+				   type="list"
+				   title="Synchronization &amp;Interval"
+				   tooltip="Select how often the App should check in with the server to check for new reminders. Lower values can mean higher battery consumption, but make short-term reminders work better."
+				   default="3600000"
+				   frontends="quick">
+				<Property key="qtmvvm_preview" type="string" tr="true">Current interval: %1</Property>
+				<Property key="listElements" type="list">
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">15 Minutes</Property>
+					   <Property key="value" type="int">900000</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">30 Minutes</Property>
+					   <Property key="value" type="int">1800000</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">1 Hour</Property>
+					   <Property key="value" type="int">3600000</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">3 Hours</Property>
+					   <Property key="value" type="int">10800000</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">6 Hours</Property>
+					   <Property key="value" type="int">21600000</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">12 Hours</Property>
+					   <Property key="value" type="int">43200000</Property>
+				   </Element>
+				   <Element type="object">
+					   <Property key="name" type="string" tr="true">24 Hours</Property>
+					   <Property key="value" type="int">86400000</Property>
+				   </Element>
+				</Property>
+			</Entry>
 		</Group>
 		<Group title="Desktop"
-			   frontends="widgetr">
+			   frontends="widgets">
 			<Entry key="gui/notifications/blinkinterval"
 				   type="int"
 				   title="Tray Blink &amp;interval"

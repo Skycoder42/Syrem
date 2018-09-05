@@ -209,7 +209,7 @@ syrem --add [--important] &lt;description&gt; &lt;when&gt;</source>
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../../build-Syrem-Desktop_Qt_5_11_1_GCC_64bit-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
+        <location filename="../../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
@@ -246,6 +246,56 @@ syrem --add [--important] &lt;description&gt; &lt;when&gt;</source>
     <message>
         <location line="+1"/>
         <source>Narrow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Synchronization &amp;Interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select how often the App should check in with the server to check for new reminders. Lower values can mean higher battery consumption, but make short-term reminders work better.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Current interval: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>15 Minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>30 Minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>1 Hour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>3 Hours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>6 Hours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>12 Hours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>24 Hours</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

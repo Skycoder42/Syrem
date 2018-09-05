@@ -30,7 +30,7 @@ public class Scheduler {
 		manager.cancel(pending);
 	}
 
-	public static void scheduleAutoCheck(Context context) {
+	public void scheduleAutoCheck(int interval) {
 		Globals.Actions action = Globals.Actions.ActionRefresh;
 
 		Intent intent = new Intent(action.getAction(), null, context, SyremService.class);
@@ -44,8 +44,8 @@ public class Scheduler {
 
 		AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		alarm.setRepeating(AlarmManager.RTC_WAKEUP,
-			System.currentTimeMillis() + AlarmManager.INTERVAL_HOUR,
-			AlarmManager.INTERVAL_HOUR,
+			System.currentTimeMillis() + interval,
+			interval,
 			pending);
 	}
 }

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QAndroidJniObject>
 #include <reminder.h>
+class SyncedSettings;
 
 class AndroidScheduler : public QObject
 {
@@ -12,7 +13,8 @@ class AndroidScheduler : public QObject
 public:
 	explicit AndroidScheduler(QObject *parent = nullptr);
 
-public slots:
+	void setupAutoCheck(int interval);
+
 	bool scheduleReminder(const Reminder &reminder);
 	void cancleReminder(const QUuid &id);
 

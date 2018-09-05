@@ -11,6 +11,12 @@ AndroidScheduler::AndroidScheduler(QObject *parent) :
 				QtAndroid::androidService().object())
 {}
 
+void AndroidScheduler::setupAutoCheck(int interval)
+{
+	_jScheduler.callMethod<void>("scheduleAutoCheck", "(I)V",
+								 static_cast<jint>(interval));
+}
+
 bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 {
 	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
