@@ -94,7 +94,7 @@ int SyremApp::startApp(const QStringList &arguments)
 														QStringLiteral(PROJECT_TARGET),
 														this);
 	_serviceControl->start();
-#else
+#elif defined(USE_RELEASE_SERVICE)
 	if(!QProcess::startDetached(QCoreApplication::applicationDirPath() + QStringLiteral("/syremd")))
 		qCritical() << "Failed to start service";
 #endif
