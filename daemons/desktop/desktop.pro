@@ -3,6 +3,8 @@ TEMPLATE = app
 TARGET = $${PROJECT_TARGET}d
 
 QMAKE_TARGET_PRODUCT = "Syrem Daemon"
+RC_ICONS += ../../icon/syrem.ico
+ICON = ../../icon/syrem.icns
 
 QT += widgets mvvmcore mvvmwidgets core-private
 

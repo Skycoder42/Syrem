@@ -73,27 +73,30 @@ int SyremApp::startApp(const QStringList &arguments)
 		return EXIT_SUCCESS;
 
 
-#ifndef Q_OS_ANDROID
-#if !defined(QT_NO_DEBUG)
-	_serviceControl = QtService::ServiceControl::create(QStringLiteral("standard"),
-														QCoreApplication::applicationDirPath() +
-														QStringLiteral("/../../daemons/desktop/syremd"),
-														this);
-#elif defined(Q_OS_LINUX)
+#ifdef USE_DEBUG_SERVICE
+	_serviceControl = new QProcess{this};
+	_serviceControl->setProgram(QCoreApplication::applicationDirPath() +
+							#ifdef Q_OS_WIN
+								QStringLiteral("/../../daemons/desktop/debug/syremd")
+							#else
+								QStringLiteral("/../../daemons/desktop/syremd")
+							#endif
+								);
+	_serviceControl->setProcessChannelMode(QProcess::ForwardedChannels);
+	_serviceControl->start();
+	connect(qApp, &QGuiApplication::aboutToQuit,
+			this, [this]() {
+		_serviceControl->terminate();
+		_serviceControl->waitForFinished(1000);
+	});
+#elif defined(USE_SYSTEMD_SERVICE)
 	_serviceControl = QtService::ServiceControl::create(QStringLiteral("systemd"),
 														QStringLiteral(PROJECT_TARGET),
 														this);
+	_serviceControl->start();
 #else
-	_serviceControl = QtService::ServiceControl::create(QStringLiteral("standard"),
-														QCoreApplication::applicationDirPath() + QStringLiteral("/syremd"),
-														this);
-#endif
-	if(!_serviceControl->start())
-		qWarning() << "Failed to start service";
-#ifndef QT_NO_DEBUG
-	connect(qApp, &QGuiApplication::aboutToQuit,
-			_serviceControl, &QtService::ServiceControl::stop);
-#endif
+	if(!QProcess::startDetached(QCoreApplication::applicationDirPath() + QStringLiteral("/syremd")))
+		qCritical() << "Failed to start service";
 #endif
 
 	// create datasync etc.

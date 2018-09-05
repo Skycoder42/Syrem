@@ -5,6 +5,8 @@ QT += widgets mvvmwidgets mvvmdatasyncwidgets service
 TARGET = $$PROJECT_TARGET
 
 QMAKE_TARGET_PRODUCT = $$PROJECT_NAME
+RC_ICONS += ../../icon/syrem.ico
+ICON = ../../icon/syrem.icns
 
 HEADERS += mainwindow.h \
 	createreminderdialog.h \

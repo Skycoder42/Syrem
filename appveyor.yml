@@ -10,6 +10,7 @@ environment:
   NO_TESTS: true
 
 install:
+  - type .\gui\core\syrem.ico
   - git clone https://github.com/Skycoder42/QtModules.git .\qtmodules-travis
   - .\qtmodules-travis\ci\win\setup.bat
 

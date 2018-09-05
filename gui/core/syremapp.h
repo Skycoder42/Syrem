@@ -4,6 +4,15 @@
 #include <QtMvvmCore/CoreApp>
 #include <QtService/ServiceControl>
 
+#ifndef Q_OS_ANDROID
+#include <QProcess>
+#ifndef QT_NO_DEBUG
+#define USE_DEBUG_SERVICE
+#else
+#define USE_RELEASE_SERVICE
+#endif
+#endif
+
 class SyremApp : public QtMvvm::CoreApp
 {
 	Q_OBJECT
@@ -18,7 +27,9 @@ protected:
 	int startApp(const QStringList &arguments) override;
 
 private:
-#ifndef Q_OS_ANDROID
+#ifdef USE_DEBUG_SERVICE
+	QProcess *_serviceControl = nullptr;
+#elif defined(USE_SYSTEMD_SERVICE)
 	QtService::ServiceControl *_serviceControl = nullptr;
 #endif
 	bool _createOnly = false;
