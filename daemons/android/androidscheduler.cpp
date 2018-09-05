@@ -17,6 +17,11 @@ void AndroidScheduler::setupAutoCheck(int interval)
 								 static_cast<jint>(interval));
 }
 
+void AndroidScheduler::disableAutoCheck()
+{
+	_jScheduler.callMethod<void>("disableAutoCheck");
+}
+
 bool AndroidScheduler::scheduleReminder(const Reminder &reminder)
 {
 	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};

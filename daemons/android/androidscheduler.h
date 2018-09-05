@@ -14,6 +14,7 @@ public:
 	explicit AndroidScheduler(QObject *parent = nullptr);
 
 	void setupAutoCheck(int interval);
+	void disableAutoCheck();
 
 	bool scheduleReminder(const Reminder &reminder);
 	void cancleReminder(const QUuid &id);

@@ -48,4 +48,20 @@ public class Scheduler {
 			interval,
 			pending);
 	}
+
+	public void disableAutoCheck() {
+		Globals.Actions action = Globals.Actions.ActionRefresh;
+
+		Intent intent = new Intent(action.getAction(), null, context, SyremService.class);
+		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+
+		PendingIntent pending = null;
+		if (Globals.isOreo())
+			pending = PendingIntent.getForegroundService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		else
+			pending = PendingIntent.getService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		alarm.cancel(pending);
+	}
 }

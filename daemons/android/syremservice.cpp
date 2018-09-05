@@ -72,6 +72,17 @@ void SyremService::dataChanged(const QString &key, const QVariant &value)
 	}
 }
 
+void SyremService::toggleAutoSync(bool enabled)
+{
+	if(enabled) {
+		qInfo() << "Enabeling automatic sync with interval" << _settings->scheduler.interval;
+		_scheduler->setupAutoCheck(_settings->scheduler.interval);
+	} else {
+		qInfo() << "Disabeling automatic sync";
+		_scheduler->disableAutoCheck();
+	}
+}
+
 void SyremService::handleAllIntents()
 {
 	QMutexLocker locker{&_runMutex};
@@ -243,6 +254,17 @@ QtService::Service::CommandMode SyremService::onStart()
 				qDebug() << "Synchronization completed in state" << state;
 				handleAllIntents();
 			});
+
+			// prepare automatic background sync with change events
+			connect(_manager, &QtDataSync::SyncManager::syncEnabledChanged,
+					this, &SyremService::toggleAutoSync);
+			toggleAutoSync(_manager->isSyncEnabled());
+			_settings->scheduler.interval.addChangeCallback(this, [this](int interval) {
+				if(!_manager->isSyncEnabled())
+					return;
+				qInfo() << "Synchronization interval changed to" << interval << "- updating alarm";
+				_scheduler->setupAutoCheck(interval);
+			});
 		};
 
 		if(_manager->replica()->isInitialized())
@@ -252,11 +274,6 @@ QtService::Service::CommandMode SyremService::onStart()
 					this, runFn);
 		}
 
-		_scheduler->setupAutoCheck(_settings->scheduler.interval);
-		_settings->scheduler.interval.addChangeCallback(this, [this](int interval) {
-			qInfo() << "Synchronization interval changed to" << interval << "- updating alarm";
-			_scheduler->setupAutoCheck(interval);
-		});
 		qInfo() << "service successfully started";
 		return Synchronous;
 	} catch(QException &e) {

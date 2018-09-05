@@ -37,6 +37,7 @@ public:
 private slots:
 	void dataResetted();
 	void dataChanged(const QString &key, const QVariant &value);
+	void toggleAutoSync(bool enabled);
 
 	void handleAllIntents();
 
