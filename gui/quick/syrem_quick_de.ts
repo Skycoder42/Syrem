@@ -6,7 +6,7 @@
     <message>
         <location filename="App.qml" line="+6"/>
         <source>Syrem</source>
-        <translation type="unfinished"></translation>
+        <translation>Syrem</translation>
     </message>
 </context>
 <context>
@@ -19,7 +19,7 @@
     <message>
         <location line="+48"/>
         <source>Important</source>
-        <translation type="unfinished"></translation>
+        <translation>Wichtig</translation>
     </message>
     <message>
         <source>Text:</source>
@@ -118,7 +118,7 @@
     <message>
         <location line="+50"/>
         <source>Open URLs</source>
-        <translation type="unfinished"></translation>
+        <translation>URLs öffnen</translation>
     </message>
 </context>
 <context>
@@ -126,12 +126,12 @@
     <message>
         <location filename="TermSelectionView.qml" line="+9"/>
         <source>Select interpretation</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpretation auswählen</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>SubTerm %L1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterausdruck %L1</translation>
     </message>
 </context>
 </TS>

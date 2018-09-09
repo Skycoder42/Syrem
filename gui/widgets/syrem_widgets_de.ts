@@ -74,7 +74,7 @@
     <message>
         <location line="+10"/>
         <source>Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolleiste</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -149,7 +149,7 @@
     <message>
         <location line="+12"/>
         <source>Open &amp;URLs</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;URLs Öffnen</translation>
     </message>
 </context>
 <context>
@@ -225,17 +225,17 @@ Erinnerung wurde ausgelöst und braucht eine Reaktion!</translation>
     <message>
         <location filename="termselectiondialog.ui" line="+14"/>
         <source>Select an interpretation</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpretation Auswählen</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>More than a single possible interpretation was found for the expression you entered. Please select the correct ones from below:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als nur eine mögliche Interpretation wurde beim Auswerten des eingegebenen Ausdrucks gefunden. Bitte wählen Sie die korrekte aus der folgenden Liste aus:</translation>
     </message>
     <message>
         <location filename="termselectiondialog.cpp" line="+77"/>
         <source>Subterm %L1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterausdruck %L1</translation>
     </message>
 </context>
 </TS>
