@@ -13,14 +13,9 @@ WidgetsNotifier::WidgetsNotifier(QObject *parent) :
 	_normalIcon(QStringLiteral(":/icons/tray/main.ico")),
 	_inverseIcon(QStringLiteral(":/icons/tray/inverse.ico")),
 	_errorIcon(QStringLiteral(":/icons/tray/error.ico")),
-	_settings(nullptr),
-	_parser(nullptr),
 	_trayIco(new QSystemTrayIcon(_normalIcon, this)),
 	_trayMenu(new QMenu()),
-	_blinkTimer(new QTimer(this)),
-	_inverted(false),//true as default
-	_notifications(),
-	_lastError()
+	_blinkTimer(new QTimer(this))
 {
 	connect(_trayIco, &QSystemTrayIcon::destroyed,
 			_trayMenu, &QMenu::deleteLater);

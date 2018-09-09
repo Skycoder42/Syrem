@@ -39,6 +39,8 @@ void SyremApp::performRegistrations()
 {
 	Q_INIT_RESOURCE(syrem_core);
 	Syrem::prepareTranslations(QStringLiteral("syrem"));
+
+	registerInputTypeMapping<QVariant>("action");
 }
 
 int SyremApp::startApp(const QStringList &arguments)

@@ -44,12 +44,12 @@ private:
 	const QIcon _inverseIcon;
 	const QIcon _errorIcon;
 
-	SyncedSettings *_settings;
-	EventExpressionParser *_parser;
+	SyncedSettings *_settings = nullptr;
+	EventExpressionParser *_parser = nullptr;
 	QSystemTrayIcon *_trayIco;
 	QMenu *_trayMenu;
 	QTimer *_blinkTimer;
-	bool _inverted;
+	bool _inverted = false;
 
 	QHash<QUuid, Reminder> _notifications;
 	QString _lastError;

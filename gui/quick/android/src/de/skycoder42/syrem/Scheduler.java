@@ -9,15 +9,15 @@ import android.app.AlarmManager;
 import android.support.v4.app.AlarmManagerCompat;
 
 public class Scheduler {
-	private Context context;
+	private Context _context;
 
 	public Scheduler(Context context) {
-		this.context = context;
+		_context = context;
 	}
 
 	public void createSchedule(String remId, int versionCode, boolean important, long triggerAt) {
-		PendingIntent pending = Globals.createPending(context, Globals.Actions.ActionScheduler, remId, versionCode);
-		AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		PendingIntent pending = Globals.createPending(_context, Globals.Actions.ActionScheduler, remId, versionCode);
+		AlarmManager manager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
 		if(important)
 			AlarmManagerCompat.setExactAndAllowWhileIdle(manager, AlarmManager.RTC_WAKEUP, triggerAt, pending);
 		else
@@ -25,24 +25,24 @@ public class Scheduler {
 	}
 
 	public void cancelSchedule(String remId) {
-		PendingIntent pending = Globals.createPending(context, Globals.Actions.ActionScheduler, remId, 0);
-		AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		PendingIntent pending = Globals.createPending(_context, Globals.Actions.ActionScheduler, remId, 0);
+		AlarmManager manager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
 		manager.cancel(pending);
 	}
 
 	public void scheduleAutoCheck(int interval) {
 		Globals.Actions action = Globals.Actions.ActionRefresh;
 
-		Intent intent = new Intent(action.getAction(), null, context, SyremService.class);
+		Intent intent = new Intent(action.getAction(), null, _context, SyremService.class);
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 
 		PendingIntent pending = null;
 		if (Globals.isOreo())
-			pending = PendingIntent.getForegroundService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			pending = PendingIntent.getForegroundService(_context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		else
-			pending = PendingIntent.getService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			pending = PendingIntent.getService(_context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		AlarmManager alarm = (AlarmManager)_context.getSystemService(Context.ALARM_SERVICE);
 		alarm.setRepeating(AlarmManager.RTC_WAKEUP,
 			System.currentTimeMillis() + interval,
 			interval,
@@ -52,16 +52,16 @@ public class Scheduler {
 	public void disableAutoCheck() {
 		Globals.Actions action = Globals.Actions.ActionRefresh;
 
-		Intent intent = new Intent(action.getAction(), null, context, SyremService.class);
+		Intent intent = new Intent(action.getAction(), null, _context, SyremService.class);
 		intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 
 		PendingIntent pending = null;
 		if (Globals.isOreo())
-			pending = PendingIntent.getForegroundService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			pending = PendingIntent.getForegroundService(_context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		else
-			pending = PendingIntent.getService(context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			pending = PendingIntent.getService(_context, action.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		AlarmManager alarm = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		AlarmManager alarm = (AlarmManager)_context.getSystemService(Context.ALARM_SERVICE);
 		alarm.cancel(pending);
 	}
 }
