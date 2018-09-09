@@ -21,12 +21,12 @@
     <message>
         <location filename="syremservice.cpp" line="+145"/>
         <source>Failed to load details of triggered reminder!</source>
-        <translation type="unfinished">Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
+        <translation>Konnte Details der ausgelösten Erinnerung nicht laden!</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>Entered expression has multiple interpretations. Use the app to handle this or enter a unique expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Der eingegebene Ausdruck hat mehr als nur eine Interpretation. Nutzen Sie die App zum Lösen dieses Konflikts oder geben Sie einen eindeutigen Ausdruck an</translation>
     </message>
 </context>
 </TS>

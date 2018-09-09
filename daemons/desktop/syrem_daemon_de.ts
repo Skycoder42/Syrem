@@ -31,7 +31,7 @@
     <message>
         <location line="+3"/>
         <source>Open URLs</source>
-        <translation type="unfinished"></translation>
+        <translation>URLs öffnen</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -72,7 +72,7 @@
     <message>
         <location filename="../../gui/widgets/snoozedialog.cpp" line="+11"/>
         <source>Snooze Reminder</source>
-        <translation type="unfinished">Erninnerung verschieben</translation>
+        <translation>Erninnerung verschieben</translation>
     </message>
 </context>
 <context>
@@ -80,22 +80,22 @@
     <message>
         <location filename="../../gui/core/snoozeviewmodel.cpp" line="+37"/>
         <source>Choose a snooze time for the reminder:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="unfinished">Wählen Sie einen neuen Zeitpunkt für die Erinnerung:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</translation>
+        <translation>Wählen Sie einen neuen Zeitpunkt für die Erinnerung:&lt;br/&gt;&lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&lt;i&gt;Loading Reminder, please wait…&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;Erinnerung wird geladen, bitte warten…&lt;/i&gt;</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Confirm parse result</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnis der Auswertung bestätigen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&lt;p&gt;Accept the following interpretation?&lt;/p&gt;&lt;p&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Ist die Folgende Interpretation korrekt?&lt;/p&gt;&lt;p&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -103,17 +103,17 @@
         <location line="+29"/>
         <location line="+4"/>
         <source>Snoozing failed!</source>
-        <translation type="unfinished">Verschieben fehlgeschlagen!</translation>
+        <translation>Verschieben fehlgeschlagen!</translation>
     </message>
     <message>
         <location line="-32"/>
         <source>Unable loard reminder from data store. Unable to snooze.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Erinnerung konnte nicht zum Verschieben aus dem Datenspeicher geladen werden.</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>Unable update reminder in data store. Snooze not performed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die verschobene Erinnerung konnte nicht gespeichert werden.</translation>
     </message>
 </context>
 <context>
@@ -121,17 +121,17 @@
     <message>
         <location filename="../../gui/widgets/termselectiondialog.ui" line="+14"/>
         <source>Select an interpretation</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpretation Auswählen</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>More than a single possible interpretation was found for the expression you entered. Please select the correct ones from below:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als nur eine mögliche Interpretation wurde beim Auswerten des eingegebenen Ausdrucks gefunden. Bitte wählen Sie die korrekte aus der folgenden Liste aus:</translation>
     </message>
     <message>
         <location filename="../../gui/widgets/termselectiondialog.cpp" line="+77"/>
         <source>Subterm %L1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterausdruck %L1</translation>
     </message>
 </context>
 <context>
@@ -139,27 +139,27 @@
     <message>
         <location filename="traysnoozedialog.cpp" line="+67"/>
         <source>Triggered Reminders</source>
-        <translation type="unfinished">Ausgelößte Erinnerungen</translation>
+        <translation>Ausgelößte Erinnerungen</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Please select an action for each of your triggered reminders:</source>
-        <translation type="unfinished">Bitte wählen Sie einen Aktion für jede der ausgelösten Erinnerungen:</translation>
+        <translation>Bitte wählen Sie einen Aktion für jede der ausgelösten Erinnerungen:</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>&amp;Snooze</source>
-        <translation type="unfinished">&amp;Verschieben</translation>
+        <translation>&amp;Verschieben</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>&amp;Complete</source>
-        <translation type="unfinished">&amp;Abschließen</translation>
+        <translation>&amp;Abschließen</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Open &amp;URLs</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;URLs öffnen</translation>
     </message>
 </context>
 <context>
@@ -167,18 +167,18 @@
     <message>
         <location filename="traysnoozeviewmodel.cpp" line="+59"/>
         <source>Confirm parse result</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnis der Auswertung bestätigen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&lt;p&gt;Accept the following interpretation?&lt;/p&gt;&lt;p&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Ist die Folgende Interpretation korrekt?&lt;/p&gt;&lt;p&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <location line="+11"/>
         <location line="+44"/>
         <source>Snoozing failed!</source>
-        <translation type="unfinished">Verschieben fehlgeschlagen!</translation>
+        <translation>Verschieben fehlgeschlagen!</translation>
     </message>
 </context>
 <context>
@@ -201,12 +201,12 @@
     <message>
         <location line="+15"/>
         <source>Snooze/Complete Reminders</source>
-        <translation type="unfinished"></translation>
+        <translation>Erninnerung verschieben/abschließen</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Open Syrem</source>
-        <translation type="unfinished"></translation>
+        <translation>Syrem öffnen</translation>
     </message>
     <message>
         <source>Snooze/Complete Reminder</source>
