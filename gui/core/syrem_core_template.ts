@@ -134,7 +134,7 @@
 <context>
     <name>SyremApp</name>
     <message>
-        <location filename="syremapp.cpp" line="+53"/>
+        <location filename="syremapp.cpp" line="+55"/>
         <source>Select a &lt;reminder&gt; from the list by its id</source>
         <translation type="unfinished"></translation>
     </message>

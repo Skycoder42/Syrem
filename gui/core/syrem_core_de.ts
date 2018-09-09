@@ -183,7 +183,7 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
 <context>
     <name>SyremApp</name>
     <message>
-        <location filename="syremapp.cpp" line="+53"/>
+        <location filename="syremapp.cpp" line="+55"/>
         <source>Select a &lt;reminder&gt; from the list by its id</source>
         <translation type="unfinished">Eine &lt;Erinnerung&gt; in der Liste auswählen, nach ihrer ID</translation>
     </message>

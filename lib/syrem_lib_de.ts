@@ -240,254 +240,317 @@
     <message>
         <location line="+4"/>
         <source>Found a timespan expression of a logically smaller scope than a timepoint expression. This is not supported. Detected after checking the subterm until %L1 for inconsistencies.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitspannen-Ausdruck gefunden, der logisch kleiner als ein anderer Zeitpunkt-Ausdruck ist. Diese Kombination wird nicht unterstützt. Wurde bei der Validierungs des Ausdrucks bis Position %L1 entdeckt.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Found a loop expression that is used as loop limiter. Limiters cannot be loops. Detected after checking the subterm until %L1 for inconsistencies.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholten Begrenzer-Ausdruck gefunden. Begrenzer können nicht wiederholt sein. Wurde bei der Validierungs des Ausdrucks bis Position %L1 entdeckt.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Found a limiter expression of a logically smaller scope than the fencing part of a loop expression. This is currently not supported due to a too high complexity. Detected after checking the subterm until %L1 for inconsistencies.</source>
-        <translation type="unfinished"></translation>
+        <translation>Begrenzer-Ausdruck gefunden, der logisch kleiner als die Zeitraum-Begrenzung des eigenlichen wiederholten Ausdrucks. Diese Kombination wird Aufgrund von zu hoher Komplexität icht unterstützt. Wurde bei der Validierungs des Ausdrucks bis Position %L1 entdeckt.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Tried to use a looped expression to get a single date. You must use a normal, non-loop expression instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholter Ausdruck wurde in einem Kontext verwendet, bei dem Asdrücke mir nur einem einzigen Ergebnis-Datum erwartet wurden.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The given expression, when applied to the current date, would evalute to the past. Expressions must always evalute to a timepoint in the future.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der gegebene Ausdruck evaluiert zu einem Zeitpunkt in der Vergangenheit, wenn er auf das aktuelle Datum angewandt wird. Ausdrücke müssen immer einen Zeitpunkt in der Zukunft ergeben.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>From and until limiter of the given expression are valid, but from points to a timepoint further in the future than until. The until expression must always be further in the past than the from expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Von- und Bis-Begrenzer sind gültig, aber der Von-Begrenzer liegt weiter in der Zukunft als der Bis-Begrenzer. Der Von-Begrenzer muss immer ein Zeitpunkt vor dem Bis-Begrenzer sein.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The given looped expression, when applied to the current date to get the first occurence date, did not return a valid date. This typically indicates that the application did not find any dates from the current date on that match the expression. Make shure your expression evalutes to at least one date in the future.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der gegebene wiederholte Ausdruck ist prinzipiell gültig, es wurde allerdings keine Daten gefunden die in der Zukunft bezogen auf das aktuelle Datum liegen. Der Ausdruck hat also keine Zeitpunkte zum Auslösen und ist damit ungültig. Stellen Sie sicher, dass der Ausdruck mindestens ein Datum in der Zukunft ergibt.</translation>
     </message>
     <message>
         <location line="+163"/>
         <source>within {%1} </source>
-        <translation type="unfinished"></translation>
+        <translation>innerhalb von {%1} </translation>
     </message>
     <message>
         <location line="+1"/>
         <source>every {%1}</source>
-        <translation type="unfinished"></translation>
+        <translation>immer {%1}</translation>
     </message>
     <message>
         <location line="+2"/>
         <source> from {%1}</source>
-        <translation type="unfinished"></translation>
+        <translation> von {%1}</translation>
     </message>
     <message>
         <location line="+2"/>
         <source> until {%1}</source>
-        <translation type="unfinished"></translation>
+        <translation> bis {%1}</translation>
     </message>
     <message>
         <location filename="reminder.cpp" line="+153"/>
         <source>The snooze time must be in the future of the normal reminder time and not in the past of it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zeit zum Verschieben muss in der Zukunft der eigentlich Zeit der Erinnerung liegen, nicht in deren Vergangenheit.</translation>
     </message>
     <message>
         <location filename="terms.cpp" line="+988"/>
         <source>at </source>
         <comment>TimePrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>um </translation>
     </message>
     <message>
         <location line="+3"/>
         <source> o&apos;clock</source>
         <comment>TimeSuffix</comment>
-        <translation type="unfinished"></translation>
+        <translation> Uhr</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>hh:mm ap|h:mm ap|hh:m ap|h:m ap|hh ap|h ap|hh:mm AP|h:mm AP|hh:m AP|h:m AP|hh AP|h AP|hh:mm|h:mm|hh:m|h:m|hh|h</source>
         <comment>TimePattern</comment>
-        <translation type="unfinished"></translation>
+        <translation>hh:mm|h:mm|hh:m|h:m|hh|h</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>on |on the |the </source>
         <comment>DatePrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>am |an dem |den |beim </translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>every |any |all</source>
         <comment>DateLoopPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">jeden |an jedem</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+12"/>
         <source>dd.MM.yyyy|d.MM.yyyy|dd.M.yyyy|d.M.yyyy|dd. MM. yyyy|d. MM. yyyy|dd. M. yyyy|d. M. yyyy|dd-MM-yyyy|d-MM-yyyy|dd-M-yyyy|d-M-yyyy|dd.MM.yy|d.MM.yy|dd.M.yy|d.M.yy|dd. MM. yy|d. MM. yy|dd. M. yy|d. M. yy|dd-MM-yy|d-MM-yy|dd-M-yy|d-M-yy|dd.MM.|d.MM.|dd.M.|d.M.|dd. MM.|d. MM.|dd. M.|d. M.|dd-MM|d-MM|dd-M|d-M</source>
         <comment>DatePattern</comment>
-        <translation type="unfinished"></translation>
+        <translation>dd.MM.yyyy|d.MM.yyyy|dd.M.yyyy|d.M.yyyy|dd. MM. yyyy|d. MM. yyyy|dd. M. yyyy|d. M. yyyy|dd-MM-yyyy|d-MM-yyyy|dd-M-yyyy|d-M-yyyy|dd.MM.yy|d.MM.yy|dd.M.yy|d.M.yy|dd. MM. yy|d. MM. yy|dd. M. yy|d. M. yy|dd-MM-yy|d-MM-yy|dd-M-yy|d-M-yy|dd.MM.|d.MM.|dd.M.|d.M.|dd. MM.|d. MM.|dd. M.|d. M.|dd-MM|d-MM|dd-M|d-M</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>%2 past %1:+|%2-past %1:+|%2 to %1:-</source>
         <comment>InvTimeExprPattern</comment>
-        <translation type="unfinished"></translation>
+        <translation>%2 nach %1:+|%2 vor %1:-|%2 %1:-</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>hh ap|h ap|hh AP|h AP|hh|h</source>
         <comment>InvTimeHourPattern</comment>
-        <translation type="unfinished"></translation>
+        <translation>hh|h</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>mm|m</source>
         <comment>InvTimeMinutePattern</comment>
-        <translation type="unfinished"></translation>
+        <translation>mm|m</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>quarter:15|half:30</source>
         <comment>InvTimeKeywords</comment>
-        <translation type="unfinished"></translation>
+        <translation>viertel:15|halb:30</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>on |on the |the |next |on next |on the next</source>
+        <source>on |on the |the |next |on next |on the next </source>
+        <oldsource>on |on the |the |next |on next |on the next</oldsource>
         <comment>MonthDayPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>am |an dem |den |beim |nächsten |am nächsten |an dem nächsten |den nächsten </translation>
     </message>
     <message>
         <location line="+3"/>
         <source> of</source>
         <comment>MonthDaySuffix</comment>
-        <translation type="unfinished"></translation>
+        <translation> des</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>every |any |all</source>
-        <comment>MonthDayLoopPrefix</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="+9"/>
         <source>_.|_th|_st|_nd|_rd</source>
         <comment>MonthDayIndicator</comment>
-        <translation type="unfinished"></translation>
+        <translation>_.</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>on |next |on next |on the next</source>
+        <source>on |next |on next |on the next </source>
+        <oldsource>on |next |on next |on the next</oldsource>
         <comment>WeekDayPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>am |an dem |nächsten |am nächsten |an dem nächsten |den nächsten </translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>every |any |all</source>
-        <comment>WeekDayLoopPrefix</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>in |on |next |on next |on the next |in next |in the next</source>
+        <location line="+12"/>
+        <source>in |on |next |on next |on the next |in next |in the next </source>
+        <oldsource>in |on |next |on next |on the next |in next |in the next</oldsource>
         <comment>MonthPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>im |nächsten |am nächsten |im nächsten |in dem nächsten </translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>every |any |all</source>
+        <location line="-58"/>
+        <source>every |any |all |on every |on any |on all </source>
+        <comment>DateLoopPrefix</comment>
+        <translation>jeden |an jedem </translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>every |any |all |on every |on any |on all </source>
+        <comment>MonthDayLoopPrefix</comment>
+        <translation>jeden |an jedem |an allen </translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>every |any |all |on every |on any |on all </source>
+        <comment>WeekDayLoopPrefix</comment>
+        <translation>jeden |an jedem |an allen </translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>every |any |all |on every |on any |on all </source>
         <comment>MonthLoopPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>jeden |an jedem |in jedem |an allen </translation>
     </message>
     <message>
         <location line="+6"/>
         <source>in </source>
         <comment>YearPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>in </translation>
     </message>
     <message>
         <location line="+6"/>
         <source>in </source>
         <comment>SpanPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>in </translation>
+    </message>
+    <message>
+        <location line="-79"/>
+        <source>###empty###</source>
+        <comment>DateSuffix</comment>
+        <translation>###empty###</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>every |all</source>
+        <source>###empty###</source>
+        <comment>DateLoopSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>###empty###</source>
+        <comment>MonthDayLoopSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>###empty###</source>
+        <comment>WeekDaySuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>WeekDayLoopSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>MonthSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>MonthLoopSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>YearSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>SpanSuffix</comment>
+        <translation>###empty###</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>every |all </source>
+        <oldsource>every |all</oldsource>
         <comment>SpanLoopPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>alle |jede |jedes |jeden |jeder |in immer </translation>
     </message>
     <message>
         <location line="+3"/>
         <source> and</source>
         <comment>SpanConjuction</comment>
-        <translation type="unfinished"></translation>
+        <translation> und</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>min|mins|minute|minutes</source>
         <comment>SpanKeyMinute</comment>
-        <translation type="unfinished"></translation>
+        <translation>min|mins|minute|minuten</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>hour|hours</source>
         <comment>SpanKeyHour</comment>
-        <translation type="unfinished">stunde|stunden</translation>
+        <translation>stunde|stunden</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>day|days</source>
         <comment>SpanKeyDay</comment>
-        <translation type="unfinished">tag|tage</translation>
+        <translation>tag|tage|tagen</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>week|weeks</source>
         <comment>SpanKeyWeek</comment>
-        <translation type="unfinished">woche|wochen</translation>
+        <translation>woche|wochen</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>mon|mons|month|months</source>
         <comment>SpanKeyMonth</comment>
-        <translation type="unfinished"></translation>
+        <translation>monat|monate|monaten</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>year|years</source>
         <comment>SpanKeyYear</comment>
-        <translation type="unfinished">jahr|jahre</translation>
+        <translation>jahr|jahre|jahren</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>today:0|tomorrow:1</source>
         <comment>KeywordDayspan</comment>
-        <translation type="unfinished"></translation>
+        <translation>heute:0|morgen:1|übermorgen:2|überübermorgen:3|überüberübermorgen:4</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>from</source>
         <comment>LimiterFromPrefix</comment>
-        <translation type="unfinished">von</translation>
+        <translation>von|vom|von dem</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>until|to</source>
         <comment>LimiterUntilPrefix</comment>
-        <translation type="unfinished"></translation>
+        <translation>bis|bis zum|bis zu dem</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>;</source>
         <comment>ExpressionSeperator</comment>
-        <translation type="unfinished">;</translation>
+        <translation>;</translation>
     </message>
 </context>
 <context>
@@ -623,7 +686,7 @@
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+30"/>
+        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+31"/>
         <source>09:00</source>
         <translation>09:00</translation>
     </message>

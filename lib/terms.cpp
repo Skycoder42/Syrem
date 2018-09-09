@@ -999,13 +999,13 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("on |on the |the ", "DatePrefix");
 		break;
 	case DateSuffix:
-		word = EventExpressionParser::tr("", "DateSuffix");
+		word = EventExpressionParser::tr("###empty###", "DateSuffix");
 		break;
 	case DateLoopPrefix:
-		word = EventExpressionParser::tr("every |any |all", "DateLoopPrefix");
+		word = EventExpressionParser::tr("every |any |all |on every |on any |on all ", "DateLoopPrefix");
 		break;
 	case DateLoopSuffix:
-		word = EventExpressionParser::tr("", "DateLoopSuffix");
+		word = EventExpressionParser::tr("###empty###", "DateLoopSuffix");
 		break;
 	case DatePattern:
 		word= EventExpressionParser::tr("dd.MM.yyyy|d.MM.yyyy|dd.M.yyyy|d.M.yyyy|"
@@ -1033,58 +1033,58 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr("quarter:15|half:30", "InvTimeKeywords");
 		break;
 	case MonthDayPrefix:
-		word = EventExpressionParser::tr("on |on the |the |next |on next |on the next", "MonthDayPrefix");
+		word = EventExpressionParser::tr("on |on the |the |next |on next |on the next ", "MonthDayPrefix");
 		break;
 	case MonthDaySuffix:
 		word = EventExpressionParser::tr(" of", "MonthDaySuffix");
 		break;
 	case MonthDayLoopPrefix:
-		word = EventExpressionParser::tr("every |any |all", "MonthDayLoopPrefix");
+		word = EventExpressionParser::tr("every |any |all |on every |on any |on all ", "MonthDayLoopPrefix");
 		break;
 	case MonthDayLoopSuffix:
-		word = EventExpressionParser::tr("", "MonthDayLoopSuffix");
+		word = EventExpressionParser::tr("###empty###", "MonthDayLoopSuffix");
 		break;
 	case MonthDayIndicator:
 		word = EventExpressionParser::tr("_.|_th|_st|_nd|_rd", "MonthDayIndicator");
 		break;
 	case WeekDayPrefix:
-		word = EventExpressionParser::tr("on |next |on next |on the next", "WeekDayPrefix");
+		word = EventExpressionParser::tr("on |next |on next |on the next ", "WeekDayPrefix");
 		break;
 	case WeekDaySuffix:
-		word = EventExpressionParser::tr("", "WeekDaySuffix");
+		word = EventExpressionParser::tr("###empty###", "WeekDaySuffix");
 		break;
 	case WeekDayLoopPrefix:
-		word = EventExpressionParser::tr("every |any |all", "WeekDayLoopPrefix");
+		word = EventExpressionParser::tr("every |any |all |on every |on any |on all ", "WeekDayLoopPrefix");
 		break;
 	case WeekDayLoopSuffix:
-		word = EventExpressionParser::tr("", "WeekDayLoopSuffix");
+		word = EventExpressionParser::tr("###empty###", "WeekDayLoopSuffix");
 		break;
 	case MonthPrefix:
-		word = EventExpressionParser::tr("in |on |next |on next |on the next |in next |in the next", "MonthPrefix");
+		word = EventExpressionParser::tr("in |on |next |on next |on the next |in next |in the next ", "MonthPrefix");
 		break;
 	case MonthSuffix:
-		word = EventExpressionParser::tr("", "MonthSuffix");
+		word = EventExpressionParser::tr("###empty###", "MonthSuffix");
 		break;
 	case MonthLoopPrefix:
-		word = EventExpressionParser::tr("every |any |all", "MonthLoopPrefix");
+		word = EventExpressionParser::tr("every |any |all |on every |on any |on all ", "MonthLoopPrefix");
 		break;
 	case MonthLoopSuffix:
-		word = EventExpressionParser::tr("", "MonthLoopSuffix");
+		word = EventExpressionParser::tr("###empty###", "MonthLoopSuffix");
 		break;
 	case YearPrefix:
 		word = EventExpressionParser::tr("in ", "YearPrefix");
 		break;
 	case YearSuffix:
-		word = EventExpressionParser::tr("", "YearSuffix");
+		word = EventExpressionParser::tr("###empty###", "YearSuffix");
 		break;
 	case SpanPrefix:
 		word = EventExpressionParser::tr("in ", "SpanPrefix");
 		break;
 	case SpanSuffix:
-		word = EventExpressionParser::tr("", "SpanSuffix");
+		word = EventExpressionParser::tr("###empty###", "SpanSuffix");
 		break;
 	case SpanLoopPrefix:
-		word = EventExpressionParser::tr("every |all", "SpanLoopPrefix");
+		word = EventExpressionParser::tr("every |all ", "SpanLoopPrefix");
 		break;
 	case SpanConjuction:
 		word = EventExpressionParser::tr(" and", "SpanConjuction");
@@ -1120,6 +1120,8 @@ QString Expressions::trWord(WordKey key, bool escape)
 		word = EventExpressionParser::tr(";", "ExpressionSeperator");
 		break;
 	}
+	if(word == QStringLiteral("###empty###"))
+		return {};
 	if(escape)
 		word = QRegularExpression::escape(word);
 	return word;

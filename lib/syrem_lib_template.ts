@@ -138,13 +138,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>every |any |all</source>
-        <comment>DateLoopPrefix</comment>
+        <location line="+3"/>
+        <source>###empty###</source>
+        <comment>DateSuffix</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
+        <source>###empty###</source>
+        <comment>DateLoopSuffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>dd.MM.yyyy|d.MM.yyyy|dd.M.yyyy|d.M.yyyy|dd. MM. yyyy|d. MM. yyyy|dd. M. yyyy|d. M. yyyy|dd-MM-yyyy|d-MM-yyyy|dd-M-yyyy|d-M-yyyy|dd.MM.yy|d.MM.yy|dd.M.yy|d.M.yy|dd. MM. yy|d. MM. yy|dd. M. yy|d. M. yy|dd-MM-yy|d-MM-yy|dd-M-yy|d-M-yy|dd.MM.|d.MM.|dd.M.|d.M.|dd. MM.|d. MM.|dd. M.|d. M.|dd-MM|d-MM|dd-M|d-M</source>
         <comment>DatePattern</comment>
         <translation type="unfinished"></translation>
@@ -175,7 +181,8 @@
     </message>
     <message>
         <location line="+3"/>
-        <source>on |on the |the |next |on next |on the next</source>
+        <source>on |on the |the |next |on next |on the next </source>
+        <oldsource>on |on the |the |next |on next |on the next</oldsource>
         <comment>MonthDayPrefix</comment>
         <translation type="unfinished"></translation>
     </message>
@@ -186,38 +193,88 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>every |any |all</source>
-        <comment>MonthDayLoopPrefix</comment>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>MonthDayLoopSuffix</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+3"/>
         <source>_.|_th|_st|_nd|_rd</source>
         <comment>MonthDayIndicator</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>on |next |on next |on the next</source>
+        <source>on |next |on next |on the next </source>
+        <oldsource>on |next |on next |on the next</oldsource>
         <comment>WeekDayPrefix</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>every |any |all</source>
-        <comment>WeekDayLoopPrefix</comment>
+        <location line="+3"/>
+        <source>###empty###</source>
+        <comment>WeekDaySuffix</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>in |on |next |on next |on the next |in next |in the next</source>
+        <source>###empty###</source>
+        <comment>WeekDayLoopSuffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>in |on |next |on next |on the next |in next |in the next </source>
+        <oldsource>in |on |next |on next |on the next |in next |in the next</oldsource>
         <comment>MonthPrefix</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>###empty###</source>
+        <comment>MonthSuffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+6"/>
-        <source>every |any |all</source>
+        <source>###empty###</source>
+        <comment>MonthLoopSuffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>YearSuffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>###empty###</source>
+        <comment>SpanSuffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-79"/>
+        <source>every |any |all |on every |on any |on all </source>
+        <comment>DateLoopPrefix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>every |any |all |on every |on any |on all </source>
+        <comment>MonthDayLoopPrefix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>every |any |all |on every |on any |on all </source>
+        <comment>WeekDayLoopPrefix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>every |any |all |on every |on any |on all </source>
         <comment>MonthLoopPrefix</comment>
         <translation type="unfinished"></translation>
     </message>
@@ -235,7 +292,8 @@
     </message>
     <message>
         <location line="+6"/>
-        <source>every |all</source>
+        <source>every |all </source>
+        <oldsource>every |all</oldsource>
         <comment>SpanLoopPrefix</comment>
         <translation type="unfinished"></translation>
     </message>
@@ -414,7 +472,7 @@
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+30"/>
+        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+31"/>
         <source>09:00</source>
         <translation type="unfinished"></translation>
     </message>

@@ -106,7 +106,7 @@ public class Notifier {
 			intent,
 			PendingIntent.FLAG_UPDATE_CURRENT);
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, Globals.getErrorChannel(_asNavi))
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(_context, Globals.ErrorChannelId)
 			.setContentTitle(_context.getString(R.string.not_err_name))
 			.setContentText(text)
 			.setContentInfo(_context.getString(R.string.app_name))

@@ -184,7 +184,7 @@
 <context>
     <name>WidgetsNotifier</name>
     <message>
-        <location filename="widgetsnotifier.cpp" line="+35"/>
+        <location filename="widgetsnotifier.cpp" line="+30"/>
         <source>%1 — Important Reminder</source>
         <translation>%1 — Wichtige Erinnerung</translation>
     </message>
