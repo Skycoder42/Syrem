@@ -1,0 +1,20 @@
+{
+	"name": "cryptopp",
+	"buildsystem": "simple",
+	"sources": [
+		{
+			"type": "archive",
+			"url": "https://www.cryptopp.com/cryptopp700.zip",
+			"sha512": "8fd8d680e5ceaf10b3c32cb1504bda4b32abc9fcaa2c6e61e3b5e67aca805c792579884bc6a749c29a99105304c421d03d7fe7909fc58f750b3155c7c5cec8ec",
+			"strip-components": 0
+		}
+	],
+	"build-commands": [
+		"make -j $(nproc) static",
+		"make install PREFIX=/app"
+	],
+	"cleanup": [
+		"/lib",
+		"/include"
+	]
+}

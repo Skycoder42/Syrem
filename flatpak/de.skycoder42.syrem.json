@@ -1,0 +1,38 @@
+{
+	"id": "de.skycoder42.syrem",
+	"branch": "master",
+	"runtime": "org.kde.Platform",
+	"runtime-version": "5.11",
+	"sdk": "org.kde.Sdk",
+	"command": "syrem",
+	"finish-args": ["--share=ipc", "--socket=fallback-x11", "--socket=wayland", "--share=network" ],
+	"build-options": {
+		"env": {
+			"QMAKEPATH": "/app/lib",
+			"QT_PLUGIN_PATH": "/app/lib/plugins:/app/qpmx/usr/lib/plugins"
+		}
+	},
+
+	"modules": [
+		"modules/qt-module-fixes/de.skycoder42.qt-module-fixes.json",
+		"modules/qtremoteobjects.json",
+		"modules/qtscxml.json",
+		"modules/qtjsonserializer.json",
+		"modules/qpmx/qpmx.json",
+		"modules/cryptopp.json",
+		"modules/qtservice/qtservice.json",
+		"modules/qtdatasync/qtdatasync.json",
+		"modules/qtmvvm/qtmvvm.json",
+
+		{
+			"name": "syrem",
+			"buildsystem": "qmake",
+			"sources": [
+				{
+					"type": "dir",
+					"path": ".."
+				}
+			]
+		}
+	]
+}

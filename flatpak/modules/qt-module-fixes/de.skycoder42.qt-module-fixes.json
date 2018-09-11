@@ -1,0 +1,22 @@
+{
+	"name": "de.skycoder42.qt-module-fixes",
+	"buildsystem": "simple",
+	"sources": [
+		{
+			"type": "file",
+			"path": "fix-module.sh"
+		},
+		{
+			"type": "file",
+			"path": "qt_flatpak_paths.pri"
+		}
+	],
+	"build-commands": [
+		"install -D -m755 fix-module.sh /app/fix-module.sh",
+		"install -D -m644 qt_flatpak_paths.pri /app/lib/mkspecs/modules/qt_flatpak_paths.pri"
+	],
+	"cleanup": [
+		"/fix-module.sh",
+		"/lib/mkspecs"
+	]
+}

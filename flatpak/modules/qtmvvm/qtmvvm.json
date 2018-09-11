@@ -1,0 +1,43 @@
+{
+	"name": "qtmvvm",
+	"buildsystem": "qmake",
+	"make-install-args": ["INSTALL_ROOT=/app/mvvm"],
+	"build-options": {
+		"env": {
+			"QPMX_CACHE_DIR": "/app/.qpmx"
+		}
+	},
+	"sources": [
+		{
+			"type": "git",
+			"url": "https://github.com/Skycoder42/QtMvvm.git",
+			"tag": "1.1.4"
+		},
+		{
+			"type": "dir",
+			"path": "qpmx/src",
+			"dest": ".qpmx/src"
+		},
+		{
+			"type": "shell",
+			"commands": [
+				"mkdir -p /app/.qpmx/src",
+				"cp -arf .qpmx/src/. /app/.qpmx/src/"
+			]
+		}
+	],
+	"cleanup": [
+		"/.qpmx",
+		"/bin",
+		"/lib/cmake",
+		"/lib/mkspecs",
+		"/lib/pkgconfig",
+		"/include",
+		"/doc",
+		"*.la",
+		"*.prl"
+	],
+	"post-install": [
+		"/app/fix-module.sh mvvm mvvmcore:qsettingsgenerator mvvmwidgets mvvmquick mvvmdatasynccore mvvmdatasyncwidgets mvvmdatasyncquick"
+	]
+}

@@ -1,0 +1,4 @@
+QT_MODULE_BIN_BASE = /app/bin
+QT_MODULE_INCLUDE_BASE = /app/include
+QT_MODULE_LIB_BASE = /app/lib
+QT_MODULE_HOST_LIB_BASE = /app/lib

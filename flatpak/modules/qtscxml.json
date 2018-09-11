@@ -1,0 +1,25 @@
+{
+	"name": "qtscxml",
+	"buildsystem": "qmake",
+	"make-install-args": ["INSTALL_ROOT=/app/scxml"],
+	"sources": [
+		{
+			"type": "git",
+			"url": "https://code.qt.io/qt/qtscxml.git",
+			"tag": "v5.11.1"
+		}
+	],
+	"cleanup": [
+		"/bin",
+		"/lib/cmake",
+		"/lib/mkspecs",
+		"/lib/pkgconfig",
+		"/include",
+		"/doc",
+		"*.la",
+		"*.prl"
+	],
+	"post-install": [
+		"/app/fix-module.sh scxml scxml:qscxmlc"
+	]
+}

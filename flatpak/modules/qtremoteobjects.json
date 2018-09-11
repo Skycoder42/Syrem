@@ -1,0 +1,25 @@
+{
+	"name": "qtremoteobjects",
+	"buildsystem": "qmake",
+	"make-install-args": ["INSTALL_ROOT=/app/qtro"],
+	"sources": [
+		{
+			"type": "git",
+			"url": "https://code.qt.io/qt/qtremoteobjects.git",
+			"tag": "v5.11.1"
+		}
+	],
+	"cleanup": [
+		"/bin",
+		"/lib/cmake",
+		"/lib/mkspecs",
+		"/lib/pkgconfig",
+		"/include",
+		"/doc",
+		"*.la",
+		"*.prl"
+	],
+	"post-install": [
+		"/app/fix-module.sh qtro remoteobjects:repc"
+	]
+}

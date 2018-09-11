@@ -1,0 +1,25 @@
+{
+	"name": "qtjsonserializer",
+	"buildsystem": "qmake",
+	"make-install-args": ["INSTALL_ROOT=/app/json"],
+	"sources": [
+		{
+			"type": "git",
+			"url": "https://github.com/Skycoder42/QtJsonSerializer.git",
+			"tag": "3.1.2"
+		}
+	],
+	"cleanup": [
+		"/bin",
+		"/lib/cmake",
+		"/lib/mkspecs",
+		"/lib/pkgconfig",
+		"/include",
+		"/doc",
+		"*.la",
+		"*.prl"
+	],
+	"post-install": [
+		"/app/fix-module.sh json jsonserializer"
+	]
+}
