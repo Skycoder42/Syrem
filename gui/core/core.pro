@@ -33,6 +33,8 @@ DISTFILES += \
 SETTINGS_TRANSLATIONS = settings.xml
 
 # install
+include(../../install.pri)
+
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 desktop_install.files = syrem.desktop
 desktop_install.path = $$INSTALL_SHARE/applications/

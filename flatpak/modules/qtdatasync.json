@@ -5,7 +5,8 @@
 	"build-options": {
 		"env": {
 			"QPMX_CACHE_DIR": "/app/.qpmx"
-		}
+		},
+		"build-args": [ "--share=network" ]
 	},
 	"sources": [
 		{
@@ -14,15 +15,8 @@
 			"tag": "4.1.0"
 		},
 		{
-			"type": "dir",
-			"path": "qpmx/src",
-			"dest": ".qpmx/src"
-		},
-		{
 			"type": "shell",
 			"commands": [
-				"mkdir -p /app/.qpmx/src",
-				"cp -arf .qpmx/src/. /app/.qpmx/src/",
 				"ln -s /app/include src/3rdparty/cryptopp/include",
 				"ln -s /app/lib src/3rdparty/cryptopp/lib"
 			]
@@ -36,6 +30,8 @@
 		"/lib/pkgconfig",
 		"/include",
 		"/doc",
+		"/services",
+		"/translations/*.ts",
 		"*.la",
 		"*.prl"
 	],

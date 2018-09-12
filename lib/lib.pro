@@ -45,6 +45,8 @@ DISTFILES += $$TRANSLATIONS \
 else: include($$OUT_PWD/qpmx_generated.pri)
 
 # actual install
+include(../install.pri)
+
 target.path = $$INSTALL_LIBS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 lupdate_fix: isEmpty(QSETTINGSGENERATOR_DIR): QSETTINGSGENERATOR_DIR = .

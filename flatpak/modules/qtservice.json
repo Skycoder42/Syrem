@@ -5,25 +5,14 @@
 	"build-options": {
 		"env": {
 			"QPMX_CACHE_DIR": "/app/.qpmx"
-		}
+		},
+		"build-args": [ "--share=network" ]
 	},
 	"sources": [
 		{
 			"type": "git",
 			"url": "https://github.com/Skycoder42/QtService.git",
 			"tag": "1.0.0"
-		},
-		{
-			"type": "dir",
-			"path": "qpmx/src",
-			"dest": ".qpmx/src"
-		},
-		{
-			"type": "shell",
-			"commands": [
-				"mkdir -p /app/.qpmx/src",
-				"cp -arf .qpmx/src/. /app/.qpmx/src/"
-			]
 		}
 	],
 	"cleanup": [
@@ -34,6 +23,7 @@
 		"/lib/pkgconfig",
 		"/include",
 		"/doc",
+		"/translations/*.ts",
 		"*.la",
 		"*.prl"
 	],

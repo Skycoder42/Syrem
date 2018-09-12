@@ -5,25 +5,14 @@
 	"build-options": {
 		"env": {
 			"QPMX_CACHE_DIR": "/app/.qpmx"
-		}
+		},
+		"build-args": [ "--share=network" ]
 	},
 	"sources": [
 		{
 			"type": "git",
 			"url": "https://github.com/Skycoder42/QtMvvm.git",
 			"tag": "1.1.4"
-		},
-		{
-			"type": "dir",
-			"path": "qpmx/src",
-			"dest": ".qpmx/src"
-		},
-		{
-			"type": "shell",
-			"commands": [
-				"mkdir -p /app/.qpmx/src",
-				"cp -arf .qpmx/src/. /app/.qpmx/src/"
-			]
 		}
 	],
 	"cleanup": [
@@ -32,8 +21,10 @@
 		"/lib/cmake",
 		"/lib/mkspecs",
 		"/lib/pkgconfig",
+		"/lib/python3.7",
 		"/include",
 		"/doc",
+		"/translations/*.ts",
 		"*.la",
 		"*.prl"
 	],

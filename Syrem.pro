@@ -19,4 +19,5 @@ QMAKE_EXTRA_TARGETS += lrelease
 OTHER_FILES += \
 	.qmake.conf \
 	README.md \
-	lib.pri
+	lib.pri \
+	install.pri

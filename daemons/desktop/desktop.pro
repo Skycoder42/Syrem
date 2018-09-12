@@ -58,6 +58,8 @@ DISTFILES += \
 	syrem.notifyrc
 
 # install
+include(../../install.pri)
+
 linux {
 	create_service.target = syrem.service
 	create_service.depends += $$PWD/syrem.service.in

@@ -29,6 +29,8 @@ DISTFILES += \
 	$$TRANSLATIONS \
 	$$EXTRA_TRANSLATIONS
 
+include(../../install.pri)
+
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 extra_ts_target.path = $$INSTALL_TRANSLATIONS
 INSTALLS += qpmx_ts_target extra_ts_target

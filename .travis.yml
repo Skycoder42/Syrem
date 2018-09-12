@@ -10,7 +10,8 @@ osx_image: xcode9.4
 env:
   global:
     - QPMX_CACHE_DIR=$HOME/.qpmx-cache
-    - QT_VER=5.11.1
+    - QT_VER_MINOR=5.11
+    - QT_VER=${QT_VER_MINOR}.1
     - OPENSSL_VERSION=1.0.2p
     - EXTRA_MODULES=".skycoder42"
     - DOCKER_IMAGE=full
@@ -21,6 +22,12 @@ matrix:
     - os: linux
       env:
         - PLATFORM=gcc_64
+    - os: linux
+      env:
+        - PLATFORM=flatpak
+        - DOCKER_IMAGE=
+        - DOCKER_IMAGE_BASE="base/archlinux:latest"
+        - FLATPAK_MANIFEST=flatpak/de.skycoder42.syrem.json
     - os: linux
       env:
         - PLATFORM=android_armv7

@@ -20,18 +20,38 @@
 		"modules/qtjsonserializer.json",
 		"modules/qpmx/qpmx.json",
 		"modules/cryptopp.json",
-		"modules/qtservice/qtservice.json",
-		"modules/qtdatasync/qtdatasync.json",
-		"modules/qtmvvm/qtmvvm.json",
+		"modules/qtservice.json",
+		"modules/qtdatasync.json",
+		"modules/python.json",
+		"modules/qtmvvm.json",
 
 		{
 			"name": "syrem",
 			"buildsystem": "qmake",
+			"build-options": {
+				"env": {
+					"QPMX_CACHE_DIR": "/app/.qpmx"
+				},
+				"build-args": [ "--share=network" ]
+			},
+			"config-opts": [
+				"CONFIG+=no_auto_lupdate",
+				"CONFIG+=auto_lrelease"
+			],
 			"sources": [
 				{
 					"type": "dir",
 					"path": ".."
 				}
+			],
+			"cleanup": [
+				"/.qpmx",
+				"/lib/python3.7",
+				"/lib/systemd",
+				"/include",
+				"/doc",
+				"*.la",
+				"*.prl"
 			]
 		}
 	]
