@@ -1,0 +1,36 @@
+{
+	"name": "qpmx",
+	"buildsystem": "qmake",
+	"make-install-args": ["INSTALL_ROOT=/app/qpmx"],
+	"sources": [
+		{
+			"type": "git",
+			"url": "https://github.com/Skycoder42/qpmx.git",
+			"tag": "1.5.0"
+		},
+		{
+			"type": "patch",
+			"path": "qpmx.patch",
+			"use-git": true
+		},
+		{
+			"type": "file",
+			"path": "qpmx.qt.conf"
+		},
+		{
+			"type": "file",
+			"url": "https://www.qpm.io/download/v0.11.0/linux_386/qpm",
+			"sha256": "d6ad272a5c251c33a8c5fa96906cf66084b2b6eb33abc5589de87c4dddececaa"
+		}
+	],
+	"cleanup": [
+		"/qpmx",
+		"/bin"
+	],
+	"post-install": [
+		"mv qpmx.qt.conf /app/qpmx/usr/bin/qt.conf",
+		"mkdir -p /app/bin",
+		"ln -s /app/qpmx/usr/bin/qpmx /app/bin/qpmx",
+		"install -m 755 qpm /app/bin/qpm"
+	]
+}

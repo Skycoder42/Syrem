@@ -1,0 +1,13 @@
+diff --git a/qpmx/topsort.h b/qpmx/topsort.h
+index a4e1d9a..f9315a1 100644
+--- a/qpmx/topsort.h
++++ b/qpmx/topsort.h
+@@ -117,7 +117,7 @@ QList<T> TopSort<T>::sort() const
+ template<typename T>
+ int TopSort<T>::indexOf(const T &data) const
+ {
+-	for(auto i = 0, m = _data.size(); i < m; i++) {
++	for(int i = 0, m = _data.size(); i < m; i++) {
+ 		if(_comparator(data, _data[i]))
+ 			return i;
+ 	}
