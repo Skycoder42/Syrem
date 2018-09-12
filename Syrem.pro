@@ -20,4 +20,5 @@ OTHER_FILES += \
 	.qmake.conf \
 	README.md \
 	lib.pri \
-	install.pri
+	install.pri \
+	create_icons.sh

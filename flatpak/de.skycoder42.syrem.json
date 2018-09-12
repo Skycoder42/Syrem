@@ -5,7 +5,14 @@
 	"runtime-version": "5.11",
 	"sdk": "org.kde.Sdk",
 	"command": "syrem",
-	"finish-args": ["--share=ipc", "--socket=fallback-x11", "--socket=wayland", "--share=network" ],
+	"finish-args": [
+		"--share=ipc",
+		"--socket=fallback-x11",
+		"--socket=wayland",
+		"--share=network",
+		"--talk-name=org.kde.kwalletd5",
+		"--talk-name=org.freedesktop.Secret.Service"
+	],
 	"build-options": {
 		"env": {
 			"QMAKEPATH": "/app/lib",
@@ -35,8 +42,11 @@
 				"build-args": [ "--share=network" ]
 			},
 			"config-opts": [
+				"CONFIG+=no_quick",
+				"CONFIG+=no_systemd",
 				"CONFIG+=no_auto_lupdate",
-				"CONFIG+=auto_lrelease"
+				"CONFIG+=auto_lrelease",
+				"DEFINES+=force_standard_keystore"
 			],
 			"sources": [
 				{
@@ -47,11 +57,11 @@
 			"cleanup": [
 				"/.qpmx",
 				"/lib/python3.7",
-				"/lib/systemd",
 				"/include",
 				"/doc",
 				"*.la",
-				"*.prl"
+				"*.prl",
+				"*_template.qm"
 			]
 		}
 	]

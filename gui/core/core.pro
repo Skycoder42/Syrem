@@ -27,19 +27,27 @@ TRANSLATIONS += syrem_core_de.ts \
 	syrem_core_template.ts
 
 DISTFILES += \
-	syrem.desktop \
-	$$TRANSLATIONS
+	$$TRANSLATIONS \
+	de.skycoder42.syrem.desktop
 
 SETTINGS_TRANSLATIONS = settings.xml
 
 # install
 include(../../install.pri)
 
+create_icons.target = create_icons
+create_icons.commands += $$shell_path($$PWD/../../create_icons.sh) de.skycoder42.syrem $$shell_path($$PWD/../../icon/pngs/syrem/syrem) $$ICON_SIZES
+QMAKE_EXTRA_TARGETS += create_icons
+
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-desktop_install.files = syrem.desktop
+desktop_install.files = de.skycoder42.syrem.desktop
 desktop_install.path = $$INSTALL_SHARE/applications/
+install_icons.files += $$shadowed(icon_export/hicolor)
+install_icons.path = $$INSTALL_SHARE/icons/
+install_icons.CONFIG += no_check_exist
+install_icons.depends += create_icons
 INSTALLS += qpmx_ts_target
-linux:!android: INSTALLS += desktop_install
+linux:!android: INSTALLS += desktop_install install_icons
 
 # link against main lib
 include(../../lib.pri)

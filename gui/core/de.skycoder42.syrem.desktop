@@ -7,7 +7,7 @@ GenericName=Reminder Scheduler
 Comment=A simple reminder application for desktop and mobile, with synchronized reminders
 Categories=Utility;Qt;
 Exec=syrem
-Icon=syrem
+Icon=de.skycoder42.syrem
 Terminal=false
 Actions=CreateReminder;
 

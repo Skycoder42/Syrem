@@ -68,8 +68,8 @@ before_cache:
   - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
   - rm -rf $QPMX_CACHE_DIR/locks
   - rm -rf $QPMX_CACHE_DIR/tmp
-  - rm -rf flatpak-build/.flatpak-builder/build
-  - rm -rf flatpak-build/.flatpak-builder/rofiles
+  - sudo rm -rf flatpak-build/.flatpak-builder/build
+  - sudo rm -rf flatpak-build/.flatpak-builder/rofiles
 cache:
   directories:
     - $HOME/.gradle/caches/

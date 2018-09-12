@@ -16,3 +16,5 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_TRANSLATIONS): INSTALL_TRANSLATIONS = $${PREFIX}/translations
 }
 isEmpty(INSTALL_SHARE): INSTALL_SHARE = $${PREFIX}/share
+
+auto_lrelease: PRE_TARGETDEPS += lrelease

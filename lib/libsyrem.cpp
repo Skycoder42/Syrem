@@ -26,7 +26,8 @@ void Syrem::prepareTranslations(const QString &tsName)
 						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(translator);
 	else {
-		qWarning() << "Failed to load translations! Switching to C-locale for a consistent experience";
+		qWarning() << "Failed to load translations for locale" << QLocale()
+				   << "- Switching to C-locale for a consistent experience";
 		delete translator;
 		QLocale::setDefault(QLocale::c());
 	}

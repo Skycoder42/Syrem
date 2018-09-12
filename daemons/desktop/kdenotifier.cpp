@@ -11,8 +11,8 @@
 #define ErrorIcon QIcon(QStringLiteral(":/icons/tray/error.ico")).pixmap(64, 64)
 #define setNotifyIcon setPixmap
 #else
-#define Icon QStringLiteral("remind-me")
-#define ErrorIcon QStringLiteral("remind-me-error")
+#define Icon QStringLiteral("de.skycoder42.syrem")
+#define ErrorIcon QStringLiteral("de.skycoder42.syrem-error")
 #define setNotifyIcon setIconName
 #endif
 

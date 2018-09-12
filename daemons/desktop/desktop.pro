@@ -60,7 +60,7 @@ DISTFILES += \
 # install
 include(../../install.pri)
 
-linux {
+linux:!no_systemd {
 	create_service.target = syrem.service
 	create_service.depends += $$PWD/syrem.service.in
 	create_service.commands += sed "s:%{INSTALL_BINS}:$$INSTALL_BINS:g" $$PWD/syrem.service.in > syrem.service
@@ -71,15 +71,20 @@ linux {
 	install_service.files += $$OUT_PWD/syrem.service
 	install_service.CONFIG += no_check_exist
 	install_service.path = $$INSTALL_LIBS/systemd/user/
-	install_icons.files += ../../icon/remind-me.svg
-	kde_notifier: install_icons.files += ../../icon/remind-me-error.svg
-	install_icons.path = $$INSTALL_SHARE/icons/hicolor/scalable/apps
-	INSTALLS += install_service install_icons
+	INSTALLS += install_service
 }
 kde_notifier {
+	create_icons.target = create_icons
+	create_icons.commands += $$shell_path($$PWD/../../create_icons.sh) de.skycoder42.syrem-error $$shell_path($$PWD/../../icon/pngs/syrem-error/syrem-error) $$ICON_SIZES
+	QMAKE_EXTRA_TARGETS += create_icons
+
 	notify_install.path = $$INSTALL_SHARE/knotifications5/
 	notify_install.files = syrem.notifyrc
-	INSTALLS += notify_install
+	install_icons.files += $$shadowed(icon_export/hicolor)
+	install_icons.path = $$INSTALL_SHARE/icons/
+	install_icons.CONFIG += no_check_exist
+	install_icons.depends += create_icons
+	INSTALLS += notify_install install_icons
 }
 
 target.path = $$INSTALL_BINS
