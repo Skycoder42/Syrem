@@ -4,6 +4,7 @@
 #include <QtMvvmCore/ServiceRegistry>
 #include <QTranslator>
 #include <QLibraryInfo>
+#include <QStandardPaths>
 
 #include "schedule.h"
 #include "dateparser.h"
@@ -35,12 +36,19 @@ void Syrem::prepareTranslations(const QString &tsName)
 
 void Syrem::setup(QtDataSync::Setup &setup)
 {
+#ifdef FLATPAK_BUILD
+	const QString roPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QLatin1Char('/');
+#elif defined(Q_OS_LINUX)
+	const QString roPath = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) + QLatin1Char('/');
+#else
+	const QString roPath;
+#endif
 #ifdef QT_NO_DEBUG
-	setup.setRemoteObjectHost(QStringLiteral("local:de.skycoder42.syrem.daemon"))
+	setup.setRemoteObjectHost(QStringLiteral("local:%1de.skycoder42.syrem.daemon").arg(roPath))
 			.setRemoteConfiguration({QStringLiteral("wss://apps.skycoder42.de/datasync/")});
 #else
 	setup.setLocalDir(QStringLiteral(".debug"))
-			.setRemoteObjectHost(QStringLiteral("local:de.skycoder42.syrem.daemon.debug"))
+			.setRemoteObjectHost(QStringLiteral("local:%1de.skycoder42.syrem.daemon.debug").arg(roPath))
 			.setRemoteConfiguration({QStringLiteral("ws://localhost:14242")});
 #endif
 	setup.setSyncPolicy(QtDataSync::Setup::PreferDeleted)

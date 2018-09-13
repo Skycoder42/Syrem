@@ -11,7 +11,8 @@
 		"--socket=wayland",
 		"--share=network",
 		"--talk-name=org.kde.kwalletd5",
-		"--talk-name=org.freedesktop.Secret.Service"
+		"--talk-name=org.freedesktop.Secret.Service",
+        "--talk-name=org.freedesktop.secrets"
 	],
 	"build-options": {
 		"env": {
@@ -27,6 +28,7 @@
 		"modules/qtjsonserializer.json",
 		"modules/qpmx/qpmx.json",
 		"modules/cryptopp.json",
+		"modules/libsecret.json",
 		"modules/qtservice.json",
 		"modules/qtdatasync.json",
 		"modules/python.json",
@@ -46,13 +48,20 @@
 				"CONFIG+=no_systemd",
 				"CONFIG+=no_auto_lupdate",
 				"CONFIG+=auto_lrelease",
-				"DEFINES+=force_standard_keystore"
+				"DEFINES+=FLATPAK_BUILD"
 			],
 			"sources": [
 				{
 					"type": "dir",
 					"path": ".."
+				},
+				{
+					"type": "file",
+					"path": "de.skycoder42.syrem.service.desktop"
 				}
+			],
+			"post-install": [
+				"install -D -m 644 de.skycoder42.syrem.service.desktop /app/share/applications/de.skycoder42.syrem.service.desktop"
 			],
 			"cleanup": [
 				"/.qpmx",
