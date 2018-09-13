@@ -386,7 +386,7 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../../build-Syrem-Desktop_Qt_5_11_1_GCC_64bit-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
+        <location filename="../../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>

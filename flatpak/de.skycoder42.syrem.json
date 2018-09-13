@@ -33,6 +33,7 @@
 		"modules/qtdatasync.json",
 		"modules/python.json",
 		"modules/qtmvvm.json",
+		"modules/qttranslations.json",
 
 		{
 			"name": "syrem",
@@ -58,10 +59,15 @@
 				{
 					"type": "file",
 					"path": "de.skycoder42.syrem.service.desktop"
+				},
+				{
+					"type": "file",
+					"path": "qt.conf"
 				}
 			],
 			"post-install": [
-				"install -D -m 644 de.skycoder42.syrem.service.desktop /app/share/applications/de.skycoder42.syrem.service.desktop"
+				"install -D -m 644 de.skycoder42.syrem.service.desktop /app/share/applications/de.skycoder42.syrem.service.desktop",
+				"install -D -m 644 qt.conf /app/bin/qt.conf"
 			],
 			"cleanup": [
 				"/.qpmx",
