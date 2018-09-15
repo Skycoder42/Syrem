@@ -102,6 +102,31 @@
     </message>
 </context>
 <context>
+    <name>SyremDaemon</name>
+    <message>
+        <location filename="syremdaemon.cpp" line="+104"/>
+        <source>Syrem-Service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The Background-Service for Syrem</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-13"/>
+        <location line="+37"/>
+        <source>Autostart disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-36"/>
+        <location line="+37"/>
+        <source>Failed to enabled autostart of the syrem service! Please enable it yourself</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TermSelectionDialog</name>
     <message>
         <location filename="../../gui/widgets/termselectiondialog.ui" line="+14"/>

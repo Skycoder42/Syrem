@@ -7,6 +7,7 @@ RC_ICONS += ../../icon/syrem.ico
 ICON = ../../icon/syrem.icns
 
 QT += widgets mvvmcore mvvmwidgets core-private
+systemd_service: QT += service
 
 !no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
 
@@ -60,7 +61,7 @@ DISTFILES += \
 # install
 include(../../install.pri)
 
-linux:!no_systemd {
+systemd_service {
 	create_service.target = syrem.service
 	create_service.depends += $$PWD/syrem.service.in
 	create_service.commands += sed "s:%{INSTALL_BINS}:$$INSTALL_BINS:g" $$PWD/syrem.service.in > syrem.service

@@ -12,4 +12,4 @@ else:win32:CONFIG(debug, debug|release): INCLUDEPATH += $$SYREMLIB_DIR/debug
 DEPENDPATH += $$PWD/lib
 
 # enable systemd builds
-linux:!android:!no_systemd: DEFINES += USE_SYSTEMD_SERVICE
+systemd_service: DEFINES += USE_SYSTEMD_SERVICE
