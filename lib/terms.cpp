@@ -56,6 +56,26 @@ QString TimeTerm::describe() const
 	return QLocale().toString(_time, tr("hh:mm"));
 }
 
+std::pair<QString, QString> TimeTerm::syntax(bool asLoop)
+{
+	if(asLoop)
+		return {};
+	else {
+		const auto prefix = trList(TimePrefix, false, false);
+		const auto suffix = trList(TimeSuffix, false, false);
+		return {
+			tr("time"),
+			tr("%1 {0..24}[:{0..60}] %2 (and other similar time-formats)")
+					.arg(prefix.isEmpty() ?
+							 QString{} :
+							 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+						 suffix.isEmpty() ?
+							 QString{} :
+							 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+		};
+	}
+}
+
 QString TimeTerm::toRegex(QString pattern)
 {
 	const QLocale locale;
@@ -174,6 +194,29 @@ void DateTerm::fixup(QDateTime &datetime) const
 QString DateTerm::describe() const
 {
 	return QLocale().toString(_date, scope.testFlag(Year) ?  tr("yyyy-MM-dd") : tr("MM-dd"));
+}
+
+std::pair<QString, QString> DateTerm::syntax(bool asLoop)
+{
+	QStringList prefix;
+	QStringList suffix;
+	if(asLoop) {
+		prefix = trList(DateLoopPrefix, false, false);
+		suffix = trList(DateLoopSuffix, false, false);
+	} else {
+		prefix = trList(DatePrefix, false, false);
+		suffix = trList(DateSuffix, false, false);
+	}
+	return {
+		tr("date"),
+		tr("%1 {1..31}.{1..12}.[<year>] %2 (and other similar date-formats)")
+				.arg(prefix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+					 suffix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+	};
 }
 
 QString DateTerm::toRegex(QString pattern, bool &hasYear)
@@ -295,6 +338,26 @@ QString InvertedTimeTerm::describe() const
 	return QLocale().toString(_time, tr("hh:mm"));
 }
 
+std::pair<QString, QString> InvertedTimeTerm::syntax(bool asLoop)
+{
+	if(asLoop)
+		return {};
+	else {
+		const auto prefix = trList(TimePrefix, false, false);
+		const auto suffix = trList(TimeSuffix, false, false);
+		return {
+			tr("time"),
+			tr("%1 {half|quarter|0..60} past|to {0..24} %2")
+					.arg(prefix.isEmpty() ?
+							 QString{} :
+							 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+						 suffix.isEmpty() ?
+							 QString{} :
+							 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+		};
+	}
+}
+
 QString InvertedTimeTerm::hourToRegex(QString pattern)
 {
 	const QLocale locale;
@@ -402,6 +465,29 @@ void MonthDayTerm::fixup(QDateTime &datetime) const
 QString MonthDayTerm::describe() const
 {
 	return tr("%1.").arg(_day);
+}
+
+std::pair<QString, QString> MonthDayTerm::syntax(bool asLoop)
+{
+	QStringList prefix;
+	QStringList suffix;
+	if(asLoop) {
+		prefix = trList(MonthDayLoopPrefix, false, false);
+		suffix = trList(MonthDayLoopSuffix, false, false);
+	} else {
+		prefix = trList(MonthDayPrefix, false, false);
+		suffix = trList(MonthDaySuffix, false, false);
+	}
+	return {
+		tr("day"),
+		tr("%1 {1..31}{.|th|st|nd|rd} %2")
+				.arg(prefix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+					 suffix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+	};
 }
 
 
@@ -521,6 +607,29 @@ QString WeekDayTerm::describe() const
 	return QLocale().standaloneDayName(_weekDay, QLocale::LongFormat);
 }
 
+std::pair<QString, QString> WeekDayTerm::syntax(bool asLoop)
+{
+	QStringList prefix;
+	QStringList suffix;
+	if(asLoop) {
+		prefix = trList(WeekDayLoopPrefix, false, false);
+		suffix = trList(WeekDayLoopSuffix, false, false);
+	} else {
+		prefix = trList(WeekDayPrefix, false, false);
+		suffix = trList(WeekDaySuffix, false, false);
+	}
+	return {
+		tr("weekday"),
+		tr("%1 {Mon[day]..Sun[day]} %2")
+				.arg(prefix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+					 suffix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+	};
+}
+
 
 
 MonthTerm::MonthTerm(int month, bool looped) :
@@ -622,6 +731,29 @@ QString MonthTerm::describe() const
 	return QLocale().standaloneMonthName(_month, QLocale::LongFormat);
 }
 
+std::pair<QString, QString> MonthTerm::syntax(bool asLoop)
+{
+	QStringList prefix;
+	QStringList suffix;
+	if(asLoop) {
+		prefix = trList(MonthLoopPrefix, false, false);
+		suffix = trList(MonthLoopSuffix, false, false);
+	} else {
+		prefix = trList(MonthPrefix, false, false);
+		suffix = trList(MonthSuffix, false, false);
+	}
+	return {
+		tr("month"),
+		tr("%1 {Jan[uary]..Dec[ember]} %2")
+				.arg(prefix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+					 suffix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+	};
+}
+
 
 
 YearTerm::YearTerm(int year) :
@@ -668,6 +800,26 @@ void YearTerm::apply(QDateTime &datetime, bool applyFenced) const
 QString YearTerm::describe() const
 {
 	return QStringLiteral("%1").arg(_year, 4, 10, QLatin1Char('0'));
+}
+
+std::pair<QString, QString> YearTerm::syntax(bool asLoop)
+{
+	if(asLoop)
+		return {};
+	else {
+		const auto prefix = trList(YearPrefix, false, false);
+		const auto suffix = trList(YearSuffix, false, false);
+		return {
+			tr("year"),
+			tr("%1 {<4-digit-number>} %2")
+					.arg(prefix.isEmpty() ?
+							 QString{} :
+							 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+						 suffix.isEmpty() ?
+							 QString{} :
+							 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+		};
+	}
 }
 
 
@@ -856,6 +1008,26 @@ QString SequenceTerm::describe() const
 	return tr("in %1").arg(subTerms.join(QStringLiteral(", ")));
 }
 
+std::pair<QString, QString> SequenceTerm::syntax(bool asLoop)
+{
+	QStringList prefix;
+	const auto suffix = trList(SpanSuffix, false, false);
+	if(asLoop)
+		prefix = trList(SpanLoopPrefix, false, false);
+	else
+		prefix = trList(SpanPrefix, false, false);
+	return {
+		tr("span"),
+		tr("%1 [<number>] {min[utes]|hours|days|weeks|months|years} %2")
+				.arg(prefix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(prefix.join(QLatin1Char('|'))),
+					 suffix.isEmpty() ?
+						 QString{} :
+						 QStringLiteral("[%1]").arg(suffix.join(QLatin1Char('|'))))
+	};
+}
+
 QMap<QString, int> SequenceTerm::getSequence() const
 {
 	QMap<QString, int> res;
@@ -918,6 +1090,18 @@ void KeywordTerm::apply(QDateTime &datetime, bool applyFenced) const
 QString KeywordTerm::describe() const
 {
 	return tr("in %n day(s)", "", _days);
+}
+
+std::pair<QString, QString> KeywordTerm::syntax(bool asLoop)
+{
+	if(asLoop)
+		return {};
+	else {
+		return {
+			tr("keyword"),
+			tr("{today|tomorrow}")
+		};
+	}
 }
 
 

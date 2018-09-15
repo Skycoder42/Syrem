@@ -70,7 +70,9 @@ public:
 	static std::pair<QSharedPointer<TimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool keepOffset) const override;
 	void fixup(QDateTime &datetime) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
 	QTime _time;
@@ -89,7 +91,9 @@ public:
 	static std::pair<QSharedPointer<DateTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
 	QDate _date;
@@ -108,7 +112,9 @@ public:
 	static std::pair<QSharedPointer<InvertedTimeTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
 	QTime _time;
@@ -128,10 +134,12 @@ public:
 	static std::pair<QSharedPointer<MonthDayTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
-	int _day;
+	int _day = 1;
 };
 
 class LIB_SYREM_EXPORT WeekDayTerm : public SubTerm
@@ -146,10 +154,12 @@ public:
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
 	void fixupCleanup(QDateTime &datetime) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
-	int _weekDay;
+	int _weekDay = Qt::Monday;
 };
 
 class LIB_SYREM_EXPORT MonthTerm : public SubTerm
@@ -163,10 +173,12 @@ public:
 	static std::pair<QSharedPointer<MonthTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
 	void fixup(QDateTime &datetime) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
-	int _month;
+	int _month = 1;
 };
 
 class LIB_SYREM_EXPORT YearTerm : public SubTerm
@@ -179,10 +191,12 @@ public:
 	Q_INVOKABLE explicit YearTerm(QObject *parent);
 	static std::pair<QSharedPointer<YearTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
-	int _year;
+	int _year = 0;
 };
 
 class LIB_SYREM_EXPORT SequenceTerm : public SubTerm
@@ -222,7 +236,9 @@ public:
 	Q_INVOKABLE explicit SequenceTerm(QObject *parent);
 	static std::pair<QSharedPointer<SequenceTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
 	Sequence _sequence;
@@ -240,10 +256,12 @@ public:
 	Q_INVOKABLE explicit KeywordTerm(QObject *parent);
 	static std::pair<QSharedPointer<KeywordTerm>, int> parse(const QStringRef &expression);
 	void apply(QDateTime &datetime, bool applyFenced) const override;
+
 	QString describe() const override;
+	static std::pair<QString, QString> syntax(bool asLoop);
 
 private:
-	int _days;
+	int _days = 0;
 
 };
 

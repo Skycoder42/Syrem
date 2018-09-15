@@ -14,7 +14,7 @@ namespace { //NOTE remove once fixed
 class BugModel : public QtDataSync::DataStoreModel
 {
 public:
-	inline BugModel(QObject *parent) :
+	explicit inline BugModel(QObject *parent) :
 		DataStoreModel{parent}
 	{}
 

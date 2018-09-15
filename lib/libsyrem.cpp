@@ -17,6 +17,23 @@
 
 #include <syncedsettings.h>
 
+namespace {
+
+template <typename TTerm>
+void addColumn(QStringList &singleList, QStringList &loopList) {
+	using tpr = std::pair<QStringList&, bool>;
+	for(auto target : {tpr{singleList, false}, tpr{loopList, true}}) {
+		auto info = TTerm::syntax(target.second);
+		if(!info.first.isNull()) {
+			target.first.append(QStringLiteral("<tr><td>%1</td><td>:= %2</td></tr>")
+						.arg(info.first.toHtmlEscaped(),
+							 info.second.toHtmlEscaped()));
+		}
+	}
+}
+
+}
+
 void Syrem::prepareTranslations(const QString &tsName)
 {
 	//load translations
@@ -58,74 +75,73 @@ void Syrem::setup(QtDataSync::Setup &setup)
 
 QString Syrem::whenExpressionHelp()
 {
+	QStringList singularTable;
+	QStringList loopTable;
+	addColumn<Expressions::TimeTerm>(singularTable, loopTable);
+	addColumn<Expressions::DateTerm>(singularTable, loopTable);
+	addColumn<Expressions::InvertedTimeTerm>(singularTable, loopTable);
+	addColumn<Expressions::MonthDayTerm>(singularTable, loopTable);
+	addColumn<Expressions::WeekDayTerm>(singularTable, loopTable);
+	addColumn<Expressions::MonthTerm>(singularTable, loopTable);
+	addColumn<Expressions::YearTerm>(singularTable, loopTable);
+	addColumn<Expressions::SequenceTerm>(singularTable, loopTable);
+	addColumn<Expressions::KeywordTerm>(singularTable, loopTable);
+	addColumn<Expressions::YearTerm>(singularTable, loopTable);
+	addColumn<Expressions::YearTerm>(singularTable, loopTable);
 	return QCoreApplication::translate("Syrem",
-									   "<p><u>Syntax Specification:</u></p>"
-									   "<p>You can enter an <i>&lt;expression&gt;</i> to define timepoints to remind you. An expression can be: </p>"
-									   "<p><table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" cellspacing=\"2\" cellpadding=\"0\">"
-									   " <tr>"
-									   "  <td><b>conjuction </b></td>"
-									   "  <td>:= <i>&lt;expression&gt; ; &lt;expression&gt; [; &lt;expression&gt; …]</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>timespan </span></td>"
-									   "  <td>:= <i>in &lt;sequence&gt; [on|at|in &lt;datum&gt;] [&lt;time&gt;]</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>loop </b></td>"
-									   "  <td>:= <i>every &lt;type&gt; [on|at|in &lt;datum&gt;] [&lt;time&gt;] [from [&lt;tpoint&gt;] [&lt;time&gt;]] [until [&lt;tpoint&gt;] [&lt;time&gt;]]</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>point </b></td>"
-									   "  <td>:= <i>[[on|next] &lt;tpoint&gt;] [&lt;time&gt;]</i></td>"
-									   " </tr>"
-									   "</table></p>"
-									   "<p><u>Basic Types:</u><br/>"
-									   "The specifications above make use of a bunch of basic types. These types are: </p>"
-									   "<p><table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" cellspacing=\"2\" cellpadding=\"0\">"
-									   " <tr>"
-									   "  <td><b>datum </b></td>"
-									   "  <td>:= <i>&lt;weekday&gt; | &lt;day&gt; | &lt;month&gt; | &lt;mday&gt;</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>sequence </b></td>"
-									   "  <td>:= <i>{int} &lt;span&gt; [and {int} &lt;span&gt; …]</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>type </b></td>"
-									   "  <td>:= <i>&lt;datum&gt; | &lt;sequence&gt;</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>tpoint </b></td>"
-									   "  <td>:= <i>&lt;date&gt; | &lt;datum&gt; | &lt;year&gt; | &lt;ahead&gt;</i></td>"
-									   " </tr>"
-									   "</table></p>"
-									   "<p><table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" cellspacing=\"2\" cellpadding=\"0\">"
-									   " <tr>"
-									   "  <td><b>time </b></td>"
-									   "  <td>:= <i>[at] {hh[:mm]} | {hh] oclock</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>date </b></td>"
-									   "  <td>:= <i>{dd-MM-yyyy}</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>weekday </b></td>"
-									   "  <td>:= <i>{Monday..Sunday}</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>day </b></td>"
-									   "  <td>:= <i>{01..31}.</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>month </b></td>"
-									   "  <td>:= <i>{01..12} | {Janurary..December}</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>year </b></td>"
-									   "  <td>:= <i>yyyy</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>mday </b></td>"
-									   "  <td>:= <i>{dd-MM}</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>span </b></td>"
-									   "  <td>:= <i>minute | hour | day | week | month | year</i></td>"
-									   " </tr><tr>"
-									   "  <td><b>ahead </b></td>"
-									   "  <td>:= <i>tomorrow | today</i></td>"
-									   " </tr>"
-									   "</table></p>"
-									   "<p><u>Custom Formats:</u><br/>"
-									   "For many of the formats above, you can customize the keywords to be used in the settings. For the &lt;date&gt; and &lt;mday&gt; formats, "
-									   "you can even define custom formats to be accepted. Check the settings for details on those formats.</p>");
+									   "<h2>Reminder creation help</h2>"
+									   "<p>"
+									   "	Use the \"when\" field to enter an expression describen when you want to be reminded."
+									   "	The app is able to understand common expressions like \"in 3 hours\" or \"in April on the 24th\"."
+									   "	The specification below can be used to get an overview of all the possible terms you can enter."
+									   "</p><p>"
+									   "	<span style=\"text-decoration: underline;\">Pro Tip:</span> "
+									   "	If you're unsure if what you enter is correct and correctly understood, "
+									   "	you can enable syntax verification in the settings to let the app tell you how it understood what you entered."
+									   "</p><p>"
+									   "	<h3>Syntax Specification</h3>"
+									   "</p><p>"
+									   "	Expressions are typically made up of multiple subterms, e.g. \"in April on the 24th\" consits of the subterm \"in April\" and \"on the 24th\"."
+									   "	Generally speaking, you can combine any of the supported subterms in any order to create expressions, as long as they are still logical."
+									   "	For example, \"at 15:00 in 3 hours\" is not possible, as the two subterms conflict each other."
+									   "</p><p>"
+									   "	<h4>Possible Subterms</h4>"
+									   "</p><p>"
+									   "	The following syntaxes are the different subterms available."
+									   "	The first table shows all singular expressions, i.e. expression that when evaluted result in a single occurence."
+									   "<table><tbody>"
+									   "	%1"
+									   "</tbody></table>"
+									   "</p><p>"
+									   "	The next table shows expressions for repeated events."
+									   "	Please note that all repeated expression are by default \"infinitely\", i.e. they repeat until all eternity or until they get manually deleted by you."
+									   "	However, you can use so called limiter expression to specifiy a range for the to occur."
+									   "	The syntax is:&nbsp;<em>{loop-term} [from {limiter-term}] [until|to {limiter-term}]</em>."
+									   "	Limiter-terms are just like any normal expression you would enter, but the can't be looped."
+									   "	You can specify any limiter in any order. The loop-term is one of the terms from below:"
+									   "<table><tbody>"
+									   "	%2"
+									   "</tbody></table>"
+									   "</p><p>"
+									   "	<h4>Logical restrains</h4>"
+									   "</p><p>"
+									   "	While generally speaking, you can combine those terms in any order, as long as they don't conflict each other, there are a few further restrains, "
+									   "	some of logical and some of technical origin. They are listed below:"
+									   "<ul>"
+									   "	<li>There can only be a single loop term per expression</li>"
+									   "	<li>Limiters must be unique and \"until\" in the future of \"from\"</li>"
+									   "	<li>There can only be a single timespan per expression</li>"
+									   "	<li>That timespan must have the greatest scope</li>"
+									   "	<li>Limiters cannot be smaller than the scope of the loop expressions fence</li>"
+									   "	<li>All expression must evaluate to the future</li>"
+									   "	<li>Loops must have at least one valid occurence</li>"
+									   "</ul>"
+									   "</p><p>"
+									   "	<h3>Examples</h3>"
+									   "</p><p>"
+									   "	<em>&lt;Coming soon...&gt;</em>"
+									   "</p>")
+			.arg(singularTable.join(QString{}), loopTable.join(QString{}));
 }
 
 namespace {
