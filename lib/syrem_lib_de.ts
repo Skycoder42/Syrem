@@ -568,12 +568,12 @@
     <message>
         <location line="+15"/>
         <source>date</source>
-        <translation type="unfinished"></translation>
+        <translation>Datum</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {1..31}.{1..12}.[&lt;year&gt;] %2 (and other similar date-formats)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {1..31}.{1..12}.[&lt;Jahr&gt;] %2 (und andere, ähnliche Datums-Formate)</translation>
     </message>
 </context>
 <context>
@@ -586,12 +586,12 @@
     <message>
         <location line="+11"/>
         <source>time</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {half|quarter|0..60} past|to {0..24} %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {halb|viertel|0..60} vor|nach {0..24} %2</translation>
     </message>
 </context>
 <context>
@@ -607,12 +607,12 @@
     <message>
         <location line="+9"/>
         <source>keyword</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüsselwort</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>{today|tomorrow}</source>
-        <translation type="unfinished"></translation>
+        <translation>{Heute|Morgen}</translation>
     </message>
 </context>
 <context>
@@ -626,12 +626,12 @@
         <location line="+15"/>
         <source>day</source>
         <oldsource>date</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Tag</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {1..31}{.|th|st|nd|rd} %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {1..31}. %2</translation>
     </message>
 </context>
 <context>
@@ -639,12 +639,12 @@
     <message>
         <location line="+263"/>
         <source>month</source>
-        <translation type="unfinished"></translation>
+        <translation>Monat</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {Jan[uary]..Dec[ember]} %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {Jan[uar]..Dez[ember]} %2</translation>
     </message>
 </context>
 <context>
@@ -705,12 +705,12 @@
     <message>
         <location line="+12"/>
         <source>span</source>
-        <translation type="unfinished"></translation>
+        <translation>Spanne</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 [&lt;number&gt;] {min[utes]|hours|days|weeks|months|years} %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 [&lt;Zahl&gt;] {Min[uten]|Stunden|Tage|Wochen|Monate|Jahre} %2</translation>
     </message>
 </context>
 <context>
@@ -723,12 +723,12 @@
     <message>
         <location line="+11"/>
         <source>time</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {0..24}[:{0..60}] %2 (and other similar time-formats)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {0..24}[:{0..60}] %2 (und andere, ähnliche Zeit-Formate)</translation>
     </message>
 </context>
 <context>
@@ -736,12 +736,12 @@
     <message>
         <location line="+554"/>
         <source>weekday</source>
-        <translation type="unfinished"></translation>
+        <translation>Wochentag</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {Mon[day]..Sun[day]} %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {Mo[ntag]..So[nntag]} %2</translation>
     </message>
 </context>
 <context>
@@ -749,12 +749,12 @@
     <message>
         <location line="+190"/>
         <source>year</source>
-        <translation type="unfinished"></translation>
+        <translation>Jahr</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>%1 {&lt;4-digit-number&gt;} %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 {&lt;4-Ziffern-Zahl&gt;} %2</translation>
     </message>
 </context>
 <context>
@@ -770,7 +770,29 @@
         <location filename="libsyrem.cpp" line="+91"/>
         <source>&lt;h2&gt;Reminder creation help&lt;/h2&gt;&lt;p&gt;	Use the &quot;when&quot; field to enter an expression describen when you want to be reminded.	The app is able to understand common expressions like &quot;in 3 hours&quot; or &quot;in April on the 24th&quot;.	The specification below can be used to get an overview of all the possible terms you can enter.&lt;/p&gt;&lt;p&gt;	&lt;span style=&quot;text-decoration: underline;&quot;&gt;Pro Tip:&lt;/span&gt; 	If you&apos;re unsure if what you enter is correct and correctly understood, 	you can enable syntax verification in the settings to let the app tell you how it understood what you entered.&lt;/p&gt;&lt;p&gt;	&lt;h3&gt;Syntax Specification&lt;/h3&gt;&lt;/p&gt;&lt;p&gt;	Expressions are typically made up of multiple subterms, e.g. &quot;in April on the 24th&quot; consits of the subterm &quot;in April&quot; and &quot;on the 24th&quot;.	Generally speaking, you can combine any of the supported subterms in any order to create expressions, as long as they are still logical.	For example, &quot;at 15:00 in 3 hours&quot; is not possible, as the two subterms conflict each other.&lt;/p&gt;&lt;p&gt;	&lt;h4&gt;Possible Subterms&lt;/h4&gt;&lt;/p&gt;&lt;p&gt;	The following syntaxes are the different subterms available.	The first table shows all singular expressions, i.e. expression that when evaluted result in a single occurence.&lt;table&gt;&lt;tbody&gt;	%1&lt;/tbody&gt;&lt;/table&gt;&lt;/p&gt;&lt;p&gt;	The next table shows expressions for repeated events.	Please note that all repeated expression are by default &quot;infinitely&quot;, i.e. they repeat until all eternity or until they get manually deleted by you.	However, you can use so called limiter expression to specifiy a range for the to occur.	The syntax is:&amp;nbsp;&lt;em&gt;{loop-term} [from {limiter-term}] [until|to {limiter-term}]&lt;/em&gt;.	Limiter-terms are just like any normal expression you would enter, but the can&apos;t be looped.	You can specify any limiter in any order. The loop-term is one of the terms from below:&lt;table&gt;&lt;tbody&gt;	%2&lt;/tbody&gt;&lt;/table&gt;&lt;/p&gt;&lt;p&gt;	&lt;h4&gt;Logical restrains&lt;/h4&gt;&lt;/p&gt;&lt;p&gt;	While generally speaking, you can combine those terms in any order, as long as they don&apos;t conflict each other, there are a few further restrains, 	some of logical and some of technical origin. They are listed below:&lt;ul&gt;	&lt;li&gt;There can only be a single loop term per expression&lt;/li&gt;	&lt;li&gt;Limiters must be unique and &quot;until&quot; in the future of &quot;from&quot;&lt;/li&gt;	&lt;li&gt;There can only be a single timespan per expression&lt;/li&gt;	&lt;li&gt;That timespan must have the greatest scope&lt;/li&gt;	&lt;li&gt;Limiters cannot be smaller than the scope of the loop expressions fence&lt;/li&gt;	&lt;li&gt;All expression must evaluate to the future&lt;/li&gt;	&lt;li&gt;Loops must have at least one valid occurence&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;p&gt;	&lt;h3&gt;Examples&lt;/h3&gt;&lt;/p&gt;&lt;p&gt;	&lt;em&gt;&amp;lt;Coming soon...&amp;gt;&lt;/em&gt;&lt;/p&gt;</source>
         <oldsource>&lt;p&gt;	Use the &quot;when&quot; field to enter an expression describen when you want to be reminded.	The app is able to understand common expressions like &quot;in 3 hours&quot; or &quot;in April on the 24th&quot;.	The specification below can be used to get an overview of all the possible terms you can enter.&lt;/p&gt;&lt;p&gt;	&lt;span style=&quot;text-decoration: underline;&quot;&gt;Pro Tip:&lt;/span&gt; 	If you&apos;re unsure if what you enter is correct and correctly understood, 	you can enable syntax verification in the settings to let the app tell you how it understood what you entered.&lt;/p&gt;&lt;p&gt;	&lt;strong&gt;&lt;span style=&quot;text-decoration: underline;&quot;&gt;Syntax Specification&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;	Expressions are typically made up of multiple subterms, e.g. &quot;in April on the 24th&quot; consits of the subterm &quot;in April&quot; and &quot;on the 24th&quot;.	Generally speaking, you can combine any of the supported subterms in any order to create expressions, as long as they are still logical.	For example, &quot;at 15:00 in 3 hours&quot; is not possible, as the two subterms conflict each other.&lt;/p&gt;&lt;p&gt;	&lt;strong&gt;Possible Subterms&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;	The following syntaxes are the different subterms available.	The first table shows all singular expressions, i.e. expression that when evaluted result in a single occurence.&lt;table&gt;&lt;tbody&gt;	%1&lt;/tbody&gt;&lt;/table&gt;&lt;/p&gt;&lt;p&gt;	The next table shows expressions for repeated events.	Please note that all repeated expression are by default &quot;infinitely&quot;, i.e. they repeat until all eternity or until they get manually deleted by you.	However, you can use so called limiter expression to specifiy a range for the to occur.	The syntax is:&amp;nbsp;&lt;em&gt;{loop-term} [from {limiter-term}] [until|to {limiter-term}]&lt;/em&gt;.	Limiter-terms are just like any normal expression you would enter, but the can&apos;t be looped.	You can specify any limiter in any order. The loop-term is one of the terms from below:&lt;table&gt;&lt;tbody&gt;	%2&lt;/tbody&gt;&lt;/table&gt;&lt;/p&gt;&lt;p&gt;	&lt;strong&gt;Logical restrains&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;	While generally speaking, you can combine those terms in any order, as long as they don&apos;t conflict each other, there are a few further restrains, 	some of logical and some of technical origin. They are listed below:&lt;ul&gt;	&lt;li&gt;There can only be a single loop term per expression&lt;/li&gt;	&lt;li&gt;Limiters must be unique and &quot;until&quot; in the future of &quot;from&quot;&lt;/li&gt;	&lt;li&gt;There can only be a single timespan per expression&lt;/li&gt;	&lt;li&gt;That timespan must have the greatest scope&lt;/li&gt;	&lt;li&gt;Limiters cannot be smaller than the scope of the loop expressions fence&lt;/li&gt;	&lt;li&gt;All expression must evaluate to the future&lt;/li&gt;	&lt;li&gt;Loops must have at least one valid occurence&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;p&gt;	&lt;span style=&quot;text-decoration: underline;&quot;&gt;&lt;strong&gt;Examples&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;	&lt;em&gt;&amp;lt;Coming soon...&amp;gt;&lt;/em&gt;&lt;/p&gt;</oldsource>
-        <translation type="unfinished">&lt;p&gt;&lt;u&gt;Syntax Spezifikation:&lt;/u&gt;&lt;/p&gt;&lt;p&gt;Sie können einen &lt;i&gt;&amp;lt;Ausdruck&amp;gt;&lt;/i&gt; angeben um Zeitpunkte zu definieren an denen die Erinnerung ausgelöst werden soll. Ein solcher Ausdruck kann sein: &lt;/p&gt;&lt;p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt; &lt;tr&gt;  &lt;td&gt;&lt;b&gt;Verundung &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;&amp;lt;Ausdruck&amp;gt; ; &amp;lt;Ausdruck&amp;gt; [; &amp;lt;Ausdruck&amp;gt; …]&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Zeitspanne &lt;/span&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;in &amp;lt;Sequenz&amp;gt; [am|in|im &amp;lt;Datum&amp;gt;] [&amp;lt;Zeit&amp;gt;]&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Schleife &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;alle &amp;lt;Typ&amp;gt; [am|in|im &amp;lt;Datum&amp;gt;] [&amp;lt;Zeit&amp;gt;] [vom [&amp;lt;Zeitpunkt&amp;gt;] [&amp;lt;Zeit&amp;gt;]] [bis [&amp;lt;Zeitpunkt&amp;gt;] [&amp;lt;Zeit&amp;gt;]]&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Punkt &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;[[am|nächsten] &amp;lt;Zeitpunkt&amp;gt;] [&amp;lt;Zeit&amp;gt;]&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;&lt;p&gt;&lt;u&gt;Basis-Typen:&lt;/u&gt;&lt;br/&gt;Die obige Spezifikation macht Nutzen von einer Reihe von Basistypen. Dieses sind definiert als: &lt;/p&gt;&lt;p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt; &lt;tr&gt;  &lt;td&gt;&lt;b&gt;Datum &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;&amp;lt;Wochentag&amp;gt; | &amp;lt;Tag&amp;gt; | &amp;lt;Monat&amp;gt; | &amp;lt;Monatstag&amp;gt;&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Sequenz &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;{Zahl} &amp;lt;Spanne&amp;gt; [und {Zahl} &amp;lt;Spanne&amp;gt; …]&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Typ &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;&amp;lt;Datum&amp;gt; | &amp;lt;Sequenz&amp;gt;&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Zeitpunkt &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;&amp;lt;Tagesdatum&amp;gt; | &amp;lt;Datum&amp;gt; | &amp;lt;Jahr&amp;gt; | &amp;lt;Bald&amp;gt;&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;&lt;p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt; &lt;tr&gt;  &lt;td&gt;&lt;b&gt;Zeit &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;[um] {hh:mm}]&lt;/i&gt; (Sowie andere typische Zeitformate)&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Tagesdatum &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;{dd-MM-yyyy}&lt;/i&gt; (Sowie andere typische Datumsformate)&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Wochentag &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;{Montag..Sonntag}&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Tag &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;{01..31}.&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Monat &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;{01..12} | {Januar..Dezember}&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Jahr &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;yyyy&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Monatstag &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;{dd-MM}&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Spanne &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;Minute | Stunde | Tag | Woche | Monat | Jahr&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;tr&gt;  &lt;td&gt;&lt;b&gt;Bald &lt;/b&gt;&lt;/td&gt;  &lt;td&gt;:= &lt;i&gt;Morgen | Heute&lt;/i&gt;&lt;/td&gt; &lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;h2&gt;Hilfe f&amp;uuml;r Erinnerungen&lt;/h2&gt;
+&lt;p&gt;Benutzen Sie das &quot;Wann&quot; Feld, um einen Ausdruck anzugeben, wann Sie erinnert werden m&amp;ouml;chten. Die App ist in der Lage, Ausdr&amp;uuml;cke wie &quot;in 3 Stunden&quot; oder &quot;Im April am 24.&quot; zu verstehen. Die unten angegebene Spezifikation gibt au&amp;szlig;erdem eine &amp;Uuml;bersicht &amp;uuml;ber die verschiedenen Asdr&amp;uuml;cke, die unterst&amp;uuml;tzt werden.&lt;/p&gt;
+&lt;p&gt;&lt;span style=&quot;text-decoration: underline;&quot;&gt;Pro Tipp:&lt;/span&gt;&amp;nbsp;Falls Sie sich unsicher sind, ob das was Sie eingegeben haben korrekt verstanden wurde, k&amp;ouml;nnen Sie in den Einstellungen Syntax-Verfikation aktivieren, sodass die App Ihnen mitteilt, was tats&amp;auml;chlich verstanden wurde.&lt;/p&gt;
+&lt;h3&gt;Syntax Spezifikation&lt;/h3&gt;
+&lt;p&gt;Ausdr&amp;uuml;cke bestehen typischerweise aus mehrere Unterausdr&amp;uuml;cken. &quot;Im April am 24.&quot; bestehet beispielsweise aus den Unterausdr&amp;uuml;cken &quot;im April&quot; und &quot;am 24.&quot;. Generell k&amp;ouml;nnen alle der unterst&amp;uuml;tzten Unterausdr&amp;uuml;cke auf bieliebige Weise kombiniert werden, solange das Ergebnis logisch bleibt. Ein Ausdruck wie &quot;um 15:00 in 3 Stunden&quot; ist beispielsweise nicht m&amp;ouml;glich, da die beiden Unterausdr&amp;uuml;cke im Konflikt stehen.&lt;/p&gt;
+&lt;h4&gt;M&amp;ouml;gliche Unterausdr&amp;uuml;cke&lt;/h4&gt;
+&lt;p&gt;Die folgenden Syntaxen entsprechend den m&amp;ouml;glichen Unterausdr&amp;uuml;cken. Die erste Tabelle zeigt dazu alle Ausdr&amp;uuml;cke, die zu einzelnen Zeitpunkten f&amp;uuml;hren.&lt;/p&gt;
+&lt;table&gt;&lt;tbody&gt;	%1&lt;/tbody&gt;&lt;/table&gt;
+&lt;p&gt;Die n&amp;auml;chste Tabelle zeigt Ausdr&amp;uuml;cke f&amp;uuml;r wiederholte Ereignisse. Alle diese Asdr&amp;uuml;cke wiederholen sich prinzipiell &quot;unendlich&quot;, werden also wiederholt bis sie manuell gel&amp;ouml;scht werden. Um einen zeitlich begrenzten Bereich f&amp;uuml;r diese festzulegen, k&amp;ouml;nnen so genannte &quot;Begrenzer-Ausdr&amp;uuml;cke&quot; verwendet werden. Deren Syntax ist:&amp;nbsp;&lt;em&gt;{loop-term} [von {limiter-term}] [bis {limiter-term}]&lt;/em&gt;. Limiter-terms sind gew&amp;ouml;hnliche, nicht wiederholte Ausdr&amp;uuml;cke. Sie k&amp;ouml;nnen in bliebiger Reihenfolge angegeben werden. Der loop-term ist einder der aus der folgenden Tabelle.&lt;/p&gt;
+&lt;table&gt;&lt;tbody&gt;	%2&lt;/tbody&gt;&lt;/table&gt;
+&lt;h4&gt;Logische Beschr&amp;auml;nkungen&lt;/h4&gt;
+&lt;p&gt;W&amp;auml;hrend diese Unterausdr&amp;uuml;cke prinzipiell in beliebiger Weise kombiniert werden k&amp;ouml;nnen, gibt es neben der Tatsache, dass diese nicht im direkten Konflikt stehen d&amp;uuml;rfen, noch einige weitere Einschr&amp;auml;nkungen, teilweise logischen und teilweise teschnischen Ursprungs. Diese sind:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Jeder Ausdruck kann nur einen wiederholten Unterausdruck enthalten&lt;/li&gt;
+&lt;li&gt;Begrenzer-Asdr&amp;uuml;cke d&amp;uuml;rfen nur 1x auftauchen und &quot;bis&quot; muss in der Zukunft von &quot;von&quot; liegen&lt;/li&gt;
+&lt;li&gt;Es darf nur eine Zeitspanne pro Ausdruck geben&lt;/li&gt;
+&lt;li&gt;Diese Zeitspanne muss den gr&amp;ouml;&amp;szlig;ten Zeitfokus haben&lt;/li&gt;
+&lt;li&gt;Begrenzer-Ausdr&amp;uuml;cke d&amp;uuml;rfen keinen kleineren Fokus als die Eingrenzung der Wiederholung haben&lt;/li&gt;
+&lt;li&gt;Alle Ausdr&amp;uuml;cke m&amp;uuml;ssen sich auf Zeitpunkte in der Zukunft beziehen&lt;/li&gt;
+&lt;li&gt;Wiederholte Ausdr&amp;uuml;cke brauchen mindestens einen g&amp;uuml;ltigen Zeitpunkt in der Zukunft&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Beispiele&lt;/h3&gt;
+&lt;p&gt;&lt;em&gt;&amp;lt;Kommen bald...&amp;gt;&lt;/em&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
