@@ -16,6 +16,8 @@ class CreateReminderViewModel : public QtMvvm::ViewModel
 	Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY expressionChanged)
 	Q_PROPERTY(bool blocked READ isBlocked NOTIFY blockedChanged)
 
+	Q_PROPERTY(QString helpText READ helpText CONSTANT)
+
 	QTMVVM_INJECT_PROP(EventExpressionParser*, parser, _parser)
 	QTMVVM_INJECT_PROP(SyncedSettings*, settings, _settings)
 
@@ -26,8 +28,10 @@ public:
 	bool important() const;
 	QString expression() const;
 	bool isBlocked() const;
+	QString helpText() const;
 
 public slots:
+	void showMainView();
 	void create();
 
 	void setText(const QString &text);
@@ -43,6 +47,7 @@ signals:
 	void blockedChanged(bool blocked);
 
 protected:
+	void onInit(const QVariantHash &params) override;
 	void onResult(quint32 requestCode, const QVariant &result) override;
 
 private:

@@ -12,32 +12,66 @@
 <context>
     <name>CreateReminderView</name>
     <message>
-        <location filename="CreateReminderView.qml" line="+10"/>
+        <location filename="CreateReminderView.qml" line="+31"/>
+        <source>Go to reminder overview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Create Reminder</source>
         <translation>Erinnerung erstellen</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+9"/>
+        <source>Create </source>
+        <oldsource>Create</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Reminder description:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Do the thing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>When expression:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>in some days at some time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Important</source>
         <translation>Wichtig</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text:</source>
         <translation type="vanished">Text:</translation>
     </message>
     <message>
-        <location line="-29"/>
         <source>Reminder description</source>
-        <translation>Erinnerungsbeschreibung</translation>
+        <translation type="vanished">Erinnerungsbeschreibung</translation>
     </message>
     <message>
         <source>When:</source>
         <translation type="vanished">Wann:</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>When expression</source>
-        <translation>Wann-Ausdruck</translation>
+        <translation type="vanished">Wann-Ausdruck</translation>
     </message>
     <message>
         <source>Important:</source>
@@ -47,7 +81,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="MainView.qml" line="+20"/>
+        <location filename="MainView.qml" line="+21"/>
         <source>Reminders</source>
         <translation>Erinnerungen</translation>
     </message>

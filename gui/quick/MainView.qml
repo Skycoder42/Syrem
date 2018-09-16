@@ -10,6 +10,7 @@ import "../../qml"
 Page {
 	id: mainView
 	property MainViewModel viewModel: null
+	readonly property bool presentAsRoot: true
 
 	header: ContrastToolBar {
 		RowLayout {

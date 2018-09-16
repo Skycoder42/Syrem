@@ -21,6 +21,7 @@ public:
 	explicit SyremApp(QObject *parent = nullptr);
 
 	Q_INVOKABLE bool isCreateOnly() const;
+	Q_INVOKABLE void resetIsCreateOnly(); //WORKAROUND see qml
 
 protected:
 	void performRegistrations() override;

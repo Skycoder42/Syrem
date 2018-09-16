@@ -1,4 +1,4 @@
-#include "syremapp.h"
+﻿#include "syremapp.h"
 
 #include <QCommandLineParser>
 #include <QGuiApplication>
@@ -33,6 +33,11 @@ SyremApp::SyremApp(QObject *parent) :
 bool SyremApp::isCreateOnly() const
 {
 	return _createOnly;
+}
+
+void SyremApp::resetIsCreateOnly()
+{
+	_createOnly = false;
 }
 
 void SyremApp::performRegistrations()

@@ -4,7 +4,7 @@
 <context>
     <name>CreateReminderViewModel</name>
     <message>
-        <location filename="createreminderviewmodel.cpp" line="+40"/>
+        <location filename="createreminderviewmodel.cpp" line="+52"/>
         <source>Confirm parse result</source>
         <translation>Ergebnis der Auswertung bestätigen</translation>
     </message>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <location line="+11"/>
-        <location line="+61"/>
+        <location line="+67"/>
         <location line="+4"/>
         <source>Failed to create reminder</source>
         <translation>Erinnerung erstellen fehlgeschlagen</translation>
@@ -183,7 +183,7 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
 <context>
     <name>SyremApp</name>
     <message>
-        <location filename="syremapp.cpp" line="+55"/>
+        <location filename="syremapp.cpp" line="+60"/>
         <source>Select a &lt;reminder&gt; from the list by its id</source>
         <translation>Eine &lt;Erinnerung&gt; in der Liste auswählen, nach ihrer ID</translation>
     </message>
@@ -386,7 +386,7 @@ remind-me --add [--important] &lt;Beschreibung&gt; &lt;Wann&gt;</translation>
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../../build-Syrem-Desktop_Qt_5_11_1_GCC_64bit-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
+        <location filename="../../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>

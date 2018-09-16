@@ -1,6 +1,8 @@
 #include "createreminderviewmodel.h"
 #include <QtMvvmCore/Messages>
+#include <QGuiApplication>
 #include <QTimer>
+#include "mainviewmodel.h"
 #include "termselectionviewmodel.h"
 
 CreateReminderViewModel::CreateReminderViewModel(QObject *parent) :
@@ -26,6 +28,16 @@ QString CreateReminderViewModel::expression() const
 bool CreateReminderViewModel::isBlocked() const
 {
 	return _blocked;
+}
+
+QString CreateReminderViewModel::helpText() const
+{
+	return Syrem::whenExpressionHelp();
+}
+
+void CreateReminderViewModel::showMainView()
+{
+	show<MainViewModel>();
 }
 
 void CreateReminderViewModel::create()
@@ -78,6 +90,12 @@ void CreateReminderViewModel::setExpression(const QString &expression)
 
 	_expression = expression;
 	emit expressionChanged(_expression);
+}
+
+void CreateReminderViewModel::onInit(const QVariantHash &params)
+{
+	Q_UNUSED(params);
+	QGuiApplication::setQuitOnLastWindowClosed(true);
 }
 
 void CreateReminderViewModel::onResult(quint32 requestCode, const QVariant &result)

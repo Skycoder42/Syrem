@@ -13,7 +13,7 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	_ui->setupUi(this);
 	DialogMaster::masterDialog(this);
 
-	_ui->helpBrowser->setHtml(Syrem::whenExpressionHelp());
+	_ui->helpBrowser->setHtml(_viewModel->helpText());
 	_ui->buttonBox->button(QDialogButtonBox::Help)->setCheckable(true);
 
 	QtMvvm::bind(_viewModel, "text",

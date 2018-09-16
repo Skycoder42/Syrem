@@ -16,6 +16,7 @@
         <file alias="ic_snooze.svg">icons/ic_snooze_white_24px.svg</file>
         <file alias="ic_check.svg">icons/ic_check_white_24px.svg</file>
         <file alias="ic_assignment_late.svg">icons/ic_assignment_late_white_24px.svg</file>
+        <file alias="ic_back.svg">icons/ic_arrow_back_24px.svg</file>
     </qresource>
     <qresource prefix="/">
         <file>qtquickcontrols2.conf</file>
