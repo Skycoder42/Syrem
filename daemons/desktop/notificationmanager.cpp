@@ -28,7 +28,7 @@ NotificationManager::NotificationManager(QObject *parent) :
 
 void NotificationManager::qtmvvm_init()
 {
-	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral("syrem.desktop"));
+	_taskbar->setAttribute(QTaskbarControl::LinuxDesktopFile, QStringLiteral(APPID ".desktop"));
 
 	connect(_scheduler, &TimerScheduler::scheduleTriggered,
 			this, &NotificationManager::scheduleTriggered);
