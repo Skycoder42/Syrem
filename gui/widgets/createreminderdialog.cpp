@@ -1,7 +1,7 @@
 #include "createreminderdialog.h"
 #include "ui_createreminderdialog.h"
 #include <QtMvvmCore/Binding>
-#include <QWhatsThis>
+#include <QPushButton>
 #include <dialogmaster.h>
 #include <localsettings.h>
 
@@ -11,10 +11,10 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 	_ui(new Ui::CreateReminderDialog)
 {
 	_ui->setupUi(this);
-	_ui->whenLineEdit->setWhatsThis(Syrem::whenExpressionHelp());
 	DialogMaster::masterDialog(this);
 
-	_ui->whenLineEdit->addAction(_ui->actionExpression_Syntax, QLineEdit::TrailingPosition);
+	_ui->helpBrowser->setHtml(Syrem::whenExpressionHelp());
+	_ui->buttonBox->button(QDialogButtonBox::Help)->setCheckable(true);
 
 	QtMvvm::bind(_viewModel, "text",
 				 _ui->textLineEdit, "text",
@@ -34,6 +34,7 @@ CreateReminderDialog::CreateReminderDialog(QtMvvm::ViewModel *viewModel, QWidget
 
 	if(LocalSettings::instance()->gui.createreminderdialog.size.isSet())
 		resize(LocalSettings::instance()->gui.createreminderdialog.size);
+	on_buttonBox_helpRequested();
 }
 
 CreateReminderDialog::~CreateReminderDialog()
@@ -48,7 +49,10 @@ void CreateReminderDialog::accept()
 	_viewModel->create();
 }
 
-void CreateReminderDialog::on_actionExpression_Syntax_triggered()
+void CreateReminderDialog::on_buttonBox_helpRequested()
 {
-	QWhatsThis::showText(QPoint(0, 0), Syrem::whenExpressionHelp(), _ui->whenLineEdit);
+	_ui->helpBrowser->setVisible(_ui->buttonBox->button(QDialogButtonBox::Help)->isChecked());
+	auto cWidth = width();
+	adjustSize();
+	resize(cWidth, height());
 }

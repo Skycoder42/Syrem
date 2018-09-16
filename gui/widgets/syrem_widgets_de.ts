@@ -9,7 +9,7 @@
         <translation>Erinnerung erstellen</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>&amp;Text:</source>
         <translation>&amp;Text:</translation>
     </message>
@@ -17,6 +17,11 @@
         <location line="+10"/>
         <source>Enter a description of what to be reminded</source>
         <translation>Geben Sie eine Beschreibung an</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Do the thing</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
@@ -29,6 +34,11 @@
         <translation>Gegeben Sie einen Zeit-Ausdruck an</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>in some days at some time …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+10"/>
         <source>&amp;Important:</source>
         <translation>W&amp;ichtig:</translation>
@@ -39,14 +49,12 @@
         <translation>Wichtige Erinnerungen erhalten zusätzliche Visuelle und Auditive signale</translation>
     </message>
     <message>
-        <location line="+34"/>
         <source>Expression &amp;Syntax</source>
-        <translation>Ausdrucks-&amp;Syntax</translation>
+        <translation type="vanished">Ausdrucks-&amp;Syntax</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Show the expression syntax</source>
-        <translation>Zeigt die Ausdrucks-Syntax an</translation>
+        <translation type="vanished">Zeigt die Ausdrucks-Syntax an</translation>
     </message>
 </context>
 <context>

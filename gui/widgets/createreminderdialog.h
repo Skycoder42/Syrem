@@ -20,7 +20,7 @@ public slots:
 	void accept() override;
 
 private slots:
-	void on_actionExpression_Syntax_triggered();
+	void on_buttonBox_helpRequested();
 
 private:
 	CreateReminderViewModel *_viewModel;

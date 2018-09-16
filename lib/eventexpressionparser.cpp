@@ -41,6 +41,9 @@ bool EventExpressionParser::needsSelection(const MultiTerm &term) const
 
 QSharedPointer<Schedule> EventExpressionParser::createSchedule(const Term &term, const QDateTime &reference)
 {
+	if(term.isEmpty())
+		throw EventExpressionParserException{ParserError};
+
 	if(term.isLooped()) {
 		Term loop, fence, from, until;
 		std::tie(loop, fence, from, until) = term.splitLoop();
@@ -104,7 +107,9 @@ QSharedPointer<Schedule> EventExpressionParser::createMultiSchedule(MultiTerm te
 		}
 	}
 
-	if(terms.size() == 1)
+	if(terms.isEmpty())
+		throw EventExpressionParserException{ParserError};
+	else if(terms.size() == 1)
 		return createSchedule(terms.first().first(), reference);
 	else {
 		auto schedule = QSharedPointer<MultiSchedule>::create(reference);
@@ -117,6 +122,8 @@ QSharedPointer<Schedule> EventExpressionParser::createMultiSchedule(MultiTerm te
 
 QDateTime EventExpressionParser::evaluteTerm(const Term &term, const QDateTime &reference)
 {
+	if(term.isEmpty())
+		throw EventExpressionParserException{ParserError};
 	if(term.isLooped())
 		throw EventExpressionParserException{TermIsLoopError};
 

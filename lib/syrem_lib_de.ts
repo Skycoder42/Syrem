@@ -188,7 +188,7 @@
 <context>
     <name>EventExpressionParser</name>
     <message>
-        <location filename="eventexpressionparser.cpp" line="+444"/>
+        <location filename="eventexpressionparser.cpp" line="+451"/>
         <source>Unknown Error</source>
         <translation>Unbekannter Fehler</translation>
     </message>

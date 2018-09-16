@@ -9,13 +9,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>&amp;Text:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Enter a description of what to be reminded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Do the thing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29,6 +34,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>in some days at some time …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+10"/>
         <source>&amp;Important:</source>
         <translation type="unfinished"></translation>
@@ -36,16 +46,6 @@
     <message>
         <location line="+10"/>
         <source>Important reminders will show up with additional visual and audio signals to be seens easier</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+34"/>
-        <source>Expression &amp;Syntax</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Show the expression syntax</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
