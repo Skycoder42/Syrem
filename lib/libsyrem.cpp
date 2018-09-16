@@ -25,7 +25,7 @@ void addColumn(QStringList &singleList, QStringList &loopList) {
 	for(auto target : {tpr{singleList, false}, tpr{loopList, true}}) {
 		auto info = TTerm::syntax(target.second);
 		if(!info.first.isNull()) {
-			target.first.append(QStringLiteral("<tr><td>%1</td><td>:= %2</td></tr>")
+			target.first.append(QStringLiteral("<tr><td>%1</td><td><em>:= %2</em></td></tr>")
 						.arg(info.first.toHtmlEscaped(),
 							 info.second.toHtmlEscaped()));
 		}

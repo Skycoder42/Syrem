@@ -573,7 +573,7 @@
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../build-Syrem-Android_f_r_x86_GCC_4_9_Qt_5_11_1_for_Android_x86-Debug/lib/syncedsettings.cpp" line="+31"/>
+        <location filename="../../build-Syrem-Desktop_Qt_5_11_1_GCC_64bit-Debug/lib/syncedsettings.cpp" line="+30"/>
         <source>09:00</source>
         <translation type="unfinished"></translation>
     </message>
