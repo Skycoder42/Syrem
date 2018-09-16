@@ -14,7 +14,7 @@
     <message>
         <location filename="CreateReminderView.qml" line="+31"/>
         <source>Go to reminder overview</source>
-        <translation type="unfinished"></translation>
+        <translation>Zurück zur Erinnerungs-Übersicht</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -25,27 +25,27 @@
         <location line="+9"/>
         <source>Create </source>
         <oldsource>Create</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Reminder description:</source>
-        <translation type="unfinished"></translation>
+        <translation>Erinnerungsbeschreibung:</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Do the thing</source>
-        <translation type="unfinished"></translation>
+        <translation>Mach die Sache</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>When expression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wann-Ausdruck:</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>in some days at some time</source>
-        <translation type="unfinished"></translation>
+        <translation>in einigen Tagen um irgendwann</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -55,7 +55,7 @@
     <message>
         <location line="+13"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>Text:</source>

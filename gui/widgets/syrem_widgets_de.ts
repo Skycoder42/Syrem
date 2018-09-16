@@ -21,7 +21,7 @@
     <message>
         <location line="+3"/>
         <source>Do the thing</source>
-        <translation type="unfinished"></translation>
+        <translation>Mach die Sache</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -36,7 +36,7 @@
     <message>
         <location line="+3"/>
         <source>in some days at some time …</source>
-        <translation type="unfinished"></translation>
+        <translation>in einigen Tagen um irgendwann…</translation>
     </message>
     <message>
         <location line="+10"/>
