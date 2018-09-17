@@ -1,5 +1,5 @@
 win32: DEPLOY_BINS = "$$INSTALL_BINS/$${PROJECT_TARGET}.exe" "$$INSTALL_BINS/$${PROJECT_TARGET}d.exe"
-else:mac: DEPLOY_BINS = "$$PREFIX/$${PROJECT_NAME}.app"
+else:mac: DEPLOY_BINS = "$$PREFIX/$${PROJECT_NAME}.app" "$$PREFIX/$${APP_PREFIX}/MacOs/syremd"
 else: DEPLOY_BINS = "$$INSTALL_BINS/$${PROJECT_TARGET}"
 
 # begin deploy script

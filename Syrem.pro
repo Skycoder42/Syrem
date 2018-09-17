@@ -26,8 +26,9 @@ OTHER_FILES += \
 include(install.pri)
 !no_platform_paths:mac {
 	install_join.commands += cp -pPRfv "$(INSTALL_ROOT)$$INSTALL_APPS/" "$(INSTALL_ROOT)$${PREFIX}/" \
-		$$escape_expand(\n\t)rm -rf "$(INSTALL_ROOT)$$INSTALL_APPS"# \
-#		$$escape_expand(\n\t)install_name_tool -change $${PROJECT_TARGET}.framework/Versions/2/$${PROJECT_TARGET} @rpath/$${PROJECT_TARGET}.framework/Versions/2/$${PROJECT_TARGET} "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}"
+		$$escape_expand(\n\t)rm -rf "$(INSTALL_ROOT)$$INSTALL_APPS" \
+		$$escape_expand(\n\t)install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}" \
+		$$escape_expand(\n\t)install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}d"
 	install_join.target = install
 	QMAKE_EXTRA_TARGETS += install_join
 }
