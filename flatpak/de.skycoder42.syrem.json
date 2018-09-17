@@ -49,6 +49,7 @@
 				"CONFIG+=no_quick",
 				"CONFIG+=no_auto_lupdate",
 				"CONFIG+=auto_lrelease",
+				"CONFIG+=no_bundle_deploy",
 				"DEFINES+=FLATPAK_BUILD"
 			],
 			"sources": [

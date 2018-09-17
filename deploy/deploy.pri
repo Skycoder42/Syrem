@@ -1,8 +1,3 @@
-win32: DEPLOY_BINS = "$$INSTALL_BINS/$${PROJECT_TARGET}.exe" "$$INSTALL_BINS/$${PROJECT_TARGET}d.exe"
-else:mac: DEPLOY_BINS = "$$PREFIX/$${PROJECT_NAME}.app" "$$PREFIX/$${APP_PREFIX}/MacOs/syremd"
-DEPLOY_PLUGINS += keystores
-systemd_service: DEPLOY_PLUGINS += servicebackends
-
 # begin deploy script
 deploy_target.target = deploy
 deploy_target.depends += install
@@ -37,6 +32,7 @@ for(plgdir, DEPLOY_PLUGINS) {
 	INSTALLS += plugin_fixup_$${plgdir}
 
 	ALL_PLGS=$$files($$[QT_INSTALL_PLUGINS]/$$plgdir/*)
+	PLG_ACTUAL=
 	for(plg, ALL_PLGS) {
 		PLG_BASE = $$split(plg, ".")
 		$$take_last(PLG_BASE)

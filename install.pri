@@ -8,7 +8,7 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $$[QT_INSTALL_PLUGINS]
 	isEmpty(INSTALL_TRANSLATIONS): INSTALL_TRANSLATIONS = $$[QT_INSTALL_TRANSLATIONS]
 	isEmpty(INSTALL_SHARE): INSTALL_SHARE = $${PREFIX}/share
-} else:!no_platform_paths:mac {
+} else:!no_bundle_deploy:mac {
 	APP_PREFIX = $${PROJECT_NAME}.app/Contents
 	isEmpty(INSTALL_APPS): INSTALL_APPS = $${PREFIX}/.app-tmp
 	isEmpty(INSTALL_BINS): INSTALL_BINS = $${PREFIX}/$${APP_PREFIX}/MacOS
@@ -19,12 +19,12 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_SHARE): INSTALL_SHARE = $${PREFIX}/$${APP_PREFIX}/Resources
 } else {
 	# bins
-	!no_platform_paths:win32:isEmpty(INSTALL_BINS): INSTALL_BINS = $$PREFIX
+	!no_bundle_deploy:win32:isEmpty(INSTALL_BINS): INSTALL_BINS = $$PREFIX
 	isEmpty(INSTALL_BINS): INSTALL_BINS = $${PREFIX}/bin
 	isEmpty(INSTALL_APPS): INSTALL_APPS = $$INSTALL_BINS
 
 	# libs
-	!no_platform_paths:win32:isEmpty(INSTALL_LIBS): INSTALL_LIBS = $$INSTALL_BINS
+	!no_bundle_deploy:win32:isEmpty(INSTALL_LIBS): INSTALL_LIBS = $$INSTALL_BINS
 	else:isEmpty(INSTALL_LIBS): INSTALL_LIBS = $${PREFIX}/lib
 
 	# headers
@@ -34,7 +34,7 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $${PREFIX}/plugins
 
 	# translations
-	!no_platform_paths:android:isEmpty(INSTALL_TRANSLATIONS):  INSTALL_TRANSLATIONS = /assets/translations
+	!no_bundle_deploy:android:isEmpty(INSTALL_TRANSLATIONS):  INSTALL_TRANSLATIONS = /assets/translations
 	else:isEmpty(INSTALL_TRANSLATIONS): INSTALL_TRANSLATIONS = $${PREFIX}/translations
 
 	# share
