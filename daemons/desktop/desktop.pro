@@ -8,6 +8,7 @@ ICON = ../../icon/syrem.icns
 
 QT += widgets mvvmcore mvvmwidgets core-private
 systemd_service: QT += service
+CONFIG -= app_bundle
 
 !no_kde_notifier: qtHaveModule(KNotifications): CONFIG += kde_notifier
 

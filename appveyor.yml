@@ -5,7 +5,7 @@ version: build-{build}
 
 environment:
   QT_VER: 5.11.1
-  QMAKE_FLAGS: PREFIX=/deploy
+  QMAKE_FLAGS: "PREFIX=/deploy CONFIG+=no_quick"
   PLATFORM: msvc2017_64
   EXTRA_MODULES: .skycoder42
   NO_TESTS: true
