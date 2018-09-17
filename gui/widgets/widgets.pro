@@ -4,7 +4,7 @@ QT += widgets mvvmwidgets mvvmdatasyncwidgets service
 
 TARGET = $$PROJECT_TARGET
 
-QMAKE_TARGET_PRODUCT = $$PROJECT_NAME
+QMAKE_TARGET_DESCRIPTION = "Synchronized Reminder App"
 RC_ICONS += ../../icon/syrem.ico
 ICON = ../../icon/syrem.icns
 

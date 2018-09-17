@@ -2,7 +2,7 @@ TEMPLATE = app
 
 TARGET = $${PROJECT_TARGET}d
 
-QMAKE_TARGET_PRODUCT = "Syrem Daemon"
+QMAKE_TARGET_DESCRIPTION = "Syrem Background Service"
 RC_ICONS += ../../icon/syrem.ico
 ICON = ../../icon/syrem.icns
 

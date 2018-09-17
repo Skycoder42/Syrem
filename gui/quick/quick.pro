@@ -7,7 +7,7 @@ CONFIG += qtquickcompiler
 android: TARGET = $${PROJECT_TARGET}_gui
 else: TARGET = $${PROJECT_TARGET}
 
-QMAKE_TARGET_PRODUCT = $$PROJECT_NAME
+QMAKE_TARGET_DESCRIPTION = "Synchronized Reminder App"
 
 HEADERS += \
 	snoozetimesformatter.h
