@@ -19,7 +19,7 @@ if [[ $PLATFORM == "android_"* ]]; then
 else
 	rootdir=$(pwd)
 	pushd build-$PLATFORM
-	make INSTALL_ROOT="$rootdir/install" qtifw
+	make INSTALL_ROOT="$rootdir/install" deploy
 	popd
 	
 	find install/

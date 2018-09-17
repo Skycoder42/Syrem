@@ -19,6 +19,9 @@ QTMVVM_REGISTER_CORE_APP(SyremDaemon)
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_MACOS
+	qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "1");
+#endif
 	QApplication a(argc, argv);
 	QCoreApplication::setApplicationName(QStringLiteral(PROJECT_TARGET));
 	QCoreApplication::setApplicationVersion(QStringLiteral(VERSION));
