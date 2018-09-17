@@ -133,7 +133,7 @@ void NotificationManager::messageDelayed(QUuid id, quint32 versionCode, const QD
 
 void NotificationManager::messageActivated(QUuid id)
 {
-	auto program = QStandardPaths::findExecutable(QStringLiteral("syrem"));
+	auto program = QStandardPaths::findExecutable(QStringLiteral("syrem"), {QCoreApplication::applicationDirPath()});
 	if(program.isEmpty()) {
 		qCWarning(manager) << "Failed to find the syrem executable!";
 		return;
