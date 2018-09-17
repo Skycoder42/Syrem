@@ -49,11 +49,11 @@ qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 extra_ts_target.path = $$INSTALL_TRANSLATIONS
 INSTALLS += target qpmx_ts_target extra_ts_target
 
-mac {
-	link_appname.target = install
-	link_appname.commands += ln -s "$${PROJECT_TARGET}" "$(INSTALL_ROOT)$${INSTALL_APPS}/$${APP_PREFIX}/MacOS/$${PROJECT_NAME}"
-	QMAKE_EXTRA_TARGETS += link_appname
-}
+#mac {
+#	link_appname.target = install
+#	link_appname.commands += ln -s "$${PROJECT_TARGET}" "$(INSTALL_ROOT)$${INSTALL_APPS}/$${APP_PREFIX}/MacOS/$${PROJECT_NAME}"
+#	QMAKE_EXTRA_TARGETS += link_appname
+#}
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -l$${PROJECT_TARGET}_core

@@ -31,3 +31,5 @@ include(install.pri)
 	install_join.target = install
 	QMAKE_EXTRA_TARGETS += install_join
 }
+
+include(deploy/deploy.pri)
