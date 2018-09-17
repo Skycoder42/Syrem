@@ -53,4 +53,4 @@ lupdate_fix: isEmpty(QSETTINGSGENERATOR_DIR): QSETTINGSGENERATOR_DIR = .
 header_install.files = $$HEADERS $$QSETTINGSGENERATOR_DIR/localsettings.h $$QSETTINGSGENERATOR_DIR/syncedsettings.h
 header_install.path = $$INSTALL_HEADERS/$$PROJECT_TARGET
 INSTALLS += target qpmx_ts_target
-!android: INSTALLS += header_install
+!no_headers_install: INSTALLS += header_install

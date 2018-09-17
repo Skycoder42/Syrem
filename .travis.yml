@@ -12,6 +12,7 @@ env:
     - QPMX_CACHE_DIR=$HOME/.qpmx-cache
     - QT_VER_MINOR=5.11
     - QT_VER=${QT_VER_MINOR}.1
+    - QMAKE_FLAGS="PREFIX=/deploy"
     - OPENSSL_VERSION=1.0.2p
     - EXTRA_MODULES=".skycoder42"
     - DOCKER_IMAGE=full

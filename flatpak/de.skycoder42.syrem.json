@@ -67,10 +67,7 @@
 			"cleanup": [
 				"/.qpmx",
 				"/lib/python3.7",
-				"/include",
 				"/doc",
-				"*.la",
-				"*.prl",
 				"*_template.qm"
 			]
 		}
