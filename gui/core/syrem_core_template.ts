@@ -209,7 +209,7 @@ syrem --add [--important] &lt;description&gt; &lt;when&gt;</source>
 <context>
     <name>settings.xml</name>
     <message>
-        <location filename="../../../build-Syrem-Desktop_Qt_5_11_1_GCC_64bit-Debug/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
+        <location filename="../../../build-Syrem-Desktop_Qt_5_11_1_GCC_64bit-Release/gui/core/.tr-dummies/settings.tsdummy.cpp" line="+7"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>

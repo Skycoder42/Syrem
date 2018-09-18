@@ -28,13 +28,9 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 TRANSLATIONS += syrem_quick_de.ts \
 	syrem_quick_template.ts
 
-EXTRA_TRANSLATIONS +=  \
-	syrem_de.ts \
-	syrem_template.ts
-
 DISTFILES += \
 	$$TRANSLATIONS \
-	$$EXTRA_TRANSLATIONS \
+	syrem.tsdict \
 	android/AndroidManifest.xml \
 	android/build.gradle \
 	android/src/de/skycoder42/syrem/* \
@@ -59,7 +55,6 @@ include(../../install.pri)
 
 target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-extra_ts_target.path = $$INSTALL_TRANSLATIONS
 android: extra_ts_target.files += \
 	$$[QT_INSTALL_TRANSLATIONS]/qtbase_*.qm \
 	$$[QT_INSTALL_TRANSLATIONS]/qtdeclarative_*.qm \
@@ -70,7 +65,8 @@ android: extra_ts_target.files += \
 	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmdatasynccore_*.qm \
 	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmquick_*.qm \
 	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmdatasyncquick_*.qm
-INSTALLS += target qpmx_ts_target extra_ts_target
+INSTALLS += target qpmx_ts_target
+android: INSTALLS += extra_ts_target
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -l$${PROJECT_TARGET}_core

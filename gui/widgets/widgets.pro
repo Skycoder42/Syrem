@@ -32,13 +32,9 @@ RESOURCES += \
 TRANSLATIONS += syrem_widgets_de.ts \
 	syrem_widgets_template.ts
 
-EXTRA_TRANSLATIONS +=  \
-	syrem_de.ts \
-	syrem_template.ts
-
 DISTFILES += \
 	$$TRANSLATIONS \
-	$$EXTRA_TRANSLATIONS
+    syrem.tsdict
 
 # actual install
 include(../../install.pri)
@@ -46,8 +42,7 @@ include(../../install.pri)
 mac: target.path = $$INSTALL_APPS
 else: target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-extra_ts_target.path = $$INSTALL_TRANSLATIONS
-INSTALLS += target qpmx_ts_target extra_ts_target
+INSTALLS += target qpmx_ts_target
 
 #mac {
 #	link_appname.target = install

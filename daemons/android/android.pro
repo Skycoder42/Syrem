@@ -19,19 +19,14 @@ RESOURCES += ../../gui/quick/syrem_quick_android.qrc
 TRANSLATIONS += syrem_daemon_de.ts \
 	syrem_daemon_template.ts
 
-EXTRA_TRANSLATIONS +=  \
-	syremd_de.ts \
-	syremd_template.ts
-
 DISTFILES += \
 	$$TRANSLATIONS \
-	$$EXTRA_TRANSLATIONS
+    syremd.tsdict
 
 include(../../install.pri)
 
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-extra_ts_target.path = $$INSTALL_TRANSLATIONS
-INSTALLS += qpmx_ts_target extra_ts_target
+INSTALLS += qpmx_ts_target
 
 # link against main lib
 include(../../lib.pri)

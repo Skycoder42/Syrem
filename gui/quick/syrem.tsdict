@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TSDICT>
+<TSDICT version="2.1">
+	<dependencies root="syrem_quick">
+		<dependency catalog="qtbase"/>
+		<dependency catalog="qtdeclarative"/>
+		<dependency catalog="qtquickcontrols"/>
+		<dependency catalog="qtwebsockets"/>
+		<dependency catalog="qtdatasync"/>
+		<dependency catalog="qtmvvmcore"/>
+		<dependency catalog="qtmvvmdatasynccore"/>
+		<dependency catalog="qtmvvmquick"/>
+		<dependency catalog="qtmvvmdatasyncquick"/>
+
+		<dependency catalog="syrem_lib"/>
+		<dependency catalog="syrem_core"/>
+		<dependency catalog="syrem_quick"/>
+	</dependencies>
+</TSDICT>

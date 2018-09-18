@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TSDICT>
+<TSDICT version="2.1">
+	<dependencies root="syrem_widgets">
+		<dependency catalog="qtbase"/>
+		<dependency catalog="qtwebsockets"/>
+		<dependency catalog="qtdatasync"/>
+		<dependency catalog="qtmvvmcore"/>
+		<dependency catalog="qtmvvmdatasynccore"/>
+		<dependency catalog="qtmvvmwidgets"/>
+		<dependency catalog="qtmvvmdatasyncwidgets"/>
+
+		<dependency catalog="syrem_lib"/>
+		<dependency catalog="syrem_core"/>
+		<dependency catalog="syrem_widgets"/>
+	</dependencies>
+</TSDICT>

@@ -8,6 +8,7 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $$[QT_INSTALL_PLUGINS]
 	isEmpty(INSTALL_TRANSLATIONS): INSTALL_TRANSLATIONS = $$[QT_INSTALL_TRANSLATIONS]
 	isEmpty(INSTALL_SHARE): INSTALL_SHARE = $${PREFIX}/share
+	CONFIG += no_deploy_qt_qm
 } else:!no_bundle_deploy:mac {
 	APP_PREFIX = $${PROJECT_NAME}.app/Contents
 	isEmpty(INSTALL_APPS): INSTALL_APPS = $${PREFIX}/.app-tmp

@@ -25,12 +25,11 @@ OTHER_FILES += \
 
 include(install.pri)
 !no_bundle_deploy:mac {
-	install_join.commands += cp -pPRfv "$(INSTALL_ROOT)$$INSTALL_APPS/" "$(INSTALL_ROOT)$${PREFIX}/" \
-		$$escape_expand(\n\t)rm -rf "$(INSTALL_ROOT)$$INSTALL_APPS" \
-		$$escape_expand(\n\t)install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}" \
-		$$escape_expand(\n\t)install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}d"
-	install_join.target = install
-	QMAKE_EXTRA_TARGETS += install_join
+	install.commands += cp -pPRfv "$(INSTALL_ROOT)$$INSTALL_APPS/" "$(INSTALL_ROOT)$${PREFIX}/"$$escape_expand(\n\t) \
+		rm -rf "$(INSTALL_ROOT)$$INSTALL_APPS"$$escape_expand(\n\t) \
+		install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}"$$escape_expand(\n\t) \
+		install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}d"$$escape_expand(\n\t)
+	QMAKE_EXTRA_TARGETS += install
 }
 
 !isEmpty(PREFIX):!no_bundle_deploy {
@@ -38,6 +37,11 @@ include(install.pri)
 	else:mac: DEPLOY_BINS = "$$PREFIX/$${PROJECT_NAME}.app" "$$PREFIX/$${APP_PREFIX}/MacOs/syremd"
 	DEPLOY_PLUGINS += keystores
 	systemd_service: DEPLOY_PLUGINS += servicebackends
+
+	!no_widgets: TS_DICTIONARIES += $$PWD/gui/widgets/syrem.tsdict
+	!no_quick: TS_DICTIONARIES += $$PWD/gui/quick/syrem.tsdict
+	android: TS_DICTIONARIES += $$PWD/daemons/android/syremd.tsdict
+	else: TS_DICTIONARIES += $$PWD/daemons/desktop/syremd.tsdict
 }
 
 include(deploy/deploy.pri)

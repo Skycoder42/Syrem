@@ -49,15 +49,11 @@ kde_notifier {
 TRANSLATIONS += syrem_daemon_de.ts \
 	syrem_daemon_template.ts
 
-EXTRA_TRANSLATIONS +=  \
-	syremd_de.ts \
-	syremd_template.ts
-
 DISTFILES += \
 	syrem.service.in \
-	$$TRANSLATIONS \
-	$$EXTRA_TRANSLATIONS \
-	syrem.notifyrc
+	$$TRANSLATIONS  \
+	syrem.notifyrc \
+    syremd.tsdict
 
 # install
 include(../../install.pri)
@@ -91,8 +87,7 @@ kde_notifier {
 
 target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-extra_ts_target.path = $$INSTALL_TRANSLATIONS
-INSTALLS += target qpmx_ts_target extra_ts_target
+INSTALLS += target qpmx_ts_target
 
 # link against main lib
 include(../../lib.pri)
