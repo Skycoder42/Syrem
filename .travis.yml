@@ -49,8 +49,6 @@ script:
   - ./qtmodules-travis/ci/$TRAVIS_OS_NAME/build.sh
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./ci/travis_postbuild.sh; fi
 
-before_deploy:
-  - ./ci/travis_deploy.sh
 deploy:
   provider: releases
   skip_cleanup: true
