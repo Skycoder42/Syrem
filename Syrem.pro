@@ -27,8 +27,8 @@ include(install.pri)
 !no_bundle_deploy:mac {
 	install.commands += cp -pPRfv "$(INSTALL_ROOT)$$INSTALL_APPS/" "$(INSTALL_ROOT)$${PREFIX}/"$$escape_expand(\n\t) \
 		rm -rf "$(INSTALL_ROOT)$$INSTALL_APPS"$$escape_expand(\n\t) \
-		install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}"$$escape_expand(\n\t) \
-		install_name_tool -change lib$${PROJECT_TARGET}.2.dylib @rpath/lib$${PROJECT_TARGET}.2.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}d"$$escape_expand(\n\t)
+		install_name_tool -change lib$${PROJECT_TARGET}.3.dylib @rpath/lib$${PROJECT_TARGET}.3.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}"$$escape_expand(\n\t) \
+		install_name_tool -change lib$${PROJECT_TARGET}.3.dylib @rpath/lib$${PROJECT_TARGET}.3.dylib "$(INSTALL_ROOT)$${INSTALL_BINS}/$${PROJECT_TARGET}d"$$escape_expand(\n\t)
 	QMAKE_EXTRA_TARGETS += install
 }
 

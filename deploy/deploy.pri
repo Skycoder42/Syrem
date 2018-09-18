@@ -24,11 +24,13 @@ QMAKE_EXTRA_TARGETS += deploy_target
 
 		for(bin, DEPLOY_BINS): run_deploy.commands += $$QMAKE_WINDEPLOYQT \"$(INSTALL_ROOT)$$bin\"$$escape_expand(\n\t)
 
-		run_deploy.commands += echo $$shell_quote([Paths]) > \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
-		run_deploy.commands += echo $$shell_quote(Prefix=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
-		run_deploy.commands += echo $$shell_quote(Binaries=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
-		run_deploy.commands += echo $$shell_quote(Libraries=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
-		run_deploy.commands += echo $$shell_quote(Plugins=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo [Paths] > \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo Prefix=. >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo Binaries=. >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo Libraries=. >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo Plugins=. >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+
+		run_deploy.commands += $$QMAKE_DEL_FILE "v*redist*exe"
 	} else:mac {
 		isEmpty(QMAKE_MACDEPLOYQT): qtPrepareTool(QMAKE_MACDEPLOYQT, macdeployqt)
 		BINS_COPY = $$DEPLOY_BINS

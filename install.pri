@@ -32,7 +32,7 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_HEADERS): INSTALL_HEADERS = $${PREFIX}/include
 
 	# plugins
-	!no_bundle_deploy:win32:isEmpty(INSTALL_LIBS): INSTALL_LIBS = $$INSTALL_BINS
+	!no_bundle_deploy:win32:isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $$INSTALL_BINS
 	else:isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $${PREFIX}/plugins
 
 	# translations
