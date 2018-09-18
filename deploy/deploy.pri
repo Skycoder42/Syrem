@@ -32,8 +32,8 @@ QMAKE_EXTRA_TARGETS += deploy_target
 	} else:android {
 		isEmpty(QMAKE_ANDROIDDEPLOYQT): qtPrepareTool(QMAKE_ANDROIDDEPLOYQT, androiddeployqt)
 		QMAKE_ANDROIDDEPLOYQT += --deployment bundled --gradle
-		CONFIG(release, debug|release): QMAKE_WINDEPLOYQT += --release --no-gdbserver
-		CONFIG(debug, debug|release): QMAKE_WINDEPLOYQT += --gdbserver
+		CONFIG(release, debug|release): QMAKE_ANDROIDDEPLOYQT += --release --no-gdbserver
+		CONFIG(debug, debug|release): QMAKE_ANDROIDDEPLOYQT += --gdbserver
 		for(bin, DEPLOY_BINS): run_deploy.commands += $$QMAKE_ANDROIDDEPLOYQT --input $$shell_path($$bin) --output \"$(INSTALL_ROOT)$$PREFIX\" $$escape_expand(\n\t)
 	}
 
