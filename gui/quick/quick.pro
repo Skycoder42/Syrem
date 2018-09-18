@@ -55,18 +55,7 @@ include(../../install.pri)
 
 target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
-android: extra_ts_target.files += \
-	$$[QT_INSTALL_TRANSLATIONS]/qtbase_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtdeclarative_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtquickcontrols_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtwebsockets_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtdatasync_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmcore_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmdatasynccore_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmquick_*.qm \
-	$$[QT_INSTALL_TRANSLATIONS]/qtmvvmdatasyncquick_*.qm
 INSTALLS += target qpmx_ts_target
-android: INSTALLS += extra_ts_target
 
 # Link with core project
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -l$${PROJECT_TARGET}_core
