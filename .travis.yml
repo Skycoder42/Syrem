@@ -49,21 +49,21 @@ script:
   - ./qtmodules-travis/ci/$TRAVIS_OS_NAME/build.sh
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./ci/travis_postbuild.sh; fi
 
-#before_deploy:
-  #- ./ci/travis_deploy.sh
-#deploy:
-  #provider: releases
-  #skip_cleanup: true
-  #api_key:
-    #secure: <key>
-  #file_glob: true
-  #file:
-    #- ./install/repository_*.tar.xz
-    #- ./install/Syrem Installer.*
-    #- ./install/*.apk
-  #on:
-    #repo: Skycoder42/Syrem
-    #tags: true
+before_deploy:
+  - ./ci/travis_deploy.sh
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: g1X+UvDS+0IRyXwkbun9UKdq9eCgSvMFk0+wzpPhZ3HG8w21xfVs7Q8XSHzbm1uA/YiWgrOh6y8ENTB8C0PNS92wg9A/t6yusD7v3dpuTOygYBbMKTsQty6JzZIZY+zGsRKa0JWZzW70vy3zqokXvETcMAcVKFqr6zMv7w1aiHJr5V+cY/9pRgqa7s/61Fg1C3ZbOQZLlb1CDWDNk1N0gr/7FcmI2rf6nxp+GJLFk4uc7cdlc5TBotVLsZkGpJ9j064HnAWY1gzutbw4fY2bUXDPzU7ycpjzq+9ohEpaSR95C7M1nLul75vbsJtLeXM9NGsDXX6ATMz5Og7aF3ZGWlQUAdmAlrGB1d6YJOZ8V1Qrm46AT5wBTqt8kr0eWtDyx4VQAqrcBIM+ZA9TiiqYeiu3WlIQm2ncSx+c/cUuFWyx7+Jo++uDrr0vt1te5HtCPaped8PBsrvVkUj5pKWg+sDTybMHmyOtrbjByFvL1Gtsitl358gT69EfdmkGHJTmWa9quz/66JBoz7HkEFn9UVb1STOqWMjtOW0awFSvs4K7N7oaKRXLRLrhIC/W0bGr4MKOfH/JV0dt2/3kN1q8HHJ5PsXGlXjvKwafBc2lMczIOhUfozCP/p7u/xbEAgToCgb+YFE9c7n5MMg2RCtrWWXK5slpBOw3w9/6ae4uNVo=
+  file_glob: true
+  file:
+    - ./install/syrem-*.dmg
+    - ./install/syrem-*.apk
+    - ./install/flatpak_build.tar.xz
+  on:
+    repo: Skycoder42/Syrem
+    tags: true
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

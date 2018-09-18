@@ -40,9 +40,18 @@ QMAKE_EXTRA_TARGETS += deploy_target
 	} else:android {
 		isEmpty(QMAKE_ANDROIDDEPLOYQT): qtPrepareTool(QMAKE_ANDROIDDEPLOYQT, androiddeployqt)
 		QMAKE_ANDROIDDEPLOYQT += --deployment bundled --gradle
-		CONFIG(release, debug|release): QMAKE_ANDROIDDEPLOYQT += --release --no-gdbserver
-		CONFIG(debug, debug|release): QMAKE_ANDROIDDEPLOYQT += --gdbserver
-		for(bin, DEPLOY_BINS): run_deploy.commands += $$QMAKE_ANDROIDDEPLOYQT --input $$shell_path($$bin) --output \"$(INSTALL_ROOT)$$PREFIX\" $$escape_expand(\n\t)
+		CONFIG(release, debug|release) {
+			QMAKE_ANDROIDDEPLOYQT += --release --no-gdbserver
+			APK_TYPE = release
+		}
+		CONFIG(debug, debug|release) {
+			QMAKE_ANDROIDDEPLOYQT += --gdbserver
+			APK_TYPE = debug
+		}
+		for(bin, DEPLOY_BINS) {
+			run_deploy.commands += $$QMAKE_ANDROIDDEPLOYQT --input $$shell_path($$bin) --output \"$(INSTALL_ROOT)$$PREFIX\" $$escape_expand(\n\t)
+			run_deploy.commands += $$QMAKE_INSTALL_FILE \"$(INSTALL_ROOT)$$PREFIX/build/outputs/apk/android-build-$${APK_TYPE}-unsigned.apk\" \"$(INSTALL_ROOT)/syrem-${VERSION}_$${QT_PLATFORM}.apk\"
+		}
 	}
 
 	# deploy missing plugins (as part of make install)
@@ -75,9 +84,9 @@ QMAKE_EXTRA_TARGETS += deploy_target
 # add package target
 package_target.target = package
 package_target.commands += cd \"$(INSTALL_ROOT)$$shell_path($$PREFIX)\" &&
-win32: package_target.commands += 7z a \"$(INSTALL_ROOT)\\$${PROJECT_TARGET}.zip\" .\\*
-else:mac: package_target.commands += hdiutil create -fs HFS+ -srcfolder . -volname $$shell_quote($$PROJECT_NAME) \"$(INSTALL_ROOT)/$${PROJECT_TARGET}.dmg\"
-else: package_target.commands += tar cJf \"$(INSTALL_ROOT)/$${PROJECT_TARGET}.tar.xz\" ./*
+win32: package_target.commands += 7z a \"$(INSTALL_ROOT)\\$${PROJECT_TARGET}-$${VERSION}_$${QT_PLATFORM}.zip\" .\\*
+else:mac: package_target.commands += hdiutil create -fs HFS+ -srcfolder . -volname $$shell_quote($$PROJECT_NAME) \"$(INSTALL_ROOT)/$${PROJECT_TARGET}-$${VERSION}_$${QT_PLATFORM}.dmg\"
+else: package_target.commands += tar cJf \"$(INSTALL_ROOT)/$${PROJECT_TARGET}-$${VERSION}_$${QT_PLATFORM}.tar.xz\" ./*
 QMAKE_EXTRA_TARGETS += package_target
 
 # deploy translations

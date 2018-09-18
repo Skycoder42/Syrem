@@ -19,14 +19,14 @@ build_script:
   - .\qtmodules-travis\ci\win\build.bat
   - .\ci\appveyor_postbuild.bat
 
-#deploy:
-  #provider: GitHub
-  #auth_token:
-    #secure: Cp5GRQku2ZWnKPE12NB5q11ZO0Fr5mlzdUTjnLpYJr/dki4LPVqm231edFggogy8
-  #artifact: /.*/
-  #force_update: false
-  #on:
-    #appveyor_repo_tag: true
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: Cp5GRQku2ZWnKPE12NB5q11ZO0Fr5mlzdUTjnLpYJr/dki4LPVqm231edFggogy8
+  artifact: install\syrem-*.zip
+  force_update: false
+  on:
+    appveyor_repo_tag: true
 
 cache:
   - 'C:\Users\appveyor\AppData\Local\Skycoder42\qpmx\cache -> appveyor.yml'
