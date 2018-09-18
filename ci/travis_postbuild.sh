@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+rootdir=$(pwd)
+
 if [[ $PLATFORM == "android_"* ]]; then
 	if [[ "$PLATFORM" == "android_armv7" ]]; then
 		PCODE=0
@@ -19,14 +21,11 @@ if [[ $PLATFORM == "android_"* ]]; then
 	pushd build-$PLATFORM
 	make INSTALL_ROOT="$rootdir/install" deploy
 	popd
-	
-	find install/
 else
-	rootdir=$(pwd)
 	pushd build-$PLATFORM
 	make INSTALL_ROOT="$rootdir/install" deploy
 	make INSTALL_ROOT="$rootdir/install" package
 	popd
-	
-	find install/
 fi
+
+find install/

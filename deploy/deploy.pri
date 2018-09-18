@@ -23,12 +23,20 @@ QMAKE_EXTRA_TARGETS += deploy_target
 		}
 
 		for(bin, DEPLOY_BINS): run_deploy.commands += $$QMAKE_WINDEPLOYQT \"$(INSTALL_ROOT)$$bin\"$$escape_expand(\n\t)
+
+		run_deploy.commands += echo $$shell_quote([Paths]) > \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo $$shell_quote(Prefix=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo $$shell_quote(Binaries=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo $$shell_quote(Libraries=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
+		run_deploy.commands += echo $$shell_quote(Plugins=.) >> \"$(INSTALL_ROOT)$$INSTALL_BINS/qt.conf\" $$escape_expand(\n\t)
 	} else:mac {
 		isEmpty(QMAKE_MACDEPLOYQT): qtPrepareTool(QMAKE_MACDEPLOYQT, macdeployqt)
 		BINS_COPY = $$DEPLOY_BINS
-		run_deploy.commands += $$QMAKE_MACDEPLOYQT \"$(INSTALL_ROOT)$$take_first(BINS_COPY)\"
+		BIN_APP = $$take_first(BINS_COPY)
+		run_deploy.commands += $$QMAKE_MACDEPLOYQT \"$(INSTALL_ROOT)$$BIN_APP\"
 		for(bin, BINS_COPY): run_deploy.commands += \"-executable=$(INSTALL_ROOT)$$bin\"
 		run_deploy.commands += $${deploy_target.extra_args}$$escape_expand(\n\t)
+		run_deploy.commands += echo $$shell_quote(Translations=Resources/translations) >> \"$(INSTALL_ROOT)$$BIN_APP/Contents/Resources/qt.conf\" $$escape_expand(\n\t)
 	} else:android {
 		isEmpty(QMAKE_ANDROIDDEPLOYQT): qtPrepareTool(QMAKE_ANDROIDDEPLOYQT, androiddeployqt)
 		QMAKE_ANDROIDDEPLOYQT += --deployment bundled --gradle

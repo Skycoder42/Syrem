@@ -32,7 +32,8 @@ isEmpty(PREFIX) {
 	isEmpty(INSTALL_HEADERS): INSTALL_HEADERS = $${PREFIX}/include
 
 	# plugins
-	isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $${PREFIX}/plugins
+	!no_bundle_deploy:win32:isEmpty(INSTALL_LIBS): INSTALL_LIBS = $$INSTALL_BINS
+	else:isEmpty(INSTALL_PLUGINS): INSTALL_PLUGINS = $${PREFIX}/plugins
 
 	# translations
 	!no_bundle_deploy:android:isEmpty(INSTALL_TRANSLATIONS):  INSTALL_TRANSLATIONS = /assets/translations
