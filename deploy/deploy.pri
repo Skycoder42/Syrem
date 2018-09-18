@@ -29,6 +29,12 @@ QMAKE_EXTRA_TARGETS += deploy_target
 		run_deploy.commands += $$QMAKE_MACDEPLOYQT \"$(INSTALL_ROOT)$$take_first(BINS_COPY)\"
 		for(bin, BINS_COPY): run_deploy.commands += \"-executable=$(INSTALL_ROOT)$$bin\"
 		run_deploy.commands += $${deploy_target.extra_args}$$escape_expand(\n\t)
+	} else:android {
+		isEmpty(QMAKE_ANDROIDDEPLOYQT): qtPrepareTool(QMAKE_ANDROIDDEPLOYQT, androiddeployqt)
+		QMAKE_ANDROIDDEPLOYQT += --deployment bundled --gradle
+		CONFIG(release, debug|release): QMAKE_WINDEPLOYQT += --release --no-gdbserver
+		CONFIG(debug, debug|release): QMAKE_WINDEPLOYQT += --gdbserver
+		for(bin, DEPLOY_BINS): run_deploy.commands += $$QMAKE_ANDROIDDEPLOYQT --input $$shell_path($$bin) --output \"$(INSTALL_ROOT)$$PREFIX\" $$escape_expand(\n\t)
 	}
 
 	# deploy missing plugins (as part of make install)

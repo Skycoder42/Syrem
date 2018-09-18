@@ -35,6 +35,7 @@ include(install.pri)
 !isEmpty(PREFIX):!no_bundle_deploy {
 	win32: DEPLOY_BINS = "$$INSTALL_BINS/$${PROJECT_TARGET}.exe" "$$INSTALL_BINS/$${PROJECT_TARGET}d.exe"
 	else:mac: DEPLOY_BINS = "$$PREFIX/$${PROJECT_NAME}.app" "$$PREFIX/$${APP_PREFIX}/MacOs/syremd"
+	else:android: DEPLOY_BINS = "$$OUT_PWD/gui/quick/android-libsyrem_gui.so-deployment-settings.json"
 	DEPLOY_PLUGINS += keystores
 	systemd_service: DEPLOY_PLUGINS += servicebackends
 
