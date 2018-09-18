@@ -58,6 +58,14 @@ QMAKE_EXTRA_TARGETS += deploy_target
 	}
 }
 
+# add package target
+package_target.target = package
+package_target.commands += cd \"$(INSTALL_ROOT)$$shell_path($$PREFIX)\" &&
+win32: package_target.commands += 7z a \"$(INSTALL_ROOT)\\$${PROJECT_TARGET}.zip\" .\\*
+else:mac: package_target.commands += hdiutil create -fs HFS+ -srcfolder . -volname $$shell_quote($$PROJECT_NAME) \"$(INSTALL_ROOT)/$${PROJECT_TARGET}.dmg\"
+else: package_target.commands += tar cJf \"$(INSTALL_ROOT)/$${PROJECT_TARGET}.tar.xz\" ./*
+QMAKE_EXTRA_TARGETS += package_target
+
 # deploy translations
 !isEmpty(TS_DICTIONARIES) {
 	QMAKE_EXTRA_TARGETS += install

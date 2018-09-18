@@ -20,6 +20,7 @@ else
 	rootdir=$(pwd)
 	pushd build-$PLATFORM
 	make INSTALL_ROOT="$rootdir/install" deploy
+	make INSTALL_ROOT="$rootdir/install" package
 	popd
 	
 	find install/

@@ -25,7 +25,7 @@
         <location line="+9"/>
         <source>Create </source>
         <oldsource>Create</oldsource>
-        <translation>Erstellen</translation>
+        <translation>Erstellen </translation>
     </message>
     <message>
         <location line="+24"/>
