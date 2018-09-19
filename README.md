@@ -6,7 +6,8 @@ A simple reminder application for desktop and mobile, with synchronized reminder
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/721ecc2c4dcc443dbed4d8a2dec4dd8f)](https://www.codacy.com/app/Skycoder42/Syrem)
 [![AUR](https://img.shields.io/aur/version/syrem.svg)](https://aur.archlinux.org/packages/syrem/)
 [![Chocolatey](https://img.shields.io/chocolatey/v/syrem.svg)](https://chocolatey.org/packages/syrem/)
-[![Google Play](https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=de.skycoder42.syrem)
+
+<a href='https://play.google.com/store/apps/details?id=de.skycoder42.syrem'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height="80px"/></a>
 
 ## Features
 - Create reminders from natural expressions like "in 3 weeks on Monday"
@@ -20,18 +21,18 @@ A simple reminder application for desktop and mobile, with synchronized reminder
 
 ## Screenshots
 ### Desktop
- Overview | Add Reminders
-----------|---------------
- ![desktop overview](screenshots/desktop_main.png) | ![desktop add](screenshots/desktop_add.png)
- Snooze Reminders | Notifications (on KDE Desktop)
- ![desktop snooze](screenshots/desktop_snooze.png) | ![desktop add](screenshots/desktop_notify.png)
+| Overview | Add Reminders
+|----------|---------------
+| ![desktop overview](screenshots/desktop_main.png) | ![desktop add](screenshots/desktop_add.png)
+| Snooze Reminders | Notifications (on KDE Desktop)
+| ![desktop snooze](screenshots/desktop_snooze.png) | ![desktop add](screenshots/desktop_notify.png)
 
 ### Mobile
- Overview | Add Reminders | Snooze Reminders
-----------|---------------|------------------
- ![desktop overview](screenshots/mobile_main.webp) | ![desktop add](screenshots/mobile_add.webp) | ![desktop snooze](screenshots/mobile_snooze.webp)
- | Notifications |
- | ![desktop add](screenshots/mobile_notify.webp) |
+| Overview | Add Reminders | Snooze Reminders
+|----------|---------------|------------------
+| ![desktop overview](screenshots/mobile_main.webp) | ![desktop add](screenshots/mobile_add.webp) | ![desktop snooze](screenshots/mobile_snooze.webp)
+| | Notifications |
+| | ![desktop add](screenshots/mobile_notify.webp) |
 
 ## Installation
 1. **Arch Linux:** Use the AUR-Package: [`syrem`](https://aur.archlinux.org/packages/syrem/)
