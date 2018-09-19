@@ -36,10 +36,10 @@ A simple reminder application for desktop and mobile, with synchronized reminder
 
 ## Installation
 1. **Arch Linux:** Use the AUR-Package: [`syrem`](https://aur.archlinux.org/packages/syrem/)
-2. **Other Linux distributions:** Install via [flatpak](https://flatpak.org/): `sudo flatpak install 'https://github.com/Skycoder42/Syrem/blob/master/flatpak/de.skycoder42.syrem.flatpakref'`
+2. **Other Linux distributions:** Install via [flatpak](https://flatpak.org/): `sudo flatpak install 'https://raw.githubusercontent.com/Skycoder42/Syrem/master/flatpak/de.skycoder42.syrem.flatpakref'`
 	- Flatpak packages work on any linux distribution, as long as you have flatpak installed. See https://flatpak.org/setup/ to get flatpak for your distribution
 	- Alternative install method:
-		1. Add The repository: `sudo flatpak repo-add skycoder42 'https://github.com/Skycoder42/Syrem/blob/master/flatpak/de.skycoder42.flatpakrepo'`
+		1. Add The repository: `sudo flatpak repo-add skycoder42 'https://raw.githubusercontent.com/Skycoder42/Syrem/master/flatpak/de.skycoder42.flatpakrepo'`
 		2. Install: `sudo flatpak install skycoder42 de.skycoder42.syrem`
 3. **Android:** While the apk is available as direct download, you can also get it via google play store: [Syrem Google Play](https://play.google.com/store/apps/details?id=de.skycoder42.syrem)
 4. **Windows:** Get it via [chocolatey](https://chocolatey.org/): `choco install syrem`
