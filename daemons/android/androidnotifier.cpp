@@ -79,8 +79,8 @@ QAndroidJniObject AndroidNotifier::createSnoozeArray(QAndroidJniEnvironment &env
 QAndroidJniObject AndroidNotifier::toAndroidHtml(const QString &text) const
 {
 	QAndroidJniExceptionCleaner cleaner{QAndroidJniExceptionCleaner::OutputMode::Verbose};
-	return QAndroidJniObject::callStaticObjectMethod("android/text/Html", "fromHtml",
-													 "(Ljava/lang/String;I)Landroid/text/Spanned;",
+	return QAndroidJniObject::callStaticObjectMethod("android/text/Html", "fromHtml", //MAJOR deprecated in API-Level 24
+													 "(Ljava/lang/String;)Landroid/text/Spanned;",
 													 QAndroidJniObject::fromString(text).object(),
 													 static_cast<jint>(0));
 }
