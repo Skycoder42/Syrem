@@ -7,6 +7,7 @@
 #include <QSharedPointer>
 #include <QUrl>
 #include <QUuid>
+#include <QHash>
 #include <QtDataSync/DataTypeStore>
 
 #include "libsyrem_global.h"
@@ -79,7 +80,11 @@ public:
 	void setSchedule(QSharedPointer<Schedule> schedule);
 	void setExpression(QString expression);
 
+	bool operator==(const Reminder &other) const;
+
 private:
+	friend LIB_SYREM_EXPORT uint qHash(const Reminder &reminder, uint seed);
+
 	QSharedDataPointer<ReminderData> _data;
 	mutable struct {
 		bool set = false;
@@ -90,6 +95,8 @@ private:
 	QSharedPointer<Schedule> getSchedule() const;
 	void setSnooze(QDateTime snooze);
 };
+
+LIB_SYREM_EXPORT uint qHash(const Reminder &reminder, uint seed);
 
 Q_DECLARE_METATYPE(Reminder)
 

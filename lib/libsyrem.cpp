@@ -5,6 +5,7 @@
 #include <QTranslator>
 #include <QLibraryInfo>
 #include <QStandardPaths>
+#include <QQueue>
 
 #include "schedule.h"
 #include "dateparser.h"

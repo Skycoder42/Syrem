@@ -189,6 +189,18 @@ void Reminder::setExpression(QString expression)
 	_data->expression = std::move(expression);
 }
 
+bool Reminder::operator==(const Reminder &other) const
+{
+	return _data == other._data || (
+		_data->id == other._data->id &&
+		_data->versionCode == other._data->versionCode &&
+		_data->text == other._data->text &&
+		_data->important == other._data->important &&
+		_data->schedule == other._data->schedule &&
+		_data->snooze == other._data->snooze &&
+		_data->expression == other._data->expression);
+}
+
 void Reminder::setVersionCode(quint32 versionCode)
 {
 	_data->versionCode = versionCode;
@@ -202,4 +214,17 @@ QSharedPointer<Schedule> Reminder::getSchedule() const
 void Reminder::setSnooze(QDateTime snooze)
 {
 	_data->snooze = std::move(snooze);
+}
+
+
+
+uint qHash(const Reminder &reminder, uint seed)
+{
+	return qHash(reminder._data->id, seed) ^
+			qHash(reminder._data->versionCode, seed) ^
+			qHash(reminder._data->text, seed) ^
+			qHash(reminder._data->important, seed) ^
+			qHash(reminder._data->schedule, seed) ^
+			qHash(reminder._data->snooze, seed) ^
+			qHash(reminder._data->expression, seed);
 }
